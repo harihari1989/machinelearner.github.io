@@ -44,21 +44,19 @@ function initVectorCanvas() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw grid
+    // Draw grid (batched for performance)
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 1;
+    ctx.beginPath();
     for (let i = 0; i < canvas.width; i += 40) {
-        ctx.beginPath();
         ctx.moveTo(i, 0);
         ctx.lineTo(i, canvas.height);
-        ctx.stroke();
     }
     for (let i = 0; i < canvas.height; i += 40) {
-        ctx.beginPath();
         ctx.moveTo(0, i);
         ctx.lineTo(canvas.width, i);
-        ctx.stroke();
     }
+    ctx.stroke();
     
     // Draw axes
     ctx.strokeStyle = '#999';
@@ -66,8 +64,6 @@ function initVectorCanvas() {
     ctx.beginPath();
     ctx.moveTo(centerX, 0);
     ctx.lineTo(centerX, canvas.height);
-    ctx.stroke();
-    ctx.beginPath();
     ctx.moveTo(0, centerY);
     ctx.lineTo(canvas.width, centerY);
     ctx.stroke();
@@ -324,11 +320,20 @@ function runGradientDescent() {
     
     let steps = 0;
     const maxSteps = 20;
+    let lastTime = 0;
+    const stepDelay = 300; // ms between steps
     
-    const step = () => {
+    const step = (currentTime) => {
         if (steps >= maxSteps || Math.abs(gradientState.x - 5) < 0.01) {
             return;
         }
+        
+        if (currentTime - lastTime < stepDelay) {
+            requestAnimationFrame(step);
+            return;
+        }
+        
+        lastTime = currentTime;
         
         // Compute gradient: derivative of (x-5)^2 is 2(x-5)
         const gradient = 2 * (gradientState.x - 5);
@@ -340,10 +345,10 @@ function runGradientDescent() {
         drawGradientCanvas();
         
         steps++;
-        setTimeout(step, 300);
+        requestAnimationFrame(step);
     };
     
-    step();
+    requestAnimationFrame(step);
 }
 
 function resetGradientDescent() {
@@ -355,7 +360,8 @@ function resetGradientDescent() {
 // Activation Functions Visualization
 // ============================================
 function sigmoid(x) {
-    return 1 / (1 + Math.exp(-x));
+    // Numerically stable sigmoid to prevent overflow
+    return x > 0 ? 1 / (1 + Math.exp(-x)) : Math.exp(x) / (1 + Math.exp(x));
 }
 
 function relu(x) {
@@ -377,22 +383,20 @@ function drawActivationFunctions() {
     const centerY = canvas.height / 2;
     const scale = 40;
     
-    // Draw grid
+    // Draw grid (batched for performance)
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 1;
+    ctx.beginPath();
     for (let i = -5; i <= 5; i++) {
         // Vertical lines
-        ctx.beginPath();
         ctx.moveTo(centerX + i * scale, 0);
         ctx.lineTo(centerX + i * scale, canvas.height);
-        ctx.stroke();
         
         // Horizontal lines
-        ctx.beginPath();
         ctx.moveTo(0, centerY + i * scale);
         ctx.lineTo(canvas.width, centerY + i * scale);
-        ctx.stroke();
     }
+    ctx.stroke();
     
     // Draw axes
     ctx.strokeStyle = '#333';
@@ -400,8 +404,6 @@ function drawActivationFunctions() {
     ctx.beginPath();
     ctx.moveTo(0, centerY);
     ctx.lineTo(canvas.width, centerY);
-    ctx.stroke();
-    ctx.beginPath();
     ctx.moveTo(centerX, 0);
     ctx.lineTo(centerX, canvas.height);
     ctx.stroke();
