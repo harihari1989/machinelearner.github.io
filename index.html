@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Foundations for Neural Networks</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-left: 5px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .math-block {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .example {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .example h4 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        
+        .key-point {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point strong {
+            color: #856404;
+        }
+        
+        ul, ol {
+            margin-left: 40px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            color: #666;
+        }
+        
+        .section-intro {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mathematical Foundations for Neural Networks</h1>
+        <p class="subtitle">Understanding Linear Algebra and Calculus Concepts for Deep Learning</p>
+        
+        <div class="section-intro">
+            Neural networks rely heavily on two fundamental mathematical domains: <strong>linear algebra</strong> for representing and transforming data, and <strong>calculus</strong> (specifically differentiation) for learning from data through optimization. This page provides a comprehensive overview of these essential mathematical concepts.
+        </div>
+
+        <!-- LINEAR ALGEBRA SECTION -->
+        <h2>Part 1: Linear Algebra Foundations</h2>
+        
+        <h3>1.1 Scalars, Vectors, and Matrices</h3>
+        
+        <div class="concept-box">
+            <h4>Scalars</h4>
+            <p>A scalar is a single numerical value. In neural networks, scalars represent individual features, weights, or biases.</p>
+            <div class="math-block">
+                \[a = 5, \quad b = -2.3, \quad c = 0.01\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Vectors</h4>
+            <p>A vector is an ordered array of numbers. In neural networks, vectors represent:</p>
+            <ul>
+                <li>Input features (e.g., pixel values, sensor readings)</li>
+                <li>Activations of neurons in a layer</li>
+                <li>Gradients during backpropagation</li>
+            </ul>
+            <div class="math-block">
+                \[\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \\ \vdots \\ x_n \end{bmatrix}\]
+                <p style="margin-top: 10px;">Example: A 3-dimensional vector</p>
+                \[\mathbf{v} = \begin{bmatrix} 2 \\ -1 \\ 0.5 \end{bmatrix}\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Matrices</h4>
+            <p>A matrix is a 2D array of numbers. In neural networks, matrices represent:</p>
+            <ul>
+                <li>Weight connections between layers</li>
+                <li>Batch of input samples</li>
+                <li>Transformations applied to data</li>
+            </ul>
+            <div class="math-block">
+                \[\mathbf{W} = \begin{bmatrix} 
+                w_{11} & w_{12} & w_{13} \\
+                w_{21} & w_{22} & w_{23} \\
+                w_{31} & w_{32} & w_{33}
+                \end{bmatrix}\]
+                <p style="margin-top: 10px;">Example: A 2×3 weight matrix</p>
+                \[\mathbf{W} = \begin{bmatrix} 
+                0.5 & -0.2 & 0.8 \\
+                0.3 & 0.1 & -0.4
+                \end{bmatrix}\]
+            </div>
+        </div>
+
+        <h3>1.2 Matrix Operations</h3>
+        
+        <div class="concept-box">
+            <h4>Matrix-Vector Multiplication</h4>
+            <p>This is the fundamental operation in neural networks for computing layer outputs. Given a matrix \(\mathbf{W}\) of size \(m \times n\) and a vector \(\mathbf{x}\) of size \(n \times 1\), the result is a vector of size \(m \times 1\).</p>
+            <div class="math-block">
+                \[\mathbf{y} = \mathbf{W}\mathbf{x}\]
+                \[y_i = \sum_{j=1}^{n} W_{ij} x_j\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                \[\begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} 
+                \begin{bmatrix} 2 \\ 1 \\ 0 \end{bmatrix} = 
+                \begin{bmatrix} 1(2) + 2(1) + 3(0) \\ 4(2) + 5(1) + 6(0) \end{bmatrix} = 
+                \begin{bmatrix} 4 \\ 13 \end{bmatrix}\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Matrix-Matrix Multiplication</h4>
+            <p>Used when processing batches of inputs or computing multi-layer transformations. Given matrices \(\mathbf{A}\) of size \(m \times n\) and \(\mathbf{B}\) of size \(n \times p\), the result is a matrix of size \(m \times p\).</p>
+            <div class="math-block">
+                \[\mathbf{C} = \mathbf{A}\mathbf{B}\]
+                \[C_{ij} = \sum_{k=1}^{n} A_{ik} B_{kj}\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Element-wise Operations (Hadamard Product)</h4>
+            <p>Element-wise multiplication is used in activation functions and gradient computations.</p>
+            <div class="math-block">
+                \[\mathbf{C} = \mathbf{A} \odot \mathbf{B}\]
+                \[C_{ij} = A_{ij} \times B_{ij}\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                \[\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \odot 
+                \begin{bmatrix} 2 & 1 \\ 0 & 2 \end{bmatrix} = 
+                \begin{bmatrix} 2 & 2 \\ 0 & 8 \end{bmatrix}\]
+            </div>
+        </div>
+
+        <h3>1.3 Vector Operations</h3>
+        
+        <div class="concept-box">
+            <h4>Dot Product (Inner Product)</h4>
+            <p>The dot product measures similarity between vectors and is fundamental to neural network computations.</p>
+            <div class="math-block">
+                \[\mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{n} a_i b_i = a_1b_1 + a_2b_2 + \cdots + a_nb_n\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                \[\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} \cdot 
+                \begin{bmatrix} 4 \\ 5 \\ 6 \end{bmatrix} = 
+                1(4) + 2(5) + 3(6) = 4 + 10 + 18 = 32\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Vector Norms</h4>
+            <p>Norms measure the magnitude or length of vectors, important for regularization and normalization.</p>
+            <div class="math-block">
+                <p><strong>L2 Norm (Euclidean norm):</strong></p>
+                \[\|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^{n} x_i^2}\]
+                
+                <p style="margin-top: 15px;"><strong>L1 Norm (Manhattan norm):</strong></p>
+                \[\|\mathbf{x}\|_1 = \sum_{i=1}^{n} |x_i|\]
+            </div>
+        </div>
+
+        <h3>1.4 Matrix Transpose</h3>
+        
+        <div class="concept-box">
+            <p>Transposing a matrix flips it over its diagonal, converting rows to columns and vice versa. This is crucial in backpropagation.</p>
+            <div class="math-block">
+                \[\mathbf{A}^T_{ij} = \mathbf{A}_{ji}\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                \[\mathbf{A} = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix}, \quad
+                \mathbf{A}^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}\]
+            </div>
+        </div>
+
+        <div class="key-point">
+            <strong>Key Insight:</strong> In neural networks, a fully connected layer can be expressed as: \(\mathbf{z} = \mathbf{W}\mathbf{x} + \mathbf{b}\), where \(\mathbf{W}\) is the weight matrix, \(\mathbf{x}\) is the input vector, and \(\mathbf{b}\) is the bias vector.
+        </div>
+
+        <!-- DIFFERENTIATION SECTION -->
+        <h2>Part 2: Differentiation and Calculus</h2>
+        
+        <h3>2.1 Derivatives</h3>
+        
+        <div class="concept-box">
+            <h4>Basic Derivative</h4>
+            <p>The derivative measures how a function changes as its input changes. In neural networks, we use derivatives to understand how changes in weights affect the loss function.</p>
+            <div class="math-block">
+                \[\frac{df}{dx} = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}\]
+            </div>
+            
+            <p style="margin-top: 15px;"><strong>Common derivatives used in neural networks:</strong></p>
+            <div class="math-block">
+                \[\frac{d}{dx}(x^n) = nx^{n-1}\]
+                \[\frac{d}{dx}(e^x) = e^x\]
+                \[\frac{d}{dx}(\ln x) = \frac{1}{x}\]
+                \[\frac{d}{dx}(\sin x) = \cos x\]
+            </div>
+        </div>
+
+        <h3>2.2 Partial Derivatives</h3>
+        
+        <div class="concept-box">
+            <p>When a function depends on multiple variables, partial derivatives measure how the function changes with respect to one variable while keeping others constant.</p>
+            <div class="math-block">
+                \[\frac{\partial f}{\partial x}, \quad \frac{\partial f}{\partial y}\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                <p>For \(f(x, y) = x^2 + 3xy + y^2\):</p>
+                \[\frac{\partial f}{\partial x} = 2x + 3y\]
+                \[\frac{\partial f}{\partial y} = 3x + 2y\]
+            </div>
+        </div>
+
+        <h3>2.3 Gradients</h3>
+        
+        <div class="concept-box">
+            <p>The gradient is a vector of all partial derivatives. It points in the direction of steepest increase of the function.</p>
+            <div class="math-block">
+                \[\nabla f = \begin{bmatrix} 
+                \frac{\partial f}{\partial x_1} \\
+                \frac{\partial f}{\partial x_2} \\
+                \vdots \\
+                \frac{\partial f}{\partial x_n}
+                \end{bmatrix}\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                <p>For \(f(x, y) = x^2 + y^2\):</p>
+                \[\nabla f = \begin{bmatrix} 
+                \frac{\partial f}{\partial x} \\
+                \frac{\partial f}{\partial y}
+                \end{bmatrix} = \begin{bmatrix} 
+                2x \\
+                2y
+                \end{bmatrix}\]
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <strong>Key Insight:</strong> In gradient descent optimization, we update weights in the opposite direction of the gradient to minimize the loss: \(\mathbf{w}_{new} = \mathbf{w}_{old} - \alpha \nabla L\), where \(\alpha\) is the learning rate and \(L\) is the loss function.
+        </div>
+
+        <h3>2.4 The Chain Rule</h3>
+        
+        <div class="concept-box">
+            <p>The chain rule is the foundation of backpropagation. It allows us to compute derivatives of composite functions.</p>
+            <div class="math-block">
+                <p><strong>For single variable:</strong></p>
+                \[\frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)\]
+                
+                <p style="margin-top: 15px;"><strong>For multiple variables:</strong></p>
+                \[\frac{\partial z}{\partial x} = \frac{\partial z}{\partial y} \cdot \frac{\partial y}{\partial x}\]
+            </div>
+            
+            <div class="example">
+                <h4>Example:</h4>
+                <p>For \(z = (3x + 2)^2\), let \(y = 3x + 2\), then \(z = y^2\):</p>
+                \[\frac{dz}{dx} = \frac{dz}{dy} \cdot \frac{dy}{dx} = 2y \cdot 3 = 2(3x + 2) \cdot 3 = 6(3x + 2)\]
+            </div>
+        </div>
+
+        <h3>2.5 Backpropagation</h3>
+        
+        <div class="concept-box">
+            <p>Backpropagation applies the chain rule to compute gradients efficiently in neural networks. It propagates errors backward through the network.</p>
+            
+            <p style="margin-top: 15px;"><strong>For a simple network:</strong></p>
+            <div class="math-block">
+                <p>Forward pass:</p>
+                \[z = \mathbf{W}\mathbf{x} + \mathbf{b}\]
+                \[a = \sigma(z)\]
+                \[L = \text{Loss}(a, y)\]
+                
+                <p style="margin-top: 15px;">Backward pass (using chain rule):</p>
+                \[\frac{\partial L}{\partial \mathbf{W}} = \frac{\partial L}{\partial a} \cdot \frac{\partial a}{\partial z} \cdot \frac{\partial z}{\partial \mathbf{W}}\]
+                \[\frac{\partial L}{\partial \mathbf{b}} = \frac{\partial L}{\partial a} \cdot \frac{\partial a}{\partial z} \cdot \frac{\partial z}{\partial \mathbf{b}}\]
+            </div>
+        </div>
+
+        <h3>2.6 Common Activation Function Derivatives</h3>
+        
+        <div class="concept-box">
+            <h4>Sigmoid Function</h4>
+            <div class="math-block">
+                \[\sigma(x) = \frac{1}{1 + e^{-x}}\]
+                \[\sigma'(x) = \sigma(x)(1 - \sigma(x))\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Hyperbolic Tangent (tanh)</h4>
+            <div class="math-block">
+                \[\tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}\]
+                \[\tanh'(x) = 1 - \tanh^2(x)\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>ReLU (Rectified Linear Unit)</h4>
+            <div class="math-block">
+                \[\text{ReLU}(x) = \max(0, x)\]
+                \[\text{ReLU}'(x) = \begin{cases} 
+                1 & \text{if } x > 0 \\
+                0 & \text{if } x \leq 0
+                \end{cases}\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Softmax Function (for classification)</h4>
+            <div class="math-block">
+                \[\text{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j} e^{x_j}}\]
+                \[\frac{\partial \text{softmax}(x_i)}{\partial x_j} = \text{softmax}(x_i)(\delta_{ij} - \text{softmax}(x_j))\]
+                <p style="margin-top: 10px;">where \(\delta_{ij}\) is the Kronecker delta (1 if \(i=j\), 0 otherwise)</p>
+            </div>
+        </div>
+
+        <h3>2.7 Loss Function Derivatives</h3>
+        
+        <div class="concept-box">
+            <h4>Mean Squared Error (MSE)</h4>
+            <div class="math-block">
+                \[L = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2\]
+                \[\frac{\partial L}{\partial \hat{y}_i} = \frac{2}{n}(\hat{y}_i - y_i)\]
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <h4>Cross-Entropy Loss</h4>
+            <div class="math-block">
+                \[L = -\sum_{i=1}^{n} y_i \log(\hat{y}_i)\]
+                \[\frac{\partial L}{\partial \hat{y}_i} = -\frac{y_i}{\hat{y}_i}\]
+            </div>
+        </div>
+
+        <h2>Part 3: Putting It All Together</h2>
+        
+        <div class="concept-box">
+            <h4>Neural Network Training Process</h4>
+            <ol>
+                <li><strong>Forward Pass (Linear Algebra):</strong> Compute predictions using matrix multiplications and activation functions</li>
+                <li><strong>Loss Calculation:</strong> Measure the difference between predictions and true values</li>
+                <li><strong>Backward Pass (Differentiation):</strong> Compute gradients using the chain rule and backpropagation</li>
+                <li><strong>Parameter Update:</strong> Adjust weights and biases using gradient descent</li>
+            </ol>
+        </div>
+        
+        <div class="example">
+            <h4>Complete Example: Single Neuron</h4>
+            <p><strong>Given:</strong></p>
+            <ul>
+                <li>Input: \(\mathbf{x} = [x_1, x_2]^T\)</li>
+                <li>Weights: \(\mathbf{w} = [w_1, w_2]^T\)</li>
+                <li>Bias: \(b\)</li>
+                <li>Activation: \(\sigma(z) = \frac{1}{1 + e^{-z}}\)</li>
+            </ul>
+            
+            <div class="math-block">
+                <p><strong>Forward Pass:</strong></p>
+                \[z = w_1x_1 + w_2x_2 + b\]
+                \[a = \sigma(z)\]
+                \[L = \frac{1}{2}(a - y)^2\]
+                
+                <p style="margin-top: 15px;"><strong>Backward Pass:</strong></p>
+                \[\frac{\partial L}{\partial a} = a - y\]
+                \[\frac{\partial a}{\partial z} = \sigma(z)(1 - \sigma(z))\]
+                \[\frac{\partial z}{\partial w_1} = x_1, \quad \frac{\partial z}{\partial w_2} = x_2, \quad \frac{\partial z}{\partial b} = 1\]
+                
+                <p style="margin-top: 15px;"><strong>Final Gradients:</strong></p>
+                \[\frac{\partial L}{\partial w_1} = (a - y) \cdot \sigma(z)(1 - \sigma(z)) \cdot x_1\]
+                \[\frac{\partial L}{\partial w_2} = (a - y) \cdot \sigma(z)(1 - \sigma(z)) \cdot x_2\]
+                \[\frac{\partial L}{\partial b} = (a - y) \cdot \sigma(z)(1 - \sigma(z))\]
+            </div>
+        </div>
+
+        <div class="key-point">
+            <strong>Final Thoughts:</strong> Understanding these mathematical foundations is crucial for:
+            <ul style="margin-top: 10px;">
+                <li>Designing effective neural network architectures</li>
+                <li>Debugging training issues</li>
+                <li>Implementing custom layers and loss functions</li>
+                <li>Optimizing model performance</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>Mathematical Foundations for Neural Networks</strong></p>
+            <p>A comprehensive guide to linear algebra and calculus concepts in deep learning</p>
+        </div>
+    </div>
+</body>
+</html>
