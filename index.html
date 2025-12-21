@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Math - Visual Examples</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>🧠 Machine Learning Math: Visual Examples</h1>
+        <p>Interactive visualizations to understand the basic mathematics behind ML and Neural Networks</p>
+    </header>
+
+    <nav>
+        <a href="#vectors">Vectors</a>
+        <a href="#matrices">Matrices</a>
+        <a href="#gradient-descent">Gradient Descent</a>
+        <a href="#activations">Activation Functions</a>
+        <a href="#neural-network">Neural Network</a>
+        <a href="#backprop">Backpropagation</a>
+    </nav>
+
+    <main>
+        <!-- Vectors Section -->
+        <section id="vectors" class="example-section">
+            <h2>1. Vectors & Vector Operations</h2>
+            <div class="content-grid">
+                <div class="explanation">
+                    <h3>Vector Addition</h3>
+                    <p>Vectors are fundamental in ML. When we add vectors, we combine them component-wise:</p>
+                    <div class="math-formula">
+                        <code>[a₁, a₂] + [b₁, b₂] = [a₁+b₁, a₂+b₂]</code>
+                    </div>
+                    <p>Example: [2, 3] + [1, 4] = [3, 7]</p>
+                </div>
+                <div class="visualization">
+                    <canvas id="vectorCanvas" width="400" height="400"></canvas>
+                    <div class="controls">
+                        <button onclick="animateVectorAddition()">Animate Addition</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Matrices Section -->
+        <section id="matrices" class="example-section">
+            <h2>2. Matrix Multiplication</h2>
+            <div class="content-grid">
+                <div class="explanation">
+                    <h3>How Neural Networks Transform Data</h3>
+                    <p>Matrix multiplication is the core operation in neural networks. Each layer transforms input through:</p>
+                    <div class="math-formula">
+                        <code>output = input × weights</code>
+                    </div>
+                    <p>For a 2×2 matrix multiplied by a 2×1 vector:</p>
+                    <div class="matrix-example">
+                        <pre>
+[w₁₁  w₁₂]   [x₁]   [w₁₁×x₁ + w₁₂×x₂]
+[w₂₁  w₂₂] × [x₂] = [w₂₁×x₁ + w₂₂×x₂]
+                        </pre>
+                    </div>
+                </div>
+                <div class="visualization">
+                    <canvas id="matrixCanvas" width="400" height="300"></canvas>
+                    <div class="controls">
+                        <button onclick="animateMatrixMultiplication()">Animate</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gradient Descent Section -->
+        <section id="gradient-descent" class="example-section">
+            <h2>3. Gradient Descent</h2>
+            <div class="content-grid">
+                <div class="explanation">
+                    <h3>Finding the Minimum</h3>
+                    <p>Gradient descent is how neural networks learn. It's like walking downhill to find the lowest point:</p>
+                    <div class="math-formula">
+                        <code>θ_new = θ_old - α × ∇J(θ)</code>
+                    </div>
+                    <ul>
+                        <li><strong>θ</strong>: Parameter being optimized</li>
+                        <li><strong>α</strong>: Learning rate (step size)</li>
+                        <li><strong>∇J(θ)</strong>: Gradient (direction of steepest increase)</li>
+                    </ul>
+                </div>
+                <div class="visualization">
+                    <canvas id="gradientCanvas" width="400" height="400"></canvas>
+                    <div class="controls">
+                        <label>Learning Rate: <input type="range" id="learningRate" min="0.01" max="0.5" step="0.01" value="0.1"></label>
+                        <button onclick="runGradientDescent()">Run Gradient Descent</button>
+                        <button onclick="resetGradientDescent()">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activation Functions Section -->
+        <section id="activations" class="example-section">
+            <h2>4. Activation Functions</h2>
+            <div class="content-grid">
+                <div class="explanation">
+                    <h3>Non-Linear Transformations</h3>
+                    <p>Activation functions add non-linearity to neural networks, enabling them to learn complex patterns:</p>
+                    
+                    <h4>Sigmoid: σ(x) = 1/(1+e⁻ˣ)</h4>
+                    <p>Squashes values to (0, 1). Used for binary classification.</p>
+                    
+                    <h4>ReLU: f(x) = max(0, x)</h4>
+                    <p>Most popular! Simple and effective. Returns x if positive, 0 otherwise.</p>
+                    
+                    <h4>Tanh: tanh(x) = (eˣ - e⁻ˣ)/(eˣ + e⁻ˣ)</h4>
+                    <p>Squashes values to (-1, 1). Zero-centered version of sigmoid.</p>
+                </div>
+                <div class="visualization">
+                    <canvas id="activationCanvas" width="400" height="400"></canvas>
+                    <div class="controls">
+                        <label>
+                            <input type="checkbox" id="showSigmoid" checked> Sigmoid
+                        </label>
+                        <label>
+                            <input type="checkbox" id="showReLU" checked> ReLU
+                        </label>
+                        <label>
+                            <input type="checkbox" id="showTanh" checked> Tanh
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Neural Network Section -->
+        <section id="neural-network" class="example-section">
+            <h2>5. Neural Network Forward Propagation</h2>
+            <div class="content-grid">
+                <div class="explanation">
+                    <h3>How Data Flows Through a Network</h3>
+                    <p>Forward propagation is the process of computing predictions:</p>
+                    <ol>
+                        <li><strong>Input Layer</strong>: Receives the data</li>
+                        <li><strong>Hidden Layers</strong>: Apply transformations (weights + activation)</li>
+                        <li><strong>Output Layer</strong>: Produces predictions</li>
+                    </ol>
+                    <div class="math-formula">
+                        <code>hidden = activation(input × W₁ + b₁)</code><br>
+                        <code>output = activation(hidden × W₂ + b₂)</code>
+                    </div>
+                    <p>Click neurons to see the computation flow!</p>
+                </div>
+                <div class="visualization">
+                    <canvas id="neuralNetCanvas" width="400" height="400"></canvas>
+                    <div class="controls">
+                        <button onclick="runForwardProp()">Run Forward Propagation</button>
+                        <button onclick="resetNetwork()">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Backpropagation Section -->
+        <section id="backprop" class="example-section">
+            <h2>6. Backpropagation</h2>
+            <div class="content-grid">
+                <div class="explanation">
+                    <h3>How Neural Networks Learn</h3>
+                    <p>Backpropagation calculates how to adjust weights to reduce error:</p>
+                    <ol>
+                        <li><strong>Forward Pass</strong>: Compute predictions</li>
+                        <li><strong>Calculate Error</strong>: Compare prediction to truth</li>
+                        <li><strong>Backward Pass</strong>: Propagate error backwards</li>
+                        <li><strong>Update Weights</strong>: Adjust using gradients</li>
+                    </ol>
+                    <div class="math-formula">
+                        <code>∂Loss/∂w = ∂Loss/∂output × ∂output/∂w</code>
+                    </div>
+                    <p>Uses chain rule to compute gradients efficiently!</p>
+                </div>
+                <div class="visualization">
+                    <canvas id="backpropCanvas" width="400" height="400"></canvas>
+                    <div class="controls">
+                        <button onclick="runBackprop()">Run Backpropagation</button>
+                        <button onclick="resetBackprop()">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Built with ❤️ for intuitive machine learning education</p>
+        <p>All visualizations are interactive - click buttons to see animations!</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
