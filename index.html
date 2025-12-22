@@ -5,14 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Machine Learning Math - Visual Examples</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body>
+<body data-theme="light">
     <header>
-        <h1>🧠 Machine Learning Math: Visual Examples</h1>
-        <p>Interactive visualizations to understand the basic mathematics behind ML and Neural Networks</p>
+        <h1>🧠 Machine Learning Math Adventure</h1>
+        <p>Playful visuals and mini missions to explore the math behind neural networks</p>
+        <div class="mode-switcher" role="group" aria-label="Theme mode">
+            <span class="mode-label">Mode:</span>
+            <button class="mode-btn is-active" data-theme="light" type="button">Light</button>
+            <button class="mode-btn" data-theme="dark" type="button">Dark</button>
+            <button class="mode-btn" data-theme="kid" type="button">Kid Comic</button>
+            <button class="mode-btn" data-theme="adult" type="button">Adult</button>
+        </div>
     </header>
 
     <nav>
+        <a href="#fundamentals">Foundations</a>
         <a href="#vectors">Vectors</a>
         <a href="#matrices">Matrices</a>
         <a href="#gradient-descent">Gradient Descent</a>
@@ -22,21 +41,184 @@
     </nav>
 
     <main>
+        <!-- Foundations Section -->
+        <section id="fundamentals" class="example-section fundamentals-section">
+            <h2>1. Foundations: Your Self-Guided Math Path</h2>
+            <p class="section-intro">Start here! Each step unlocks a superpower for understanding neural networks. Tap a tab to switch the graphic and see the idea in action.</p>
+            <div class="learning-path">
+                <div class="path-card">
+                    <span class="path-step">Step 1</span>
+                    <h4>Linear Algebra: Space Benders</h4>
+                    <p>Learn how vectors and matrices stretch, rotate, and move space.</p>
+                    <span class="path-goal">Goal: read \( \mathbf{h} = W\mathbf{x} + \mathbf{b} \).</span>
+                </div>
+                <div class="path-card">
+                    <span class="path-step">Step 2</span>
+                    <h4>Calculus: Change Detective</h4>
+                    <p>Understand slopes, tiny nudges, and the chain rule.</p>
+                    <span class="path-goal">Goal: follow gradients through a network.</span>
+                </div>
+                <div class="path-card">
+                    <span class="path-step">Step 3</span>
+                    <h4>Optimization: Mountain Hikes</h4>
+                    <p>Use gradients to walk downhill and find the best answers.</p>
+                    <span class="path-goal">Goal: tune the learning rate \( \eta \).</span>
+                </div>
+                <div class="path-card">
+                    <span class="path-step">Step 4</span>
+                    <h4>Probability: Confidence Radar</h4>
+                    <p>Turn scores into probabilities and measure mistakes.</p>
+                    <span class="path-goal">Goal: use softmax and cross-entropy.</span>
+                </div>
+                <div class="path-card">
+                    <span class="path-step">Step 5</span>
+                    <h4>Matrix Calculus: Fast Backprop</h4>
+                    <p>Compute gradients for whole batches at once.</p>
+                    <span class="path-goal">Goal: track shapes and vectorized rules.</span>
+                </div>
+            </div>
+            <div class="content-grid fundamentals-grid">
+                <div class="explanation">
+                    <p class="foundation-lead">Neural networks are a stack of math ideas. Each tab below zooms in on one layer of that stack.</p>
+                    <div class="concept-tabs" role="tablist">
+                        <button class="concept-tab is-active" data-topic="linear" role="tab" aria-controls="concept-linear" aria-selected="true">Linear Algebra</button>
+                        <button class="concept-tab" data-topic="calculus" role="tab" aria-controls="concept-calculus" aria-selected="false">Calculus</button>
+                        <button class="concept-tab" data-topic="optimization" role="tab" aria-controls="concept-optimization" aria-selected="false">Optimization</button>
+                        <button class="concept-tab" data-topic="probability" role="tab" aria-controls="concept-probability" aria-selected="false">Probability</button>
+                        <button class="concept-tab" data-topic="matrix" role="tab" aria-controls="concept-matrix" aria-selected="false">Matrix Calc</button>
+                    </div>
+                    <div class="concept-panels">
+                        <div class="concept-panel is-active" id="concept-linear" data-topic="linear" role="tabpanel">
+                            <h3>Linear algebra: what the network is</h3>
+                            <p>Think of a matrix as a magic machine that bends space. Each layer takes a vector and transforms it.</p>
+                            <div class="math-formula">
+                                \[
+                                \mathbf{h} = W\mathbf{x} + \mathbf{b}
+                                \]
+                                \[
+                                \mathbf{a} = \mathrm{ReLU}(\mathbf{h})
+                                \]
+                            </div>
+                            <p>In 3Blue1Brown style, imagine a grid of points being stretched and tilted. That is what \(W\) does.</p>
+                            <ul class="concept-bullets">
+                                <li>Vectors are arrows (direction + length).</li>
+                                <li>Matrices are transformations (stretch, rotate, shear).</li>
+                                <li>Layers stack these transformations with a nonlinearity.</li>
+                            </ul>
+                            <div class="mini-mission">Mini mission: pick a vector and predict where the grid sends it.</div>
+                        </div>
+                        <div class="concept-panel" id="concept-calculus" data-topic="calculus" role="tabpanel">
+                            <h3>Calculus: how learning works</h3>
+                            <p>Derivatives tell us how fast things change. If the loss is a hill, the derivative tells the slope.</p>
+                            <div class="math-formula">
+                                \[
+                                \frac{d}{dx}f(g(x)) = f'(g(x)) \cdot g'(x)
+                                \]
+                            </div>
+                            <p>Backprop is the chain rule applied again and again through the whole network.</p>
+                            <ul class="concept-bullets">
+                                <li>Local slope \(\times\) upstream slope = new slope.</li>
+                                <li>Think of it as water flowing through pipes.</li>
+                            </ul>
+                            <div class="mini-mission">Mini mission: point to where the slope is steepest.</div>
+                        </div>
+                        <div class="concept-panel" id="concept-optimization" data-topic="optimization" role="tabpanel">
+                            <h3>Optimization: gradient descent and learning rate</h3>
+                            <p>Once we know the slope, we take a step downhill to reduce the loss.</p>
+                            <div class="math-formula">
+                                \[
+                                \theta \leftarrow \theta - \eta \nabla_\theta L
+                                \]
+                            </div>
+                            <ul>
+                                <li><strong>\(\eta\)</strong>: learning rate (step size)</li>
+                                <li>Too big &rarr; unstable or diverges</li>
+                                <li>Too small &rarr; slow progress</li>
+                            </ul>
+                            <div class="mini-mission">Mini mission: choose a step size that reaches the valley without bouncing.</div>
+                        </div>
+                        <div class="concept-panel" id="concept-probability" data-topic="probability" role="tabpanel">
+                            <h3>Probability + information theory</h3>
+                            <p>For classification, the network turns scores into probabilities and compares them to the truth.</p>
+                            <div class="math-formula">
+                                \[
+                                \mathbf{z} = W\mathbf{x} + \mathbf{b}
+                                \]
+                                \[
+                                \hat{y}_i = \frac{e^{z_i}}{\sum_k e^{z_k}}
+                                \]
+                                \[
+                                L = -\sum_i y_i \log \hat{y}_i
+                                \]
+                            </div>
+                            <p>Key result (used constantly): \( \nabla_{\mathbf{z}} L = \hat{\mathbf{y}} - \mathbf{y} \).</p>
+                            <div class="mini-mission">Mini mission: spot the biggest probability bar.</div>
+                        </div>
+                        <div class="concept-panel" id="concept-matrix" data-topic="matrix" role="tabpanel">
+                            <h3>Matrix calculus: the speed path</h3>
+                            <p>To train fast, we compute gradients for a whole batch at once.</p>
+                            <div class="math-formula">
+                                \[
+                                Y = XW
+                                \]
+                                \[
+                                \frac{\partial L}{\partial X} = \frac{\partial L}{\partial Y} W^T
+                                \]
+                                \[
+                                \frac{\partial L}{\partial W} = X^T \frac{\partial L}{\partial Y}
+                                \]
+                            </div>
+                            <p>Shapes are your superpower: match the dimensions and the math works out.</p>
+                            <div class="mini-mission">Mini mission: label the shapes of \(X\), \(W\), and \(Y\).</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="visualization">
+                    <canvas id="fundamentalsCanvas" width="420" height="360"></canvas>
+                    <div class="controls fundamentals-controls">
+                        <button onclick="cycleFundamentals()">Next concept</button>
+                        <p class="helper-text">Tap a tab to switch the picture.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Vectors Section -->
         <section id="vectors" class="example-section">
-            <h2>1. Vectors & Vector Operations</h2>
+            <h2>2. Vectors & Vector Operations</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>Vector Addition</h3>
                     <p>Vectors are fundamental in ML. When we add vectors, we combine them component-wise:</p>
                     <div class="math-formula">
-                        <code>[a₁, a₂] + [b₁, b₂] = [a₁+b₁, a₂+b₂]</code>
+                        \[
+                        [a_1, a_2] + [b_1, b_2] = [a_1 + b_1, a_2 + b_2]
+                        \]
                     </div>
                     <p>Example: [2, 3] + [1, 4] = [3, 7]</p>
                 </div>
                 <div class="visualization">
                     <canvas id="vectorCanvas" width="400" height="400"></canvas>
-                    <div class="controls">
+                    <div class="controls vector-controls">
+                        <div class="slider-group">
+                            <span class="slider-title">Vector A</span>
+                            <label>A.x <span id="vecAxVal">2.0</span></label>
+                            <input type="range" id="vecAx" min="-4" max="4" step="0.1" value="2">
+                            <label>A.y <span id="vecAyVal">3.0</span></label>
+                            <input type="range" id="vecAy" min="-4" max="4" step="0.1" value="3">
+                        </div>
+                        <div class="slider-group">
+                            <span class="slider-title">Vector B</span>
+                            <label>B.x <span id="vecBxVal">1.0</span></label>
+                            <input type="range" id="vecBx" min="-4" max="4" step="0.1" value="1">
+                            <label>B.y <span id="vecByVal">4.0</span></label>
+                            <input type="range" id="vecBy" min="-4" max="4" step="0.1" value="4">
+                        </div>
+                        <div class="slider-group">
+                            <span class="slider-title">Scale</span>
+                            <label>Scale <span id="vecScaleVal">1.0</span></label>
+                            <input type="range" id="vecScale" min="0.5" max="2" step="0.1" value="1">
+                        </div>
                         <button onclick="animateVectorAddition()">Animate Addition</button>
                     </div>
                 </div>
@@ -45,13 +227,15 @@
 
         <!-- Matrices Section -->
         <section id="matrices" class="example-section">
-            <h2>2. Matrix Multiplication</h2>
+            <h2>3. Matrix Multiplication</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>How Neural Networks Transform Data</h3>
                     <p>Matrix multiplication is the core operation in neural networks. Each layer transforms input through:</p>
                     <div class="math-formula">
-                        <code>output = input × weights</code>
+                        \[
+                        \text{output} = \text{input} \times \text{weights}
+                        \]
                     </div>
                     <p>For a 2×2 matrix multiplied by a 2×1 vector:</p>
                     <div class="matrix-example">
@@ -72,18 +256,20 @@
 
         <!-- Gradient Descent Section -->
         <section id="gradient-descent" class="example-section">
-            <h2>3. Gradient Descent</h2>
+            <h2>4. Gradient Descent</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>Finding the Minimum</h3>
                     <p>Gradient descent is how neural networks learn. It's like walking downhill to find the lowest point:</p>
                     <div class="math-formula">
-                        <code>θ_new = θ_old - α × ∇J(θ)</code>
+                        \[
+                        \theta_{\text{new}} = \theta_{\text{old}} - \alpha \nabla J(\theta)
+                        \]
                     </div>
                     <ul>
-                        <li><strong>θ</strong>: Parameter being optimized</li>
-                        <li><strong>α</strong>: Learning rate (step size)</li>
-                        <li><strong>∇J(θ)</strong>: Gradient (direction of steepest increase)</li>
+                        <li><strong>\(\theta\)</strong>: Parameter being optimized</li>
+                        <li><strong>\(\alpha\)</strong>: Learning rate (step size)</li>
+                        <li><strong>\(\nabla J(\theta)\)</strong>: Gradient (direction of steepest increase)</li>
                     </ul>
                 </div>
                 <div class="visualization">
@@ -99,19 +285,19 @@
 
         <!-- Activation Functions Section -->
         <section id="activations" class="example-section">
-            <h2>4. Activation Functions</h2>
+            <h2>5. Activation Functions</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>Non-Linear Transformations</h3>
                     <p>Activation functions add non-linearity to neural networks, enabling them to learn complex patterns:</p>
                     
-                    <h4>Sigmoid: σ(x) = 1/(1+e⁻ˣ)</h4>
+                    <h4>Sigmoid: \( \sigma(x) = \frac{1}{1+e^{-x}} \)</h4>
                     <p>Squashes values to (0, 1). Used for binary classification.</p>
                     
-                    <h4>ReLU: f(x) = max(0, x)</h4>
+                    <h4>ReLU: \( f(x) = \max(0, x) \)</h4>
                     <p>Most popular! Simple and effective. Returns x if positive, 0 otherwise.</p>
                     
-                    <h4>Tanh: tanh(x) = (eˣ - e⁻ˣ)/(eˣ + e⁻ˣ)</h4>
+                    <h4>Tanh: \( \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} \)</h4>
                     <p>Squashes values to (-1, 1). Zero-centered version of sigmoid.</p>
                 </div>
                 <div class="visualization">
@@ -133,7 +319,7 @@
 
         <!-- Neural Network Section -->
         <section id="neural-network" class="example-section">
-            <h2>5. Neural Network Forward Propagation</h2>
+            <h2>6. Neural Network Forward Propagation</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>How Data Flows Through a Network</h3>
@@ -144,8 +330,12 @@
                         <li><strong>Output Layer</strong>: Produces predictions</li>
                     </ol>
                     <div class="math-formula">
-                        <code>hidden = activation(input × W₁ + b₁)</code><br>
-                        <code>output = activation(hidden × W₂ + b₂)</code>
+                        \[
+                        \text{hidden} = \text{activation}(\text{input} \times W_1 + b_1)
+                        \]
+                        \[
+                        \text{output} = \text{activation}(\text{hidden} \times W_2 + b_2)
+                        \]
                     </div>
                     <p>Click neurons to see the computation flow!</p>
                 </div>
@@ -161,7 +351,7 @@
 
         <!-- Backpropagation Section -->
         <section id="backprop" class="example-section">
-            <h2>6. Backpropagation</h2>
+            <h2>7. Backpropagation</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>How Neural Networks Learn</h3>
@@ -173,9 +363,18 @@
                         <li><strong>Update Weights</strong>: Adjust using gradients</li>
                     </ol>
                     <div class="math-formula">
-                        <code>∂Loss/∂w = ∂Loss/∂output × ∂output/∂w</code>
+                        \[
+                        \frac{\partial \text{Loss}}{\partial w} = \frac{\partial \text{Loss}}{\partial \text{output}} \cdot \frac{\partial \text{output}}{\partial w}
+                        \]
                     </div>
                     <p>Uses chain rule to compute gradients efficiently!</p>
+                    <figure class="wip-card">
+                        <img src="assets/robot-wip.svg" alt="Friendly robot holding a WIP sign">
+                        <figcaption>
+                            <span class="wip-label">Work in progress</span>
+                            We're building a step-by-step backprop playground next. Stay tuned!
+                        </figcaption>
+                    </figure>
                 </div>
                 <div class="visualization">
                     <canvas id="backpropCanvas" width="400" height="400"></canvas>
