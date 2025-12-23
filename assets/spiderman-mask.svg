@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 180" role="img" aria-label="Spiderman mask">
+  <defs>
+    <linearGradient id="maskRed" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+  </defs>
+  <path d="M80 8c-32 0-58 26-58 58 0 49 20 95 58 108 38-13 58-59 58-108C138 34 112 8 80 8z" fill="url(#maskRed)" stroke="#0f172a" stroke-width="6"/>
+  <path d="M16 66c18 12 40 18 64 18s46-6 64-18" fill="none" stroke="#0f172a" stroke-width="4"/>
+  <path d="M24 44c22 16 47 25 76 25s54-9 76-25" fill="none" stroke="#0f172a" stroke-width="3"/>
+  <path d="M20 90c22 8 42 12 60 12s38-4 60-12" fill="none" stroke="#0f172a" stroke-width="3"/>
+  <path d="M30 116c18 4 34 6 50 6s32-2 50-6" fill="none" stroke="#0f172a" stroke-width="3"/>
+  <path d="M40 56c-12 10-18 22-18 35 14 8 30 12 48 12-4-14-10-28-30-47z" fill="#f8fafc" stroke="#0f172a" stroke-width="5"/>
+  <path d="M120 56c12 10 18 22 18 35-14 8-30 12-48 12 4-14 10-28 30-47z" fill="#f8fafc" stroke="#0f172a" stroke-width="5"/>
+  <path d="M54 64c6 8 10 18 12 28" fill="none" stroke="#0f172a" stroke-width="3"/>
+  <path d="M106 64c-6 8-10 18-12 28" fill="none" stroke="#0f172a" stroke-width="3"/>
+</svg>
