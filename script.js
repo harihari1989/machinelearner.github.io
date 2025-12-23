@@ -1333,6 +1333,69 @@ function setupVectorControls() {
     update();
 }
 
+function setupHolidayParade() {
+    const parade = document.querySelector('.holiday-parade');
+    if (!parade) return;
+
+    const santa = parade.querySelector('.holiday-character.santa');
+    const spidey = parade.querySelector('.holiday-character.spidey');
+    const sections = Array.from(document.querySelectorAll('.example-section'));
+    if (!sections.length) return;
+
+    const restartAnimation = (el, className) => {
+        if (!el) return;
+        el.classList.remove('is-active', 'santa-fly', 'spidey-crawl');
+        void el.offsetWidth;
+        el.classList.add('is-active', className);
+    };
+
+    const cleanup = (event) => {
+        event.currentTarget.classList.remove('is-active', 'santa-fly', 'spidey-crawl');
+    };
+
+    [santa, spidey].forEach(el => {
+        if (el) {
+            el.addEventListener('animationend', cleanup);
+        }
+    });
+
+    let lastTriggerAt = 0;
+    const triggerParade = () => {
+        if (document.body.dataset.theme !== 'holiday') return;
+        const now = Date.now();
+        if (now - lastTriggerAt < 900) return;
+        lastTriggerAt = now;
+        restartAnimation(santa, 'santa-fly');
+        setTimeout(() => restartAnimation(spidey, 'spidey-crawl'), 320);
+    };
+
+    const observerCallback = (entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting || entry.intersectionRatio < 0.45) return;
+            if (document.body.dataset.theme !== 'holiday') return;
+            const section = entry.target;
+            if (section.dataset.holidayComplete === 'true') return;
+            section.dataset.holidayComplete = 'true';
+            triggerParade();
+        });
+    };
+
+    let observer;
+    const observeSections = () => {
+        if (observer) observer.disconnect();
+        observer = new IntersectionObserver(observerCallback, { threshold: [0.45] });
+        sections.forEach(section => observer.observe(section));
+    };
+
+    observeSections();
+
+    document.addEventListener('mlmath:theme-change', (event) => {
+        if (event.detail && event.detail.theme === 'holiday') {
+            observeSections();
+        }
+    });
+}
+
 function setupThemeSwitcher() {
     const buttons = document.querySelectorAll('.mode-btn');
     if (!buttons.length) return;
@@ -1347,6 +1410,7 @@ function setupThemeSwitcher() {
         if (shouldRedraw) {
             refreshAllVisuals();
         }
+        document.dispatchEvent(new CustomEvent('mlmath:theme-change', { detail: { theme } }));
     };
 
     const savedTheme = localStorage.getItem('mlmath-theme');
@@ -1365,6 +1429,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupThemeSwitcher();
     initFundamentals();
     setupVectorControls();
+    setupHolidayParade();
     refreshAllVisuals();
     
     // Add event listeners for activation function checkboxes
