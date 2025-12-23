@@ -365,11 +365,39 @@ const matrixState = {
 const matrixOperationConfig = {
     multiply: {
         formula: 'C = AB',
-        note: 'Multiplication mixes rows and columns to transform vectors.'
+        note: 'Multiplication mixes rows and columns to transform vectors.',
+        animate: true
     },
     add: {
         formula: 'C = A + B',
-        note: 'Addition combines matching entries in each matrix.'
+        note: 'Addition combines matching entries in each matrix.',
+        animate: true
+    },
+    step: {
+        formula: 'c_{ij} = \\sum_k a_{ik} b_{kj}',
+        note: 'Each entry is a row-by-column dot product.',
+        animate: true,
+        speed: 0.03
+    },
+    covariance: {
+        formula: '\\Sigma^{-1} = (1/\\det \\Sigma)\\,\\text{adj}(\\Sigma)',
+        note: 'Covariance summarizes spread; the inverse (precision) reweights directions.',
+        animate: false
+    },
+    identity: {
+        formula: 'AI = IA = A',
+        note: 'The identity matrix leaves vectors unchanged.',
+        animate: false
+    },
+    onehot: {
+        formula: '\\text{class}=k \\Rightarrow \\mathbf{e}_k',
+        note: 'One-hot encoding turns categories into indicator vectors.',
+        animate: false
+    },
+    eigen: {
+        formula: 'A\\mathbf{v} = \\lambda \\mathbf{v}',
+        note: 'Eigenvectors keep direction; eigenvalues scale them.',
+        animate: false
     }
 };
 
@@ -390,11 +418,19 @@ function multiplyMatrices(a, b) {
     return result;
 }
 
-function drawMatrixBox(ctx, x, y, matrix, label, theme) {
+function fillRectWithAlpha(ctx, color, alpha, x, y, width, height) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+    ctx.restore();
+}
+
+function drawMatrixBox(ctx, x, y, matrix, label, theme, options = {}) {
     const rows = matrix.length;
     const cols = matrix[0].length;
-    const cellSize = 32;
-    const padding = 12;
+    const cellSize = options.cellSize || 32;
+    const padding = options.padding || 12;
     const width = cols * cellSize + padding * 2;
     const height = rows * cellSize + padding * 2;
 
@@ -404,6 +440,40 @@ function drawMatrixBox(ctx, x, y, matrix, label, theme) {
     ctx.lineWidth = 2;
     ctx.fill();
     ctx.stroke();
+
+    const highlightRows = options.highlightRows || [];
+    const highlightCols = options.highlightCols || [];
+    const highlightCells = options.highlightCells || [];
+    const rowColor = options.rowColor || theme.primary;
+    const colColor = options.colColor || theme.secondary;
+    const cellColor = options.cellColor || theme.success;
+    const interiorX = x + padding;
+    const interiorY = y + padding;
+    const interiorW = cols * cellSize;
+    const interiorH = rows * cellSize;
+
+    if (highlightRows.length || highlightCols.length || highlightCells.length) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(interiorX, interiorY, interiorW, interiorH);
+        ctx.clip();
+
+        highlightRows.forEach(row => {
+            fillRectWithAlpha(ctx, rowColor, 0.2, interiorX, interiorY + row * cellSize, interiorW, cellSize);
+        });
+
+        highlightCols.forEach(col => {
+            fillRectWithAlpha(ctx, colColor, 0.2, interiorX + col * cellSize, interiorY, cellSize, interiorH);
+        });
+
+        highlightCells.forEach(cell => {
+            const fill = cell.color || cellColor;
+            const alpha = cell.alpha ?? 0.35;
+            fillRectWithAlpha(ctx, fill, alpha, interiorX + cell.col * cellSize, interiorY + cell.row * cellSize, cellSize, cellSize);
+        });
+
+        ctx.restore();
+    }
 
     ctx.strokeStyle = theme.grid;
     ctx.lineWidth = 1.5;
@@ -430,7 +500,7 @@ function drawMatrixBox(ctx, x, y, matrix, label, theme) {
         row.forEach((value, c) => {
             const cx = x + padding + c * cellSize + cellSize / 2;
             const cy = y + padding + r * cellSize + cellSize / 2;
-            ctx.fillText(value, cx, cy);
+            ctx.fillText(String(value), cx, cy);
         });
     });
 
@@ -443,7 +513,7 @@ function drawMatrixBox(ctx, x, y, matrix, label, theme) {
     return { width, height };
 }
 
-function drawMatrixOperation(ctx, canvas, theme) {
+function drawMatrixArithmetic(ctx, theme) {
     const a = matrixState.a;
     const b = matrixState.b;
     const result = matrixState.operation === 'add' ? addMatrices(a, b) : multiplyMatrices(a, b);
@@ -472,6 +542,288 @@ function drawMatrixOperation(ctx, canvas, theme) {
     ctx.restore();
 }
 
+function drawMatrixMultiplicationSteps(ctx, theme) {
+    const a = matrixState.a;
+    const b = matrixState.b;
+    const result = multiplyMatrices(a, b);
+    const steps = [
+        { row: 0, col: 0 },
+        { row: 0, col: 1 },
+        { row: 1, col: 0 },
+        { row: 1, col: 1 }
+    ];
+    const stepIndex = Math.min(steps.length - 1, Math.floor(matrixState.progress * steps.length));
+    const activeStep = steps[stepIndex];
+    const display = result.map(row => row.map(() => '?'));
+    const highlightCells = [];
+
+    steps.forEach((step, index) => {
+        if (index <= stepIndex) {
+            display[step.row][step.col] = result[step.row][step.col];
+            highlightCells.push({
+                row: step.row,
+                col: step.col,
+                color: theme.success,
+                alpha: index === stepIndex ? 0.35 : 0.18
+            });
+        }
+    });
+
+    const startX = 32;
+    const startY = 54;
+    const gap = 22;
+    const boxA = drawMatrixBox(ctx, startX, startY, a, 'A', theme, {
+        highlightRows: [activeStep.row],
+        rowColor: theme.primary
+    });
+    const centerY = startY + boxA.height / 2;
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 22px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const opX = startX + boxA.width + gap;
+    ctx.fillText('×', opX, centerY);
+
+    const boxB = drawMatrixBox(ctx, opX + gap, startY, b, 'B', theme, {
+        highlightCols: [activeStep.col],
+        colColor: theme.secondary
+    });
+    const eqX = opX + gap + boxB.width + gap;
+    ctx.fillText('=', eqX, centerY);
+
+    drawMatrixBox(ctx, eqX + gap, startY, display, 'C', theme, {
+        highlightCells
+    });
+
+    const formulaText = `c${activeStep.row + 1}${activeStep.col + 1} = ${a[activeStep.row][0]}×${b[0][activeStep.col]} + ${a[activeStep.row][1]}×${b[1][activeStep.col]} = ${result[activeStep.row][activeStep.col]}`;
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 13px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(formulaText, ctx.canvas.width / 2, startY + boxA.height + 60);
+}
+
+function drawCovariancePrecision(ctx, theme) {
+    const covariance = [
+        [2, 1],
+        [1, 1.5]
+    ];
+    const precision = [
+        ['0.75', '-0.50'],
+        ['-0.50', '1.00']
+    ];
+
+    const startY = 40;
+    const leftX = 40;
+    const gap = 28;
+    const boxSigma = drawMatrixBox(ctx, leftX, startY, covariance, 'Sigma', theme);
+    const centerY = startY + boxSigma.height / 2;
+    const arrowX = leftX + boxSigma.width + gap;
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 18px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('->', arrowX, centerY);
+
+    const rightX = arrowX + gap;
+    const boxPrecision = drawMatrixBox(ctx, rightX, startY, precision, 'Sigma^-1', theme);
+
+    const ellipseY = 235;
+    const covCenterX = leftX + boxSigma.width / 2;
+    const precCenterX = rightX + boxPrecision.width / 2;
+
+    ctx.save();
+    ctx.strokeStyle = theme.primary;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(covCenterX, ellipseY, 56, 28, Math.PI / 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = theme.secondary;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(precCenterX, ellipseY, 28, 56, -Math.PI / 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('covariance shape', covCenterX, ellipseY + 55);
+    ctx.fillText('precision shape', precCenterX, ellipseY + 55);
+}
+
+function drawIdentityMatrix(ctx, theme) {
+    const a = matrixState.a;
+    const identity = [
+        [1, 0],
+        [0, 1]
+    ];
+
+    const startX = 28;
+    const startY = 74;
+    const gap = 20;
+    const boxA = drawMatrixBox(ctx, startX, startY, a, 'A', theme);
+    const centerY = startY + boxA.height / 2;
+    const opX = startX + boxA.width + gap;
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 22px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('×', opX, centerY);
+
+    const boxI = drawMatrixBox(ctx, opX + gap, startY, identity, 'I', theme, {
+        highlightCells: [
+            { row: 0, col: 0, color: theme.success, alpha: 0.3 },
+            { row: 1, col: 1, color: theme.success, alpha: 0.3 }
+        ]
+    });
+    const eqX = opX + gap + boxI.width + gap;
+    ctx.fillText('=', eqX, centerY);
+    drawMatrixBox(ctx, eqX + gap, startY, a, 'A', theme);
+}
+
+function drawOneHotEncoding(ctx, theme) {
+    const labels = ['cat', 'dog', 'bird', 'fish'];
+    const hotIndex = 1;
+    const startX = 40;
+    const startY = 70;
+    const rowGap = 28;
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 14px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Classes', startX, startY - 30);
+
+    labels.forEach((label, index) => {
+        const y = startY + index * rowGap;
+        if (index === hotIndex) {
+            drawRoundedRect(ctx, startX - 10, y - 14, 90, 24, 10);
+            ctx.fillStyle = theme.primary;
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(label, startX, y);
+        } else {
+            ctx.fillStyle = theme.inkSoft;
+            ctx.fillText(label, startX, y);
+        }
+    });
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 16px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('->', 200, startY + rowGap * 1.5);
+
+    const oneHot = labels.map((_, index) => [index === hotIndex ? 1 : 0]);
+    drawMatrixBox(ctx, 240, 60, oneHot, 'one-hot y', theme, {
+        cellSize: 28,
+        padding: 10,
+        highlightCells: [{ row: hotIndex, col: 0, color: theme.primary, alpha: 0.35 }]
+    });
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('dog -> [0 1 0 0]', ctx.canvas.width / 2, 260);
+}
+
+function drawEigenVisualization(ctx, canvas, theme) {
+    const matrixA = [
+        [2, 0],
+        [0, 0.6]
+    ];
+    const centerX = Math.round(canvas.width * 0.64);
+    const centerY = Math.round(canvas.height * 0.56);
+    const size = Math.min(canvas.width * 0.23, canvas.height * 0.32);
+    const step = Math.max(18, Math.round(size / 4.5));
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = -size; i <= size; i += step) {
+        ctx.moveTo(centerX + i, centerY - size);
+        ctx.lineTo(centerX + i, centerY + size);
+        ctx.moveTo(centerX - size, centerY + i);
+        ctx.lineTo(centerX + size, centerY + i);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(centerX - size, centerY);
+    ctx.lineTo(centerX + size, centerY);
+    ctx.moveTo(centerX, centerY - size);
+    ctx.lineTo(centerX, centerY + size);
+    ctx.stroke();
+
+    drawMatrixBox(ctx, 20, 30, matrixA, 'A', theme);
+
+    const v1 = { x: size * 0.5, y: 0 };
+    const v2 = { x: 0, y: -size * 0.5 };
+    const lambda1 = 2;
+    const lambda2 = 0.6;
+
+    drawVector(ctx, centerX, centerY, v1.x, v1.y, theme.primary, 'v1');
+    drawVector(ctx, centerX, centerY, v2.x, v2.y, theme.secondary, 'v2');
+
+    ctx.save();
+    ctx.setLineDash([6, 4]);
+    drawVector(ctx, centerX, centerY, v1.x * lambda1, v1.y * lambda1, theme.success, '');
+    drawVector(ctx, centerX, centerY, v2.x * lambda2, v2.y * lambda2, theme.success, '');
+    ctx.restore();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('lambda1 = 2', centerX - 90, centerY + size + 24);
+    ctx.fillText('lambda2 = 0.6', centerX - 90, centerY + size + 40);
+}
+
+function drawMatrixOperation(ctx, canvas, theme) {
+    if (matrixState.operation === 'add' || matrixState.operation === 'multiply') {
+        drawMatrixArithmetic(ctx, theme);
+        return;
+    }
+
+    if (matrixState.operation === 'step') {
+        drawMatrixMultiplicationSteps(ctx, theme);
+        return;
+    }
+
+    if (matrixState.operation === 'covariance') {
+        drawCovariancePrecision(ctx, theme);
+        return;
+    }
+
+    if (matrixState.operation === 'identity') {
+        drawIdentityMatrix(ctx, theme);
+        return;
+    }
+
+    if (matrixState.operation === 'onehot') {
+        drawOneHotEncoding(ctx, theme);
+        return;
+    }
+
+    if (matrixState.operation === 'eigen') {
+        drawEigenVisualization(ctx, canvas, theme);
+        return;
+    }
+
+    drawMatrixArithmetic(ctx, theme);
+}
+
 function drawMatrixCanvas() {
     const canvas = document.getElementById('matrixCanvas');
     if (!canvas) return;
@@ -486,6 +838,7 @@ function updateMatrixUI() {
     const formula = document.getElementById('matrixOperationFormula');
     const note = document.getElementById('matrixOperationNote');
     const buttons = document.querySelectorAll('[data-matrix-op]');
+    const animateButton = document.getElementById('matrixAnimateButton');
 
     buttons.forEach(button => {
         button.classList.toggle('is-active', button.dataset.matrixOp === matrixState.operation);
@@ -501,11 +854,15 @@ function updateMatrixUI() {
     if (note) {
         note.textContent = config.note;
     }
+
+    if (animateButton) {
+        animateButton.style.display = config.animate ? 'inline-flex' : 'none';
+    }
 }
 
 function setMatrixOperation(operation) {
     matrixState.operation = operation;
-    matrixState.progress = 1;
+    matrixState.progress = operation === 'step' ? 0 : 1;
     updateMatrixUI();
     drawMatrixCanvas();
 }
@@ -513,15 +870,19 @@ function setMatrixOperation(operation) {
 function animateMatrixOperation() {
     const canvas = document.getElementById('matrixCanvas');
     if (!canvas) return;
+    const config = matrixOperationConfig[matrixState.operation] || matrixOperationConfig.multiply;
+    if (!config.animate) return;
     let progress = 0;
+    const speed = config.speed || 0.04;
     const animate = () => {
-        progress += 0.04;
+        progress += speed;
         matrixState.progress = Math.min(1, progress);
         drawMatrixCanvas();
         if (progress < 1) {
             requestAnimationFrame(animate);
         }
     };
+    matrixState.progress = 0;
     animate();
 }
 function initMatrixCanvas() {

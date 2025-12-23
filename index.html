@@ -379,9 +379,14 @@
                 <div class="visualization">
                     <canvas id="matrixCanvas" width="420" height="320"></canvas>
                     <div class="controls matrix-controls">
-                        <div class="toggle-group" role="group" aria-label="Matrix operation">
+                        <div class="toggle-group" role="group" aria-label="Matrix concept">
                             <button class="toggle-btn is-active" type="button" data-matrix-op="multiply">Multiplication</button>
                             <button class="toggle-btn" type="button" data-matrix-op="add">Addition</button>
+                            <button class="toggle-btn" type="button" data-matrix-op="step">Step-by-step</button>
+                            <button class="toggle-btn" type="button" data-matrix-op="covariance">Covariance + Inverse</button>
+                            <button class="toggle-btn" type="button" data-matrix-op="identity">Identity</button>
+                            <button class="toggle-btn" type="button" data-matrix-op="onehot">One-hot</button>
+                            <button class="toggle-btn" type="button" data-matrix-op="eigen">Eigen</button>
                         </div>
                         <button type="button" id="matrixAnimateButton" onclick="animateMatrixOperation()">Animate</button>
                     </div>
