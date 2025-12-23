@@ -1061,11 +1061,11 @@ body[data-theme="holiday"] .holiday-parade {
 }
 
 .holiday-character.santa.santa-fly {
-    animation: santa-fly 3.4s ease-in-out;
+    animation: santa-fly 5s ease-in-out;
 }
 
 .holiday-character.spidey.spidey-crawl {
-    animation: spidey-crawl 2.9s linear;
+    animation: spidey-crawl 4.4s linear;
 }
 
 @media (max-width: 700px) {
