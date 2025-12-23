@@ -197,41 +197,168 @@
 
         <!-- Vectors Section -->
         <section id="vectors" class="example-section">
-            <h2>2. Vectors & Vector Operations</h2>
-            <div class="content-grid">
-                <div class="explanation">
-                    <h3>Vector Addition</h3>
-                    <p>Vectors are fundamental in ML. When we add vectors, we combine them component-wise:</p>
-                    <div class="math-formula">
-                        \[
-                        [a_1, a_2] + [b_1, b_2] = [a_1 + b_1, a_2 + b_2]
-                        \]
+            <h2>2. Vectors & Vector Playground</h2>
+            <p class="section-intro">Explore vectors as data points, similarity scores, and distances. Switch to Deep Dive when you want the advanced geometry.</p>
+            <div class="vector-mode-switcher" role="group" aria-label="Vector depth mode">
+                <button class="toggle-btn is-active" type="button" data-vector-mode="basic">Basic playground</button>
+                <button class="toggle-btn" type="button" data-vector-mode="deep">Deep dive</button>
+            </div>
+            <div class="vector-mode-panel is-active" data-vector-mode="basic">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Vector playground</h3>
+                        <p>Think of vector A as a data point \(x\) and vector B as model weights \(w\). Use the buttons to see how scores and distances behave.</p>
+                        <ul class="concept-bullets">
+                            <li>Data point: the arrow from the origin to \(x\).</li>
+                            <li>Dot product: the shadow of \(x\) on \(w\).</li>
+                            <li>Cosine: angle-only similarity.</li>
+                            <li>Distance: how far two points are apart.</li>
+                        </ul>
+                        <div class="math-formula" id="vectorOperationFormula">\[
+                        x = [x_1, x_2], \quad w = [w_1, w_2]
+                        \]</div>
+                        <div class="vector-metrics">
+                            <div class="metric" data-vector-metric="sum">
+                                <span class="metric-label">x + w</span>
+                                <span class="metric-value" id="vectorSum">[0, 0]</span>
+                            </div>
+                            <div class="metric" data-vector-metric="dot">
+                                <span class="metric-label">Dot</span>
+                                <span class="metric-value" id="vectorDot">0</span>
+                            </div>
+                            <div class="metric" data-vector-metric="cosine">
+                                <span class="metric-label">Cosine</span>
+                                <span class="metric-value" id="vectorCosine">0</span>
+                            </div>
+                            <div class="metric" data-vector-metric="angle">
+                                <span class="metric-label">Angle</span>
+                                <span class="metric-value" id="vectorAngle">0°</span>
+                            </div>
+                            <div class="metric" data-vector-metric="distance">
+                                <span class="metric-label">Distance</span>
+                                <span class="metric-value" id="vectorDistance">0</span>
+                            </div>
+                        </div>
                     </div>
-                    <p>Example: [2, 3] + [1, 4] = [3, 7]</p>
+                    <div class="visualization">
+                        <canvas id="vectorCanvas" width="400" height="400"></canvas>
+                        <div class="controls vector-controls">
+                            <div class="toggle-group" role="group" aria-label="Vector operation">
+                                <button class="toggle-btn is-active" type="button" data-vector-op="data">Data point</button>
+                                <button class="toggle-btn" type="button" data-vector-op="addition">Addition</button>
+                                <button class="toggle-btn" type="button" data-vector-op="dot">Dot product</button>
+                                <button class="toggle-btn" type="button" data-vector-op="cosine">Cosine</button>
+                                <button class="toggle-btn" type="button" data-vector-op="distance">Distance</button>
+                            </div>
+                            <div class="slider-group">
+                                <span class="slider-title">Vector A (x)</span>
+                                <label>A.x <span id="vecAxVal">2.0</span></label>
+                                <input type="range" id="vecAx" min="-4" max="4" step="0.1" value="2">
+                                <label>A.y <span id="vecAyVal">3.0</span></label>
+                                <input type="range" id="vecAy" min="-4" max="4" step="0.1" value="3">
+                            </div>
+                            <div class="slider-group">
+                                <span class="slider-title">Vector B (w)</span>
+                                <label>B.x <span id="vecBxVal">1.0</span></label>
+                                <input type="range" id="vecBx" min="-4" max="4" step="0.1" value="1">
+                                <label>B.y <span id="vecByVal">4.0</span></label>
+                                <input type="range" id="vecBy" min="-4" max="4" step="0.1" value="4">
+                            </div>
+                            <div class="slider-group">
+                                <span class="slider-title">Zoom</span>
+                                <label>Zoom <span id="vecScaleVal">1.0</span></label>
+                                <input type="range" id="vecScale" min="0.5" max="2" step="0.1" value="1">
+                            </div>
+                            <button type="button" id="vectorAnimateButton" onclick="animateVectorAddition()">Animate Addition</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="visualization">
-                    <canvas id="vectorCanvas" width="400" height="400"></canvas>
-                    <div class="controls vector-controls">
-                        <div class="slider-group">
-                            <span class="slider-title">Vector A</span>
-                            <label>A.x <span id="vecAxVal">2.0</span></label>
-                            <input type="range" id="vecAx" min="-4" max="4" step="0.1" value="2">
-                            <label>A.y <span id="vecAyVal">3.0</span></label>
-                            <input type="range" id="vecAy" min="-4" max="4" step="0.1" value="3">
+            </div>
+            <div class="vector-mode-panel" data-vector-mode="deep">
+                <div class="content-grid vector-scenes">
+                    <div class="explanation">
+                        <h3>Deep dive: advanced geometry</h3>
+                        <p>Step through projections, gradients, regularization, and attention with visual intuition.</p>
+                        <div class="scene-panel" id="vectorScenePanel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="vectorSceneBadge">Scene 1 of 4</span>
+                                <h4 id="vectorSceneTitle">Scene 1: Projection as a shadow</h4>
+                            </div>
+                            <div class="scene-block">
+                                <h5>Visual</h5>
+                                <p id="vectorSceneVisual"></p>
+                            </div>
+                            <div class="scene-block">
+                                <h5>Mini example</h5>
+                                <p id="vectorSceneExample"></p>
+                            </div>
+                            <div class="scene-block">
+                                <h5>ML intuition</h5>
+                                <p id="vectorSceneIntuition"></p>
+                            </div>
+                            <div class="math-formula" id="vectorSceneMath"></div>
                         </div>
-                        <div class="slider-group">
-                            <span class="slider-title">Vector B</span>
-                            <label>B.x <span id="vecBxVal">1.0</span></label>
-                            <input type="range" id="vecBx" min="-4" max="4" step="0.1" value="1">
-                            <label>B.y <span id="vecByVal">4.0</span></label>
-                            <input type="range" id="vecBy" min="-4" max="4" step="0.1" value="4">
+                    </div>
+                    <div class="visualization">
+                        <canvas id="vectorSceneCanvas" width="420" height="360"></canvas>
+                        <div class="controls scene-controls">
+                            <button type="button" id="vectorPrevScene">Previous scene</button>
+                            <button type="button" id="vectorNextScene">Next scene</button>
                         </div>
-                        <div class="slider-group">
-                            <span class="slider-title">Scale</span>
-                            <label>Scale <span id="vecScaleVal">1.0</span></label>
-                            <input type="range" id="vecScale" min="0.5" max="2" step="0.1" value="1">
-                        </div>
-                        <button onclick="animateVectorAddition()">Animate Addition</button>
+                    </div>
+                </div>
+                <div class="vector-toolkit">
+                    <h3>Deep dive concepts</h3>
+                    <p class="section-intro">Advanced vector ideas that show up in PCA, optimization, and attention.</p>
+                    <div class="vector-grid">
+                        <article class="vector-card">
+                            <span class="path-step">1</span>
+                            <h4>Projections & orthogonality</h4>
+                            <ul>
+                                <li>Projection onto \(u\): \( \mathrm{proj}_u(x) = \frac{x \cdot u}{u \cdot u} u \).</li>
+                                <li>Orthogonal vectors give clean coordinate systems (PCA/SVD).</li>
+                            </ul>
+                        </article>
+                        <article class="vector-card">
+                            <span class="path-step">2</span>
+                            <h4>Subspaces, basis, rank</h4>
+                            <ul>
+                                <li>Span is the set of all linear combinations of vectors.</li>
+                                <li>Rank is the dimension of that span (effective dimensionality).</li>
+                            </ul>
+                        </article>
+                        <article class="vector-card">
+                            <span class="path-step">3</span>
+                            <h4>Gradients, Jacobians, Hessians</h4>
+                            <ul>
+                                <li>\(\nabla_\theta L\) points steepest uphill.</li>
+                                <li>Jacobians handle vector outputs; Hessians capture curvature.</li>
+                            </ul>
+                        </article>
+                        <article class="vector-card">
+                            <span class="path-step">4</span>
+                            <h4>Vector statistics</h4>
+                            <ul>
+                                <li>Mean vector and covariance describe feature distributions.</li>
+                                <li>Centering and whitening stabilize training and PCA.</li>
+                            </ul>
+                        </article>
+                        <article class="vector-card">
+                            <span class="path-step">5</span>
+                            <h4>Regularization geometry</h4>
+                            <ul>
+                                <li>L2 prefers small norms; L1 encourages sparsity.</li>
+                                <li>Constraint shapes explain why L1 yields zeros.</li>
+                            </ul>
+                        </article>
+                        <article class="vector-card">
+                            <span class="path-step">6</span>
+                            <h4>Attention via dot products</h4>
+                            <ul>
+                                <li>Similarity scores become weights after softmax.</li>
+                                <li>Output is a weighted sum of value vectors.</li>
+                            </ul>
+                        </article>
                     </div>
                 </div>
             </div>
@@ -239,28 +366,24 @@
 
         <!-- Matrices Section -->
         <section id="matrices" class="example-section">
-            <h2>3. Matrix Multiplication</h2>
+            <h2>3. Matrices: Addition & Multiplication</h2>
             <div class="content-grid">
                 <div class="explanation">
-                    <h3>How Neural Networks Transform Data</h3>
-                    <p>Matrix multiplication is the core operation in neural networks. Each layer transforms input through:</p>
-                    <div class="math-formula">
-                        \[
-                        \text{output} = \text{input} \times \text{weights}
-                        \]
-                    </div>
-                    <p>For a 2×2 matrix multiplied by a 2×1 vector:</p>
-                    <div class="matrix-example">
-                        <pre>
-[w₁₁  w₁₂]   [x₁]   [w₁₁×x₁ + w₁₂×x₂]
-[w₂₁  w₂₂] × [x₂] = [w₂₁×x₁ + w₂₂×x₂]
-                        </pre>
-                    </div>
+                    <h3>Matrix playground</h3>
+                    <p>Switch between addition and multiplication to see how matrices combine and transform data.</p>
+                    <div class="math-formula" id="matrixOperationFormula">\[
+                    C = AB
+                    \]</div>
+                    <p id="matrixOperationNote">Multiplication mixes rows and columns to transform vectors.</p>
                 </div>
                 <div class="visualization">
-                    <canvas id="matrixCanvas" width="400" height="300"></canvas>
-                    <div class="controls">
-                        <button onclick="animateMatrixMultiplication()">Animate</button>
+                    <canvas id="matrixCanvas" width="420" height="320"></canvas>
+                    <div class="controls matrix-controls">
+                        <div class="toggle-group" role="group" aria-label="Matrix operation">
+                            <button class="toggle-btn is-active" type="button" data-matrix-op="multiply">Multiplication</button>
+                            <button class="toggle-btn" type="button" data-matrix-op="add">Addition</button>
+                        </div>
+                        <button type="button" id="matrixAnimateButton" onclick="animateMatrixOperation()">Animate</button>
                     </div>
                 </div>
             </div>
