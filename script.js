@@ -14,7 +14,9 @@ function getThemeColors() {
         ink: read('--ink', '#1f2937'),
         inkSoft: read('--ink-soft', '#475569'),
         grid: read('--grid', '#e2e8f0'),
-        axis: read('--axis', '#94a3b8')
+        axis: read('--axis', '#94a3b8'),
+        panel: read('--panel-bg', '#ffffff'),
+        panelBorder: read('--panel-border', '#94a3b8')
     };
 }
 
@@ -26,7 +28,8 @@ const vectorState = {
     ay: 3,
     bx: 1,
     by: 4,
-    scale: 1
+    scale: 1,
+    operation: 'data'
 };
 
 function drawVector(ctx, x, y, dx, dy, color, label) {
@@ -61,20 +64,12 @@ function drawVector(ctx, x, y, dx, dy, color, label) {
     ctx.fillText(label, x + dx + 10, y + dy - 10);
 }
 
-function initVectorCanvas() {
-    const canvas = document.getElementById('vectorCanvas');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const theme = getThemeColors();
+function drawVectorBase(ctx, canvas, theme) {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const unit = 30;
-    
-    // Clear canvas
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw grid (batched for performance)
+
     ctx.strokeStyle = theme.grid;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -87,8 +82,7 @@ function initVectorCanvas() {
         ctx.lineTo(canvas.width, i);
     }
     ctx.stroke();
-    
-    // Draw axes
+
     ctx.strokeStyle = theme.axis;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -97,69 +91,439 @@ function initVectorCanvas() {
     ctx.moveTo(0, centerY);
     ctx.lineTo(canvas.width, centerY);
     ctx.stroke();
-    
-    // Draw vectors
-    const ax = vectorState.ax * vectorState.scale;
-    const ay = vectorState.ay * vectorState.scale;
-    const bx = vectorState.bx * vectorState.scale;
-    const by = vectorState.by * vectorState.scale;
 
-    drawVector(ctx, centerX, centerY, ax * unit, -ay * unit, theme.primary, `A[${ax.toFixed(1)},${ay.toFixed(1)}]`);
-    drawVector(ctx, centerX, centerY, bx * unit, -by * unit, theme.secondary, `B[${bx.toFixed(1)},${by.toFixed(1)}]`);
+    return { centerX, centerY };
 }
 
-function animateVectorAddition() {
+function drawAngleArc(ctx, centerX, centerY, ax, ay, bx, by, radius, color) {
+    const normalize = (angle) => (angle + Math.PI * 2) % (Math.PI * 2);
+    let start = normalize(Math.atan2(-ay, ax));
+    let end = normalize(Math.atan2(-by, bx));
+    let diff = end - start;
+    if (diff < 0) diff += Math.PI * 2;
+    if (diff > Math.PI) {
+        const temp = start;
+        start = end;
+        end = temp;
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, start, end);
+    ctx.stroke();
+}
+
+function drawVectorPlayground(ctx, canvas, theme) {
+    const { centerX, centerY } = drawVectorBase(ctx, canvas, theme);
+    const unit = 30 * vectorState.scale;
+    const ax = vectorState.ax;
+    const ay = vectorState.ay;
+    const bx = vectorState.bx;
+    const by = vectorState.by;
+
+    const originX = centerX;
+    const originY = centerY;
+    const aEndX = originX + ax * unit;
+    const aEndY = originY - ay * unit;
+    const bEndX = originX + bx * unit;
+    const bEndY = originY - by * unit;
+
+    if (vectorState.operation === 'data') {
+        drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
+        drawVector(ctx, originX, originY, bx * unit, -by * unit, theme.secondary, 'w');
+        drawPoint(ctx, aEndX, aEndY, theme.primary, 5);
+        return;
+    }
+
+    if (vectorState.operation === 'addition') {
+        drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
+        drawVector(ctx, originX, originY, bx * unit, -by * unit, theme.secondary, 'w');
+        drawVector(ctx, originX, originY, (ax + bx) * unit, -(ay + by) * unit, theme.success, 'x+w');
+        drawVector(ctx, aEndX, aEndY, bx * unit, -by * unit, theme.warning, '');
+        return;
+    }
+
+    if (vectorState.operation === 'dot') {
+        drawVector(ctx, originX, originY, bx * unit, -by * unit, theme.secondary, 'w');
+        drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
+        const bNormSq = bx * bx + by * by;
+        if (bNormSq > 0) {
+            const dot = ax * bx + ay * by;
+            const projScale = dot / bNormSq;
+            const projX = bx * projScale;
+            const projY = by * projScale;
+            const projEndX = originX + projX * unit;
+            const projEndY = originY - projY * unit;
+            drawDashedLine(ctx, aEndX, aEndY, projEndX, projEndY, theme.warning);
+            drawVector(ctx, originX, originY, projX * unit, -projY * unit, theme.success, '');
+            drawPoint(ctx, projEndX, projEndY, theme.success, 4);
+        }
+        return;
+    }
+
+    if (vectorState.operation === 'cosine') {
+        drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
+        drawVector(ctx, originX, originY, bx * unit, -by * unit, theme.secondary, 'w');
+        drawAngleArc(ctx, originX, originY, ax, ay, bx, by, 40, theme.warning);
+        return;
+    }
+
+    if (vectorState.operation === 'distance') {
+        drawPoint(ctx, aEndX, aEndY, theme.primary, 6);
+        drawPoint(ctx, bEndX, bEndY, theme.secondary, 6);
+        ctx.strokeStyle = theme.warning;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(aEndX, aEndY);
+        ctx.lineTo(bEndX, bEndY);
+        ctx.stroke();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('x', aEndX + 6, aEndY - 6);
+        ctx.fillText('w', bEndX + 6, bEndY - 6);
+    }
+}
+
+function initVectorCanvas() {
     const canvas = document.getElementById('vectorCanvas');
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     const theme = getThemeColors();
+    drawVectorPlayground(ctx, canvas, theme);
+}
+
+function animateVectorAddition() {
+    const canvas = document.getElementById('vectorCanvas');
+    if (!canvas) return;
+
+    setVectorOperation('addition');
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    const unit = 30 * vectorState.scale;
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const unit = 30;
-    
+    const ax = vectorState.ax;
+    const ay = vectorState.ay;
+    const bx = vectorState.bx;
+    const by = vectorState.by;
+
     let step = 0;
     const animate = () => {
         if (step > 100) return;
-        
-        initVectorCanvas();
-        
+
+        drawVectorBase(ctx, canvas, theme);
+
         const progress = step / 100;
-        const vecAx = vectorState.ax * vectorState.scale * unit;
-        const vecAy = -vectorState.ay * vectorState.scale * unit;
-        const vecBx = vectorState.bx * vectorState.scale * unit;
-        const vecBy = -vectorState.by * vectorState.scale * unit;
-        
-        // Draw vector A
+        const vecAx = ax * unit;
+        const vecAy = -ay * unit;
+        const vecBx = bx * unit;
+        const vecBy = -by * unit;
+
         drawVector(ctx, centerX, centerY, vecAx, vecAy, theme.primary, 'A');
-        
-        // Draw vector B (moving to end of A)
+
         if (progress > 0.3) {
             const moveProgress = Math.min((progress - 0.3) / 0.3, 1);
             const startX = centerX + vecAx * moveProgress;
             const startY = centerY + vecAy * moveProgress;
             drawVector(ctx, startX, startY, vecBx, vecBy, theme.secondary, 'B');
         }
-        
-        // Draw result vector
+
         if (progress > 0.6) {
             const resultProgress = Math.min((progress - 0.6) / 0.4, 1);
-            drawVector(ctx, centerX, centerY, 
-                (vecAx + vecBx) * resultProgress, 
+            drawVector(
+                ctx,
+                centerX,
+                centerY,
+                (vecAx + vecBx) * resultProgress,
                 (vecAy + vecBy) * resultProgress,
-                theme.success, 'A+B');
+                theme.success,
+                'A+B'
+            );
         }
-        
+
         step += 2;
         requestAnimationFrame(animate);
     };
-    
+
     animate();
 }
 
+const vectorOperationConfig = {
+    data: {
+        formula: 'x = [x_1, x_2],\\; w = [w_1, w_2]',
+        metrics: []
+    },
+    addition: {
+        formula: 'x + w = [x_1 + w_1,\\; x_2 + w_2]',
+        metrics: ['sum']
+    },
+    dot: {
+        formula: 'x \\cdot w = \\sum_i x_i w_i',
+        metrics: ['dot', 'angle']
+    },
+    cosine: {
+        formula: '\\cos\\theta = \\frac{x \\cdot w}{\\lVert x \\rVert \\lVert w \\rVert}',
+        metrics: ['cosine', 'angle']
+    },
+    distance: {
+        formula: '\\lVert x - w \\rVert_2',
+        metrics: ['distance']
+    }
+};
+
+function formatNumber(value, digits = 2) {
+    if (!Number.isFinite(value)) return '0';
+    return Number(value).toFixed(digits);
+}
+
+function updateVectorMetrics() {
+    const ax = vectorState.ax;
+    const ay = vectorState.ay;
+    const bx = vectorState.bx;
+    const by = vectorState.by;
+
+    const dot = ax * bx + ay * by;
+    const normA = Math.hypot(ax, ay);
+    const normB = Math.hypot(bx, by);
+    const cosine = normA && normB ? dot / (normA * normB) : 0;
+    const clampedCosine = Math.max(-1, Math.min(1, cosine));
+    const angleRad = normA && normB ? Math.acos(clampedCosine) : 0;
+    const angleDeg = angleRad * (180 / Math.PI);
+    const distance = Math.hypot(ax - bx, ay - by);
+
+    const sumEl = document.getElementById('vectorSum');
+    const dotEl = document.getElementById('vectorDot');
+    const cosineEl = document.getElementById('vectorCosine');
+    const angleEl = document.getElementById('vectorAngle');
+    const distanceEl = document.getElementById('vectorDistance');
+
+    if (sumEl) sumEl.textContent = `[${formatNumber(ax + bx)}, ${formatNumber(ay + by)}]`;
+    if (dotEl) dotEl.textContent = formatNumber(dot);
+    if (cosineEl) cosineEl.textContent = formatNumber(cosine);
+    if (angleEl) angleEl.textContent = `${formatNumber(angleDeg, 1)}°`;
+    if (distanceEl) distanceEl.textContent = formatNumber(distance);
+}
+
+function updateVectorOperationUI() {
+    const config = vectorOperationConfig[vectorState.operation] || vectorOperationConfig.data;
+    const formula = document.getElementById('vectorOperationFormula');
+    const animateButton = document.getElementById('vectorAnimateButton');
+    const opButtons = document.querySelectorAll('[data-vector-op]');
+    const metricEls = document.querySelectorAll('[data-vector-metric]');
+
+    opButtons.forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.vectorOp === vectorState.operation);
+    });
+
+    if (formula) {
+        formula.innerHTML = `\\[${config.formula}\\]`;
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([formula]);
+        }
+    }
+
+    metricEls.forEach(metric => {
+        const isActive = config.metrics.includes(metric.dataset.vectorMetric);
+        metric.classList.toggle('is-active', isActive);
+    });
+
+    if (animateButton) {
+        animateButton.style.display = vectorState.operation === 'addition' ? 'inline-flex' : 'none';
+    }
+}
+
+function updateVectorPlayground() {
+    initVectorCanvas();
+    updateVectorMetrics();
+    updateVectorOperationUI();
+}
+
+function setVectorOperation(operation) {
+    vectorState.operation = operation;
+    updateVectorPlayground();
+}
+
 // ============================================
-// Matrix Multiplication Visualization
+// Matrix Operations Visualization
 // ============================================
+const matrixState = {
+    a: [
+        [1, 2],
+        [3, 4]
+    ],
+    b: [
+        [2, 1],
+        [0, 1]
+    ],
+    operation: 'multiply',
+    progress: 1
+};
+
+const matrixOperationConfig = {
+    multiply: {
+        formula: 'C = AB',
+        note: 'Multiplication mixes rows and columns to transform vectors.'
+    },
+    add: {
+        formula: 'C = A + B',
+        note: 'Addition combines matching entries in each matrix.'
+    }
+};
+
+function addMatrices(a, b) {
+    return a.map((row, i) => row.map((value, j) => value + b[i][j]));
+}
+
+function multiplyMatrices(a, b) {
+    const result = [
+        [0, 0],
+        [0, 0]
+    ];
+    for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 2; j++) {
+            result[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j];
+        }
+    }
+    return result;
+}
+
+function drawMatrixBox(ctx, x, y, matrix, label, theme) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+    const cellSize = 32;
+    const padding = 12;
+    const width = cols * cellSize + padding * 2;
+    const height = rows * cellSize + padding * 2;
+
+    drawRoundedRect(ctx, x, y, width, height, 12);
+    ctx.fillStyle = theme.panel;
+    ctx.strokeStyle = theme.panelBorder;
+    ctx.lineWidth = 2;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1.5;
+    for (let r = 1; r < rows; r++) {
+        const rowY = y + padding + r * cellSize;
+        ctx.beginPath();
+        ctx.moveTo(x + padding, rowY);
+        ctx.lineTo(x + width - padding, rowY);
+        ctx.stroke();
+    }
+    for (let c = 1; c < cols; c++) {
+        const colX = x + padding + c * cellSize;
+        ctx.beginPath();
+        ctx.moveTo(colX, y + padding);
+        ctx.lineTo(colX, y + height - padding);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 14px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    matrix.forEach((row, r) => {
+        row.forEach((value, c) => {
+            const cx = x + padding + c * cellSize + cellSize / 2;
+            const cy = y + padding + r * cellSize + cellSize / 2;
+            ctx.fillText(value, cx, cy);
+        });
+    });
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(label, x, y - 10);
+
+    return { width, height };
+}
+
+function drawMatrixOperation(ctx, canvas, theme) {
+    const a = matrixState.a;
+    const b = matrixState.b;
+    const result = matrixState.operation === 'add' ? addMatrices(a, b) : multiplyMatrices(a, b);
+
+    const startX = 32;
+    const startY = 74;
+    const gap = 22;
+    const boxA = drawMatrixBox(ctx, startX, startY, a, 'A', theme);
+    const centerY = startY + boxA.height / 2;
+    const opSymbol = matrixState.operation === 'add' ? '+' : '×';
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 22px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const opX = startX + boxA.width + gap;
+    ctx.fillText(opSymbol, opX, centerY);
+
+    const boxB = drawMatrixBox(ctx, opX + gap, startY, b, 'B', theme);
+    const eqX = opX + gap + boxB.width + gap;
+    ctx.fillText('=', eqX, centerY);
+
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, matrixState.progress);
+    drawMatrixBox(ctx, eqX + gap, startY, result, 'C', theme);
+    ctx.restore();
+}
+
+function drawMatrixCanvas() {
+    const canvas = document.getElementById('matrixCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMatrixOperation(ctx, canvas, theme);
+}
+
+function updateMatrixUI() {
+    const config = matrixOperationConfig[matrixState.operation] || matrixOperationConfig.multiply;
+    const formula = document.getElementById('matrixOperationFormula');
+    const note = document.getElementById('matrixOperationNote');
+    const buttons = document.querySelectorAll('[data-matrix-op]');
+
+    buttons.forEach(button => {
+        button.classList.toggle('is-active', button.dataset.matrixOp === matrixState.operation);
+    });
+
+    if (formula) {
+        formula.innerHTML = `\\[${config.formula}\\]`;
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([formula]);
+        }
+    }
+
+    if (note) {
+        note.textContent = config.note;
+    }
+}
+
+function setMatrixOperation(operation) {
+    matrixState.operation = operation;
+    matrixState.progress = 1;
+    updateMatrixUI();
+    drawMatrixCanvas();
+}
+
+function animateMatrixOperation() {
+    const canvas = document.getElementById('matrixCanvas');
+    if (!canvas) return;
+    let progress = 0;
+    const animate = () => {
+        progress += 0.04;
+        matrixState.progress = Math.min(1, progress);
+        drawMatrixCanvas();
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    };
+    animate();
+}
 function initMatrixCanvas() {
     const canvas = document.getElementById('matrixCanvas');
     if (!canvas) return;
@@ -889,6 +1253,49 @@ function drawArrow(ctx, x1, y1, x2, y2, color) {
     ctx.fill();
 }
 
+function drawPoint(ctx, x, y, color, radius = 5) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+function drawAxes(ctx, origin, scale, size, color) {
+    const left = mapToCanvas({ x: -size, y: 0 }, origin, scale);
+    const right = mapToCanvas({ x: size, y: 0 }, origin, scale);
+    const bottom = mapToCanvas({ x: 0, y: -size }, origin, scale);
+    const top = mapToCanvas({ x: 0, y: size }, origin, scale);
+
+    drawArrow(ctx, left.x, left.y, right.x, right.y, color);
+    drawArrow(ctx, bottom.x, bottom.y, top.x, top.y, color);
+
+    ctx.fillStyle = color;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('x', right.x - 12, right.y - 14);
+    ctx.fillText('y', top.x + 6, top.y + 8);
+}
+
+function drawDashedLine(ctx, x1, y1, x2, y2, color) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawCoordinatePlane(ctx, origin, scale, size, theme) {
+    drawGrid(ctx, origin, scale, size, [
+        [1, 0],
+        [0, 1]
+    ], theme.grid);
+    drawAxes(ctx, origin, scale, size, theme.axis);
+}
+
 function applyMatrix(point, matrix) {
     return {
         x: point.x * matrix[0][0] + point.y * matrix[0][1],
@@ -954,6 +1361,351 @@ function drawSceneCaption(ctx, canvas, color, title, detail) {
     ctx.font = '12px Nunito, Arial';
     wrapCanvasText(ctx, detail, callout.x + 12, callout.y + 24, callout.width - 24, 16);
     ctx.restore();
+}
+
+// ============================================
+// Vector Storyboard Scenes
+// ============================================
+function drawVectorArrowScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.62 };
+    const scale = 38;
+    const size = 5;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const point = { x: 2, y: 1 };
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const end = mapToCanvas(point, origin, scale);
+    drawArrow(ctx, start.x, start.y, end.x, end.y, theme.primary);
+    drawPoint(ctx, end.x, end.y, theme.secondary, 5);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('(2,1)', end.x + 6, end.y - 8);
+}
+
+function drawDotProductScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.62 };
+    const scale = 38;
+    const size = 5;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const xVec = { x: 2, y: 1 };
+    const wVec = { x: 3.2, y: 0 };
+    const projection = { x: 2, y: 0 };
+
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const xEnd = mapToCanvas(xVec, origin, scale);
+    const wEnd = mapToCanvas(wVec, origin, scale);
+    const projEnd = mapToCanvas(projection, origin, scale);
+
+    drawArrow(ctx, start.x, start.y, wEnd.x, wEnd.y, theme.secondary);
+    drawArrow(ctx, start.x, start.y, xEnd.x, xEnd.y, theme.primary);
+    drawDashedLine(ctx, xEnd.x, xEnd.y, projEnd.x, projEnd.y, theme.warning);
+    drawArrow(ctx, start.x, start.y, projEnd.x, projEnd.y, theme.success);
+    drawPoint(ctx, projEnd.x, projEnd.y, theme.success, 4);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('shadow', projEnd.x + 6, projEnd.y + 12);
+    ctx.fillText('w', wEnd.x - 12, wEnd.y - 10);
+    ctx.fillText('x', xEnd.x + 6, xEnd.y - 8);
+}
+
+function drawNormScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.6 };
+    const scale = 30;
+    const size = 7;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const xVec = { x: 3, y: 4 };
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const end = mapToCanvas(xVec, origin, scale);
+
+    ctx.save();
+    ctx.setLineDash([6, 6]);
+    ctx.strokeStyle = theme.success;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(origin.x, origin.y, 5 * scale, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.restore();
+
+    drawArrow(ctx, start.x, start.y, end.x, end.y, theme.primary);
+    drawPoint(ctx, end.x, end.y, theme.secondary, 5);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('length = 5', origin.x + 10, origin.y - 5 * scale - 12);
+}
+
+function drawCosineScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.62 };
+    const scale = 45;
+    const size = 4;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const shortVec = { x: 1, y: 1 };
+    const longVec = { x: 2, y: 2 };
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const shortEnd = mapToCanvas(shortVec, origin, scale);
+    const longEnd = mapToCanvas(longVec, origin, scale);
+
+    drawArrow(ctx, start.x, start.y, longEnd.x, longEnd.y, theme.primary);
+    drawArrow(ctx, start.x, start.y, shortEnd.x, shortEnd.y, theme.secondary);
+    drawPoint(ctx, longEnd.x, longEnd.y, theme.primary, 4);
+    drawPoint(ctx, shortEnd.x, shortEnd.y, theme.secondary, 4);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('same direction', origin.x + 10, origin.y - 20);
+}
+
+function drawDistanceScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.45, y: canvas.height * 0.68 };
+    const scale = 28;
+    const size = 8;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const pointA = { x: 1, y: 2 };
+    const pointB = { x: 4, y: 6 };
+    const a = mapToCanvas(pointA, origin, scale);
+    const b = mapToCanvas(pointB, origin, scale);
+
+    ctx.strokeStyle = theme.warning;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+
+    drawPoint(ctx, a.x, a.y, theme.primary, 5);
+    drawPoint(ctx, b.x, b.y, theme.secondary, 5);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('x', a.x - 12, a.y + 14);
+    ctx.fillText('y', b.x + 6, b.y - 6);
+}
+
+function drawProjectionScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.62 };
+    const scale = 32;
+    const size = 7;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const xVec = { x: 3, y: 4 };
+    const uVec = { x: 4, y: 0 };
+    const projection = { x: 3, y: 0 };
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const xEnd = mapToCanvas(xVec, origin, scale);
+    const uEnd = mapToCanvas(uVec, origin, scale);
+    const projEnd = mapToCanvas(projection, origin, scale);
+
+    drawArrow(ctx, start.x, start.y, uEnd.x, uEnd.y, theme.secondary);
+    drawArrow(ctx, start.x, start.y, xEnd.x, xEnd.y, theme.primary);
+    drawDashedLine(ctx, xEnd.x, xEnd.y, projEnd.x, projEnd.y, theme.warning);
+    drawArrow(ctx, start.x, start.y, projEnd.x, projEnd.y, theme.success);
+    drawPoint(ctx, projEnd.x, projEnd.y, theme.success, 4);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('proj', projEnd.x + 6, projEnd.y + 12);
+}
+
+function drawGradientScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const center = { x: canvas.width * 0.5, y: canvas.height * 0.56 };
+    const rings = [
+        { rx: 150, ry: 95 },
+        { rx: 110, ry: 70 },
+        { rx: 75, ry: 45 },
+        { rx: 40, ry: 25 }
+    ];
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    rings.forEach(ring => {
+        ctx.beginPath();
+        ctx.ellipse(center.x, center.y, ring.rx, ring.ry, 0, 0, 2 * Math.PI);
+        ctx.stroke();
+    });
+
+    const point = { x: center.x + 95, y: center.y - 45 };
+    const grad = { x: point.x - center.x, y: point.y - center.y };
+    const length = Math.hypot(grad.x, grad.y) || 1;
+    const unit = { x: grad.x / length, y: grad.y / length };
+    const gradEnd = { x: point.x + unit.x * 50, y: point.y + unit.y * 50 };
+    const stepEnd = { x: point.x - unit.x * 50, y: point.y - unit.y * 50 };
+
+    drawPoint(ctx, point.x, point.y, theme.primary, 6);
+    drawArrow(ctx, point.x, point.y, gradEnd.x, gradEnd.y, theme.danger);
+    drawArrow(ctx, point.x, point.y, stepEnd.x, stepEnd.y, theme.success);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('grad', gradEnd.x + 6, gradEnd.y);
+    ctx.fillText('step', stepEnd.x + 6, stepEnd.y);
+}
+
+function drawRegularizationScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const center = { x: canvas.width * 0.5, y: canvas.height * 0.6 };
+    const radius = 90;
+
+    ctx.strokeStyle = theme.secondary;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.warning;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(center.x + radius, center.y);
+    ctx.lineTo(center.x, center.y - radius);
+    ctx.lineTo(center.x - radius, center.y);
+    ctx.lineTo(center.x, center.y + radius);
+    ctx.closePath();
+    ctx.stroke();
+
+    const target = { x: center.x + 120, y: center.y - 70 };
+    drawPoint(ctx, target.x, target.y, theme.primary, 6);
+    drawArrow(ctx, target.x, target.y, center.x, center.y, theme.success);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('L2', center.x + radius + 8, center.y - 4);
+    ctx.fillText('L1', center.x + 8, center.y - radius - 6);
+}
+
+function drawAttentionScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.6 };
+    const scale = 38;
+    const size = 4.5;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const q = { x: 2, y: 1 };
+    const k1 = { x: 1.8, y: 0.9 };
+    const k2 = { x: -1.2, y: 1.6 };
+    const k3 = { x: -1.6, y: -0.6 };
+    const out = { x: 1.6, y: 0.85 };
+
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const qEnd = mapToCanvas(q, origin, scale);
+    const k1End = mapToCanvas(k1, origin, scale);
+    const k2End = mapToCanvas(k2, origin, scale);
+    const k3End = mapToCanvas(k3, origin, scale);
+    const outEnd = mapToCanvas(out, origin, scale);
+
+    drawArrow(ctx, start.x, start.y, k2End.x, k2End.y, theme.secondary);
+    drawArrow(ctx, start.x, start.y, k3End.x, k3End.y, theme.secondary);
+    drawArrow(ctx, start.x, start.y, k1End.x, k1End.y, theme.warning);
+    drawArrow(ctx, start.x, start.y, qEnd.x, qEnd.y, theme.primary);
+    drawArrow(ctx, start.x, start.y, outEnd.x, outEnd.y, theme.success);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('q', qEnd.x + 6, qEnd.y - 6);
+    ctx.fillText('out', outEnd.x + 6, outEnd.y + 8);
+}
+
+const vectorScenes = [
+    {
+        title: 'Scene 1: Projection is a 1D summary',
+        visual: 'Pick a direction \\(u\\) and drop a perpendicular from \\(x\\). The shadow coordinate is \\(x \\cdot u\\).',
+        example: 'Let \\(x = [3, 4]\\), \\(u = [1, 0]\\). Projection is \\([3, 0]\\).',
+        intuition: 'PCA finds the direction where projections have the most spread.',
+        math: '\\(\\mathrm{proj}_u(x) = (x \\cdot u)u\\) for unit \\(u\\).',
+        draw: drawProjectionScene
+    },
+    {
+        title: 'Scene 2: Gradients are arrows',
+        visual: 'On a loss landscape, the gradient arrow points steepest uphill. Step the opposite way to go downhill.',
+        example: 'If \\(\\nabla L = [2, -1]\\) and \\(\\eta = 0.1\\), the step is \\([-0.2, 0.1]\\).',
+        intuition: 'Training is repeatedly following these arrows downhill.',
+        math: '\\(\\theta \\leftarrow \\theta - \\eta \\nabla_\\theta L\\)',
+        draw: drawGradientScene
+    },
+    {
+        title: 'Scene 3: Regularization pulls to zero',
+        visual: 'Data-fit pushes weights somewhere. Regularization adds a pull back toward the origin.',
+        example: 'L2 has circular contours; L1 has diamond contours that encourage zeros.',
+        intuition: 'Where the contour touches the constraint explains sparsity in L1.',
+        math: '\\[L + \\lambda\\lVert w \\rVert_2^2\\]\\[L + \\lambda\\lVert w \\rVert_1\\]',
+        draw: drawRegularizationScene
+    },
+    {
+        title: 'Scene 4: Attention as a spotlight',
+        visual: 'A query arrow compares to key arrows. Softmax turns scores into weights, then you average the value arrows.',
+        example: 'If scores are \\(s = [2, 1, 0]\\), the weight on 2 is largest, so output leans toward \\(v_1\\).',
+        intuition: 'Attention is a weighted average that points where alignment is strongest.',
+        math: '\\(s_i = \\frac{q \\cdot k_i}{\\sqrt{d}}\\), \\(\\alpha = \\mathrm{softmax}(s)\\), \\(\\mathrm{out} = \\sum_i \\alpha_i v_i\\)',
+        draw: drawAttentionScene
+    }
+];
+
+let vectorSceneIndex = 0;
+
+function drawVectorSceneCanvas() {
+    const canvas = document.getElementById('vectorSceneCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const scene = vectorScenes[vectorSceneIndex];
+    if (scene && scene.draw) {
+        scene.draw(ctx, canvas);
+    }
+}
+
+function updateVectorScenePanel() {
+    const panel = document.getElementById('vectorScenePanel');
+    if (!panel) return;
+    const scene = vectorScenes[vectorSceneIndex];
+    if (!scene) return;
+
+    const badge = document.getElementById('vectorSceneBadge');
+    const title = document.getElementById('vectorSceneTitle');
+    const visual = document.getElementById('vectorSceneVisual');
+    const example = document.getElementById('vectorSceneExample');
+    const intuition = document.getElementById('vectorSceneIntuition');
+    const math = document.getElementById('vectorSceneMath');
+
+    if (badge) badge.textContent = `Scene ${vectorSceneIndex + 1} of ${vectorScenes.length}`;
+    if (title) title.textContent = scene.title;
+    if (math) math.innerHTML = scene.math;
+    if (visual) visual.innerHTML = scene.visual;
+    if (example) example.innerHTML = scene.example;
+    if (intuition) intuition.innerHTML = scene.intuition;
+
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise([panel]);
+    }
+
+    drawVectorSceneCanvas();
+}
+
+function setupVectorScenes() {
+    const prevBtn = document.getElementById('vectorPrevScene');
+    const nextBtn = document.getElementById('vectorNextScene');
+    if (!prevBtn || !nextBtn) return;
+
+    const updateScene = (direction) => {
+        const total = vectorScenes.length;
+        vectorSceneIndex = (vectorSceneIndex + direction + total) % total;
+        updateVectorScenePanel();
+    };
+
+    prevBtn.addEventListener('click', () => updateScene(-1));
+    nextBtn.addEventListener('click', () => updateScene(1));
+
+    updateVectorScenePanel();
 }
 
 function drawLinearAlgebraScene(ctx, canvas) {
@@ -1280,8 +2032,9 @@ function initFundamentals() {
 }
 
 function refreshAllVisuals() {
-    initVectorCanvas();
-    initMatrixCanvas();
+    updateVectorPlayground();
+    drawVectorSceneCanvas();
+    drawMatrixCanvas();
     drawGradientCanvas();
     drawActivationFunctions();
     drawNeuralNetwork();
@@ -1299,6 +2052,13 @@ function setupVectorControls() {
     };
 
     if (!inputs.ax) return;
+
+    const operationButtons = document.querySelectorAll('[data-vector-op]');
+    operationButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setVectorOperation(button.dataset.vectorOp);
+        });
+    });
 
     const labels = {
         ax: document.getElementById('vecAxVal'),
@@ -1321,7 +2081,7 @@ function setupVectorControls() {
         if (labels.by) labels.by.textContent = vectorState.by.toFixed(1);
         if (labels.scale) labels.scale.textContent = vectorState.scale.toFixed(1);
 
-        initVectorCanvas();
+        updateVectorPlayground();
     };
 
     Object.values(inputs).forEach(input => {
@@ -1331,6 +2091,45 @@ function setupVectorControls() {
     });
 
     update();
+    setVectorOperation(vectorState.operation);
+}
+
+function setupVectorModes() {
+    const modeButtons = document.querySelectorAll('[data-vector-mode]');
+    const panels = document.querySelectorAll('.vector-mode-panel');
+    if (!modeButtons.length || !panels.length) return;
+
+    const setMode = (mode) => {
+        panels.forEach(panel => {
+            panel.classList.toggle('is-active', panel.dataset.vectorMode === mode);
+        });
+        modeButtons.forEach(button => {
+            button.classList.toggle('is-active', button.dataset.vectorMode === mode);
+        });
+        if (mode === 'deep') {
+            updateVectorScenePanel();
+        } else {
+            updateVectorPlayground();
+        }
+    };
+
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => setMode(button.dataset.vectorMode));
+    });
+
+    setMode('basic');
+}
+
+function setupMatrixControls() {
+    const buttons = document.querySelectorAll('[data-matrix-op]');
+    if (!buttons.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setMatrixOperation(button.dataset.matrixOp));
+    });
+
+    updateMatrixUI();
+    drawMatrixCanvas();
 }
 
 function setupHolidayParade() {
@@ -1422,6 +2221,10 @@ function setupThemeSwitcher() {
     });
 }
 
+function initMatrixCanvas() {
+    drawMatrixCanvas();
+}
+
 // ============================================
 // Initialize all canvases on page load
 // ============================================
@@ -1429,6 +2232,9 @@ document.addEventListener('DOMContentLoaded', function() {
     setupThemeSwitcher();
     initFundamentals();
     setupVectorControls();
+    setupVectorScenes();
+    setupVectorModes();
+    setupMatrixControls();
     setupHolidayParade();
     refreshAllVisuals();
     
