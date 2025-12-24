@@ -151,6 +151,37 @@ header p {
     box-shadow: 0 6px 12px rgba(56, 189, 248, 0.3);
 }
 
+.chapter-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    padding: 0.9rem 1rem 0.6rem;
+}
+
+.chapter-btn {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    background: var(--nav-link-bg);
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chapter-btn:hover {
+    border-color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
+.chapter-btn.is-active {
+    background: var(--accent-1);
+    color: white;
+    border-color: var(--accent-1);
+    box-shadow: 0 6px 12px rgba(56, 189, 248, 0.3);
+}
+
 nav {
     background: var(--nav-bg);
     padding: 0.8rem 1rem;
@@ -163,6 +194,18 @@ nav {
     z-index: 100;
     box-shadow: 0 6px 18px rgba(30, 41, 59, 0.12);
     border-bottom: 2px solid var(--section-border);
+}
+
+.chapter {
+    display: block;
+}
+
+body[data-chapter-mode="on"] .chapter {
+    display: none;
+}
+
+body[data-chapter-mode="on"] .chapter.is-active {
+    display: block;
 }
 
 nav a {
@@ -222,6 +265,20 @@ main {
 @media (max-width: 768px) {
     .content-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .transformer-advanced-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .transformer-advanced-grid .visualization {
+        order: 1;
+    }
+
+    .transformer-advanced-grid .explanation {
+        order: 2;
     }
 }
 
@@ -461,6 +518,242 @@ main {
     flex-wrap: wrap;
 }
 
+.architecture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.architecture-card {
+    background: var(--panel-bg);
+    border: 2px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: var(--card-shadow);
+}
+
+.architecture-card h4 {
+    font-family: var(--font-display);
+    margin-bottom: 0.4rem;
+    color: var(--ink);
+}
+
+.arch-diagram {
+    width: 100%;
+    height: 120px;
+    margin-bottom: 0.5rem;
+}
+
+.arch-stroke {
+    stroke: var(--arch-accent, var(--accent-1));
+    stroke-width: 2;
+    fill: none;
+}
+
+.arch-node {
+    fill: var(--arch-accent, var(--accent-1));
+    stroke: var(--ink);
+    stroke-width: 1;
+}
+
+.arch-box {
+    fill: var(--panel-bg);
+    stroke: var(--arch-accent, var(--accent-1));
+    stroke-width: 2;
+}
+
+.guide-stack {
+    display: grid;
+    gap: 0.9rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.guide-card {
+    background: var(--panel-bg);
+    border: 2px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+}
+
+.guide-card h4 {
+    font-family: var(--font-display);
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+}
+
+.figure-note {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-top: 0.5rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.7rem;
+    margin-top: 0.8rem;
+}
+
+.info-card {
+    background: var(--formula-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 0.6rem 0.7rem;
+}
+
+.info-card h5 {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+    color: var(--ink);
+}
+
+.transformer-advanced-steps {
+    overflow-x: auto;
+    padding-bottom: 0.4rem;
+}
+
+.transformer-advanced-steps .toggle-btn {
+    white-space: nowrap;
+}
+
+.transformer-advanced-grid {
+    align-items: start;
+}
+
+.transformer-advanced-visuals {
+    align-items: stretch;
+}
+
+.transformer-advanced-canvas-grid {
+    display: grid;
+    gap: 0.8rem;
+    width: 100%;
+}
+
+.step-points {
+    margin: 0.6rem 0 0.4rem 1.2rem;
+    color: var(--ink-soft);
+}
+
+.step-points li {
+    margin-bottom: 0.35rem;
+}
+
+.reference-drawer {
+    margin-top: 1rem;
+    border: 2px dashed var(--panel-border);
+    border-radius: 14px;
+    padding: 0.6rem 0.9rem 0.9rem;
+    background: var(--panel-bg);
+}
+
+.reference-drawer summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.reference-drawer[open] .guide-stack {
+    margin-top: 0.8rem;
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 0.4rem;
+}
+
+.neural-module {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px dashed var(--section-border);
+    scroll-margin-top: 90px;
+}
+
+.neural-module:first-of-type {
+    margin-top: 1.5rem;
+    padding-top: 0;
+    border-top: none;
+}
+
+.step-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.2rem;
+}
+
+.step-card {
+    background: var(--panel-bg);
+    border: 2px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+}
+
+.step-card h4 {
+    font-family: var(--font-display);
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+}
+
+.step-card ol {
+    margin-left: 1.2rem;
+    color: var(--ink-soft);
+}
+
+.neural-readout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.readout-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.readout-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.readout-value {
+    font-weight: 800;
+    color: var(--ink);
+    font-size: 0.95rem;
+}
+
+.example-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.6rem 0 0.8rem;
+}
+
+.example-note {
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.step-panel {
+    margin-top: 1rem;
+}
+
+.controls .toggle-group,
+.controls .example-chips {
+    justify-content: center;
+}
+
 .path-card {
     background: var(--card-bg);
     border-radius: 18px;
@@ -616,6 +909,8 @@ canvas {
     border-radius: 16px;
     background: var(--canvas-bg);
     box-shadow: 0 10px 18px rgba(30, 41, 59, 0.12);
+    max-width: 100%;
+    height: auto;
 }
 
 .controls {

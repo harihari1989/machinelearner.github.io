@@ -1505,7 +1505,2381 @@ function runBackprop() {
 }
 
 function resetBackprop() {
-    drawBackpropNetwork(0);
+    if (typeof setBackpropStep === 'function') {
+        setBackpropStep(0);
+    } else {
+        drawBackpropNetwork(0);
+    }
+}
+
+const backpropSteps = [
+    {
+        title: 'Forward pass',
+        text: 'Compute predictions from inputs and current weights.'
+    },
+    {
+        title: 'Loss',
+        text: 'Compare predictions to targets to measure the error.'
+    },
+    {
+        title: 'Backward pass',
+        text: 'Send gradients backward through the network with the chain rule.'
+    },
+    {
+        title: 'Weight update',
+        text: 'Apply the learning rate to update weights and reduce loss.'
+    }
+];
+
+const backpropPhaseMap = [1, 1, 2, 3];
+
+const backpropState = {
+    stepIndex: 0,
+    timer: null
+};
+
+function getBackpropPhase() {
+    return backpropPhaseMap[backpropState.stepIndex] ?? 1;
+}
+
+function updateBackpropUI() {
+    const step = backpropSteps[backpropState.stepIndex];
+    const badgeEl = document.getElementById('backpropStepBadge');
+    const titleEl = document.getElementById('backpropStepTitle');
+    const textEl = document.getElementById('backpropStepText');
+
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${backpropState.stepIndex + 1} of ${backpropSteps.length}`;
+    }
+    if (titleEl) {
+        titleEl.textContent = step.title;
+    }
+    if (textEl) {
+        textEl.textContent = step.text;
+    }
+}
+
+function drawBackpropStep() {
+    drawBackpropNetwork(getBackpropPhase());
+}
+
+function setBackpropStep(stepIndex) {
+    const total = backpropSteps.length;
+    backpropState.stepIndex = ((stepIndex % total) + total) % total;
+    updateBackpropUI();
+    drawBackpropStep();
+}
+
+function advanceBackpropStep(direction = 1) {
+    setBackpropStep(backpropState.stepIndex + direction);
+}
+
+function toggleBackpropPlay() {
+    const button = document.getElementById('backpropPlay');
+    toggleAutoPlay(backpropState, button, 'Play steps', 'Pause', () => advanceBackpropStep(1), 1200);
+}
+
+function setupBackpropStepper() {
+    const prevButton = document.getElementById('backpropPrevStep');
+    const nextButton = document.getElementById('backpropNextStep');
+    const playButton = document.getElementById('backpropPlay');
+    const resetButton = document.getElementById('backpropReset');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceBackpropStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceBackpropStep(1));
+    if (playButton) playButton.addEventListener('click', toggleBackpropPlay);
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            stopAutoPlay(backpropState, playButton, 'Play steps');
+            setBackpropStep(0);
+        });
+    }
+
+    setBackpropStep(backpropState.stepIndex);
+}
+
+// ============================================
+// Neural Network Studio Extensions
+// ============================================
+function setActiveToggleButtons(buttons, dataKey, activeValue) {
+    buttons.forEach(button => {
+        const isActive = button.dataset[dataKey] === activeValue;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+function stopAutoPlay(state, button, playLabel) {
+    if (state.timer) {
+        clearInterval(state.timer);
+        state.timer = null;
+        if (button) {
+            button.textContent = playLabel;
+        }
+    }
+}
+
+function toggleAutoPlay(state, button, playLabel, pauseLabel, stepFn, intervalMs = 1200) {
+    if (!button) return;
+    if (state.timer) {
+        stopAutoPlay(state, button, playLabel);
+        return;
+    }
+    button.textContent = pauseLabel;
+    state.timer = setInterval(stepFn, intervalMs);
+}
+
+const neuronExamples = [
+    {
+        id: 'stroke',
+        label: 'Stroke detector',
+        inputs: [0.9, 0.2, 0.8],
+        weights: [0.7, -0.4, 0.6],
+        bias: -0.1,
+        activation: 'relu',
+        note: 'Strong vertical pixels light this neuron up.'
+    },
+    {
+        id: 'curve',
+        label: 'Curve detector',
+        inputs: [0.4, 0.9, 0.3],
+        weights: [0.2, 0.8, -0.3],
+        bias: 0.05,
+        activation: 'sigmoid',
+        note: 'Curvy strokes produce a smooth, moderate output.'
+    },
+    {
+        id: 'noise',
+        label: 'Noise filter',
+        inputs: [0.1, 0.05, 0.2],
+        weights: [0.6, -0.2, 0.4],
+        bias: -0.05,
+        activation: 'relu',
+        note: 'Mostly noise means the neuron stays quiet.'
+    }
+];
+
+const neuronSteps = [
+    {
+        title: 'Inputs arrive',
+        text: 'Each input feature sends a value into the neuron.'
+    },
+    {
+        title: 'Weighted connections',
+        text: 'Weights scale how much each input matters.'
+    },
+    {
+        title: 'Add bias',
+        text: 'Sum the weighted inputs, then shift with bias b.'
+    },
+    {
+        title: 'Activation fires',
+        text: 'The activation decides how strong the output is.'
+    }
+];
+
+const neuronState = {
+    step: 0,
+    exampleId: neuronExamples[0].id,
+    timer: null
+};
+
+function getNeuronExample() {
+    return neuronExamples.find(example => example.id === neuronState.exampleId) || neuronExamples[0];
+}
+
+function computeNeuron(example) {
+    const weightedSum = example.inputs.reduce((sum, value, index) => {
+        return sum + value * example.weights[index];
+    }, 0) + example.bias;
+    const activationValue = example.activation === 'relu' ? relu(weightedSum) : sigmoid(weightedSum);
+    return { weightedSum, activationValue };
+}
+
+function updateNeuronUI() {
+    const example = getNeuronExample();
+    const { weightedSum, activationValue } = computeNeuron(example);
+    const stepInfo = neuronSteps[neuronState.step];
+
+    const inputsEl = document.getElementById('neuronInputs');
+    const weightsEl = document.getElementById('neuronWeights');
+    const weightedSumEl = document.getElementById('neuronWeightedSum');
+    const biasEl = document.getElementById('neuronBias');
+    const activationEl = document.getElementById('neuronActivation');
+    const noteEl = document.getElementById('neuronExampleNote');
+    const badgeEl = document.getElementById('neuronStepBadge');
+    const titleEl = document.getElementById('neuronStepTitle');
+    const textEl = document.getElementById('neuronStepText');
+
+    if (inputsEl) {
+        inputsEl.textContent = `[${example.inputs.map(value => value.toFixed(2)).join(', ')}]`;
+    }
+    if (weightsEl) {
+        weightsEl.textContent = `[${example.weights.map(value => value.toFixed(2)).join(', ')}]`;
+    }
+    if (weightedSumEl) {
+        weightedSumEl.textContent = weightedSum.toFixed(2);
+    }
+    if (biasEl) {
+        biasEl.textContent = example.bias.toFixed(2);
+    }
+    if (activationEl) {
+        activationEl.textContent = `${activationValue.toFixed(2)} (${example.activation})`;
+    }
+    if (noteEl) {
+        noteEl.textContent = example.note;
+    }
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${neuronState.step + 1} of ${neuronSteps.length}`;
+    }
+    if (titleEl) {
+        titleEl.textContent = stepInfo.title;
+    }
+    if (textEl) {
+        textEl.textContent = stepInfo.text;
+    }
+}
+
+function drawNeuronCanvas() {
+    const canvas = document.getElementById('neuronCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const example = getNeuronExample();
+    const { weightedSum, activationValue } = computeNeuron(example);
+    const step = neuronState.step;
+    const inputX = 70;
+    const neuronX = 210;
+    const outputX = 340;
+    const neuronY = 160;
+    const inputYs = [90, 160, 230];
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 14px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Neuron', canvas.width / 2, 28);
+
+    inputYs.forEach((y, index) => {
+        ctx.fillStyle = theme.primary;
+        ctx.beginPath();
+        ctx.arc(inputX, y, 18, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.strokeStyle = theme.axis;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.fillText(example.inputs[index].toFixed(2), inputX, y + 4);
+    });
+
+    inputYs.forEach((y, index) => {
+        const color = step >= 1 ? theme.secondary : theme.grid;
+        drawArrow(ctx, inputX + 20, y, neuronX - 24, neuronY, color);
+        if (step >= 1) {
+            const midX = (inputX + neuronX) / 2;
+            const midY = (y + neuronY) / 2;
+            ctx.fillStyle = theme.ink;
+            ctx.font = '12px Nunito, Arial';
+            ctx.fillText(`w${index + 1}=${example.weights[index].toFixed(2)}`, midX - 10, midY - 6);
+        }
+    });
+
+    ctx.save();
+    ctx.globalAlpha = step >= 2 ? 1 : 0.7;
+    ctx.fillStyle = theme.secondary;
+    ctx.beginPath();
+    ctx.arc(neuronX, neuronY, 28, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 14px Nunito, Arial';
+    ctx.fillText('Σ', neuronX, neuronY + 5);
+
+    if (step >= 2) {
+        ctx.fillStyle = theme.ink;
+        ctx.font = '12px Nunito, Arial';
+        ctx.fillText(`+ b=${example.bias.toFixed(2)}`, neuronX + 48, neuronY - 8);
+
+        const box = { x: neuronX - 34, y: neuronY - 70, width: 68, height: 26 };
+        drawRoundedRect(ctx, box.x, box.y, box.width, box.height, 8);
+        ctx.fillStyle = theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.secondary;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText(`z=${weightedSum.toFixed(2)}`, neuronX, neuronY - 52);
+    }
+
+    if (step >= 3) {
+        drawArrow(ctx, neuronX + 30, neuronY, outputX - 20, neuronY, theme.success);
+        ctx.fillStyle = theme.success;
+        ctx.beginPath();
+        ctx.arc(outputX, neuronY, 20, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.fillText(activationValue.toFixed(2), outputX, neuronY + 4);
+        ctx.fillStyle = theme.ink;
+        ctx.font = '12px Nunito, Arial';
+        ctx.fillText('Output a', outputX, neuronY + 34);
+    }
+}
+
+function setNeuronExample(exampleId) {
+    neuronState.exampleId = exampleId;
+    neuronState.step = 0;
+    updateNeuronUI();
+    drawNeuronCanvas();
+}
+
+function setNeuronStep(step) {
+    const total = neuronSteps.length;
+    neuronState.step = ((step % total) + total) % total;
+    updateNeuronUI();
+    drawNeuronCanvas();
+}
+
+function advanceNeuronStep(direction = 1) {
+    setNeuronStep(neuronState.step + direction);
+}
+
+function toggleNeuronPlay() {
+    const button = document.getElementById('neuronPlay');
+    toggleAutoPlay(neuronState, button, 'Play loop', 'Pause', () => advanceNeuronStep(1), 1100);
+}
+
+function setupNeuronLab() {
+    const exampleButtons = document.querySelectorAll('[data-neuron-example]');
+    if (!exampleButtons.length) return;
+
+    exampleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(neuronState, document.getElementById('neuronPlay'), 'Play loop');
+            setActiveToggleButtons(exampleButtons, 'neuronExample', button.dataset.neuronExample);
+            setNeuronExample(button.dataset.neuronExample);
+        });
+    });
+
+    const prevButton = document.getElementById('neuronPrevStep');
+    const nextButton = document.getElementById('neuronNextStep');
+    const playButton = document.getElementById('neuronPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceNeuronStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceNeuronStep(1));
+    if (playButton) playButton.addEventListener('click', toggleNeuronPlay);
+
+    setActiveToggleButtons(exampleButtons, 'neuronExample', neuronState.exampleId);
+    updateNeuronUI();
+    drawNeuronCanvas();
+}
+
+const digitExamples = [
+    {
+        id: 'zero',
+        label: 0,
+        name: 'Digit 0',
+        grid: [
+            [0, 1, 1, 1, 1, 1, 0],
+            [1, 1, 0, 0, 0, 1, 1],
+            [1, 1, 0, 0, 0, 1, 1],
+            [1, 1, 0, 0, 0, 1, 1],
+            [1, 1, 0, 0, 0, 1, 1],
+            [1, 1, 0, 0, 0, 1, 1],
+            [0, 1, 1, 1, 1, 1, 0]
+        ],
+        scores: [2.8, -0.3, -1.1, -0.9, -0.7, -0.6, -1.0, -0.8, -0.4, -0.2],
+        note: 'A round loop with a hollow center.'
+    },
+    {
+        id: 'three',
+        label: 3,
+        name: 'Digit 3',
+        grid: [
+            [0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 1, 1, 0],
+            [0, 0, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 1, 1, 0],
+            [0, 0, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 1, 1, 0],
+            [0, 1, 1, 1, 1, 0, 0]
+        ],
+        scores: [-0.7, -0.4, -0.3, 2.4, -0.2, -0.5, -0.6, -0.4, 0.9, -0.1],
+        note: 'Two curves stacked on the right side.'
+    },
+    {
+        id: 'seven',
+        label: 7,
+        name: 'Digit 7',
+        grid: [
+            [1, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 1, 0, 0],
+            [0, 0, 1, 1, 0, 0, 0],
+            [0, 1, 1, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0, 0]
+        ],
+        scores: [-0.8, -0.2, -0.4, -0.5, -0.3, -0.6, -0.7, 2.5, -0.1, 0.4],
+        note: 'A strong top bar and diagonal stroke.'
+    }
+];
+
+const digitSteps = {
+    inference: [
+        { title: 'Image input', text: 'Pixels arrive as a small grid.' },
+        { title: 'Flatten + normalize', text: 'Turn the grid into a vector of numbers.' },
+        { title: 'Hidden activations', text: 'Features combine into hidden neurons.' },
+        { title: 'Output probabilities', text: 'Scores turn into probabilities for digits 0-9.' }
+    ],
+    training: [
+        { title: 'Image input', text: 'Pixels arrive as a small grid.' },
+        { title: 'Flatten + normalize', text: 'Turn the grid into a vector of numbers.' },
+        { title: 'Hidden activations', text: 'Features combine into hidden neurons.' },
+        { title: 'Output probabilities', text: 'Scores turn into probabilities for digits 0-9.' },
+        { title: 'Loss', text: 'Compare the prediction to the true label.' },
+        { title: 'Backpropagate', text: 'Send gradients backward through the layers.' },
+        { title: 'Update weights', text: 'Adjust weights to reduce the loss next time.' }
+    ]
+};
+
+const digitLabState = {
+    step: 0,
+    mode: 'inference',
+    exampleId: digitExamples[0].id,
+    timer: null
+};
+
+function softmax(scores) {
+    const max = Math.max(...scores);
+    const expScores = scores.map(score => Math.exp(score - max));
+    const sum = expScores.reduce((total, value) => total + value, 0);
+    return expScores.map(value => value / sum);
+}
+
+function getDigitExample() {
+    return digitExamples.find(example => example.id === digitLabState.exampleId) || digitExamples[0];
+}
+
+function getDigitSteps() {
+    return digitSteps[digitLabState.mode] || digitSteps.inference;
+}
+
+function updateDigitUI() {
+    const example = getDigitExample();
+    const probs = softmax(example.scores);
+    const maxIndex = probs.indexOf(Math.max(...probs));
+    const loss = -Math.log(Math.max(probs[example.label], 1e-6));
+    const steps = getDigitSteps();
+    const stepInfo = steps[digitLabState.step];
+
+    const targetEl = document.getElementById('digitTarget');
+    const predEl = document.getElementById('digitPrediction');
+    const lossEl = document.getElementById('digitLoss');
+    const noteEl = document.getElementById('digitExampleNote');
+    const badgeEl = document.getElementById('digitStepBadge');
+    const titleEl = document.getElementById('digitStepTitle');
+    const textEl = document.getElementById('digitStepText');
+
+    if (targetEl) {
+        targetEl.textContent = example.label.toString();
+    }
+    if (predEl) {
+        predEl.textContent = `${maxIndex} (${probs[maxIndex].toFixed(2)})`;
+    }
+    if (lossEl) {
+        lossEl.textContent = digitLabState.mode === 'training' ? loss.toFixed(2) : 'n/a';
+    }
+    if (noteEl) {
+        noteEl.textContent = example.note;
+    }
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${digitLabState.step + 1} of ${steps.length}`;
+    }
+    if (titleEl && stepInfo) {
+        titleEl.textContent = stepInfo.title;
+    }
+    if (textEl && stepInfo) {
+        textEl.textContent = stepInfo.text;
+    }
+}
+
+function drawDigitGrid(ctx, grid, startX, startY, cellSize, theme) {
+    grid.forEach((row, rowIndex) => {
+        row.forEach((value, colIndex) => {
+            const x = startX + colIndex * cellSize;
+            const y = startY + rowIndex * cellSize;
+            ctx.fillStyle = value ? theme.primary : theme.panel;
+            ctx.fillRect(x, y, cellSize, cellSize);
+            ctx.strokeStyle = theme.grid;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x, y, cellSize, cellSize);
+        });
+    });
+}
+
+function drawOutputBars(ctx, probs, startX, startY, maxWidth, barHeight, gap, theme, highlightIndex, isActive) {
+    ctx.font = '11px Nunito, Arial';
+    ctx.textAlign = 'left';
+    probs.forEach((value, index) => {
+        const y = startY + index * (barHeight + gap);
+        const barWidth = maxWidth * value;
+        const color = index === highlightIndex ? theme.success : theme.secondary;
+        ctx.fillStyle = isActive ? color : theme.grid;
+        ctx.globalAlpha = isActive ? 0.85 : 0.4;
+        ctx.fillRect(startX, y, barWidth, barHeight);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = theme.axis;
+        ctx.strokeRect(startX, y, maxWidth, barHeight);
+        ctx.fillStyle = theme.ink;
+        ctx.fillText(index.toString(), startX - 16, y + barHeight - 2);
+    });
+}
+
+function drawDigitLab() {
+    const canvas = document.getElementById('digitLabCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const example = getDigitExample();
+    const probs = softmax(example.scores);
+    const maxIndex = probs.indexOf(Math.max(...probs));
+    const step = digitLabState.step;
+    const mode = digitLabState.mode;
+
+    const gridX = 24;
+    const gridY = 70;
+    const cellSize = 16;
+    const gridWidth = example.grid.length * cellSize;
+    const gridHeight = example.grid.length * cellSize;
+
+    drawDigitGrid(ctx, example.grid, gridX, gridY, cellSize, theme);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Input pixels', gridX + gridWidth / 2, gridY - 12);
+
+    const flattenX = gridX + gridWidth + 30;
+    const flattenY = 60;
+    const flattenWidth = 60;
+    const flattenHeight = 200;
+
+    drawArrow(ctx, gridX + gridWidth + 6, gridY + gridHeight / 2, flattenX - 6, flattenY + flattenHeight / 2, step >= 1 ? theme.primary : theme.grid);
+
+    drawRoundedRect(ctx, flattenX, flattenY, flattenWidth, flattenHeight, 10);
+    ctx.fillStyle = step >= 1 ? theme.primary : theme.panel;
+    ctx.globalAlpha = step >= 1 ? 0.9 : 0.6;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('64', flattenX + flattenWidth / 2, flattenY + flattenHeight / 2 - 6);
+    ctx.font = '11px Nunito, Arial';
+    ctx.fillText('inputs', flattenX + flattenWidth / 2, flattenY + flattenHeight / 2 + 10);
+
+    const hiddenX = flattenX + flattenWidth + 40;
+    const hiddenYs = [90, 150, 210];
+    hiddenYs.forEach((y, index) => {
+        ctx.fillStyle = step >= 2 ? theme.secondary : theme.grid;
+        ctx.beginPath();
+        ctx.arc(hiddenX, y, 14, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        if (step >= 2) {
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 10px Nunito, Arial';
+            ctx.fillText(`h${index + 1}`, hiddenX, y + 4);
+        }
+    });
+
+    hiddenYs.forEach(y => {
+        drawArrow(ctx, flattenX + flattenWidth + 6, flattenY + flattenHeight / 2, hiddenX - 16, y, step >= 2 ? theme.secondary : theme.grid);
+    });
+
+    const barsX = hiddenX + 40;
+    const barsY = 70;
+    drawOutputBars(ctx, probs, barsX, barsY, 70, 10, 4, theme, maxIndex, step >= 3);
+
+    if (step >= 3) {
+        hiddenYs.forEach(y => {
+            drawArrow(ctx, hiddenX + 16, y, barsX - 6, barsY + 46, theme.success);
+        });
+    }
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Output', barsX + 35, barsY - 12);
+
+    if (mode === 'training' && step >= 4) {
+        ctx.fillStyle = theme.danger;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText(`Loss: ${(-Math.log(Math.max(probs[example.label], 1e-6))).toFixed(2)}`, barsX + 35, barsY + 130);
+    }
+
+    if (mode === 'training' && step >= 5) {
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = theme.danger;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(barsX - 10, barsY + 50);
+        ctx.lineTo(hiddenX + 20, hiddenYs[1]);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(hiddenX - 20, hiddenYs[1]);
+        ctx.lineTo(flattenX + flattenWidth + 8, flattenY + flattenHeight / 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    if (mode === 'training' && step >= 6) {
+        ctx.fillStyle = theme.warning;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Update weights', hiddenX, 270);
+    }
+}
+
+function setDigitExample(exampleId) {
+    digitLabState.exampleId = exampleId;
+    digitLabState.step = 0;
+    updateDigitUI();
+    drawDigitLab();
+}
+
+function setDigitMode(mode) {
+    digitLabState.mode = mode;
+    digitLabState.step = 0;
+    updateDigitUI();
+    drawDigitLab();
+}
+
+function setDigitStep(step) {
+    const steps = getDigitSteps();
+    const total = steps.length;
+    digitLabState.step = ((step % total) + total) % total;
+    updateDigitUI();
+    drawDigitLab();
+}
+
+function advanceDigitStep(direction = 1) {
+    setDigitStep(digitLabState.step + direction);
+}
+
+function toggleDigitPlay() {
+    const button = document.getElementById('digitPlay');
+    toggleAutoPlay(digitLabState, button, 'Play loop', 'Pause', () => advanceDigitStep(1), 1200);
+}
+
+function setupDigitLab() {
+    const exampleButtons = document.querySelectorAll('[data-digit-example]');
+    const modeButtons = document.querySelectorAll('[data-digit-mode]');
+    if (!exampleButtons.length) return;
+
+    exampleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(digitLabState, document.getElementById('digitPlay'), 'Play loop');
+            setActiveToggleButtons(exampleButtons, 'digitExample', button.dataset.digitExample);
+            setDigitExample(button.dataset.digitExample);
+        });
+    });
+
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(digitLabState, document.getElementById('digitPlay'), 'Play loop');
+            setActiveToggleButtons(modeButtons, 'digitMode', button.dataset.digitMode);
+            setDigitMode(button.dataset.digitMode);
+        });
+    });
+
+    const prevButton = document.getElementById('digitPrevStep');
+    const nextButton = document.getElementById('digitNextStep');
+    const playButton = document.getElementById('digitPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceDigitStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceDigitStep(1));
+    if (playButton) playButton.addEventListener('click', toggleDigitPlay);
+
+    setActiveToggleButtons(exampleButtons, 'digitExample', digitLabState.exampleId);
+    setActiveToggleButtons(modeButtons, 'digitMode', digitLabState.mode);
+    updateDigitUI();
+    drawDigitLab();
+}
+
+const deepNetState = {
+    depth: 5,
+    progress: 0,
+    animating: false,
+    rafId: null
+};
+
+function drawDeepNetwork(progress = deepNetState.progress) {
+    const canvas = document.getElementById('deepNetCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const depth = deepNetState.depth;
+    const layerCount = Math.max(depth, 3);
+    const layerSpacing = (canvas.width - 120) / (layerCount - 1);
+    const xStart = 60;
+    const nodeYs = [90, 160, 230];
+    const activeFloat = progress * (layerCount - 1);
+    const activeLayer = Math.floor(activeFloat);
+
+    for (let layer = 0; layer < layerCount - 1; layer++) {
+        const x1 = xStart + layer * layerSpacing;
+        const x2 = xStart + (layer + 1) * layerSpacing;
+        nodeYs.forEach((y1) => {
+            nodeYs.forEach((y2) => {
+                if (layer < activeLayer) {
+                    ctx.strokeStyle = theme.primary;
+                } else if (layer === activeLayer) {
+                    ctx.strokeStyle = theme.warning;
+                } else {
+                    ctx.strokeStyle = theme.grid;
+                }
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            });
+        });
+    }
+
+    for (let layer = 0; layer < layerCount; layer++) {
+        const x = xStart + layer * layerSpacing;
+        const isActive = layer <= activeLayer;
+        nodeYs.forEach((y) => {
+            ctx.fillStyle = isActive ? theme.secondary : theme.grid;
+            ctx.beginPath();
+            ctx.arc(x, y, 14, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = theme.axis;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.textAlign = 'center';
+        let label = 'Hidden';
+        if (layer === 0) label = 'Input';
+        if (layer === layerCount - 1) label = 'Output';
+        ctx.fillText(label, x, 270);
+    }
+
+    const signalX = xStart + progress * (layerCount - 1) * layerSpacing;
+    ctx.fillStyle = theme.success;
+    ctx.beginPath();
+    ctx.arc(signalX, 160, 10, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+function setDeepDepth(depth) {
+    deepNetState.depth = depth;
+    const labelEl = document.getElementById('deepDepthVal');
+    if (labelEl) {
+        labelEl.textContent = depth.toString();
+    }
+    drawDeepNetwork();
+}
+
+function runDeepNetwork() {
+    if (deepNetState.animating) return;
+    deepNetState.animating = true;
+    const start = performance.now();
+    const duration = 1600;
+
+    const animate = (time) => {
+        const progress = Math.min((time - start) / duration, 1);
+        deepNetState.progress = progress;
+        drawDeepNetwork(progress);
+        if (progress < 1) {
+            deepNetState.rafId = requestAnimationFrame(animate);
+        } else {
+            deepNetState.animating = false;
+            deepNetState.progress = 0;
+            drawDeepNetwork();
+        }
+    };
+    deepNetState.rafId = requestAnimationFrame(animate);
+}
+
+function setupDeepNetwork() {
+    const slider = document.getElementById('deepDepth');
+    const runButton = document.getElementById('deepRun');
+    if (!slider) return;
+
+    slider.addEventListener('input', () => setDeepDepth(parseInt(slider.value, 10)));
+    if (runButton) runButton.addEventListener('click', runDeepNetwork);
+    setDeepDepth(parseInt(slider.value, 10));
+}
+
+const cnnExamples = [
+    {
+        id: 'edge',
+        label: 'Edge detector',
+        grid: [
+            [0, 0, 0, 1, 1, 1],
+            [0, 0, 0, 1, 1, 1],
+            [0, 0, 0, 1, 1, 1],
+            [0, 0, 0, 1, 1, 1],
+            [0, 0, 0, 1, 1, 1],
+            [0, 0, 0, 1, 1, 1]
+        ],
+        kernel: [
+            [1, 0, -1],
+            [1, 0, -1],
+            [1, 0, -1]
+        ],
+        note: 'Detects vertical edges across the image.'
+    },
+    {
+        id: 'corner',
+        label: 'Corner detector',
+        grid: [
+            [1, 1, 1, 0, 0, 0],
+            [1, 1, 1, 0, 0, 0],
+            [1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0]
+        ],
+        kernel: [
+            [1, 1, 0],
+            [1, 0, -1],
+            [0, -1, -1]
+        ],
+        note: 'Highlights corners where two edges meet.'
+    },
+    {
+        id: 'diagonal',
+        label: 'Diagonal stroke',
+        grid: [
+            [1, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 1]
+        ],
+        kernel: [
+            [1, 0, -1],
+            [0, 1, 0],
+            [-1, 0, 1]
+        ],
+        note: 'Responds to diagonal strokes and slants.'
+    }
+];
+
+function convolve2d(grid, kernel) {
+    const output = [];
+    const rows = grid.length - kernel.length + 1;
+    const cols = grid[0].length - kernel[0].length + 1;
+    for (let r = 0; r < rows; r++) {
+        const row = [];
+        for (let c = 0; c < cols; c++) {
+            let sum = 0;
+            for (let kr = 0; kr < kernel.length; kr++) {
+                for (let kc = 0; kc < kernel[0].length; kc++) {
+                    sum += grid[r + kr][c + kc] * kernel[kr][kc];
+                }
+            }
+            row.push(sum);
+        }
+        output.push(row);
+    }
+    return output;
+}
+
+cnnExamples.forEach(example => {
+    example.output = convolve2d(example.grid, example.kernel);
+});
+
+const cnnState = {
+    exampleId: cnnExamples[0].id,
+    stepIndex: 0,
+    timer: null
+};
+
+function getCnnExample() {
+    return cnnExamples.find(example => example.id === cnnState.exampleId) || cnnExamples[0];
+}
+
+function getCnnPosition(example) {
+    const cols = example.output[0].length;
+    const row = Math.floor(cnnState.stepIndex / cols);
+    const col = cnnState.stepIndex % cols;
+    return { row, col };
+}
+
+function updateCnnUI() {
+    const example = getCnnExample();
+    const { row, col } = getCnnPosition(example);
+    const total = example.output.length * example.output[0].length;
+    const outputValue = example.output[row][col];
+
+    const noteEl = document.getElementById('cnnExampleNote');
+    const patchEl = document.getElementById('cnnPatch');
+    const valueEl = document.getElementById('cnnOutputValue');
+    const badgeEl = document.getElementById('cnnStepBadge');
+    const titleEl = document.getElementById('cnnStepTitle');
+    const textEl = document.getElementById('cnnStepText');
+
+    if (noteEl) noteEl.textContent = example.note;
+    if (patchEl) patchEl.textContent = `(${row + 1}, ${col + 1})`;
+    if (valueEl) valueEl.textContent = outputValue.toFixed(2);
+    if (badgeEl) badgeEl.textContent = `Step ${cnnState.stepIndex + 1} of ${total}`;
+    if (titleEl) titleEl.textContent = `Filter at row ${row + 1}, col ${col + 1}`;
+    if (textEl) textEl.textContent = 'Multiply the 3x3 patch by the filter, then sum to get one output cell.';
+}
+
+function drawCnnGrid(ctx, grid, startX, startY, cellSize, theme, highlight) {
+    for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[0].length; c++) {
+            const value = grid[r][c];
+            const x = startX + c * cellSize;
+            const y = startY + r * cellSize;
+            ctx.fillStyle = value ? theme.primary : theme.panel;
+            ctx.fillRect(x, y, cellSize, cellSize);
+            ctx.strokeStyle = theme.grid;
+            ctx.strokeRect(x, y, cellSize, cellSize);
+        }
+    }
+
+    if (highlight) {
+        ctx.strokeStyle = theme.warning;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(highlight.x, highlight.y, highlight.size, highlight.size);
+    }
+}
+
+function drawCnnOutput(ctx, output, startX, startY, cellSize, theme, highlightCell) {
+    const maxAbs = Math.max(...output.flat().map(value => Math.abs(value))) || 1;
+    for (let r = 0; r < output.length; r++) {
+        for (let c = 0; c < output[0].length; c++) {
+            const value = output[r][c];
+            const x = startX + c * cellSize;
+            const y = startY + r * cellSize;
+            const intensity = Math.min(Math.abs(value) / maxAbs, 1);
+            ctx.fillStyle = value >= 0 ? theme.success : theme.danger;
+            ctx.globalAlpha = 0.2 + intensity * 0.7;
+            ctx.fillRect(x, y, cellSize, cellSize);
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = theme.axis;
+            ctx.strokeRect(x, y, cellSize, cellSize);
+        }
+    }
+
+    if (highlightCell) {
+        ctx.strokeStyle = theme.warning;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(highlightCell.x, highlightCell.y, cellSize, cellSize);
+    }
+}
+
+function drawKernel(ctx, kernel, startX, startY, cellSize, theme) {
+    ctx.font = '11px Nunito, Arial';
+    ctx.textAlign = 'center';
+    for (let r = 0; r < kernel.length; r++) {
+        for (let c = 0; c < kernel[0].length; c++) {
+            const value = kernel[r][c];
+            const x = startX + c * cellSize;
+            const y = startY + r * cellSize;
+            ctx.fillStyle = theme.panel;
+            ctx.fillRect(x, y, cellSize, cellSize);
+            ctx.strokeStyle = theme.axis;
+            ctx.strokeRect(x, y, cellSize, cellSize);
+            ctx.fillStyle = theme.ink;
+            ctx.fillText(value.toFixed(0), x + cellSize / 2, y + cellSize / 2 + 4);
+        }
+    }
+}
+
+function drawCnnCanvas() {
+    const canvas = document.getElementById('cnnCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const example = getCnnExample();
+    const { row, col } = getCnnPosition(example);
+    const cellSize = 20;
+    const inputX = 20;
+    const inputY = 70;
+    const kernelSize = example.kernel.length * cellSize;
+
+    const highlight = {
+        x: inputX + col * cellSize,
+        y: inputY + row * cellSize,
+        size: kernelSize
+    };
+
+    drawCnnGrid(ctx, example.grid, inputX, inputY, cellSize, theme, highlight);
+
+    const kernelX = inputX + example.grid[0].length * cellSize + 18;
+    const kernelY = inputY;
+    drawKernel(ctx, example.kernel, kernelX, kernelY, cellSize - 2, theme);
+
+    const outputX = kernelX + kernelSize + 24;
+    const outputY = inputY;
+    const outputHighlight = {
+        x: outputX + col * cellSize,
+        y: outputY + row * cellSize
+    };
+    drawCnnOutput(ctx, example.output, outputX, outputY, cellSize, theme, outputHighlight);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Input', inputX + (example.grid[0].length * cellSize) / 2, inputY - 10);
+    ctx.fillText('Kernel', kernelX + kernelSize / 2, kernelY - 10);
+    ctx.fillText('Output', outputX + (example.output[0].length * cellSize) / 2, outputY - 10);
+}
+
+function setCnnExample(exampleId) {
+    cnnState.exampleId = exampleId;
+    cnnState.stepIndex = 0;
+    updateCnnUI();
+    drawCnnCanvas();
+}
+
+function setCnnStep(stepIndex) {
+    const example = getCnnExample();
+    const total = example.output.length * example.output[0].length;
+    cnnState.stepIndex = ((stepIndex % total) + total) % total;
+    updateCnnUI();
+    drawCnnCanvas();
+}
+
+function advanceCnnStep(direction = 1) {
+    setCnnStep(cnnState.stepIndex + direction);
+}
+
+function toggleCnnPlay() {
+    const button = document.getElementById('cnnPlay');
+    toggleAutoPlay(cnnState, button, 'Play sweep', 'Pause', () => advanceCnnStep(1), 900);
+}
+
+function setupCnnLab() {
+    const exampleButtons = document.querySelectorAll('[data-cnn-example]');
+    if (!exampleButtons.length) return;
+
+    exampleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(cnnState, document.getElementById('cnnPlay'), 'Play sweep');
+            setActiveToggleButtons(exampleButtons, 'cnnExample', button.dataset.cnnExample);
+            setCnnExample(button.dataset.cnnExample);
+        });
+    });
+
+    const prevButton = document.getElementById('cnnPrevStep');
+    const nextButton = document.getElementById('cnnNextStep');
+    const playButton = document.getElementById('cnnPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceCnnStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceCnnStep(1));
+    if (playButton) playButton.addEventListener('click', toggleCnnPlay);
+
+    setActiveToggleButtons(exampleButtons, 'cnnExample', cnnState.exampleId);
+    updateCnnUI();
+    drawCnnCanvas();
+}
+
+const rnnExamples = [
+    {
+        id: 'sentence',
+        label: 'Next word prediction',
+        tokens: ['The', 'cat', 'sat', 'down'],
+        outputs: ['cat', 'sat', 'down', '.'],
+        hidden: [0.22, 0.45, 0.63, 0.58],
+        note: 'Each hidden state carries context to the next word.'
+    },
+    {
+        id: 'weather',
+        label: 'Forecast',
+        tokens: ['Temp', 'rises', 'then', 'drops'],
+        outputs: ['rises', 'then', 'drops', 'tomorrow'],
+        hidden: [0.31, 0.5, 0.42, 0.6],
+        note: 'Sequence trends show up in the hidden state.'
+    },
+    {
+        id: 'music',
+        label: 'Music pattern',
+        tokens: ['C', 'D', 'E', 'G'],
+        outputs: ['D', 'E', 'G', 'A'],
+        hidden: [0.18, 0.35, 0.54, 0.7],
+        note: 'Rhythm and melody are learned across steps.'
+    }
+];
+
+const rnnState = {
+    exampleId: rnnExamples[0].id,
+    stepIndex: 0,
+    timer: null
+};
+
+function getRnnExample() {
+    return rnnExamples.find(example => example.id === rnnState.exampleId) || rnnExamples[0];
+}
+
+function updateRnnUI() {
+    const example = getRnnExample();
+    const step = rnnState.stepIndex;
+    const total = example.tokens.length;
+    const tokenEl = document.getElementById('rnnToken');
+    const hiddenEl = document.getElementById('rnnHidden');
+    const outputEl = document.getElementById('rnnOutput');
+    const noteEl = document.getElementById('rnnExampleNote');
+    const badgeEl = document.getElementById('rnnStepBadge');
+    const titleEl = document.getElementById('rnnStepTitle');
+    const textEl = document.getElementById('rnnStepText');
+
+    if (tokenEl) tokenEl.textContent = example.tokens[step];
+    if (hiddenEl) hiddenEl.textContent = example.hidden[step].toFixed(2);
+    if (outputEl) outputEl.textContent = example.outputs[step];
+    if (noteEl) noteEl.textContent = example.note;
+    if (badgeEl) badgeEl.textContent = `Step ${step + 1} of ${total}`;
+    if (titleEl) titleEl.textContent = `Time step ${step + 1}`;
+    if (textEl) textEl.textContent = 'Input -> hidden state -> output at this time step.';
+}
+
+function drawRnnCanvas() {
+    const canvas = document.getElementById('rnnCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const example = getRnnExample();
+    const count = example.tokens.length;
+    const gap = 12;
+    const maxWidth = canvas.width - 40;
+    const tokenWidth = Math.min(70, (maxWidth - gap * (count - 1)) / count);
+    const tokenHeight = 30;
+    const totalWidth = tokenWidth * count + gap * (count - 1);
+    const startX = (canvas.width - totalWidth) / 2;
+    const tokenY = 70;
+    const hiddenY = 190;
+
+    example.tokens.forEach((token, index) => {
+        const x = startX + index * (tokenWidth + gap);
+        const isActive = index === rnnState.stepIndex;
+        drawRoundedRect(ctx, x, tokenY, tokenWidth, tokenHeight, 8);
+        ctx.fillStyle = isActive ? theme.primary : theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = isActive ? 'white' : theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(token, x + tokenWidth / 2, tokenY + 20);
+
+        drawArrow(ctx, x + tokenWidth / 2, tokenY + tokenHeight, x + tokenWidth / 2, hiddenY - 16, index <= rnnState.stepIndex ? theme.primary : theme.grid);
+    });
+
+    example.hidden.forEach((value, index) => {
+        const x = startX + index * (tokenWidth + gap) + tokenWidth / 2;
+        const isActive = index === rnnState.stepIndex;
+        ctx.fillStyle = isActive ? theme.secondary : theme.grid;
+        ctx.beginPath();
+        ctx.arc(x, hiddenY, 16, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = isActive ? 'white' : theme.ink;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.fillText(value.toFixed(2), x, hiddenY + 4);
+
+        if (index < example.hidden.length - 1) {
+            const nextX = startX + (index + 1) * (tokenWidth + gap) + tokenWidth / 2;
+            drawArrow(ctx, x + 16, hiddenY, nextX - 16, hiddenY, index < rnnState.stepIndex ? theme.secondary : theme.grid);
+        }
+    });
+}
+
+function setRnnExample(exampleId) {
+    rnnState.exampleId = exampleId;
+    rnnState.stepIndex = 0;
+    updateRnnUI();
+    drawRnnCanvas();
+}
+
+function setRnnStep(stepIndex) {
+    const example = getRnnExample();
+    const total = example.tokens.length;
+    rnnState.stepIndex = ((stepIndex % total) + total) % total;
+    updateRnnUI();
+    drawRnnCanvas();
+}
+
+function advanceRnnStep(direction = 1) {
+    setRnnStep(rnnState.stepIndex + direction);
+}
+
+function toggleRnnPlay() {
+    const button = document.getElementById('rnnPlay');
+    toggleAutoPlay(rnnState, button, 'Play sequence', 'Pause', () => advanceRnnStep(1), 1100);
+}
+
+function setupRnnLab() {
+    const exampleButtons = document.querySelectorAll('[data-rnn-example]');
+    if (!exampleButtons.length) return;
+
+    exampleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(rnnState, document.getElementById('rnnPlay'), 'Play sequence');
+            setActiveToggleButtons(exampleButtons, 'rnnExample', button.dataset.rnnExample);
+            setRnnExample(button.dataset.rnnExample);
+        });
+    });
+
+    const prevButton = document.getElementById('rnnPrevStep');
+    const nextButton = document.getElementById('rnnNextStep');
+    const playButton = document.getElementById('rnnPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceRnnStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceRnnStep(1));
+    if (playButton) playButton.addEventListener('click', toggleRnnPlay);
+
+    setActiveToggleButtons(exampleButtons, 'rnnExample', rnnState.exampleId);
+    updateRnnUI();
+    drawRnnCanvas();
+}
+
+const lstmExamples = [
+    {
+        id: 'story',
+        label: 'Story clue',
+        token: 'was',
+        memoryBefore: 0.8,
+        forget: 0.3,
+        input: 0.7,
+        candidate: 0.9,
+        output: 0.6,
+        note: 'Keep the subject while reading a long clause.'
+    },
+    {
+        id: 'quotes',
+        label: 'Quote tracking',
+        token: '"',
+        memoryBefore: 0.4,
+        forget: 0.1,
+        input: 0.9,
+        candidate: 0.8,
+        output: 0.5,
+        note: 'Remember the open quote until it closes.'
+    },
+    {
+        id: 'sensor',
+        label: 'Sensor drift',
+        token: 'pulse',
+        memoryBefore: 0.6,
+        forget: 0.6,
+        input: 0.4,
+        candidate: 0.5,
+        output: 0.4,
+        note: 'Blend slow trends with new readings.'
+    }
+];
+
+const lstmSteps = [
+    { title: 'Forget gate', text: 'Decide what memory to keep or erase.' },
+    { title: 'Input gate', text: 'Choose what new info to write.' },
+    { title: 'Cell update', text: 'Combine old memory and new candidate.' },
+    { title: 'Output gate', text: 'Expose the right part as output.' }
+];
+
+const lstmState = {
+    exampleId: lstmExamples[0].id,
+    stepIndex: 0,
+    timer: null
+};
+
+function getLstmExample() {
+    return lstmExamples.find(example => example.id === lstmState.exampleId) || lstmExamples[0];
+}
+
+function getLstmMemoryAfter(example) {
+    return example.memoryBefore * example.forget + example.input * example.candidate;
+}
+
+function updateLstmUI() {
+    const example = getLstmExample();
+    const step = lstmState.stepIndex;
+    const total = lstmSteps.length;
+    const memoryBeforeEl = document.getElementById('lstmMemoryBefore');
+    const forgetEl = document.getElementById('lstmForgetGate');
+    const inputEl = document.getElementById('lstmInputGate');
+    const outputEl = document.getElementById('lstmOutputGate');
+    const noteEl = document.getElementById('lstmExampleNote');
+    const badgeEl = document.getElementById('lstmStepBadge');
+    const titleEl = document.getElementById('lstmStepTitle');
+    const textEl = document.getElementById('lstmStepText');
+
+    if (memoryBeforeEl) memoryBeforeEl.textContent = example.memoryBefore.toFixed(2);
+    if (forgetEl) forgetEl.textContent = example.forget.toFixed(2);
+    if (inputEl) inputEl.textContent = example.input.toFixed(2);
+    if (outputEl) outputEl.textContent = example.output.toFixed(2);
+    if (noteEl) noteEl.textContent = example.note;
+    if (badgeEl) badgeEl.textContent = `Step ${step + 1} of ${total}`;
+    if (titleEl) titleEl.textContent = lstmSteps[step].title;
+    if (textEl) textEl.textContent = lstmSteps[step].text;
+}
+
+function drawLstmCanvas() {
+    const canvas = document.getElementById('lstmCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const example = getLstmExample();
+    const step = lstmState.stepIndex;
+    const memoryAfter = getLstmMemoryAfter(example);
+
+    const lineStart = 60;
+    const lineEnd = 360;
+    const lineY = 190;
+    const lineWidth = lineEnd - lineStart;
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(lineStart, lineY);
+    ctx.lineTo(lineEnd, lineY);
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.secondary;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(lineStart, lineY);
+    ctx.lineTo(lineStart + lineWidth * example.memoryBefore, lineY);
+    ctx.stroke();
+
+    if (step >= 2) {
+        ctx.strokeStyle = theme.success;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(lineStart, lineY);
+        ctx.lineTo(lineStart + lineWidth * memoryAfter, lineY);
+        ctx.stroke();
+    }
+
+    const gates = [
+        { label: 'Forget', value: example.forget, x: 90 },
+        { label: 'Input', value: example.input, x: 190 },
+        { label: 'Output', value: example.output, x: 290 }
+    ];
+
+    gates.forEach((gate, index) => {
+        const isActive = step === index || (step === 2 && gate.label === 'Input');
+        drawRoundedRect(ctx, gate.x, 70, 80, 36, 10);
+        ctx.fillStyle = isActive ? theme.warning : theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = isActive ? theme.ink : theme.inkSoft;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${gate.label}`, gate.x + 40, 92);
+        ctx.fillText(gate.value.toFixed(2), gate.x + 40, 110);
+    });
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Token: ${example.token}`, lineStart, 235);
+}
+
+function setLstmExample(exampleId) {
+    lstmState.exampleId = exampleId;
+    lstmState.stepIndex = 0;
+    updateLstmUI();
+    drawLstmCanvas();
+}
+
+function setLstmStep(stepIndex) {
+    const total = lstmSteps.length;
+    lstmState.stepIndex = ((stepIndex % total) + total) % total;
+    updateLstmUI();
+    drawLstmCanvas();
+}
+
+function advanceLstmStep(direction = 1) {
+    setLstmStep(lstmState.stepIndex + direction);
+}
+
+function toggleLstmPlay() {
+    const button = document.getElementById('lstmPlay');
+    toggleAutoPlay(lstmState, button, 'Play gates', 'Pause', () => advanceLstmStep(1), 1200);
+}
+
+function setupLstmLab() {
+    const exampleButtons = document.querySelectorAll('[data-lstm-example]');
+    if (!exampleButtons.length) return;
+
+    exampleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(lstmState, document.getElementById('lstmPlay'), 'Play gates');
+            setActiveToggleButtons(exampleButtons, 'lstmExample', button.dataset.lstmExample);
+            setLstmExample(button.dataset.lstmExample);
+        });
+    });
+
+    const prevButton = document.getElementById('lstmPrevStep');
+    const nextButton = document.getElementById('lstmNextStep');
+    const playButton = document.getElementById('lstmPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceLstmStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceLstmStep(1));
+    if (playButton) playButton.addEventListener('click', toggleLstmPlay);
+
+    setActiveToggleButtons(exampleButtons, 'lstmExample', lstmState.exampleId);
+    updateLstmUI();
+    drawLstmCanvas();
+}
+
+const transformerStages = [
+    {
+        title: 'Tokenize + embed',
+        text: 'Convert text into token embeddings.'
+    },
+    {
+        title: 'Add positions',
+        text: 'Add positional signals so order matters.'
+    },
+    {
+        title: 'Self-attention',
+        text: 'Mix tokens by weighted attention scores.'
+    },
+    {
+        title: 'Feedforward + residual',
+        text: 'Transform each token and add the residual path.'
+    },
+    {
+        title: 'Output probabilities',
+        text: 'Project to logits and choose the next token.'
+    }
+];
+
+const transformerExamples = [
+    {
+        id: 'translate',
+        tokens: ['The', 'cat', 'sat', '.'],
+        focusIndex: 1,
+        attention: [0.1, 0.4, 0.3, 0.2],
+        candidates: ['gato', 'se', 'sento', '.'],
+        scores: [2.2, 1.1, 0.4, -0.2],
+        note: 'Translation aligns words across languages.'
+    },
+    {
+        id: 'summary',
+        tokens: ['Report', 'shows', 'sales', 'drop'],
+        focusIndex: 3,
+        attention: [0.15, 0.2, 0.25, 0.4],
+        candidates: ['summary', 'shows', 'drop', 'today'],
+        scores: [1.8, 1.1, 0.6, 0.2],
+        note: 'Summaries focus attention on key facts.'
+    },
+    {
+        id: 'code',
+        tokens: ['def', 'area', '(', 'r', ')'],
+        focusIndex: 1,
+        attention: [0.2, 0.3, 0.15, 0.25, 0.1],
+        candidates: ['return', 'r', '*', 'r**2'],
+        scores: [2.0, 1.5, 0.7, 0.5],
+        note: 'Code models attend to symbols and syntax.'
+    }
+];
+
+const transformerState = {
+    exampleId: transformerExamples[0].id,
+    stageIndex: 0,
+    timer: null
+};
+
+function getTransformerExample() {
+    return transformerExamples.find(example => example.id === transformerState.exampleId) || transformerExamples[0];
+}
+
+function updateTransformerUI() {
+    const example = getTransformerExample();
+    const stage = transformerState.stageIndex;
+    const badgeEl = document.getElementById('transformerStageBadge');
+    const titleEl = document.getElementById('transformerStageTitle');
+    const textEl = document.getElementById('transformerStageText');
+    const tokenCountEl = document.getElementById('transformerTokenCount');
+    const focusEl = document.getElementById('transformerFocusToken');
+    const stageEl = document.getElementById('transformerStageLabel');
+    const noteEl = document.getElementById('transformerExampleNote');
+
+    if (badgeEl) badgeEl.textContent = `Stage ${stage + 1} of ${transformerStages.length}`;
+    if (titleEl) titleEl.textContent = transformerStages[stage].title;
+    if (textEl) textEl.textContent = transformerStages[stage].text;
+    if (tokenCountEl) tokenCountEl.textContent = example.tokens.length.toString();
+    if (focusEl) focusEl.textContent = example.tokens[example.focusIndex];
+    if (stageEl) stageEl.textContent = transformerStages[stage].title;
+    if (noteEl) noteEl.textContent = example.note;
+}
+
+function drawTransformerCanvas() {
+    const canvas = document.getElementById('transformerCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const example = getTransformerExample();
+    const stage = transformerState.stageIndex;
+    const tokenCount = example.tokens.length;
+    const gap = 10;
+    const maxWidth = canvas.width - 40;
+    const tokenWidth = Math.min(80, (maxWidth - gap * (tokenCount - 1)) / tokenCount);
+    const tokenHeight = 30;
+    const totalWidth = tokenWidth * tokenCount + gap * (tokenCount - 1);
+    const startX = (canvas.width - totalWidth) / 2;
+    const tokenY = 70;
+
+    example.tokens.forEach((token, index) => {
+        const x = startX + index * (tokenWidth + gap);
+        const isFocus = index === example.focusIndex;
+        drawRoundedRect(ctx, x, tokenY, tokenWidth, tokenHeight, 8);
+        ctx.fillStyle = isFocus ? theme.primary : theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = isFocus ? 'white' : theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(token, x + tokenWidth / 2, tokenY + 20);
+
+        if (stage === 1) {
+            ctx.fillStyle = theme.warning;
+            ctx.font = '11px Nunito, Arial';
+            ctx.fillText(index.toString(), x + tokenWidth / 2, tokenY - 10);
+        }
+
+        if (stage === 0) {
+            const barX = x + 8;
+            const barY = tokenY + tokenHeight + 10;
+            const barWidth = 6;
+            const barGap = 6;
+            for (let i = 0; i < 3; i++) {
+                const height = 10 + ((token.length + i) % 5) * 4;
+                ctx.fillStyle = theme.secondary;
+                ctx.fillRect(barX + i * (barWidth + barGap), barY, barWidth, height);
+            }
+        }
+    });
+
+    if (stage === 2) {
+        const focusX = startX + example.focusIndex * (tokenWidth + gap) + tokenWidth / 2;
+        const focusY = tokenY + tokenHeight + 8;
+        example.attention.forEach((weight, index) => {
+            const x = startX + index * (tokenWidth + gap) + tokenWidth / 2;
+            const y = tokenY + tokenHeight + 8;
+            ctx.strokeStyle = theme.success;
+            ctx.globalAlpha = 0.2 + weight * 0.8;
+            ctx.lineWidth = 1 + weight * 4;
+            ctx.beginPath();
+            ctx.moveTo(focusX, focusY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        });
+    }
+
+    if (stage === 3) {
+        const boxX = canvas.width / 2 - 70;
+        const boxY = 150;
+        drawRoundedRect(ctx, boxX, boxY, 140, 50, 12);
+        ctx.fillStyle = theme.secondary;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Feedforward', canvas.width / 2, boxY + 30);
+
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 18px Nunito, Arial';
+        ctx.fillText('+', canvas.width / 2, boxY + 80);
+    }
+
+    if (stage === 4) {
+        const probs = softmax(example.scores);
+        const maxIndex = probs.indexOf(Math.max(...probs));
+        const barsX = canvas.width / 2 + 40;
+        const barsY = 160;
+        const barHeight = 10;
+        const gapY = 6;
+        probs.forEach((value, index) => {
+            const y = barsY + index * (barHeight + gapY);
+            ctx.fillStyle = index === maxIndex ? theme.success : theme.primary;
+            ctx.globalAlpha = 0.6 + value * 0.4;
+            ctx.fillRect(barsX, y, 80 * value, barHeight);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = theme.ink;
+            ctx.font = '11px Nunito, Arial';
+            ctx.fillText(example.candidates[index], barsX - 6, y + barHeight - 1);
+        });
+    }
+}
+
+function setTransformerExample(exampleId) {
+    transformerState.exampleId = exampleId;
+    transformerState.stageIndex = 0;
+    updateTransformerUI();
+    drawTransformerCanvas();
+}
+
+function setTransformerStage(stageIndex) {
+    const total = transformerStages.length;
+    transformerState.stageIndex = ((stageIndex % total) + total) % total;
+    const stageButtons = document.querySelectorAll('[data-transformer-stage]');
+    if (stageButtons.length) {
+        setActiveToggleButtons(stageButtons, 'transformerStage', transformerState.stageIndex.toString());
+    }
+    updateTransformerUI();
+    drawTransformerCanvas();
+}
+
+function advanceTransformerStage(direction = 1) {
+    setTransformerStage(transformerState.stageIndex + direction);
+}
+
+function toggleTransformerPlay() {
+    const button = document.getElementById('transformerPlay');
+    toggleAutoPlay(transformerState, button, 'Play stages', 'Pause', () => advanceTransformerStage(1), 1300);
+}
+
+function setupTransformerLab() {
+    const exampleButtons = document.querySelectorAll('[data-transformer-example]');
+    const stageButtons = document.querySelectorAll('[data-transformer-stage]');
+    if (!exampleButtons.length) return;
+
+    exampleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(transformerState, document.getElementById('transformerPlay'), 'Play stages');
+            setActiveToggleButtons(exampleButtons, 'transformerExample', button.dataset.transformerExample);
+            setTransformerExample(button.dataset.transformerExample);
+        });
+    });
+
+    stageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(transformerState, document.getElementById('transformerPlay'), 'Play stages');
+            setActiveToggleButtons(stageButtons, 'transformerStage', button.dataset.transformerStage);
+            setTransformerStage(parseInt(button.dataset.transformerStage, 10));
+        });
+    });
+
+    const prevButton = document.getElementById('transformerPrevStage');
+    const nextButton = document.getElementById('transformerNextStage');
+    const playButton = document.getElementById('transformerPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceTransformerStage(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceTransformerStage(1));
+    if (playButton) playButton.addEventListener('click', toggleTransformerPlay);
+
+    setActiveToggleButtons(exampleButtons, 'transformerExample', transformerState.exampleId);
+    setActiveToggleButtons(stageButtons, 'transformerStage', transformerState.stageIndex.toString());
+    updateTransformerUI();
+    drawTransformerCanvas();
+}
+
+const transformerPrompt = 'Data visualization empowers users to';
+const transformerTokens = ['Data', 'visualization', 'empower', 's', 'users', 'to'];
+const transformerTokenIds = [1262, 9931, 1844, 78, 527, 284];
+
+const transformerAdvancedSteps = [
+    {
+        id: 'tokenize',
+        label: 'Tokenization',
+        stage: 'tokenize',
+        text: 'Split the prompt into tokens. "empowers" becomes "empower" + "s".',
+        math: '\\[\\text{Prompt} \\rightarrow [\\text{tokens}]\\]',
+        points: ['Break text into token IDs.', 'Subwords keep vocabulary manageable.', 'Sequence length sets context.']
+    },
+    {
+        id: 'token-embed',
+        label: 'Token embedding',
+        stage: 'embed',
+        text: 'Each token maps to a 768-dimensional embedding from a (50,257 x 768) matrix.',
+        math: '\\[E \\in \\mathbb{R}^{50257 \\times 768}\\]',
+        points: ['Lookup vectors from the embedding table.', 'Similar tokens cluster in vector space.', 'All tokens become same-length vectors.']
+    },
+    {
+        id: 'pos-encode',
+        label: 'Positional encoding',
+        stage: 'embed',
+        text: 'Add positional signals so the model knows token order.',
+        math: '\\[E_{final} = E_{token} + E_{position}\\]',
+        points: ['GPT-2 learns position embeddings.', 'Without positions, order is lost.', 'Positions align tokens in sequence.']
+    },
+    {
+        id: 'final-embed',
+        label: 'Final embedding',
+        stage: 'embed',
+        text: 'Token and positional vectors sum into a single embedding per token.',
+        math: '\\[X_0 = E_{token} + E_{position}\\]',
+        points: ['Final embeddings feed the first block.', 'Shape: tokens x 768.', 'This is the model input.']
+    },
+    {
+        id: 'qkv',
+        label: 'Q, K, V',
+        stage: 'attention',
+        text: 'Project embeddings into Query, Key, and Value matrices with learned weights.',
+        math: '\\[Q = XW_Q,\\; K = XW_K,\\; V = XW_V\\]',
+        points: ['Each token gets a query, key, and value.', 'Three linear layers share the input.', 'QKV enable attention routing.']
+    },
+    {
+        id: 'split-heads',
+        label: 'Split heads',
+        stage: 'attention',
+        text: 'Split Q, K, V into 12 heads so each head can learn a different relationship.',
+        math: '\\[\\text{heads} = 12\\]',
+        points: ['Each head sees a slice of the embedding.', 'Heads learn different patterns.', 'Computation stays parallel.']
+    },
+    {
+        id: 'attention-dot',
+        label: 'QK^T',
+        stage: 'attention',
+        text: 'Compute attention scores with the dot product QK^T.',
+        math: '\\[\\text{scores} = QK^T\\]',
+        points: ['Scores measure token similarity.', 'Produces a square attention matrix.', 'Each row is one token’s view.']
+    },
+    {
+        id: 'attention-mask',
+        label: 'Scale + mask',
+        stage: 'attention',
+        text: 'Scale by sqrt(d) and mask future positions so tokens cannot peek ahead.',
+        math: '\\[\\text{scores} = \\frac{QK^T}{\\sqrt{d}} + \\text{mask}\\]',
+        points: ['Scaling stabilizes gradients.', 'Mask sets future tokens to -inf.', 'Enforces autoregressive prediction.']
+    },
+    {
+        id: 'attention-softmax',
+        label: 'Softmax',
+        stage: 'attention',
+        text: 'Softmax turns scores into probabilities; dropout can be applied during training.',
+        math: '\\[\\text{weights} = \\text{softmax}(\\text{scores})\\]',
+        points: ['Rows sum to 1.', 'Dropout regularizes attention.', 'Weights highlight relevant tokens.']
+    },
+    {
+        id: 'attention-concat',
+        label: 'Concat',
+        stage: 'attention',
+        text: 'Multiply weights by V, then concatenate all heads and project back.',
+        math: '\\[\\text{Attention}(Q,K,V) = \\text{softmax}(QK^T)V\\]',
+        points: ['Weighted sums produce new token vectors.', 'Heads concatenate then project.', 'Output returns to 768 dims.']
+    },
+    {
+        id: 'mlp-expand',
+        label: 'MLP expand',
+        stage: 'mlp',
+        text: 'The MLP expands each token from 768 to 3072 with GELU.',
+        math: '\\[768 \\rightarrow 3072\\]',
+        points: ['Per-token feedforward layer.', 'GELU adds nonlinearity.', 'Expands capacity.']
+    },
+    {
+        id: 'mlp-project',
+        label: 'MLP project',
+        stage: 'mlp',
+        text: 'The MLP projects back to 768 dimensions.',
+        math: '\\[3072 \\rightarrow 768\\]',
+        points: ['Compresses to original width.', 'Refined token representation.', 'Feeds into next block.']
+    },
+    {
+        id: 'logits',
+        label: 'Output logits',
+        stage: 'output',
+        text: 'Project to 50,257 logits and apply softmax for next-token probabilities.',
+        math: '\\[p = \\text{softmax}(XW_{out})\\]',
+        points: ['One score per vocab token.', 'Softmax gives probabilities.', 'Top token is the model guess.']
+    },
+    {
+        id: 'sampling',
+        label: 'Sampling',
+        stage: 'sampling',
+        text: 'Temperature, top-k, and top-p tune the randomness of the next token.',
+        math: '\\[\\text{logits} / T\\]',
+        points: ['Lower T sharpens output.', 'Top-k limits to k best tokens.', 'Top-p keeps cumulative mass.']
+    },
+    {
+        id: 'aux',
+        label: 'Aux features',
+        stage: 'aux',
+        text: 'LayerNorm, dropout, and residual connections stabilize training and gradients.',
+        math: '',
+        points: ['LayerNorm before attention and MLP.', 'Residual adds skip connections.', 'Dropout runs only in training.']
+    }
+];
+
+const transformerAdvancedState = {
+    stepIndex: 0,
+    timer: null
+};
+
+function getTransformerAdvancedStep() {
+    return transformerAdvancedSteps[transformerAdvancedState.stepIndex] || transformerAdvancedSteps[0];
+}
+
+function updateTransformerAdvancedUI() {
+    const step = getTransformerAdvancedStep();
+    const badgeEl = document.getElementById('transformerAdvancedBadge');
+    const titleEl = document.getElementById('transformerAdvancedTitle');
+    const textEl = document.getElementById('transformerAdvancedText');
+    const mathEl = document.getElementById('transformerAdvancedMath');
+    const pointsEl = document.getElementById('transformerAdvancedPoints');
+    const stepButtons = document.querySelectorAll('[data-transformer-advanced-step]');
+
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${transformerAdvancedState.stepIndex + 1} of ${transformerAdvancedSteps.length}`;
+    }
+    if (titleEl) {
+        titleEl.textContent = step.label;
+    }
+    if (textEl) {
+        textEl.textContent = step.text;
+    }
+    if (pointsEl) {
+        pointsEl.innerHTML = '';
+        if (step.points && step.points.length) {
+            pointsEl.style.display = 'block';
+            step.points.forEach(point => {
+                const item = document.createElement('li');
+                item.textContent = point;
+                pointsEl.appendChild(item);
+            });
+        } else {
+            pointsEl.style.display = 'none';
+        }
+    }
+    if (mathEl) {
+        if (step.math) {
+            mathEl.style.display = 'block';
+            mathEl.innerHTML = step.math;
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([mathEl]);
+            }
+        } else {
+            mathEl.style.display = 'none';
+            mathEl.textContent = '';
+        }
+    }
+    if (stepButtons.length) {
+        setActiveToggleButtons(stepButtons, 'transformerAdvancedStep', transformerAdvancedState.stepIndex.toString());
+    }
+}
+
+function drawTokenRow(ctx, tokens, startX, startY, tokenWidth, tokenHeight, theme, options = {}) {
+    const gap = options.gap ?? 6;
+    tokens.forEach((token, index) => {
+        const x = startX + index * (tokenWidth + gap);
+        const isHighlight = options.highlightIndex === index;
+        drawRoundedRect(ctx, x, startY, tokenWidth, tokenHeight, 8);
+        ctx.fillStyle = isHighlight ? theme.primary : theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = isHighlight ? 'white' : theme.ink;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(token, x + tokenWidth / 2, startY + tokenHeight / 2 + 4);
+
+        if (options.showIds) {
+            ctx.fillStyle = theme.inkSoft;
+            ctx.font = '10px Nunito, Arial';
+            ctx.fillText(options.ids?.[index] ?? index, x + tokenWidth / 2, startY + tokenHeight + 12);
+        }
+    });
+}
+
+function drawEmbeddingBars(ctx, x, y, width, height, theme, color) {
+    const bars = 8;
+    const gap = 4;
+    const barWidth = (width - gap * (bars - 1)) / bars;
+    for (let i = 0; i < bars; i++) {
+        const barHeight = height * (0.3 + (i % 4) * 0.15);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.4 + (i / bars) * 0.5;
+        ctx.fillRect(x + i * (barWidth + gap), y + height - barHeight, barWidth, barHeight);
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawMatrix(ctx, x, y, rows, cols, cellSize, theme, options = {}) {
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const cellX = x + c * cellSize;
+            const cellY = y + r * cellSize;
+            let fill = theme.panel;
+            if (options.maskUpper && c > r) {
+                fill = theme.grid;
+            }
+            ctx.fillStyle = fill;
+            ctx.fillRect(cellX, cellY, cellSize, cellSize);
+            ctx.strokeStyle = theme.axis;
+            ctx.strokeRect(cellX, cellY, cellSize, cellSize);
+        }
+    }
+
+    if (options.highlight) {
+        ctx.strokeStyle = theme.warning;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x + options.highlight.c * cellSize, y + options.highlight.r * cellSize, cellSize, cellSize);
+        ctx.lineWidth = 1;
+    }
+}
+
+function drawAttentionHeads(ctx, x, y, count, width, height, theme) {
+    const gap = 4;
+    const headWidth = (width - gap * (count - 1)) / count;
+    for (let i = 0; i < count; i++) {
+        const headX = x + i * (headWidth + gap);
+        ctx.fillStyle = theme.primary;
+        ctx.globalAlpha = 0.3 + (i / count) * 0.6;
+        ctx.fillRect(headX, y, headWidth, height);
+    }
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = theme.axis;
+    ctx.strokeRect(x - 2, y - 2, width + 4, height + 4);
+}
+
+function drawTransformerAdvancedCanvas() {
+    const canvas = document.getElementById('transformerAdvancedCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const step = getTransformerAdvancedStep();
+    const tokenCount = transformerTokens.length;
+    const gap = 6;
+    const tokenWidth = Math.min(70, (canvas.width - 40 - gap * (tokenCount - 1)) / tokenCount);
+    const tokenHeight = 26;
+    const startX = (canvas.width - (tokenWidth * tokenCount + gap * (tokenCount - 1))) / 2;
+    const startY = 40;
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Prompt: "${transformerPrompt}"`, canvas.width / 2, 20);
+
+    if (step.id === 'tokenize') {
+        drawTokenRow(ctx, transformerTokens, startX, startY, tokenWidth, tokenHeight, theme, {
+            showIds: true,
+            ids: transformerTokenIds
+        });
+        ctx.fillStyle = theme.inkSoft;
+        ctx.font = '11px Nunito, Arial';
+        ctx.fillText('Token IDs', canvas.width / 2, startY + tokenHeight + 24);
+        return;
+    }
+
+    if (step.id === 'token-embed') {
+        drawTokenRow(ctx, transformerTokens, startX, startY, tokenWidth, tokenHeight, theme, {
+            highlightIndex: 2
+        });
+        const boxX = canvas.width / 2 - 80;
+        const boxY = 120;
+        drawRoundedRect(ctx, boxX, boxY, 160, 80, 12);
+        ctx.fillStyle = theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.secondary;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Embedding (768-d)', canvas.width / 2, boxY + 18);
+        drawEmbeddingBars(ctx, boxX + 16, boxY + 30, 128, 40, theme, theme.secondary);
+        return;
+    }
+
+    if (step.id === 'pos-encode') {
+        drawTokenRow(ctx, transformerTokens, startX, startY, tokenWidth, tokenHeight, theme);
+        ctx.fillStyle = theme.warning;
+        ctx.font = 'bold 11px Nunito, Arial';
+        transformerTokens.forEach((token, index) => {
+            const x = startX + index * (tokenWidth + gap) + tokenWidth / 2;
+            ctx.fillText(index.toString(), x, startY - 10);
+        });
+        ctx.fillStyle = theme.inkSoft;
+        ctx.fillText('Positions', canvas.width / 2, startY - 24);
+        ctx.strokeStyle = theme.warning;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i <= canvas.width; i += 6) {
+            const waveY = startY + tokenHeight + 18 + Math.sin(i / 20) * 6;
+            if (i === 0) {
+                ctx.moveTo(i, waveY);
+            } else {
+                ctx.lineTo(i, waveY);
+            }
+        }
+        ctx.stroke();
+        return;
+    }
+
+    if (step.id === 'final-embed') {
+        drawTokenRow(ctx, transformerTokens, startX, startY, tokenWidth, tokenHeight, theme, {
+            highlightIndex: 1
+        });
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 18px Nunito, Arial';
+        ctx.fillText('+', canvas.width / 2, 120);
+        drawRoundedRect(ctx, canvas.width / 2 - 70, 140, 140, 60, 12);
+        ctx.fillStyle = theme.success;
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Final embedding', canvas.width / 2, 174);
+        return;
+    }
+
+    if (step.id === 'qkv') {
+        drawTokenRow(ctx, transformerTokens, startX, startY, tokenWidth, tokenHeight, theme);
+        drawArrow(ctx, canvas.width / 2, 80, canvas.width / 2, 120, theme.primary);
+        const boxY = 130;
+        const labels = ['Q', 'K', 'V'];
+        labels.forEach((label, index) => {
+            const boxX = 80 + index * 100;
+            drawRoundedRect(ctx, boxX, boxY, 70, 60, 12);
+            ctx.fillStyle = theme.secondary;
+            ctx.fill();
+            ctx.strokeStyle = theme.axis;
+            ctx.stroke();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Nunito, Arial';
+            ctx.fillText(label, boxX + 35, boxY + 35);
+        });
+        return;
+    }
+
+    if (step.id === 'split-heads') {
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('12 heads', canvas.width / 2, 40);
+        for (let i = 0; i < 4; i++) {
+            const boxX = 70 + i * 80;
+            drawRoundedRect(ctx, boxX, 80, 60, 80, 12);
+            ctx.fillStyle = theme.primary;
+            ctx.globalAlpha = 0.25 + i * 0.15;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = theme.axis;
+            ctx.stroke();
+            ctx.fillStyle = theme.ink;
+            ctx.font = 'bold 11px Nunito, Arial';
+            ctx.fillText(`Head ${i + 1}`, boxX + 30, 130);
+        }
+        return;
+    }
+
+    if (step.id === 'attention-dot' || step.id === 'attention-mask' || step.id === 'attention-softmax') {
+        drawTokenRow(ctx, transformerTokens, startX, 30, tokenWidth, tokenHeight, theme);
+        const matrixX = canvas.width / 2 - 70;
+        const matrixY = 90;
+        drawMatrix(ctx, matrixX, matrixY, 5, 5, 24, theme, {
+            maskUpper: step.id === 'attention-mask',
+            highlight: { r: 2, c: 1 }
+        });
+        ctx.fillStyle = theme.inkSoft;
+        ctx.font = '11px Nunito, Arial';
+        const label = step.id === 'attention-dot' ? 'QK^T scores' : step.id === 'attention-mask' ? 'Masked scores' : 'Attention weights';
+        ctx.fillText(label, canvas.width / 2, 80);
+        drawAttentionHeads(ctx, canvas.width / 2 - 110, 230, 6, 220, 18, theme);
+        return;
+    }
+
+    if (step.id === 'attention-concat') {
+        const boxY = 90;
+        for (let i = 0; i < 3; i++) {
+            const x = 70 + i * 100;
+            drawRoundedRect(ctx, x, boxY, 70, 50, 10);
+            ctx.fillStyle = theme.secondary;
+            ctx.globalAlpha = 0.3 + i * 0.2;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = theme.axis;
+            ctx.stroke();
+            ctx.fillStyle = theme.ink;
+            ctx.font = 'bold 11px Nunito, Arial';
+            ctx.fillText(`Head ${i + 1}`, x + 35, boxY + 30);
+        }
+        drawArrow(ctx, canvas.width / 2, 150, canvas.width / 2, 190, theme.success);
+        drawRoundedRect(ctx, canvas.width / 2 - 80, 200, 160, 50, 12);
+        ctx.fillStyle = theme.success;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Concat + linear', canvas.width / 2, 230);
+        return;
+    }
+
+    if (step.id === 'mlp-expand' || step.id === 'mlp-project') {
+        drawRoundedRect(ctx, canvas.width / 2 - 90, 120, 180, 80, 16);
+        ctx.fillStyle = theme.primary;
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Nunito, Arial';
+        const label = step.id === 'mlp-expand' ? 'MLP: 768 -> 3072' : 'MLP: 3072 -> 768';
+        ctx.fillText(label, canvas.width / 2, 160);
+        ctx.fillStyle = theme.inkSoft;
+        ctx.font = '11px Nunito, Arial';
+        ctx.fillText('GELU activation', canvas.width / 2, 190);
+        return;
+    }
+
+    if (step.id === 'logits') {
+        const barsX = canvas.width / 2 - 90;
+        const barsY = 90;
+        const barHeight = 12;
+        const barGap = 6;
+        const labels = ['token A', 'token B', 'token C', 'token D', 'token E'];
+        labels.forEach((label, index) => {
+            const y = barsY + index * (barHeight + barGap);
+            ctx.fillStyle = index === 1 ? theme.success : theme.secondary;
+            ctx.globalAlpha = 0.5 + index * 0.1;
+            ctx.fillRect(barsX + 40, y, 120 - index * 12, barHeight);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = theme.ink;
+            ctx.font = '11px Nunito, Arial';
+            ctx.fillText(label, barsX, y + barHeight - 2);
+        });
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Logits -> softmax', canvas.width / 2, 70);
+        return;
+    }
+
+    if (step.id === 'sampling') {
+        const sliderX = 80;
+        const sliderY = 120;
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Temperature', sliderX, sliderY - 10);
+        ctx.strokeStyle = theme.axis;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(sliderX, sliderY);
+        ctx.lineTo(sliderX + 200, sliderY);
+        ctx.stroke();
+        ctx.fillStyle = theme.warning;
+        ctx.beginPath();
+        ctx.arc(sliderX + 120, sliderY, 8, 0, 2 * Math.PI);
+        ctx.fill();
+
+        const topBoxY = 170;
+        drawRoundedRect(ctx, sliderX, topBoxY, 90, 36, 10);
+        ctx.fillStyle = theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.fillText('top-k = 40', sliderX + 45, topBoxY + 22);
+
+        drawRoundedRect(ctx, sliderX + 110, topBoxY, 90, 36, 10);
+        ctx.fillStyle = theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = theme.ink;
+        ctx.fillText('top-p = 0.9', sliderX + 155, topBoxY + 22);
+        return;
+    }
+
+    if (step.id === 'aux') {
+        drawRoundedRect(ctx, canvas.width / 2 - 100, 120, 200, 80, 16);
+        ctx.fillStyle = theme.panel;
+        ctx.fill();
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('Transformer block', canvas.width / 2, 150);
+        ctx.fillText('LayerNorm + Dropout', canvas.width / 2, 170);
+
+        ctx.strokeStyle = theme.success;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 - 120, 160);
+        ctx.lineTo(canvas.width / 2 - 120, 100);
+        ctx.lineTo(canvas.width / 2 + 120, 100);
+        ctx.lineTo(canvas.width / 2 + 120, 160);
+        ctx.stroke();
+        ctx.fillStyle = theme.success;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.fillText('Residual', canvas.width / 2, 95);
+        return;
+    }
+}
+
+function drawTransformerAdvancedOverviewCanvas() {
+    const canvas = document.getElementById('transformerAdvancedOverviewCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const step = getTransformerAdvancedStep();
+    const stage = step.stage;
+    const stages = [
+        { id: 'tokenize', label: 'Tokenize' },
+        { id: 'embed', label: 'Embed' },
+        { id: 'attention', label: 'Attention' },
+        { id: 'mlp', label: 'MLP' },
+        { id: 'output', label: 'Output' },
+        { id: 'sampling', label: 'Sample' }
+    ];
+
+    const pipelineWidth = canvas.width - 90;
+    const boxGap = 8;
+    const boxWidth = (pipelineWidth - boxGap * (stages.length - 1)) / stages.length;
+    const boxHeight = 32;
+    const startX = 20;
+    const startY = 90;
+
+    const tokenWidth = Math.min(58, (pipelineWidth - boxGap * (transformerTokens.length - 1)) / transformerTokens.length);
+    const tokenHeight = 18;
+    const tokenStartX = startX + (pipelineWidth - (tokenWidth * transformerTokens.length + boxGap * (transformerTokens.length - 1))) / 2;
+
+    drawTokenRow(ctx, transformerTokens, tokenStartX, 20, tokenWidth, tokenHeight, theme, {
+        highlightIndex: 2
+    });
+
+    stages.forEach((item, index) => {
+        const x = startX + index * (boxWidth + boxGap);
+        const isActive = stage === item.id || (stage === 'aux' && (item.id === 'attention' || item.id === 'mlp'));
+        drawRoundedRect(ctx, x, startY, boxWidth, boxHeight, 10);
+        ctx.fillStyle = isActive ? theme.primary : theme.panel;
+        ctx.globalAlpha = isActive ? 0.9 : 0.6;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = theme.axis;
+        ctx.stroke();
+        ctx.fillStyle = isActive ? 'white' : theme.ink;
+        ctx.font = 'bold 10px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(item.label, x + boxWidth / 2, startY + 20);
+
+        if (index < stages.length - 1) {
+            drawArrow(ctx, x + boxWidth + 2, startY + boxHeight / 2, x + boxWidth + boxGap - 2, startY + boxHeight / 2, theme.axis);
+        }
+    });
+
+    if (stage === 'aux') {
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = theme.warning;
+        ctx.lineWidth = 2;
+        const auxX = startX + 2 * (boxWidth + boxGap) - 6;
+        const auxWidth = (boxWidth + boxGap) * 2 + 12;
+        ctx.strokeRect(auxX, startY - 6, auxWidth, boxHeight + 12);
+        ctx.restore();
+    }
+
+    const stackX = canvas.width - 52;
+    const stackY = 40;
+    const blockHeight = 10;
+    for (let i = 0; i < 12; i++) {
+        const y = stackY + i * (blockHeight + 2);
+        ctx.fillStyle = stage === 'attention' || stage === 'mlp' ? theme.secondary : theme.grid;
+        ctx.globalAlpha = 0.2 + (i / 12) * 0.7;
+        ctx.fillRect(stackX, y, 24, blockHeight);
+        ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('12 blocks', stackX + 12, stackY + 12 * (blockHeight + 2) + 12);
+}
+
+function setTransformerAdvancedStep(stepIndex) {
+    const total = transformerAdvancedSteps.length;
+    transformerAdvancedState.stepIndex = ((stepIndex % total) + total) % total;
+    updateTransformerAdvancedUI();
+    drawTransformerAdvancedCanvas();
+    drawTransformerAdvancedOverviewCanvas();
+}
+
+function advanceTransformerAdvancedStep(direction = 1) {
+    setTransformerAdvancedStep(transformerAdvancedState.stepIndex + direction);
+}
+
+function toggleTransformerAdvancedPlay() {
+    const button = document.getElementById('transformerAdvancedPlay');
+    toggleAutoPlay(transformerAdvancedState, button, 'Play steps', 'Pause', () => advanceTransformerAdvancedStep(1), 1400);
+}
+
+function setupTransformerAdvanced() {
+    const stepButtons = document.querySelectorAll('[data-transformer-advanced-step]');
+    if (!stepButtons.length) return;
+
+    stepButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(transformerAdvancedState, document.getElementById('transformerAdvancedPlay'), 'Play steps');
+            const stepIndex = parseInt(button.dataset.transformerAdvancedStep, 10);
+            setTransformerAdvancedStep(stepIndex);
+        });
+    });
+
+    const prevButton = document.getElementById('transformerAdvancedPrev');
+    const nextButton = document.getElementById('transformerAdvancedNext');
+    const playButton = document.getElementById('transformerAdvancedPlay');
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceTransformerAdvancedStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceTransformerAdvancedStep(1));
+    if (playButton) playButton.addEventListener('click', toggleTransformerAdvancedPlay);
+
+    setTransformerAdvancedStep(transformerAdvancedState.stepIndex);
 }
 
 // ============================================
@@ -2399,7 +4773,16 @@ function refreshAllVisuals() {
     drawGradientCanvas();
     drawActivationFunctions();
     drawNeuralNetwork();
-    drawBackpropNetwork(0);
+    drawNeuronCanvas();
+    drawDigitLab();
+    drawDeepNetwork();
+    drawCnnCanvas();
+    drawRnnCanvas();
+    drawLstmCanvas();
+    drawTransformerCanvas();
+    drawTransformerAdvancedCanvas();
+    drawTransformerAdvancedOverviewCanvas();
+    drawBackpropStep();
     drawFundamentalsCanvas(activeFundamentalId || fundamentalsTopics[0].id);
 }
 
@@ -2582,6 +4965,70 @@ function setupThemeSwitcher() {
     });
 }
 
+function setActiveChapter(chapterId) {
+    const chapters = document.querySelectorAll('.chapter');
+    const buttons = document.querySelectorAll('.chapter-btn');
+    if (!chapters.length || !buttons.length) return;
+
+    chapters.forEach(chapter => {
+        chapter.classList.toggle('is-active', chapter.dataset.chapter === chapterId);
+    });
+
+    buttons.forEach(button => {
+        const isActive = button.dataset.chapter === chapterId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+}
+
+function setupChapterSwitcher() {
+    const buttons = document.querySelectorAll('.chapter-btn');
+    if (!buttons.length) return;
+
+    document.body.dataset.chapterMode = 'on';
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            setActiveChapter(button.dataset.chapter);
+            refreshAllVisuals();
+        });
+    });
+
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+        const target = document.getElementById(hash);
+        const chapter = target?.closest('.chapter');
+        if (chapter) {
+            setActiveChapter(chapter.dataset.chapter);
+            return;
+        }
+    }
+    setActiveChapter('foundations');
+}
+
+function setupChapterNavigation() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(event) {
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (!targetElement) return;
+
+            event.preventDefault();
+            const chapter = targetElement.closest('.chapter');
+            if (chapter) {
+                setActiveChapter(chapter.dataset.chapter);
+                refreshAllVisuals();
+            }
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+            if (history.replaceState) {
+                history.replaceState(null, '', `#${targetId}`);
+            } else {
+                window.location.hash = targetId;
+            }
+        });
+    });
+}
+
 function initMatrixCanvas() {
     drawMatrixCanvas();
 }
@@ -2591,11 +5038,22 @@ function initMatrixCanvas() {
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     setupThemeSwitcher();
+    setupChapterSwitcher();
+    setupChapterNavigation();
     initFundamentals();
     setupVectorControls();
     setupVectorScenes();
     setupVectorModes();
     setupMatrixControls();
+    setupBackpropStepper();
+    setupNeuronLab();
+    setupDigitLab();
+    setupDeepNetwork();
+    setupCnnLab();
+    setupRnnLab();
+    setupLstmLab();
+    setupTransformerLab();
+    setupTransformerAdvanced();
     setupHolidayParade();
     refreshAllVisuals();
     
@@ -2606,17 +5064,5 @@ document.addEventListener('DOMContentLoaded', function() {
         if (checkbox) {
             checkbox.addEventListener('change', drawActivationFunctions);
         }
-    });
-    
-    // Smooth scrolling for navigation
-    document.querySelectorAll('nav a').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
     });
 });
