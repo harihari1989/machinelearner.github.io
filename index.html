@@ -34,6 +34,7 @@
     <div class="chapter-switcher" role="tablist" aria-label="Learning chapters">
         <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations">Foundations</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">LLM Foundations</button>
     </div>
 
     <div class="holiday-parade" aria-hidden="true">
@@ -1173,6 +1174,302 @@
                 </div>
             </div>
         </section>
+        </section>
+
+        <section class="chapter" data-chapter="llm-foundations">
+            <nav class="chapter-nav" aria-label="LLM foundations sections">
+                <a href="#llm-tutorial">Tutorial</a>
+                <a href="#prompt-engineering">Prompt Engineering</a>
+                <a href="#llm-fundamentals">LLM Fundamentals</a>
+                <a href="#ai-agents">AI Agents</a>
+            </nav>
+
+            <!-- LLM Tutorial Section -->
+            <section id="llm-tutorial" class="example-section">
+                <h2>LLM Foundations: Guided Tutorial</h2>
+                <p class="section-intro">A hands-on path that ties prompting, model behavior, and agent building into one workflow.</p>
+                <div class="learning-path">
+                    <div class="path-card">
+                        <span class="path-step">Step 1</span>
+                        <h4>Frame the task</h4>
+                        <p>Define the role, goal, and success criteria before you write prompts.</p>
+                        <span class="path-goal">Goal: a clear, testable objective.</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 2</span>
+                        <h4>Structure the prompt</h4>
+                        <p>Use context blocks, constraints, and a target format.</p>
+                        <span class="path-goal">Goal: predictable, repeatable outputs.</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 3</span>
+                        <h4>Inspect model behavior</h4>
+                        <p>Adjust temperature, context, and stop rules to stabilize responses.</p>
+                        <span class="path-goal">Goal: reduce variance and hallucinations.</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 4</span>
+                        <h4>Add tools</h4>
+                        <p>Introduce tool calling for data access or automation.</p>
+                        <span class="path-goal">Goal: verified outputs with traceability.</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 5</span>
+                        <h4>Evaluate and iterate</h4>
+                        <p>Write evals, measure regressions, and refine.</p>
+                        <span class="path-goal">Goal: steady improvements with evidence.</span>
+                    </div>
+                </div>
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Quick tutorial checklist</h3>
+                        <ol class="step-list">
+                            <li>Collect 5 real inputs and draft a baseline prompt.</li>
+                            <li>Define the output format and failure cases.</li>
+                            <li>Create a tool schema for any external data.</li>
+                            <li>Write 5 evals with expected results.</li>
+                            <li>Iterate until the eval pass rate stabilizes.</li>
+                        </ol>
+                        <div class="mini-mission">Mini mission: run a 5-example eval before you ship.</div>
+                    </div>
+                    <div class="visualization card-column">
+                        <div class="prompt-template">
+                            <h4>Tutorial starter prompt</h4>
+                            <pre>ROLE: You are an AI PM.
+TASK: Draft a 1-page feature brief.
+CONTEXT:
+"""
+Include 5 user notes, metrics, and constraints.
+"""
+CONSTRAINTS: 250 words max. Bullet format.
+OUTPUT FORMAT:
+- Problem
+- Users
+- Constraints
+- Proposal
+- Risks
+CHECKS: List missing inputs.</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Prompt Engineering Section -->
+            <section id="prompt-engineering" class="example-section">
+                <h2>Prompt Engineering: Crafting Clear Instructions</h2>
+                <p class="section-intro">Design prompts that reduce ambiguity, keep responses grounded, and make iteration fast.</p>
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Prompt anatomy</h3>
+                        <ul class="concept-bullets">
+                            <li><strong>Role</strong>: who the model is acting as.</li>
+                            <li><strong>Goal</strong>: the task and the success criteria.</li>
+                            <li><strong>Context</strong>: background data, definitions, and scope.</li>
+                            <li><strong>Constraints</strong>: length, tone, must include, must avoid.</li>
+                            <li><strong>Output format</strong>: schema, bullets, JSON, table.</li>
+                            <li><strong>Checks</strong>: ask for missing info or confidence notes.</li>
+                        </ul>
+                        <div class="mini-mission">Mini mission: rewrite a vague request into a 6-part prompt.</div>
+                        <div class="guide-stack">
+                            <article class="guide-card">
+                                <h4>Pattern: Delimiters + grounding</h4>
+                                <p>Use clear separators so the model knows what to quote, summarize, or transform.</p>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Pattern: Few-shot exemplars</h4>
+                                <p>Add one or two examples that match the output style you want.</p>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Pattern: Self-checks</h4>
+                                <p>Ask for a brief verification step or uncertainties before the final answer.</p>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="visualization card-column">
+                        <div class="prompt-template">
+                            <h4>Prompt template</h4>
+                            <pre>ROLE: You are a product analyst.
+TASK: Summarize customer feedback into 3 themes.
+CONTEXT:
+"""
+Paste notes here.
+"""
+CONSTRAINTS: Max 8 bullets. No speculation.
+OUTPUT FORMAT:
+- Theme:
+- Evidence:
+CHECKS: Flag missing data.</pre>
+                        </div>
+                        <div class="prompt-template">
+                            <h4>Prompt technique examples</h4>
+                            <pre>Technique: Role + constraints
+ROLE: You are a support analyst.
+TASK: Summarize the ticket in 3 bullets.
+CONSTRAINTS: Neutral tone. No jargon.
+
+Technique: Few-shot style match
+TASK: Turn notes into a decision line.
+EXAMPLE:
+Input: "Latency 120ms, budget ok"
+Output: "Decision: proceed with rollout"
+
+Technique: Delimiters + extraction
+Extract action items from &lt;notes&gt;...&lt;/notes&gt;.
+Return JSON with owner, task, and due.</pre>
+                        </div>
+                        <div class="prompt-template">
+                            <h4>Prompt refinement loop</h4>
+                            <ol class="step-list">
+                                <li>Draft the instruction and the output format.</li>
+                                <li>Test with a real example and inspect the gaps.</li>
+                                <li>Add constraints, examples, or definitions.</li>
+                                <li>Repeat until outputs are stable and on-brand.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LLM Fundamentals Section -->
+            <section id="llm-fundamentals" class="example-section">
+                <h2>LLM Fundamentals: How Models Respond</h2>
+                <p class="section-intro">Know the mechanics behind next-token prediction so your prompts behave consistently.</p>
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Core behaviors</h3>
+                        <ul class="concept-bullets">
+                            <li>LLMs predict the next token based on all prior context.</li>
+                            <li>Context windows limit how much text the model can see at once.</li>
+                            <li>Sampling settings trade off creativity vs stability.</li>
+                            <li>System instructions set global rules; user prompts set tasks.</li>
+                            <li>Hallucinations appear when the prompt is underspecified.</li>
+                        </ul>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <h5>Temperature</h5>
+                                <p>Controls randomness; lower is more deterministic.</p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Top-p</h5>
+                                <p>Limits choices to a probability mass.</p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Max tokens</h5>
+                                <p>Budget for output length and cost.</p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Stop sequences</h5>
+                                <p>End outputs at safe boundaries.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visualization card-column">
+                        <div class="guide-stack">
+                            <article class="guide-card">
+                                <h4>Prompting best practices</h4>
+                                <p>See the full playbook at <a class="text-link" href="https://www.promptingguide.ai" target="_blank" rel="noopener">promptingguide.ai</a>.</p>
+                                <ul class="concept-bullets">
+                                    <li>Be explicit about the role, task, and constraints.</li>
+                                    <li>Use delimiters to separate instructions from data.</li>
+                                    <li>Provide a target format and a short example.</li>
+                                    <li>Ask for assumptions, risks, or missing data.</li>
+                                    <li>Iterate with real inputs, not toy prompts.</li>
+                                </ul>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Context hygiene</h4>
+                                <ul class="concept-bullets">
+                                    <li>Keep only relevant context; remove stale instructions.</li>
+                                    <li>Define terms once and reuse them consistently.</li>
+                                    <li>Chunk long inputs and summarize key decisions.</li>
+                                </ul>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Agents Section -->
+            <section id="ai-agents" class="example-section">
+                <h2>AI Agents: Tool-Using Systems</h2>
+                <p class="section-intro">Agents combine planning, tools, memory, and evals to finish real tasks.</p>
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Agent loop</h3>
+                        <ol class="step-list">
+                            <li>Plan the task and choose a strategy.</li>
+                            <li>Select tools and call them with structured inputs.</li>
+                            <li>Observe results and update the plan.</li>
+                            <li>Decide when to stop and respond.</li>
+                        </ol>
+                        <div class="step-grid">
+                            <div class="step-card">
+                                <h4>Planner</h4>
+                                <p>Breaks the goal into steps and picks the next action.</p>
+                            </div>
+                            <div class="step-card">
+                                <h4>Tool router</h4>
+                                <p>Chooses APIs, search, or code execution based on the task.</p>
+                            </div>
+                            <div class="step-card">
+                                <h4>Memory</h4>
+                                <p>Stores notes, intermediate results, and long-term facts.</p>
+                            </div>
+                            <div class="step-card">
+                                <h4>Critic</h4>
+                                <p>Checks outputs, runs evals, and flags regressions.</p>
+                            </div>
+                        </div>
+                        <h3>Tool calling basics</h3>
+                        <ul class="concept-bullets">
+                            <li>Define clear tool schemas with typed inputs and outputs.</li>
+                            <li>Validate tool results and handle failures explicitly.</li>
+                            <li>Constrain tool access with allowlists and budgets.</li>
+                            <li>Log tool calls for tracing and debugging.</li>
+                        </ul>
+                    </div>
+                    <div class="visualization card-column">
+                        <div class="guide-stack">
+                            <article class="guide-card">
+                                <h4>How to write evals</h4>
+                                <ol class="step-list">
+                                    <li>Define a task set and success criteria.</li>
+                                    <li>Collect examples with expected outputs.</li>
+                                    <li>Use automatic checks plus human review when needed.</li>
+                                    <li>Track regressions and edge cases over time.</li>
+                                </ol>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Eval-driven development</h4>
+                                <ol class="step-list">
+                                    <li>Write evals before adding new agent logic.</li>
+                                    <li>Run evals on every change to the prompt or tools.</li>
+                                    <li>Promote only the changes that improve the score.</li>
+                                    <li>Version datasets and prompts alongside code.</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <h5>Frameworks</h5>
+                                <p>LangChain, LlamaIndex, and OpenAI or Anthropic SDKs.</p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Tracing</h5>
+                                <p>Capture tool calls, prompts, and outputs for audits.</p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Evals</h5>
+                                <p>Use unit tests, golden sets, and regression suites.</p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Safety</h5>
+                                <p>Guardrails for tool use, data access, and output policy.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </section>
 
     </main>
