@@ -31,15 +31,10 @@
         </div>
     </header>
 
-    <nav>
-        <a href="#fundamentals">Foundations</a>
-        <a href="#vectors">Vectors</a>
-        <a href="#matrices">Matrices</a>
-        <a href="#gradient-descent">Gradient Descent</a>
-        <a href="#activations">Activation Functions</a>
-        <a href="#neural-network">Neural Network</a>
-        <a href="#backprop">Backpropagation</a>
-    </nav>
+    <div class="chapter-switcher" role="tablist" aria-label="Learning chapters">
+        <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations">Foundations</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
+    </div>
 
     <div class="holiday-parade" aria-hidden="true">
         <div class="holiday-character santa" aria-hidden="true">
@@ -53,9 +48,18 @@
     </div>
 
     <main>
-        <!-- Foundations Section -->
-        <section id="fundamentals" class="example-section fundamentals-section">
-            <h2>1. Foundations: Your Self-Guided Math Path</h2>
+        <section class="chapter is-active" data-chapter="foundations">
+            <nav class="chapter-nav" aria-label="Foundations sections">
+                <a href="#fundamentals">Foundations</a>
+                <a href="#vectors">Vectors</a>
+                <a href="#matrices">Matrices</a>
+                <a href="#gradient-descent">Gradient Descent</a>
+                <a href="#activations">Activation Functions</a>
+            </nav>
+
+            <!-- Foundations Section -->
+            <section id="fundamentals" class="example-section fundamentals-section">
+                <h2>Foundations: Your Self-Guided Math Path</h2>
             <p class="section-intro">Start here! Each step unlocks a superpower for understanding neural networks. Tap a tab to switch the graphic and see the idea in action.</p>
             <div class="learning-path">
                 <div class="path-card">
@@ -111,7 +115,7 @@
                                 \mathbf{a} = \mathrm{ReLU}(\mathbf{h})
                                 \]
                             </div>
-                            <p>In 3Blue1Brown style, imagine a grid of points being stretched and tilted. That is what \(W\) does.</p>
+                            <p>Imagine a grid of points being stretched and tilted. That is what \(W\) does.</p>
                             <ul class="concept-bullets">
                                 <li>Vectors are arrows (direction + length).</li>
                                 <li>Matrices are transformations (stretch, rotate, shear).</li>
@@ -197,7 +201,7 @@
 
         <!-- Vectors Section -->
         <section id="vectors" class="example-section">
-            <h2>2. Vectors & Vector Playground</h2>
+            <h2>Vectors & Vector Playground</h2>
             <p class="section-intro">Explore vectors as data points, similarity scores, and distances. Switch to Deep Dive when you want the advanced geometry.</p>
             <div class="vector-mode-switcher" role="group" aria-label="Vector depth mode">
                 <button class="toggle-btn is-active" type="button" data-vector-mode="basic">Basic playground</button>
@@ -366,7 +370,7 @@
 
         <!-- Matrices Section -->
         <section id="matrices" class="example-section">
-            <h2>3. Matrices: Addition & Multiplication</h2>
+            <h2>Matrices: Addition & Multiplication</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>Matrix playground</h3>
@@ -396,7 +400,7 @@
 
         <!-- Gradient Descent Section -->
         <section id="gradient-descent" class="example-section">
-            <h2>4. Gradient Descent</h2>
+            <h2>Gradient Descent</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>Finding the Minimum</h3>
@@ -425,7 +429,7 @@
 
         <!-- Activation Functions Section -->
         <section id="activations" class="example-section">
-            <h2>5. Activation Functions</h2>
+            <h2>Activation Functions</h2>
             <div class="content-grid">
                 <div class="explanation">
                     <h3>Non-Linear Transformations</h3>
@@ -456,75 +460,721 @@
                 </div>
             </div>
         </section>
+        </section>
 
-        <!-- Neural Network Section -->
-        <section id="neural-network" class="example-section">
-            <h2>6. Neural Network Forward Propagation</h2>
-            <div class="content-grid">
-                <div class="explanation">
-                    <h3>How Data Flows Through a Network</h3>
-                    <p>Forward propagation is the process of computing predictions:</p>
-                    <ol>
-                        <li><strong>Input Layer</strong>: Receives the data</li>
-                        <li><strong>Hidden Layers</strong>: Apply transformations (weights + activation)</li>
-                        <li><strong>Output Layer</strong>: Produces predictions</li>
-                    </ol>
-                    <div class="math-formula">
-                        \[
-                        \text{hidden} = \text{activation}(\text{input} \times W_1 + b_1)
-                        \]
-                        \[
-                        \text{output} = \text{activation}(\text{hidden} \times W_2 + b_2)
-                        \]
+        <section class="chapter" data-chapter="neural">
+            <nav class="chapter-nav" aria-label="Neural network sections">
+                <a href="#neural-network">Overview</a>
+                <a href="#backprop">Backpropagation</a>
+                <a href="#transformer-advanced">Transformer Deep Dive</a>
+            </nav>
+
+            <!-- Neural Network Section -->
+            <section id="neural-network" class="example-section">
+                <h2>Neural Networks: From Neurons to Transformers</h2>
+            <p class="section-intro">Zoom in from a single neuron all the way up to deep networks, CNNs, RNNs, LSTMs, and transformers. Each module walks step-by-step and animates the flow.</p>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Forward propagation refresher</h3>
+                        <p>A network is stacked math. Inputs become features, hidden layers reshape them, and the output layer turns them into predictions.</p>
+                        <ol class="step-list">
+                            <li><strong>Input layer</strong>: normalized features (pixels, embeddings, sensor readings).</li>
+                            <li><strong>Hidden layers</strong>: weighted sums + activations build new features.</li>
+                            <li><strong>Output layer</strong>: scores or probabilities for each class.</li>
+                        </ol>
+                        <div class="math-formula">
+                            \[
+                            \text{hidden} = \text{activation}(\text{input} \times W_1 + b_1)
+                            \]
+                            \[
+                            \text{output} = \text{activation}(\text{hidden} \times W_2 + b_2)
+                            \]
+                        </div>
+                        <p class="example-note">Inference stops here. Training continues with loss, backprop, and weight updates.</p>
                     </div>
-                    <p>Click neurons to see the computation flow!</p>
+                    <div class="visualization">
+                        <canvas id="neuralNetCanvas" width="400" height="400"></canvas>
+                        <div class="controls">
+                            <button onclick="runForwardProp()">Run Forward Propagation</button>
+                            <button onclick="resetNetwork()">Reset</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="visualization">
-                    <canvas id="neuralNetCanvas" width="400" height="400"></canvas>
-                    <div class="controls">
-                        <button onclick="runForwardProp()">Run Forward Propagation</button>
-                        <button onclick="resetNetwork()">Reset</button>
+            </div>
+
+            <div class="neural-module">
+                <div class="explanation">
+                    <h3>Neural network architectures at a glance</h3>
+                    <p>Different architectures specialize in different kinds of data: images, sequences, or long-range context.</p>
+                    <ul class="concept-bullets">
+                        <li>Feedforward nets handle tabular features and classic classification.</li>
+                        <li>CNNs are spatial pattern detectors for images and video.</li>
+                        <li>RNNs and LSTMs handle sequences over time.</li>
+                        <li>Transformers scale to long context across domains.</li>
+                    </ul>
+                </div>
+                <div class="architecture-grid">
+                    <article class="architecture-card" style="--arch-accent: var(--accent-1);">
+                        <h4>Feedforward (MLP)</h4>
+                        <svg class="arch-diagram" viewBox="0 0 180 120" role="img" aria-label="Feedforward network architecture">
+                            <line class="arch-stroke" x1="30" y1="20" x2="90" y2="35"></line>
+                            <line class="arch-stroke" x1="30" y1="20" x2="90" y2="60"></line>
+                            <line class="arch-stroke" x1="30" y1="50" x2="90" y2="35"></line>
+                            <line class="arch-stroke" x1="30" y1="50" x2="90" y2="60"></line>
+                            <line class="arch-stroke" x1="90" y1="35" x2="150" y2="50"></line>
+                            <line class="arch-stroke" x1="90" y1="60" x2="150" y2="50"></line>
+                            <circle class="arch-node" cx="30" cy="20" r="6"></circle>
+                            <circle class="arch-node" cx="30" cy="50" r="6"></circle>
+                            <circle class="arch-node" cx="90" cy="35" r="6"></circle>
+                            <circle class="arch-node" cx="90" cy="60" r="6"></circle>
+                            <circle class="arch-node" cx="150" cy="50" r="6"></circle>
+                        </svg>
+                        <p class="example-note">Classic dense layers for structured data.</p>
+                    </article>
+                    <article class="architecture-card" style="--arch-accent: var(--accent-2);">
+                        <h4>Deep Neural Network</h4>
+                        <svg class="arch-diagram" viewBox="0 0 180 120" role="img" aria-label="Deep neural network architecture">
+                            <line class="arch-stroke" x1="20" y1="25" x2="60" y2="25"></line>
+                            <line class="arch-stroke" x1="60" y1="25" x2="100" y2="25"></line>
+                            <line class="arch-stroke" x1="100" y1="25" x2="140" y2="25"></line>
+                            <line class="arch-stroke" x1="140" y1="25" x2="170" y2="25"></line>
+                            <circle class="arch-node" cx="20" cy="25" r="6"></circle>
+                            <circle class="arch-node" cx="60" cy="25" r="6"></circle>
+                            <circle class="arch-node" cx="100" cy="25" r="6"></circle>
+                            <circle class="arch-node" cx="140" cy="25" r="6"></circle>
+                            <circle class="arch-node" cx="170" cy="25" r="6"></circle>
+                            <line class="arch-stroke" x1="20" y1="65" x2="60" y2="65"></line>
+                            <line class="arch-stroke" x1="60" y1="65" x2="100" y2="65"></line>
+                            <line class="arch-stroke" x1="100" y1="65" x2="140" y2="65"></line>
+                            <line class="arch-stroke" x1="140" y1="65" x2="170" y2="65"></line>
+                            <circle class="arch-node" cx="20" cy="65" r="6"></circle>
+                            <circle class="arch-node" cx="60" cy="65" r="6"></circle>
+                            <circle class="arch-node" cx="100" cy="65" r="6"></circle>
+                            <circle class="arch-node" cx="140" cy="65" r="6"></circle>
+                            <circle class="arch-node" cx="170" cy="65" r="6"></circle>
+                        </svg>
+                        <p class="example-note">Stacks many layers to build feature hierarchies.</p>
+                    </article>
+                    <article class="architecture-card" style="--arch-accent: var(--accent-3);">
+                        <h4>Convolutional Network</h4>
+                        <svg class="arch-diagram" viewBox="0 0 180 120" role="img" aria-label="Convolutional neural network architecture">
+                            <rect class="arch-box" x="20" y="20" width="40" height="40"></rect>
+                            <rect class="arch-box" x="70" y="30" width="24" height="24"></rect>
+                            <rect class="arch-box" x="110" y="26" width="40" height="40"></rect>
+                            <line class="arch-stroke" x1="60" y1="40" x2="70" y2="40"></line>
+                            <line class="arch-stroke" x1="94" y1="40" x2="110" y2="40"></line>
+                            <rect class="arch-box" x="20" y="70" width="40" height="30"></rect>
+                            <rect class="arch-box" x="70" y="78" width="24" height="20"></rect>
+                            <rect class="arch-box" x="110" y="72" width="40" height="30"></rect>
+                        </svg>
+                        <p class="example-note">Filters slide across images to find patterns.</p>
+                    </article>
+                    <article class="architecture-card" style="--arch-accent: var(--accent-4);">
+                        <h4>Recurrent Network</h4>
+                        <svg class="arch-diagram" viewBox="0 0 180 120" role="img" aria-label="Recurrent neural network architecture">
+                            <rect class="arch-box" x="20" y="45" width="32" height="32"></rect>
+                            <rect class="arch-box" x="74" y="45" width="32" height="32"></rect>
+                            <rect class="arch-box" x="128" y="45" width="32" height="32"></rect>
+                            <line class="arch-stroke" x1="52" y1="61" x2="74" y2="61"></line>
+                            <line class="arch-stroke" x1="106" y1="61" x2="128" y2="61"></line>
+                            <path class="arch-stroke" d="M36 45 C36 25, 60 25, 60 45"></path>
+                            <path class="arch-stroke" d="M36 45 L36 35"></path>
+                        </svg>
+                        <p class="example-note">State flows through time for sequences.</p>
+                    </article>
+                    <article class="architecture-card" style="--arch-accent: var(--accent-1);">
+                        <h4>LSTM</h4>
+                        <svg class="arch-diagram" viewBox="0 0 180 120" role="img" aria-label="LSTM architecture">
+                            <rect class="arch-box" x="20" y="40" width="60" height="40"></rect>
+                            <circle class="arch-node" cx="110" cy="50" r="8"></circle>
+                            <circle class="arch-node" cx="140" cy="50" r="8"></circle>
+                            <circle class="arch-node" cx="125" cy="80" r="8"></circle>
+                            <line class="arch-stroke" x1="80" y1="60" x2="102" y2="54"></line>
+                            <line class="arch-stroke" x1="80" y1="60" x2="130" y2="54"></line>
+                            <line class="arch-stroke" x1="80" y1="60" x2="118" y2="76"></line>
+                        </svg>
+                        <p class="example-note">Gated memory handles long-range signals.</p>
+                    </article>
+                    <article class="architecture-card" style="--arch-accent: var(--accent-2);">
+                        <h4>Transformer</h4>
+                        <svg class="arch-diagram" viewBox="0 0 180 120" role="img" aria-label="Transformer architecture">
+                            <rect class="arch-box" x="25" y="20" width="130" height="20"></rect>
+                            <rect class="arch-box" x="25" y="45" width="130" height="20"></rect>
+                            <rect class="arch-box" x="25" y="70" width="130" height="20"></rect>
+                            <line class="arch-stroke" x1="90" y1="10" x2="90" y2="100"></line>
+                        </svg>
+                        <p class="example-note">Self-attention mixes all tokens at once.</p>
+                    </article>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Neuron basics: weighted sum -&gt; activation</h3>
+                        <p>Each neuron multiplies inputs by weights, adds a bias, then runs an activation function.</p>
+                        <ol class="step-list">
+                            <li>Inputs arrive as numbers.</li>
+                            <li>Weights scale each input.</li>
+                            <li>Bias shifts the total.</li>
+                            <li>Activation decides the output.</li>
+                        </ol>
+                        <div class="math-formula">
+                            \[
+                            z = \sum_i x_i w_i + b, \quad a = f(z)
+                            \]
+                        </div>
+                        <div class="example-chips" role="group" aria-label="Neuron examples">
+                            <button class="toggle-btn is-active" type="button" data-neuron-example="stroke">Stroke detector</button>
+                            <button class="toggle-btn" type="button" data-neuron-example="curve">Curve detector</button>
+                            <button class="toggle-btn" type="button" data-neuron-example="noise">Noise filter</button>
+                        </div>
+                        <p class="example-note" id="neuronExampleNote"></p>
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Inputs x</span>
+                                <span class="readout-value" id="neuronInputs">[0, 0, 0]</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Weights w</span>
+                                <span class="readout-value" id="neuronWeights">[0, 0, 0]</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Weighted sum z</span>
+                                <span class="readout-value" id="neuronWeightedSum">0</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Bias b</span>
+                                <span class="readout-value" id="neuronBias">0</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Activation a</span>
+                                <span class="readout-value" id="neuronActivation">0</span>
+                            </div>
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="neuronStepBadge">Step 1 of 4</span>
+                                <h4 id="neuronStepTitle">Inputs arrive</h4>
+                            </div>
+                            <p id="neuronStepText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="neuronCanvas" width="420" height="320"></canvas>
+                        <div class="controls">
+                            <button type="button" id="neuronPrevStep">Previous step</button>
+                            <button type="button" id="neuronNextStep">Next step</button>
+                            <button type="button" id="neuronPlay">Play loop</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Digit recognition: inference vs training</h3>
+                        <p>Simple digit recognition starts from pixels, transforms them into hidden features, and predicts a digit.</p>
+                        <div class="step-grid">
+                            <div class="step-card">
+                                <h4>Inference (predict)</h4>
+                                <ol>
+                                    <li>Read the image.</li>
+                                    <li>Flatten + normalize.</li>
+                                    <li>Hidden activations.</li>
+                                    <li>Output probabilities.</li>
+                                </ol>
+                            </div>
+                            <div class="step-card">
+                                <h4>Training (learn)</h4>
+                                <ol>
+                                    <li>Forward pass (same as inference).</li>
+                                    <li>Compute loss vs label.</li>
+                                    <li>Backpropagate gradients.</li>
+                                    <li>Update weights.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="example-chips" role="group" aria-label="Digit examples">
+                            <button class="toggle-btn is-active" type="button" data-digit-example="zero">Digit 0</button>
+                            <button class="toggle-btn" type="button" data-digit-example="three">Digit 3</button>
+                            <button class="toggle-btn" type="button" data-digit-example="seven">Digit 7</button>
+                        </div>
+                        <p class="example-note" id="digitExampleNote"></p>
+                        <div class="toggle-group" role="group" aria-label="Digit mode">
+                            <button class="toggle-btn is-active" type="button" data-digit-mode="inference">Inference</button>
+                            <button class="toggle-btn" type="button" data-digit-mode="training">Training</button>
+                        </div>
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Target</span>
+                                <span class="readout-value" id="digitTarget">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Prediction</span>
+                                <span class="readout-value" id="digitPrediction">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Loss</span>
+                                <span class="readout-value" id="digitLoss">-</span>
+                            </div>
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="digitStepBadge">Step 1 of 4</span>
+                                <h4 id="digitStepTitle">Image input</h4>
+                            </div>
+                            <p id="digitStepText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="digitLabCanvas" width="420" height="340"></canvas>
+                        <div class="controls">
+                            <button type="button" id="digitPrevStep">Previous step</button>
+                            <button type="button" id="digitNextStep">Next step</button>
+                            <button type="button" id="digitPlay">Play loop</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module" id="backprop">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Backpropagation: step-by-step</h3>
+                        <p>Backpropagation computes how each weight should change to reduce the loss.</p>
+                        <ol class="step-list">
+                            <li><strong>Forward pass</strong>: compute predictions.</li>
+                            <li><strong>Loss</strong>: compare prediction to target.</li>
+                            <li><strong>Backward pass</strong>: send gradients backward.</li>
+                            <li><strong>Update</strong>: adjust weights with the learning rate.</li>
+                        </ol>
+                        <div class="math-formula">
+                            \[
+                            \frac{\partial L}{\partial w} = \frac{\partial L}{\partial \text{output}} \cdot \frac{\partial \text{output}}{\partial w}
+                            \]
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="backpropStepBadge">Step 1 of 4</span>
+                                <h4 id="backpropStepTitle">Forward pass</h4>
+                            </div>
+                            <p id="backpropStepText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="backpropCanvas" width="400" height="400"></canvas>
+                        <div class="controls">
+                            <button type="button" id="backpropPrevStep">Previous step</button>
+                            <button type="button" id="backpropNextStep">Next step</button>
+                            <button type="button" id="backpropPlay">Play steps</button>
+                            <button type="button" id="backpropReset">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Deep neural networks: stacking layers</h3>
+                        <p>More layers let the model build a hierarchy of features.</p>
+                        <ul class="concept-bullets">
+                            <li>Early layers: edges and simple shapes.</li>
+                            <li>Middle layers: textures and parts.</li>
+                            <li>Late layers: whole objects or concepts.</li>
+                        </ul>
+                        <p class="example-note">Examples: face recognition, speech-to-text, medical scans.</p>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="deepNetCanvas" width="420" height="320"></canvas>
+                        <div class="controls">
+                            <div class="slider-group">
+                                <span class="slider-title">Depth</span>
+                                <label>Layers <span id="deepDepthVal">5</span></label>
+                                <input type="range" id="deepDepth" min="3" max="7" step="1" value="5">
+                            </div>
+                            <button type="button" id="deepRun">Run signal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>CNNs: slide a filter across the image</h3>
+                        <p>Convolutions scan a small filter across pixels to detect patterns like edges or corners.</p>
+                        <ul class="concept-bullets">
+                            <li>Shared weights detect the same pattern anywhere.</li>
+                            <li>Pooling summarizes nearby activations.</li>
+                            <li>Stacked filters build complex features.</li>
+                        </ul>
+                        <div class="example-chips" role="group" aria-label="CNN examples">
+                            <button class="toggle-btn is-active" type="button" data-cnn-example="edge">Edge detector</button>
+                            <button class="toggle-btn" type="button" data-cnn-example="corner">Corner detector</button>
+                            <button class="toggle-btn" type="button" data-cnn-example="diagonal">Diagonal stroke</button>
+                        </div>
+                        <p class="example-note" id="cnnExampleNote"></p>
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Patch</span>
+                                <span class="readout-value" id="cnnPatch">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Output value</span>
+                                <span class="readout-value" id="cnnOutputValue">-</span>
+                            </div>
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="cnnStepBadge">Step 1 of 16</span>
+                                <h4 id="cnnStepTitle">Filter sweep</h4>
+                            </div>
+                            <p id="cnnStepText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="cnnCanvas" width="420" height="320"></canvas>
+                        <div class="controls">
+                            <button type="button" id="cnnPrevStep">Previous patch</button>
+                            <button type="button" id="cnnNextStep">Next patch</button>
+                            <button type="button" id="cnnPlay">Play sweep</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>RNNs: memory over time</h3>
+                        <p>Recurrent networks reuse the same weights at every time step, passing a hidden state forward.</p>
+                        <ul class="concept-bullets">
+                            <li>Hidden state stores short-term memory.</li>
+                            <li>Great for sequences like text or sensor data.</li>
+                            <li>Outputs can appear at every step.</li>
+                        </ul>
+                        <div class="example-chips" role="group" aria-label="RNN examples">
+                            <button class="toggle-btn is-active" type="button" data-rnn-example="sentence">Next word</button>
+                            <button class="toggle-btn" type="button" data-rnn-example="weather">Forecast</button>
+                            <button class="toggle-btn" type="button" data-rnn-example="music">Music pattern</button>
+                        </div>
+                        <p class="example-note" id="rnnExampleNote"></p>
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Token</span>
+                                <span class="readout-value" id="rnnToken">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Hidden state</span>
+                                <span class="readout-value" id="rnnHidden">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Next output</span>
+                                <span class="readout-value" id="rnnOutput">-</span>
+                            </div>
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="rnnStepBadge">Step 1 of 4</span>
+                                <h4 id="rnnStepTitle">Time step 1</h4>
+                            </div>
+                            <p id="rnnStepText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="rnnCanvas" width="420" height="320"></canvas>
+                        <div class="controls">
+                            <button type="button" id="rnnPrevStep">Previous step</button>
+                            <button type="button" id="rnnNextStep">Next step</button>
+                            <button type="button" id="rnnPlay">Play sequence</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>LSTM: long-short term memory</h3>
+                        <p>LSTMs add gates that decide what to forget, what to write, and what to output.</p>
+                        <ul class="concept-bullets">
+                            <li>Forget gate keeps or drops old memory.</li>
+                            <li>Input gate writes new information.</li>
+                            <li>Output gate reveals the right part.</li>
+                        </ul>
+                        <div class="example-chips" role="group" aria-label="LSTM examples">
+                            <button class="toggle-btn is-active" type="button" data-lstm-example="story">Story clue</button>
+                            <button class="toggle-btn" type="button" data-lstm-example="quotes">Quote tracking</button>
+                            <button class="toggle-btn" type="button" data-lstm-example="sensor">Sensor drift</button>
+                        </div>
+                        <p class="example-note" id="lstmExampleNote"></p>
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Memory before</span>
+                                <span class="readout-value" id="lstmMemoryBefore">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Forget gate</span>
+                                <span class="readout-value" id="lstmForgetGate">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Input gate</span>
+                                <span class="readout-value" id="lstmInputGate">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Output gate</span>
+                                <span class="readout-value" id="lstmOutputGate">-</span>
+                            </div>
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="lstmStepBadge">Step 1 of 4</span>
+                                <h4 id="lstmStepTitle">Forget gate</h4>
+                            </div>
+                            <p id="lstmStepText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="lstmCanvas" width="420" height="320"></canvas>
+                        <div class="controls">
+                            <button type="button" id="lstmPrevStep">Previous gate</button>
+                            <button type="button" id="lstmNextStep">Next gate</button>
+                            <button type="button" id="lstmPlay">Play gates</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module">
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Transformers: staged pipeline</h3>
+                        <p>Transformers process all tokens at once, then use attention to mix information.</p>
+                        <ol class="step-list">
+                            <li>Tokenize and embed.</li>
+                            <li>Add positional encoding.</li>
+                            <li>Self-attention mixes context.</li>
+                            <li>Feedforward + residual.</li>
+                            <li>Output probabilities.</li>
+                        </ol>
+                        <div class="example-chips" role="group" aria-label="Transformer examples">
+                            <button class="toggle-btn is-active" type="button" data-transformer-example="translate">Translation</button>
+                            <button class="toggle-btn" type="button" data-transformer-example="summary">Summarization</button>
+                            <button class="toggle-btn" type="button" data-transformer-example="code">Code completion</button>
+                        </div>
+                        <p class="example-note" id="transformerExampleNote"></p>
+                        <div class="example-chips" role="group" aria-label="Transformer stages">
+                            <button class="toggle-btn is-active" type="button" data-transformer-stage="0">Embed</button>
+                            <button class="toggle-btn" type="button" data-transformer-stage="1">Positions</button>
+                            <button class="toggle-btn" type="button" data-transformer-stage="2">Attention</button>
+                            <button class="toggle-btn" type="button" data-transformer-stage="3">Feedforward</button>
+                            <button class="toggle-btn" type="button" data-transformer-stage="4">Output</button>
+                        </div>
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Tokens</span>
+                                <span class="readout-value" id="transformerTokenCount">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Focus token</span>
+                                <span class="readout-value" id="transformerFocusToken">-</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Stage</span>
+                                <span class="readout-value" id="transformerStageLabel">-</span>
+                            </div>
+                        </div>
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="transformerStageBadge">Stage 1 of 5</span>
+                                <h4 id="transformerStageTitle">Tokenize + embed</h4>
+                            </div>
+                            <p id="transformerStageText"></p>
+                        </div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="transformerCanvas" width="420" height="340"></canvas>
+                        <div class="controls">
+                            <button type="button" id="transformerPrevStage">Previous stage</button>
+                            <button type="button" id="transformerNextStage">Next stage</button>
+                            <button type="button" id="transformerPlay">Play stages</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neural-module transformer-advanced" id="transformer-advanced">
+                <div class="content-grid transformer-advanced-grid">
+                    <div class="explanation">
+                        <h3>Advanced Transformer Model: step-by-step visualization</h3>
+                        <p class="section-intro">Use the stepper to follow the full Transformer pipeline without leaving the visuals.</p>
+
+                        <div class="scene-panel step-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="transformerAdvancedBadge">Step 1 of 15</span>
+                                <h4 id="transformerAdvancedTitle">Tokenization</h4>
+                            </div>
+                            <p id="transformerAdvancedText"></p>
+                            <ul class="step-points" id="transformerAdvancedPoints"></ul>
+                            <div class="math-formula" id="transformerAdvancedMath"></div>
+                        </div>
+
+                        <div class="example-chips transformer-advanced-steps" role="group" aria-label="Transformer advanced steps">
+                            <button class="toggle-btn is-active" type="button" data-transformer-advanced-step="0">Tokenize</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="1">Token embed</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="2">Position</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="3">Final embed</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="4">QKV</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="5">Split heads</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="6">QK^T</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="7">Mask</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="8">Softmax</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="9">Concat</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="10">MLP expand</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="11">MLP project</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="12">Logits</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="13">Sampling</button>
+                            <button class="toggle-btn" type="button" data-transformer-advanced-step="14">Aux</button>
+                        </div>
+
+                        <div class="neural-readout">
+                            <div class="readout-card">
+                                <span class="readout-label">Model</span>
+                                <span class="readout-value">GPT-2 (small)</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Embedding dim</span>
+                                <span class="readout-value">768</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Heads</span>
+                                <span class="readout-value">12</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Blocks</span>
+                                <span class="readout-value">12</span>
+                            </div>
+                            <div class="readout-card">
+                                <span class="readout-label">Vocabulary</span>
+                                <span class="readout-value">50,257</span>
+                            </div>
+                        </div>
+
+                        <details class="reference-drawer">
+                            <summary>Reference narrative (full explanation)</summary>
+                            <div class="guide-stack">
+                                <article class="guide-card">
+                                    <h4>What is a Transformer?</h4>
+                                    <p>Transformer is a neural network architecture that has fundamentally changed the approach to artificial intelligence. It was introduced in the 2017 paper "Attention is All You Need" and now powers models like OpenAI GPT, Meta Llama, and Google Gemini.</p>
+                                    <p>Transformers are not limited to text. They also drive audio generation, image recognition, protein structure prediction, and game playing, showing how broadly the architecture applies across domains.</p>
+                                    <p>Text-generative Transformers operate on next-token prediction: given a prompt, the model estimates the most probable next token. The core innovation is self-attention, which lets all tokens communicate and capture long-range dependencies.</p>
+                                    <p>Transformer Explainer is powered by GPT-2 (small) with 124 million parameters. While it is not the largest model, its components match the structure of more recent systems.</p>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>Transformer architecture</h4>
+                                    <p>Every text-generative Transformer consists of three components:</p>
+                                    <ul class="concept-bullets">
+                                        <li><strong>Embedding</strong>: tokens become vectors and receive positional signals.</li>
+                                        <li><strong>Transformer block</strong>: multi-head attention routes context; an MLP refines each token.</li>
+                                        <li><strong>Output probabilities</strong>: logits are turned into a probability distribution for the next token.</li>
+                                    </ul>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>Embedding pipeline</h4>
+                                    <p>Suppose the prompt is: "Data visualization empowers users to". Embedding converts this text into a numerical representation in four steps:</p>
+                                    <ol class="step-list">
+                                        <li><strong>Tokenization</strong>: split into word or subword tokens.</li>
+                                        <li><strong>Token embedding</strong>: map tokens to a vector space.</li>
+                                        <li><strong>Positional encoding</strong>: add position information.</li>
+                                        <li><strong>Final embedding</strong>: sum token and positional vectors.</li>
+                                    </ol>
+                                    <p class="figure-note">Figure 1. Expanding the embedding view: tokenization, token embedding, positional encoding, and final embedding.</p>
+                                    <p>GPT-2 (small) uses 768-dimensional embeddings and a vocabulary of 50,257 tokens. The embedding matrix has shape (50,257, 768) with about 39 million parameters.</p>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>Transformer block</h4>
+                                    <p>The block combines multi-head self-attention and an MLP. GPT-2 (small) stacks 12 blocks, allowing token representations to evolve into higher-level meanings over depth.</p>
+                                    <p>Multi-head attention captures context across tokens. The MLP processes each token independently to refine its representation.</p>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>Multi-head self-attention</h4>
+                                    <p>Each token is transformed into Query (Q), Key (K), and Value (V) vectors:</p>
+                                    <div class="math-formula">
+                                        \[
+                                        QKV_{ij} = \left( \sum_{d=1}^{768} \text{Embedding}_{i,d} \cdot \text{Weights}_{d,j} \right) + \text{Bias}_j
+                                        \]
+                                    </div>
+                                    <p>Query is like the search text, Key is the result title, and Value is the page content. This analogy helps explain why attention scores route information from relevant tokens.</p>
+                                    <p class="figure-note">Figure 2. Computing Q, K, and V from the embedding.</p>
+                                    <ul class="concept-bullets">
+                                        <li><strong>Split into heads</strong>: GPT-2 uses 12 attention heads.</li>
+                                        <li><strong>Masked attention</strong>: prevents peeking at future tokens.</li>
+                                        <li><strong>Concat + projection</strong>: heads are merged for the next stage.</li>
+                                    </ul>
+                                    <p>Scaling and masking set future positions to negative infinity so each token predicts without looking ahead.</p>
+                                    <p class="figure-note">Figure 3. Masked self-attention: dot product, scale + mask, softmax + dropout.</p>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>MLP: multi-layer perceptron</h4>
+                                    <p>The MLP expands each token from 768 to 3072 dimensions with a GELU activation, then compresses back to 768. This enriches the representation independently per token.</p>
+                                    <p class="figure-note">Figure 4. The MLP expands then compresses each token representation.</p>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>Output probabilities and sampling</h4>
+                                    <p>The final linear layer maps to 50,257 logits, one for each token in the vocabulary. Softmax turns logits into probabilities for the next token.</p>
+                                    <p class="figure-note">Figure 5. Each token receives a probability from the output logits.</p>
+                                    <p>Temperature controls sharpness: T=1 keeps logits unchanged, T&lt;1 makes outputs more deterministic, and T&gt;1 increases randomness.</p>
+                                    <div class="info-grid">
+                                        <div class="info-card">
+                                            <h5>Temperature</h5>
+                                            <p>Lower values make outputs more deterministic; higher values add creativity.</p>
+                                        </div>
+                                        <div class="info-card">
+                                            <h5>Top-k</h5>
+                                            <p>Restrict sampling to the top k highest-probability tokens.</p>
+                                        </div>
+                                        <div class="info-card">
+                                            <h5>Top-p</h5>
+                                            <p>Sample from the smallest set whose cumulative probability exceeds p.</p>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article class="guide-card">
+                                    <h4>Auxiliary architectural features</h4>
+                                    <p>Layer normalization stabilizes training and is applied twice per block. Dropout regularizes by randomly deactivating units during training and is disabled during inference. Residual connections add skip paths twice per block, helping gradients flow and preventing vanishing gradients.</p>
+                                </article>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="visualization transformer-advanced-visuals">
+                        <div class="transformer-advanced-canvas-grid">
+                            <canvas id="transformerAdvancedOverviewCanvas" width="420" height="200"></canvas>
+                            <canvas id="transformerAdvancedCanvas" width="420" height="320"></canvas>
+                        </div>
+                        <p class="figure-note">The overview highlights where you are in the stack; the detail panel shows the math.</p>
+                        <div class="controls">
+                            <button type="button" id="transformerAdvancedPrev">Previous step</button>
+                            <button type="button" id="transformerAdvancedNext">Next step</button>
+                            <button type="button" id="transformerAdvancedPlay">Play steps</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- Backpropagation Section -->
-        <section id="backprop" class="example-section">
-            <h2>7. Backpropagation</h2>
-            <div class="content-grid">
-                <div class="explanation">
-                    <h3>How Neural Networks Learn</h3>
-                    <p>Backpropagation calculates how to adjust weights to reduce error:</p>
-                    <ol>
-                        <li><strong>Forward Pass</strong>: Compute predictions</li>
-                        <li><strong>Calculate Error</strong>: Compare prediction to truth</li>
-                        <li><strong>Backward Pass</strong>: Propagate error backwards</li>
-                        <li><strong>Update Weights</strong>: Adjust using gradients</li>
-                    </ol>
-                    <div class="math-formula">
-                        \[
-                        \frac{\partial \text{Loss}}{\partial w} = \frac{\partial \text{Loss}}{\partial \text{output}} \cdot \frac{\partial \text{output}}{\partial w}
-                        \]
-                    </div>
-                    <p>Uses chain rule to compute gradients efficiently!</p>
-                    <figure class="wip-card">
-                        <img src="assets/robot-wip.svg" alt="Friendly robot holding a WIP sign">
-                        <figcaption>
-                            <span class="wip-label">Work in progress</span>
-                            We're building a step-by-step backprop playground next. Stay tuned!
-                        </figcaption>
-                    </figure>
-                </div>
-                <div class="visualization">
-                    <canvas id="backpropCanvas" width="400" height="400"></canvas>
-                    <div class="controls">
-                        <button onclick="runBackprop()">Run Backpropagation</button>
-                        <button onclick="resetBackprop()">Reset</button>
-                    </div>
-                </div>
-            </div>
         </section>
+
     </main>
 
     <footer>
