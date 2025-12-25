@@ -34,7 +34,7 @@
     <div class="chapter-switcher" role="tablist" aria-label="Learning chapters">
         <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations">Foundations</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">LLM Foundations</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
     </div>
 
     <div class="holiday-parade" aria-hidden="true">
@@ -1177,16 +1177,18 @@
         </section>
 
         <section class="chapter" data-chapter="llm-foundations">
-            <nav class="chapter-nav" aria-label="LLM foundations sections">
+            <nav class="chapter-nav" aria-label="Large language models sections">
                 <a href="#llm-tutorial">Tutorial</a>
+                <a href="#transformer-map">Transformer Depth Map</a>
                 <a href="#prompt-engineering">Prompt Engineering</a>
                 <a href="#llm-fundamentals">LLM Fundamentals</a>
+                <a href="#vector-databases">Vector Databases</a>
                 <a href="#ai-agents">AI Agents</a>
             </nav>
 
             <!-- LLM Tutorial Section -->
             <section id="llm-tutorial" class="example-section">
-                <h2>LLM Foundations: Guided Tutorial</h2>
+                <h2>Large Language Models: Guided Tutorial</h2>
                 <p class="section-intro">A hands-on path that ties prompting, model behavior, and agent building into one workflow.</p>
                 <div class="learning-path">
                     <div class="path-card">
@@ -1249,6 +1251,643 @@ OUTPUT FORMAT:
 - Proposal
 - Risks
 CHECKS: List missing inputs.</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transformer Depth Map Section -->
+            <section id="transformer-map" class="example-section">
+                <h2>Transformer Depth Map: From Mechanics to Reasoning Models</h2>
+                <p class="section-intro">Use this depth indicator to move from core mechanics to training signals and reasoning behaviors. Each tier adds a new layer of capability.</p>
+                <div class="depth-map">
+                    <div class="depth-tier" style="--depth-accent: var(--accent-1);">
+                        <div class="depth-marker">
+                            <span class="depth-badge">Depth 1</span>
+                            <h3>Transformer fundamentals</h3>
+                            <p>Mechanics and intuition.</p>
+                        </div>
+                        <div class="depth-content">
+                            <div class="depth-visual">
+                                <svg class="depth-diagram depth-diagram--fundamentals" viewBox="0 0 420 120" role="img" aria-label="Tokens flow through Q K V, attention, feedforward, and residual normalization">
+                                    <defs>
+                                        <marker id="depth-arrow-1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                            <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                        </marker>
+                                    </defs>
+                                    <rect class="depth-box" x="15" y="30" width="70" height="50" rx="12"></rect>
+                                    <rect class="depth-token" x="26" y="46" width="10" height="18" rx="3"></rect>
+                                    <rect class="depth-token" x="40" y="46" width="10" height="18" rx="3"></rect>
+                                    <rect class="depth-token" x="54" y="46" width="10" height="18" rx="3"></rect>
+                                    <rect class="depth-token" x="68" y="46" width="10" height="18" rx="3"></rect>
+                                    <text x="50" y="92" text-anchor="middle">Tokens</text>
+
+                                    <rect class="depth-box" x="95" y="30" width="70" height="50" rx="12"></rect>
+                                    <rect class="depth-chip" x="104" y="40" width="14" height="12" rx="3"></rect>
+                                    <rect class="depth-chip" x="124" y="40" width="14" height="12" rx="3"></rect>
+                                    <rect class="depth-chip" x="144" y="40" width="14" height="12" rx="3"></rect>
+                                    <text x="111" y="49" text-anchor="middle">Q</text>
+                                    <text x="131" y="49" text-anchor="middle">K</text>
+                                    <text x="151" y="49" text-anchor="middle">V</text>
+
+                                    <rect class="depth-box" x="175" y="30" width="70" height="50" rx="12"></rect>
+                                    <text x="210" y="60" text-anchor="middle">Attention</text>
+
+                                    <rect class="depth-box" x="255" y="30" width="60" height="50" rx="12"></rect>
+                                    <text x="285" y="60" text-anchor="middle">FFN</text>
+
+                                    <rect class="depth-box" x="325" y="30" width="70" height="50" rx="12"></rect>
+                                    <text x="360" y="60" text-anchor="middle">Residual</text>
+                                    <text x="360" y="72" text-anchor="middle">+ Norm</text>
+
+                                    <line class="depth-arrow" x1="85" y1="55" x2="95" y2="55" marker-end="url(#depth-arrow-1)"></line>
+                                    <line class="depth-arrow" x1="165" y1="55" x2="175" y2="55" marker-end="url(#depth-arrow-1)"></line>
+                                    <line class="depth-arrow" x1="245" y1="55" x2="255" y2="55" marker-end="url(#depth-arrow-1)"></line>
+                                    <line class="depth-arrow" x1="315" y1="55" x2="325" y2="55" marker-end="url(#depth-arrow-1)"></line>
+                                </svg>
+                                <p class="depth-visual-note">Tokens turn into Q/K/V, attention mixes them, FFN refines, residual + norm stabilize.</p>
+                            </div>
+                            <div class="depth-grid">
+                                <article class="depth-card">
+                                    <h4>The big picture</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Encoder-decoder and decoder-only overview">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-1a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="6" y="16" width="36" height="20" rx="6"></rect>
+                                                <rect class="depth-token" x="10" y="20" width="6" height="12" rx="2"></rect>
+                                                <rect class="depth-token" x="18" y="20" width="6" height="12" rx="2"></rect>
+                                                <rect class="depth-token" x="26" y="20" width="6" height="12" rx="2"></rect>
+                                                <text x="24" y="46" text-anchor="middle">Input</text>
+
+                                                <rect class="depth-box" x="52" y="10" width="26" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="52" y="30" width="26" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="52" y="50" width="26" height="16" rx="4"></rect>
+                                                <text x="65" y="76" text-anchor="middle">Enc</text>
+
+                                                <rect class="depth-box" x="92" y="10" width="26" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="92" y="30" width="26" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="92" y="50" width="26" height="16" rx="4"></rect>
+                                                <text x="105" y="76" text-anchor="middle">Dec</text>
+
+                                                <circle class="depth-node" cx="140" cy="40" r="7"></circle>
+                                                <text x="140" y="56" text-anchor="middle">Out</text>
+
+                                                <line class="depth-arrow" x1="42" y1="26" x2="52" y2="26" marker-end="url(#depth-mini-arrow-1a)"></line>
+                                                <line class="depth-arrow" x1="78" y1="36" x2="92" y2="36" marker-end="url(#depth-mini-arrow-1a)"></line>
+                                                <line class="depth-arrow" x1="118" y1="40" x2="133" y2="40" marker-end="url(#depth-mini-arrow-1a)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Transformers model sequences by letting every token attend to every other token in one step, so computation is parallel instead of strictly sequential.</p>
+                                            <p>Encoder-decoder stacks build a memory from the input, while decoder-only stacks generate the next token with a causal mask.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Scaled dot-product attention</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Queries and keys score similarity, softmax weights mix values">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-1b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="6" y="10" width="28" height="14" rx="4"></rect>
+                                                <text x="20" y="20" text-anchor="middle">Q</text>
+                                                <rect class="depth-box" x="6" y="34" width="28" height="14" rx="4"></rect>
+                                                <text x="20" y="44" text-anchor="middle">K</text>
+                                                <rect class="depth-box" x="6" y="58" width="28" height="14" rx="4"></rect>
+                                                <text x="20" y="68" text-anchor="middle">V</text>
+
+                                                <rect class="depth-box" x="48" y="26" width="36" height="18" rx="5"></rect>
+                                                <text x="66" y="38" text-anchor="middle">QK^T</text>
+                                                <rect class="depth-box" x="92" y="26" width="40" height="18" rx="5"></rect>
+                                                <text x="112" y="38" text-anchor="middle">Softmax</text>
+                                                <rect class="depth-box" x="92" y="56" width="40" height="18" rx="5"></rect>
+                                                <text x="112" y="68" text-anchor="middle">Sum</text>
+                                                <circle class="depth-node" cx="145" cy="66" r="7"></circle>
+                                                <text x="145" y="82" text-anchor="middle">Out</text>
+
+                                                <line class="depth-arrow" x1="34" y1="18" x2="48" y2="31" marker-end="url(#depth-mini-arrow-1b)"></line>
+                                                <line class="depth-arrow" x1="34" y1="40" x2="48" y2="35" marker-end="url(#depth-mini-arrow-1b)"></line>
+                                                <line class="depth-arrow" x1="84" y1="35" x2="92" y2="35" marker-end="url(#depth-mini-arrow-1b)"></line>
+                                                <line class="depth-arrow" x1="112" y1="44" x2="112" y2="56" marker-end="url(#depth-mini-arrow-1b)"></line>
+                                                <line class="depth-arrow" x1="34" y1="66" x2="92" y2="66" marker-end="url(#depth-mini-arrow-1b)"></line>
+                                                <line class="depth-arrow" x1="132" y1="66" x2="138" y2="66" marker-end="url(#depth-mini-arrow-1b)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Queries and keys produce similarity scores, softmax turns scores into weights, and values are mixed by a weighted sum.</p>
+                                            <p>Scaling by sqrt(d) keeps logits in a stable range so softmax does not saturate too early.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Multi-head + residuals + layer norm</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Multiple attention heads merge with residual and normalization">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-1c" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="6" y="36" width="24" height="16" rx="4"></rect>
+                                                <text x="18" y="48" text-anchor="middle">In</text>
+
+                                                <rect class="depth-box" x="44" y="10" width="28" height="16" rx="4"></rect>
+                                                <text x="58" y="22" text-anchor="middle">H1</text>
+                                                <rect class="depth-box" x="44" y="34" width="28" height="16" rx="4"></rect>
+                                                <text x="58" y="46" text-anchor="middle">H2</text>
+                                                <rect class="depth-box" x="44" y="58" width="28" height="16" rx="4"></rect>
+                                                <text x="58" y="70" text-anchor="middle">H3</text>
+
+                                                <rect class="depth-box" x="84" y="36" width="34" height="16" rx="4"></rect>
+                                                <text x="101" y="48" text-anchor="middle">Concat</text>
+                                                <rect class="depth-box" x="126" y="36" width="24" height="16" rx="4"></rect>
+                                                <text x="138" y="48" text-anchor="middle">LN</text>
+
+                                                <line class="depth-arrow" x1="30" y1="44" x2="44" y2="18" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-arrow" x1="30" y1="44" x2="44" y2="42" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-arrow" x1="30" y1="44" x2="44" y2="66" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-arrow" x1="72" y1="18" x2="84" y2="44" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-arrow" x1="72" y1="42" x2="84" y2="44" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-arrow" x1="72" y1="66" x2="84" y2="44" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-arrow" x1="118" y1="44" x2="126" y2="44" marker-end="url(#depth-mini-arrow-1c)"></line>
+                                                <line class="depth-skip" x1="30" y1="52" x2="126" y2="52"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Each head attends in its own subspace, the heads are concatenated, and a projection mixes them back together.</p>
+                                            <p>Residual paths keep the original signal available, while layer norm stabilizes scale across the block.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Positional encoding</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Positional encodings add waves to token embeddings">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-1d" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="12" y="14" width="26" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="44" y="14" width="26" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="76" y="14" width="26" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="108" y="14" width="26" height="18" rx="4"></rect>
+                                                <text x="25" y="26" text-anchor="middle">t1</text>
+                                                <text x="57" y="26" text-anchor="middle">t2</text>
+                                                <text x="89" y="26" text-anchor="middle">t3</text>
+                                                <text x="121" y="26" text-anchor="middle">t4</text>
+
+                                                <path class="depth-wave" d="M10 62 C20 50, 30 74, 40 62 C50 50, 60 74, 70 62 C80 50, 90 74, 100 62 C110 50, 120 74, 130 62"></path>
+                                                <text x="80" y="80" text-anchor="middle">PE</text>
+
+                                                <line class="depth-arrow" x1="25" y1="32" x2="25" y2="54" marker-end="url(#depth-mini-arrow-1d)"></line>
+                                                <line class="depth-arrow" x1="57" y1="32" x2="57" y2="54" marker-end="url(#depth-mini-arrow-1d)"></line>
+                                                <line class="depth-arrow" x1="89" y1="32" x2="89" y2="54" marker-end="url(#depth-mini-arrow-1d)"></line>
+                                                <line class="depth-arrow" x1="121" y1="32" x2="121" y2="54" marker-end="url(#depth-mini-arrow-1d)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Attention is permutation-invariant, so we add position signals to token embeddings before attention.</p>
+                                            <p>Sinusoidal encodings give each position a unique mix of frequencies; learned or relative schemes encode distance directly.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="depth-tier" style="--depth-accent: var(--accent-2);">
+                        <div class="depth-marker">
+                            <span class="depth-badge">Depth 2</span>
+                            <h3>Transformer into an LLM</h3>
+                            <p>Training objectives and variants.</p>
+                        </div>
+                        <div class="depth-content">
+                            <div class="depth-visual">
+                                <svg class="depth-diagram depth-diagram--llm" viewBox="0 0 420 140" role="img" aria-label="Decoder only and encoder only paths with masking and objectives">
+                                    <defs>
+                                        <marker id="depth-arrow-2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                            <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                        </marker>
+                                    </defs>
+                                    <rect class="depth-box" x="20" y="16" width="160" height="40" rx="12"></rect>
+                                    <text x="100" y="40" text-anchor="middle">Decoder-only</text>
+                                    <line class="depth-soft" x1="40" y1="24" x2="80" y2="52"></line>
+                                    <line class="depth-soft" x1="60" y1="24" x2="100" y2="52"></line>
+                                    <line class="depth-soft" x1="80" y1="24" x2="120" y2="52"></line>
+
+                                    <rect class="depth-box" x="240" y="16" width="160" height="40" rx="12"></rect>
+                                    <text x="320" y="40" text-anchor="middle">Encoder-only</text>
+                                    <line class="depth-soft" x1="270" y1="38" x2="370" y2="38"></line>
+                                    <polygon class="depth-arrowhead" points="270 38, 278 34, 278 42"></polygon>
+                                    <polygon class="depth-arrowhead" points="370 38, 362 34, 362 42"></polygon>
+
+                                    <rect class="depth-box depth-box-muted" x="35" y="78" width="130" height="34" rx="10"></rect>
+                                    <text x="100" y="99" text-anchor="middle">Next-token</text>
+
+                                    <rect class="depth-box depth-box-muted" x="255" y="78" width="130" height="34" rx="10"></rect>
+                                    <text x="320" y="99" text-anchor="middle">Masked LM</text>
+
+                                    <line class="depth-arrow" x1="100" y1="56" x2="100" y2="78" marker-end="url(#depth-arrow-2)"></line>
+                                    <line class="depth-arrow" x1="320" y1="56" x2="320" y2="78" marker-end="url(#depth-arrow-2)"></line>
+                                </svg>
+                                <p class="depth-visual-note">Decoder-only uses causal masks for next-token prediction; encoder-only sees both directions with masked tokens.</p>
+                            </div>
+                            <div class="depth-grid">
+                                <article class="depth-card">
+                                    <h4>Decoder-only transformers (GPT-style)</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Causal mask blocks attention to future tokens">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-2a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-cell" x="10" y="18" width="12" height="12"></rect>
+                                                <rect class="depth-cell depth-cell--masked" x="26" y="18" width="12" height="12"></rect>
+                                                <rect class="depth-cell depth-cell--masked" x="42" y="18" width="12" height="12"></rect>
+                                                <rect class="depth-cell depth-cell--masked" x="58" y="18" width="12" height="12"></rect>
+
+                                                <rect class="depth-cell" x="10" y="34" width="12" height="12"></rect>
+                                                <rect class="depth-cell" x="26" y="34" width="12" height="12"></rect>
+                                                <rect class="depth-cell depth-cell--masked" x="42" y="34" width="12" height="12"></rect>
+                                                <rect class="depth-cell depth-cell--masked" x="58" y="34" width="12" height="12"></rect>
+
+                                                <rect class="depth-cell" x="10" y="50" width="12" height="12"></rect>
+                                                <rect class="depth-cell" x="26" y="50" width="12" height="12"></rect>
+                                                <rect class="depth-cell" x="42" y="50" width="12" height="12"></rect>
+                                                <rect class="depth-cell depth-cell--masked" x="58" y="50" width="12" height="12"></rect>
+
+                                                <rect class="depth-cell" x="10" y="66" width="12" height="12"></rect>
+                                                <rect class="depth-cell" x="26" y="66" width="12" height="12"></rect>
+                                                <rect class="depth-cell" x="42" y="66" width="12" height="12"></rect>
+                                                <rect class="depth-cell" x="58" y="66" width="12" height="12"></rect>
+
+                                                <text x="110" y="36" text-anchor="middle">Causal</text>
+                                                <text x="110" y="50" text-anchor="middle">mask</text>
+                                                <line class="depth-arrow" x1="70" y1="46" x2="96" y2="46" marker-end="url(#depth-mini-arrow-2a)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>A causal mask blocks attention to future tokens, so each position can only use past context.</p>
+                                            <p>Training uses teacher forcing: the model sees true previous tokens while learning to predict the next one.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Encoder-only transformers (BERT-style)</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Masked token uses bidirectional context">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-2b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="10" y="30" width="24" height="18" rx="4"></rect>
+                                                <rect class="depth-box depth-box-muted" x="38" y="30" width="32" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="74" y="30" width="24" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="102" y="30" width="24" height="18" rx="4"></rect>
+                                                <text x="22" y="42" text-anchor="middle">t1</text>
+                                                <text x="54" y="42" text-anchor="middle">MASK</text>
+                                                <text x="86" y="42" text-anchor="middle">t3</text>
+                                                <text x="114" y="42" text-anchor="middle">t4</text>
+
+                                                <line class="depth-arrow" x1="12" y1="56" x2="128" y2="56" marker-end="url(#depth-mini-arrow-2b)"></line>
+                                                <line class="depth-arrow" x1="128" y1="22" x2="12" y2="22" marker-end="url(#depth-mini-arrow-2b)"></line>
+                                                <text x="70" y="18" text-anchor="middle">Bidirectional</text>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Masked language modeling hides tokens and uses both left and right context to reconstruct them.</p>
+                                            <p>The result is a strong bidirectional representation that transfers well to classification and retrieval tasks.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Training + inference basics</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Softmax turns logits into probabilities for decoding">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-2c" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-chip" x="10" y="46" width="8" height="18" rx="2"></rect>
+                                                <rect class="depth-chip" x="24" y="38" width="8" height="26" rx="2"></rect>
+                                                <rect class="depth-chip" x="38" y="52" width="8" height="12" rx="2"></rect>
+                                                <text x="28" y="74" text-anchor="middle">logits</text>
+
+                                                <rect class="depth-box" x="60" y="34" width="38" height="20" rx="5"></rect>
+                                                <text x="79" y="47" text-anchor="middle">Softmax</text>
+                                                <line class="depth-arrow" x1="46" y1="48" x2="60" y2="44" marker-end="url(#depth-mini-arrow-2c)"></line>
+
+                                                <rect class="depth-box" x="110" y="20" width="36" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="110" y="52" width="36" height="16" rx="4"></rect>
+                                                <text x="128" y="32" text-anchor="middle">Greedy</text>
+                                                <text x="128" y="64" text-anchor="middle">Sample</text>
+                                                <line class="depth-arrow" x1="98" y1="44" x2="110" y2="28" marker-end="url(#depth-mini-arrow-2c)"></line>
+                                                <line class="depth-arrow" x1="98" y1="44" x2="110" y2="60" marker-end="url(#depth-mini-arrow-2c)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Logits become probabilities via softmax, then decoding picks the next token.</p>
+                                            <p>Greedy decoding is stable, while temperature and top-p sampling trade determinism for diversity.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="depth-tier" style="--depth-accent: var(--accent-3);">
+                        <div class="depth-marker">
+                            <span class="depth-badge">Depth 3</span>
+                            <h3>Reasoning with transformers</h3>
+                            <p>Prompting and tool-use strategies.</p>
+                        </div>
+                        <div class="depth-content">
+                            <div class="depth-visual">
+                                <svg class="depth-diagram depth-diagram--reasoning" viewBox="0 0 420 140" role="img" aria-label="Reasoning techniques: chain of thought, self consistency, and ReAct">
+                                    <defs>
+                                        <marker id="depth-arrow-3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                            <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                        </marker>
+                                    </defs>
+                                    <rect class="depth-box" x="20" y="24" width="110" height="80" rx="14"></rect>
+                                    <rect class="depth-chip" x="32" y="44" width="18" height="14" rx="4"></rect>
+                                    <rect class="depth-chip" x="58" y="44" width="18" height="14" rx="4"></rect>
+                                    <rect class="depth-chip" x="84" y="44" width="18" height="14" rx="4"></rect>
+                                    <line class="depth-arrow" x1="50" y1="51" x2="58" y2="51" marker-end="url(#depth-arrow-3)"></line>
+                                    <line class="depth-arrow" x1="76" y1="51" x2="84" y2="51" marker-end="url(#depth-arrow-3)"></line>
+                                    <text x="75" y="98" text-anchor="middle">CoT</text>
+
+                                    <rect class="depth-box" x="155" y="24" width="110" height="80" rx="14"></rect>
+                                    <circle class="depth-node" cx="210" cy="40" r="6"></circle>
+                                    <circle class="depth-node" cx="185" cy="68" r="5"></circle>
+                                    <circle class="depth-node" cx="210" cy="68" r="5"></circle>
+                                    <circle class="depth-node" cx="235" cy="68" r="5"></circle>
+                                    <line class="depth-soft" x1="210" y1="46" x2="185" y2="63"></line>
+                                    <line class="depth-soft" x1="210" y1="46" x2="210" y2="62"></line>
+                                    <line class="depth-soft" x1="210" y1="46" x2="235" y2="63"></line>
+                                    <rect class="depth-chip" x="186" y="80" width="48" height="14" rx="4"></rect>
+                                    <text x="210" y="98" text-anchor="middle">Vote</text>
+                                    <text x="210" y="22" text-anchor="middle">Self-consistency</text>
+
+                                    <rect class="depth-box" x="290" y="24" width="110" height="80" rx="14"></rect>
+                                    <rect class="depth-chip" x="302" y="38" width="40" height="18" rx="4"></rect>
+                                    <rect class="depth-chip" x="348" y="62" width="40" height="18" rx="4"></rect>
+                                    <text x="322" y="51" text-anchor="middle">LLM</text>
+                                    <text x="368" y="75" text-anchor="middle">Tool</text>
+                                    <line class="depth-arrow" x1="342" y1="47" x2="348" y2="62" marker-end="url(#depth-arrow-3)"></line>
+                                    <line class="depth-arrow" x1="352" y1="80" x2="334" y2="58" marker-end="url(#depth-arrow-3)"></line>
+                                    <text x="345" y="98" text-anchor="middle">ReAct</text>
+                                </svg>
+                                <p class="depth-visual-note">CoT adds intermediate steps, self-consistency samples many paths, ReAct loops the model with tools.</p>
+                            </div>
+                            <div class="depth-grid">
+                                <article class="depth-card">
+                                    <h4>Chain-of-Thought (CoT)</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Chain of thought steps leading to an answer">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-3a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="10" y="36" width="30" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="52" y="36" width="30" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="94" y="36" width="30" height="18" rx="4"></rect>
+                                                <rect class="depth-box" x="128" y="36" width="22" height="18" rx="4"></rect>
+                                                <text x="25" y="48" text-anchor="middle">Step 1</text>
+                                                <text x="67" y="48" text-anchor="middle">Step 2</text>
+                                                <text x="109" y="48" text-anchor="middle">Step 3</text>
+                                                <text x="139" y="48" text-anchor="middle">Ans</text>
+
+                                                <line class="depth-arrow" x1="40" y1="45" x2="52" y2="45" marker-end="url(#depth-mini-arrow-3a)"></line>
+                                                <line class="depth-arrow" x1="82" y1="45" x2="94" y2="45" marker-end="url(#depth-mini-arrow-3a)"></line>
+                                                <line class="depth-arrow" x1="124" y1="45" x2="128" y2="45" marker-end="url(#depth-mini-arrow-3a)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>CoT encourages explicit intermediate steps, which can improve multi-step reasoning tasks.</p>
+                                            <p>Use it when the reasoning path matters, but keep in mind verbosity does not guarantee correctness.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Self-consistency</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Multiple reasoning paths converge to a majority vote">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-3b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <circle class="depth-node" cx="20" cy="20" r="5"></circle>
+                                                <circle class="depth-node" cx="20" cy="45" r="5"></circle>
+                                                <circle class="depth-node" cx="20" cy="70" r="5"></circle>
+                                                <circle class="depth-node" cx="90" cy="45" r="7"></circle>
+                                                <rect class="depth-box" x="110" y="36" width="36" height="18" rx="4"></rect>
+                                                <text x="128" y="48" text-anchor="middle">Vote</text>
+
+                                                <line class="depth-arrow" x1="26" y1="20" x2="82" y2="40" marker-end="url(#depth-mini-arrow-3b)"></line>
+                                                <line class="depth-arrow" x1="26" y1="45" x2="82" y2="45" marker-end="url(#depth-mini-arrow-3b)"></line>
+                                                <line class="depth-arrow" x1="26" y1="70" x2="82" y2="50" marker-end="url(#depth-mini-arrow-3b)"></line>
+                                                <line class="depth-arrow" x1="98" y1="45" x2="110" y2="45" marker-end="url(#depth-mini-arrow-3b)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Self-consistency samples multiple reasoning paths and aggregates the final answers.</p>
+                                            <p>Majority voting reduces variance and often improves accuracy on reasoning benchmarks.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>ReAct (reason + act)</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Model alternates between reasoning and tool calls">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-3c" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="22" y="32" width="42" height="20" rx="5"></rect>
+                                                <rect class="depth-box" x="94" y="32" width="42" height="20" rx="5"></rect>
+                                                <text x="43" y="45" text-anchor="middle">LLM</text>
+                                                <text x="115" y="45" text-anchor="middle">Tool</text>
+                                                <line class="depth-arrow" x1="64" y1="42" x2="94" y2="42" marker-end="url(#depth-mini-arrow-3c)"></line>
+                                                <line class="depth-arrow" x1="94" y1="54" x2="64" y2="54" marker-end="url(#depth-mini-arrow-3c)"></line>
+                                                <text x="79" y="72" text-anchor="middle">loop</text>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>ReAct alternates reasoning steps with tool calls, grounding answers in external data.</p>
+                                            <p>The loop keeps the model honest by injecting retrieved facts before the final response.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="depth-tier" style="--depth-accent: var(--accent-4);">
+                        <div class="depth-marker">
+                            <span class="depth-badge">Depth 4</span>
+                            <h3>Reasoning models today</h3>
+                            <p>Training signals and test-time search.</p>
+                        </div>
+                        <div class="depth-content">
+                            <div class="depth-visual">
+                                <svg class="depth-diagram depth-diagram--reasoning-models" viewBox="0 0 420 150" role="img" aria-label="Process supervision and tree search combine to shape reasoning behavior">
+                                    <defs>
+                                        <marker id="depth-arrow-4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                            <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                        </marker>
+                                    </defs>
+                                    <text x="90" y="20" text-anchor="middle">Process supervision</text>
+                                    <rect class="depth-chip" x="30" y="32" width="70" height="16" rx="4"></rect>
+                                    <rect class="depth-chip" x="30" y="54" width="70" height="16" rx="4"></rect>
+                                    <rect class="depth-chip" x="30" y="76" width="70" height="16" rx="4"></rect>
+                                    <path class="depth-check" d="M36 40 L40 44 L48 34"></path>
+                                    <path class="depth-check" d="M36 62 L40 66 L48 56"></path>
+                                    <path class="depth-check" d="M36 84 L40 88 L48 78"></path>
+
+                                    <text x="320" y="20" text-anchor="middle">Test-time search</text>
+                                    <circle class="depth-node" cx="320" cy="38" r="6"></circle>
+                                    <circle class="depth-node" cx="290" cy="68" r="5"></circle>
+                                    <circle class="depth-node" cx="350" cy="68" r="5"></circle>
+                                    <circle class="depth-node" cx="270" cy="98" r="4"></circle>
+                                    <circle class="depth-node" cx="310" cy="98" r="4"></circle>
+                                    <circle class="depth-node" cx="330" cy="98" r="4"></circle>
+                                    <circle class="depth-node" cx="370" cy="98" r="4"></circle>
+                                    <line class="depth-soft" x1="320" y1="44" x2="290" y2="63"></line>
+                                    <line class="depth-soft" x1="320" y1="44" x2="350" y2="63"></line>
+                                    <line class="depth-soft" x1="290" y1="73" x2="270" y2="93"></line>
+                                    <line class="depth-soft" x1="290" y1="73" x2="310" y2="93"></line>
+                                    <line class="depth-soft" x1="350" y1="73" x2="330" y2="93"></line>
+                                    <line class="depth-soft" x1="350" y1="73" x2="370" y2="93"></line>
+
+                                    <rect class="depth-box" x="140" y="112" width="140" height="28" rx="10"></rect>
+                                    <text x="210" y="130" text-anchor="middle">Reasoning behavior</text>
+
+                                    <line class="depth-arrow" x1="100" y1="84" x2="150" y2="112" marker-end="url(#depth-arrow-4)"></line>
+                                    <line class="depth-arrow" x1="320" y1="104" x2="270" y2="112" marker-end="url(#depth-arrow-4)"></line>
+                                </svg>
+                                <p class="depth-visual-note">Step-level feedback and search trees both add compute that shapes reasoning at test time.</p>
+                            </div>
+                            <div class="depth-grid">
+                                <article class="depth-card">
+                                    <h4>Process vs outcome supervision</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Step-level checks flow into a reward signal">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-4a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <rect class="depth-box" x="10" y="14" width="36" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="10" y="36" width="36" height="16" rx="4"></rect>
+                                                <rect class="depth-box" x="10" y="58" width="36" height="16" rx="4"></rect>
+                                                <path class="depth-check" d="M16 22 L20 26 L26 18"></path>
+                                                <path class="depth-check" d="M16 44 L20 48 L26 40"></path>
+                                                <path class="depth-check" d="M16 66 L20 70 L26 62"></path>
+
+                                                <rect class="depth-box" x="86" y="36" width="50" height="20" rx="5"></rect>
+                                                <text x="111" y="49" text-anchor="middle">Reward</text>
+                                                <line class="depth-arrow" x1="46" y1="44" x2="86" y2="44" marker-end="url(#depth-mini-arrow-4a)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Process supervision scores intermediate steps, not just the final answer.</p>
+                                            <p>Step-level signals make credit assignment clearer and improve reasoning stability.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>Tree-of-Thoughts (ToT)</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Search tree expands and selects promising branches">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-4b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <circle class="depth-node" cx="28" cy="18" r="5"></circle>
+                                                <circle class="depth-node" cx="14" cy="46" r="4"></circle>
+                                                <circle class="depth-node" cx="42" cy="46" r="4"></circle>
+                                                <circle class="depth-node" cx="6" cy="70" r="3"></circle>
+                                                <circle class="depth-node" cx="22" cy="70" r="3"></circle>
+                                                <circle class="depth-node" cx="38" cy="70" r="3"></circle>
+                                                <circle class="depth-node" cx="54" cy="70" r="3"></circle>
+                                                <line class="depth-soft" x1="28" y1="22" x2="14" y2="42"></line>
+                                                <line class="depth-soft" x1="28" y1="22" x2="42" y2="42"></line>
+                                                <line class="depth-soft" x1="14" y1="50" x2="6" y2="66"></line>
+                                                <line class="depth-soft" x1="14" y1="50" x2="22" y2="66"></line>
+                                                <line class="depth-soft" x1="42" y1="50" x2="38" y2="66"></line>
+                                                <line class="depth-soft" x1="42" y1="50" x2="54" y2="66"></line>
+
+                                                <rect class="depth-box" x="86" y="32" width="52" height="20" rx="5"></rect>
+                                                <text x="112" y="45" text-anchor="middle">Score</text>
+                                                <line class="depth-arrow" x1="60" y1="46" x2="86" y2="42" marker-end="url(#depth-mini-arrow-4b)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Tree-of-Thoughts explores multiple branches, scores them, and expands the best candidates.</p>
+                                            <p>Search with backtracking can outperform a single forward pass on hard problems.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                                <article class="depth-card">
+                                    <h4>What "reasoning model" means today</h4>
+                                    <div class="depth-card-body">
+                                        <div class="depth-mini">
+                                            <svg viewBox="0 0 160 90" role="img" aria-label="Reasoning emerges from prompting, search, and supervision">
+                                                <defs>
+                                                    <marker id="depth-mini-arrow-4c" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                                        <polygon class="depth-arrowhead" points="0 0, 8 4, 0 8"></polygon>
+                                                    </marker>
+                                                </defs>
+                                                <circle class="depth-node" cx="22" cy="22" r="6"></circle>
+                                                <circle class="depth-node" cx="78" cy="14" r="6"></circle>
+                                                <circle class="depth-node" cx="50" cy="60" r="6"></circle>
+                                                <text x="22" y="40" text-anchor="middle">Prompt</text>
+                                                <text x="78" y="32" text-anchor="middle">Search</text>
+                                                <text x="50" y="78" text-anchor="middle">Supervise</text>
+
+                                                <rect class="depth-box" x="98" y="34" width="50" height="20" rx="5"></rect>
+                                                <text x="123" y="47" text-anchor="middle">Behavior</text>
+
+                                                <line class="depth-arrow" x1="28" y1="24" x2="98" y2="40" marker-end="url(#depth-mini-arrow-4c)"></line>
+                                                <line class="depth-arrow" x1="78" y1="20" x2="98" y2="40" marker-end="url(#depth-mini-arrow-4c)"></line>
+                                                <line class="depth-arrow" x1="50" y1="54" x2="98" y2="48" marker-end="url(#depth-mini-arrow-4c)"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="depth-copy">
+                                            <p>Modern reasoning blends prompting patterns, test-time search, and step-aware supervision.</p>
+                                            <p>The behavior you see is shaped by where extra compute or feedback is injected.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1384,6 +2023,109 @@ Return JSON with owner, task, and due.</pre>
                                     <li>Chunk long inputs and summarize key decisions.</li>
                                 </ul>
                             </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vector Databases Section -->
+            <section id="vector-databases" class="example-section">
+                <h2>Vector Databases: Indexing and Retrieval for LLMs</h2>
+                <p class="section-intro">See how embeddings get indexed, how similarity search works, and how results return to the model.</p>
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Indexing views</h3>
+                        <div class="toggle-group vector-db-tabs" role="tablist" aria-label="Vector database views">
+                            <button class="toggle-btn is-active" type="button" role="tab" aria-selected="true" aria-controls="vector-db-pipeline" data-vector-db-mode="pipeline">Indexing pipeline</button>
+                            <button class="toggle-btn" type="button" role="tab" aria-selected="false" aria-controls="vector-db-hnsw" data-vector-db-mode="hnsw">HNSW graph</button>
+                            <button class="toggle-btn" type="button" role="tab" aria-selected="false" aria-controls="vector-db-ivf-pq" data-vector-db-mode="ivf-pq">IVF + PQ</button>
+                            <button class="toggle-btn" type="button" role="tab" aria-selected="false" aria-controls="vector-db-retrieval" data-vector-db-mode="retrieval">Search + retrieval</button>
+                        </div>
+                        <div class="vector-db-panels">
+                            <div class="vector-db-panel is-active" id="vector-db-pipeline" data-vector-db-mode="pipeline" role="tabpanel">
+                                <h4>Indexing pipeline</h4>
+                                <p>Chunk documents, embed each chunk, and store vectors with metadata for filtering.</p>
+                                <ul class="step-points">
+                                    <li>Split docs into overlapping chunks.</li>
+                                    <li>Embed each chunk into a vector space.</li>
+                                    <li>Write vectors and metadata to the index.</li>
+                                </ul>
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <h5>Metadata filters</h5>
+                                        <p>Tags, permissions, and timestamps narrow search.</p>
+                                    </div>
+                                    <div class="info-card">
+                                        <h5>Chunk size</h5>
+                                        <p>Balances recall with context length.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vector-db-panel" id="vector-db-hnsw" data-vector-db-mode="hnsw" role="tabpanel">
+                                <h4>ANN indexing with HNSW</h4>
+                                <p>Hierarchical graph layers speed up nearest-neighbor search with high recall.</p>
+                                <ul class="step-points">
+                                    <li>Insert vectors into a multi-layer graph.</li>
+                                    <li>Connect each node to its closest neighbors.</li>
+                                    <li>Search from top layer to dense base layer.</li>
+                                </ul>
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <h5>M parameter</h5>
+                                        <p>Controls graph connectivity and recall.</p>
+                                    </div>
+                                    <div class="info-card">
+                                        <h5>efSearch</h5>
+                                        <p>Higher values improve recall at a latency cost.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vector-db-panel" id="vector-db-ivf-pq" data-vector-db-mode="ivf-pq" role="tabpanel">
+                                <h4>IVF + PQ compression</h4>
+                                <p>Inverted file indexing narrows search to the closest centroids, then product quantization compresses vectors for fast distance estimates.</p>
+                                <ul class="step-points">
+                                    <li>Assign vectors to coarse centroids (IVF).</li>
+                                    <li>Search only the nearest lists.</li>
+                                    <li>Quantize subvectors into compact PQ codes.</li>
+                                </ul>
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <h5>nlist</h5>
+                                        <p>Number of coarse clusters to search.</p>
+                                    </div>
+                                    <div class="info-card">
+                                        <h5>m * bits</h5>
+                                        <p>Subvector count and code size per block.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vector-db-panel" id="vector-db-retrieval" data-vector-db-mode="retrieval" role="tabpanel">
+                                <h4>Search and retrieval for LLMs</h4>
+                                <p>Blend lexical and vector results, then rerank and pack the best chunks into context.</p>
+                                <ul class="step-points">
+                                    <li>Embed the query and run ANN search.</li>
+                                    <li>Merge lexical and vector candidates.</li>
+                                    <li>Rerank and assemble a grounded context window.</li>
+                                </ul>
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <h5>Reranking</h5>
+                                        <p>Cross-encoders boost precision on top results.</p>
+                                    </div>
+                                    <div class="info-card">
+                                        <h5>Citations</h5>
+                                        <p>Keep track of sources for trust and audits.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mini-mission">Mini mission: trace where the top-k chunks enter the prompt.</div>
+                    </div>
+                    <div class="visualization">
+                        <canvas id="vectorDbCanvas" width="420" height="320"></canvas>
+                        <div class="controls vector-db-controls">
+                            <button type="button" id="vectorDbNext">Next view</button>
+                            <p class="helper-text">Switch tabs or cycle the diagram.</p>
                         </div>
                     </div>
                 </div>
