@@ -4769,6 +4769,7 @@ function initFundamentals() {
 function refreshAllVisuals() {
     updateVectorPlayground();
     drawVectorSceneCanvas();
+    drawVectorDbCanvas();
     drawMatrixCanvas();
     drawGradientCanvas();
     drawActivationFunctions();
@@ -4862,6 +4863,355 @@ function setupVectorModes() {
     });
 
     setMode('basic');
+}
+
+const vectorDbModes = [
+    { id: 'pipeline', label: 'Indexing pipeline' },
+    { id: 'hnsw', label: 'HNSW graph' },
+    { id: 'ivf-pq', label: 'IVF + PQ' },
+    { id: 'retrieval', label: 'Search + retrieval' }
+];
+
+let activeVectorDbMode = vectorDbModes[0].id;
+
+function drawVectorDbBox(ctx, x, y, width, height, label, fill, theme) {
+    drawRoundedRect(ctx, x, y, width, height, 10);
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+
+    const lines = label.split('\n');
+    const lineHeight = 12;
+    const startY = y + height / 2 - (lines.length - 1) * lineHeight / 2;
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    lines.forEach((line, index) => {
+        ctx.fillText(line, x + width / 2, startY + index * lineHeight);
+    });
+}
+
+function drawVectorDbNode(ctx, x, y, radius, fill, stroke) {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+}
+
+function drawVectorDbDiamond(ctx, x, y, size, fill, stroke) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - size);
+    ctx.lineTo(x + size, y);
+    ctx.lineTo(x, y + size);
+    ctx.lineTo(x - size, y);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+}
+
+function drawVectorDbPipeline(ctx, canvas, theme) {
+    const boxWidth = 88;
+    const boxHeight = 38;
+    const gap = 14;
+    const totalWidth = boxWidth * 4 + gap * 3;
+    const startX = (canvas.width - totalWidth) / 2;
+    const startY = 70;
+
+    const steps = [
+        { label: 'Docs', color: theme.primary },
+        { label: 'Chunker', color: theme.secondary },
+        { label: 'Embed\nvectors', color: theme.success },
+        { label: 'Vector\nindex', color: theme.warning }
+    ];
+
+    steps.forEach((step, index) => {
+        const x = startX + index * (boxWidth + gap);
+        drawVectorDbBox(ctx, x, startY, boxWidth, boxHeight, step.label, step.color, theme);
+        if (index < steps.length - 1) {
+            drawArrow(
+                ctx,
+                x + boxWidth + 2,
+                startY + boxHeight / 2,
+                x + boxWidth + gap - 2,
+                startY + boxHeight / 2,
+                theme.axis
+            );
+        }
+    });
+
+    const lastX = startX + (boxWidth + gap) * (steps.length - 1);
+    const metaWidth = 78;
+    const metaHeight = 22;
+    const metaX = lastX + boxWidth / 2 - metaWidth / 2;
+    const metaY = startY + boxHeight + 18;
+    drawRoundedRect(ctx, metaX, metaY, metaWidth, metaHeight, 8);
+    ctx.fillStyle = theme.panel;
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 1.2;
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('metadata', metaX + metaWidth / 2, metaY + metaHeight / 2);
+
+    drawArrow(
+        ctx,
+        lastX + boxWidth / 2,
+        startY + boxHeight,
+        lastX + boxWidth / 2,
+        metaY,
+        theme.axis
+    );
+}
+
+function drawVectorDbHnsw(ctx, canvas, theme) {
+    const upperNodes = [
+        { x: 110, y: 60 },
+        { x: 210, y: 40 },
+        { x: 320, y: 70 },
+        { x: 260, y: 110 }
+    ];
+    const lowerNodes = [
+        { x: 70, y: 200 },
+        { x: 140, y: 170 },
+        { x: 210, y: 190 },
+        { x: 280, y: 170 },
+        { x: 350, y: 210 },
+        { x: 120, y: 240 },
+        { x: 230, y: 240 },
+        { x: 310, y: 250 }
+    ];
+
+    const drawEdges = (nodes, edges, color) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.4;
+        edges.forEach(([a, b]) => {
+            ctx.beginPath();
+            ctx.moveTo(nodes[a].x, nodes[a].y);
+            ctx.lineTo(nodes[b].x, nodes[b].y);
+            ctx.stroke();
+        });
+    };
+
+    drawEdges(upperNodes, [[0, 1], [1, 2], [1, 3], [0, 3], [2, 3]], theme.grid);
+    drawEdges(lowerNodes, [[0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [2, 6], [3, 7], [5, 6], [6, 7]], theme.grid);
+
+    upperNodes.forEach((node, index) => {
+        const isHighlight = index === 0;
+        drawVectorDbNode(ctx, node.x, node.y, 9, isHighlight ? theme.primary : theme.panel, theme.axis);
+    });
+
+    lowerNodes.forEach((node, index) => {
+        const isHighlight = index === 1 || index === 2;
+        drawVectorDbNode(ctx, node.x, node.y, 8, isHighlight ? theme.success : theme.panel, theme.axis);
+    });
+
+    const query = { x: 45, y: 120 };
+    drawVectorDbDiamond(ctx, query.x, query.y, 8, theme.secondary, theme.axis);
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('query', query.x + 12, query.y);
+
+    drawArrow(ctx, query.x + 6, query.y - 8, upperNodes[0].x - 8, upperNodes[0].y + 8, theme.secondary);
+    drawArrow(ctx, upperNodes[0].x + 6, upperNodes[0].y + 6, lowerNodes[1].x - 6, lowerNodes[1].y - 6, theme.success);
+    drawArrow(ctx, lowerNodes[1].x + 8, lowerNodes[1].y + 4, lowerNodes[2].x - 8, lowerNodes[2].y + 2, theme.success);
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('Layer 1', 20, 30);
+    ctx.fillText('Layer 0', 20, 160);
+}
+
+function drawVectorDbIvfPq(ctx, canvas, theme) {
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('IVF coarse centroids', 16, 22);
+    ctx.fillText('PQ compression', 240, 22);
+
+    const centroids = [
+        { x: 90, y: 70 },
+        { x: 160, y: 130 },
+        { x: 80, y: 200 }
+    ];
+    const offsets = [
+        { x: -18, y: -10 },
+        { x: -6, y: 16 },
+        { x: 14, y: -6 },
+        { x: 20, y: 14 }
+    ];
+
+    centroids.forEach((center, index) => {
+        offsets.forEach(offset => {
+            drawVectorDbNode(ctx, center.x + offset.x, center.y + offset.y, 4.5, theme.panel, theme.axis);
+        });
+        const fill = index === 1 ? theme.secondary : theme.primary;
+        drawVectorDbNode(ctx, center.x, center.y, 12, fill, theme.axis);
+    });
+
+    const query = { x: 30, y: 130 };
+    drawVectorDbDiamond(ctx, query.x, query.y, 7, theme.warning, theme.axis);
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('query', query.x + 10, query.y);
+    drawArrow(ctx, query.x + 6, query.y, centroids[1].x - 12, centroids[1].y, theme.warning);
+
+    const listsBox = { x: 40, y: 238, width: 150, height: 34 };
+    drawVectorDbBox(ctx, listsBox.x, listsBox.y, listsBox.width, listsBox.height, 'Nearest\nlists', theme.panel, theme);
+    drawArrow(ctx, centroids[1].x, centroids[1].y + 12, listsBox.x + listsBox.width / 2, listsBox.y, theme.axis);
+
+    const vectorBox = { x: 240, y: 46, width: 150, height: 32 };
+    drawVectorDbBox(ctx, vectorBox.x, vectorBox.y, vectorBox.width, vectorBox.height, 'Input\nvector', theme.primary, theme);
+
+    const subBoxWidth = 28;
+    const subBoxHeight = 24;
+    const subGap = 8;
+    const subStartX = 240;
+    const subY = 94;
+
+    for (let i = 0; i < 4; i++) {
+        const x = subStartX + i * (subBoxWidth + subGap);
+        drawVectorDbBox(ctx, x, subY, subBoxWidth, subBoxHeight, `v${i + 1}`, theme.panel, theme);
+    }
+
+    drawArrow(
+        ctx,
+        vectorBox.x + vectorBox.width / 2,
+        vectorBox.y + vectorBox.height,
+        subStartX + (subBoxWidth + subGap) * 1.5,
+        subY,
+        theme.axis
+    );
+
+    const codebookBox = { x: 240, y: 142, width: 150, height: 32 };
+    drawVectorDbBox(ctx, codebookBox.x, codebookBox.y, codebookBox.width, codebookBox.height, 'PQ\ncodebooks', theme.success, theme);
+    drawArrow(
+        ctx,
+        subStartX + (subBoxWidth + subGap) * 1.5,
+        subY + subBoxHeight,
+        codebookBox.x + codebookBox.width / 2,
+        codebookBox.y,
+        theme.axis
+    );
+
+    const codeBox = { x: 240, y: 198, width: 150, height: 32 };
+    drawVectorDbBox(ctx, codeBox.x, codeBox.y, codeBox.width, codeBox.height, '8-bit\ncodes', theme.panel, theme);
+    drawArrow(
+        ctx,
+        codebookBox.x + codebookBox.width / 2,
+        codebookBox.y + codebookBox.height,
+        codeBox.x + codeBox.width / 2,
+        codeBox.y,
+        theme.axis
+    );
+}
+
+function drawVectorDbRetrieval(ctx, canvas, theme) {
+    const queryBox = { x: canvas.width / 2 - 60, y: 20, width: 120, height: 32 };
+    const lexicalBox = { x: 50, y: 80, width: 130, height: 36 };
+    const vectorBox = { x: 240, y: 80, width: 130, height: 36 };
+    const rerankBox = { x: canvas.width / 2 - 70, y: 140, width: 140, height: 36 };
+    const contextBox = { x: canvas.width / 2 - 70, y: 200, width: 140, height: 36 };
+    const llmBox = { x: canvas.width / 2 - 55, y: 255, width: 110, height: 32 };
+
+    drawVectorDbBox(ctx, queryBox.x, queryBox.y, queryBox.width, queryBox.height, 'User\nquery', theme.primary, theme);
+    drawVectorDbBox(ctx, lexicalBox.x, lexicalBox.y, lexicalBox.width, lexicalBox.height, 'Lexical\nsearch', theme.warning, theme);
+    drawVectorDbBox(ctx, vectorBox.x, vectorBox.y, vectorBox.width, vectorBox.height, 'Vector\nsearch', theme.secondary, theme);
+    drawVectorDbBox(ctx, rerankBox.x, rerankBox.y, rerankBox.width, rerankBox.height, 'Merge\n+ rerank', theme.success, theme);
+    drawVectorDbBox(ctx, contextBox.x, contextBox.y, contextBox.width, contextBox.height, 'Top-k\nchunks', theme.panel, theme);
+    drawVectorDbBox(ctx, llmBox.x, llmBox.y, llmBox.width, llmBox.height, 'LLM', theme.primary, theme);
+
+    drawArrow(ctx, queryBox.x + queryBox.width / 2, queryBox.y + queryBox.height, lexicalBox.x + lexicalBox.width / 2, lexicalBox.y, theme.axis);
+    drawArrow(ctx, queryBox.x + queryBox.width / 2, queryBox.y + queryBox.height, vectorBox.x + vectorBox.width / 2, vectorBox.y, theme.axis);
+    drawArrow(ctx, lexicalBox.x + lexicalBox.width / 2, lexicalBox.y + lexicalBox.height, rerankBox.x + rerankBox.width / 2 - 30, rerankBox.y, theme.axis);
+    drawArrow(ctx, vectorBox.x + vectorBox.width / 2, vectorBox.y + vectorBox.height, rerankBox.x + rerankBox.width / 2 + 30, rerankBox.y, theme.axis);
+    drawArrow(ctx, rerankBox.x + rerankBox.width / 2, rerankBox.y + rerankBox.height, contextBox.x + contextBox.width / 2, contextBox.y, theme.axis);
+    drawArrow(ctx, contextBox.x + contextBox.width / 2, contextBox.y + contextBox.height, llmBox.x + llmBox.width / 2, llmBox.y, theme.axis);
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('BM25', lexicalBox.x + lexicalBox.width / 2, lexicalBox.y + lexicalBox.height + 14);
+    ctx.fillText('ANN', vectorBox.x + vectorBox.width / 2, vectorBox.y + vectorBox.height + 14);
+}
+
+function drawVectorDbCanvas() {
+    const canvas = document.getElementById('vectorDbCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (activeVectorDbMode === 'pipeline') {
+        drawVectorDbPipeline(ctx, canvas, theme);
+    } else if (activeVectorDbMode === 'hnsw') {
+        drawVectorDbHnsw(ctx, canvas, theme);
+    } else if (activeVectorDbMode === 'ivf-pq') {
+        drawVectorDbIvfPq(ctx, canvas, theme);
+    } else {
+        drawVectorDbRetrieval(ctx, canvas, theme);
+    }
+}
+
+function setVectorDbMode(modeId) {
+    if (!vectorDbModes.some(mode => mode.id === modeId)) return;
+    activeVectorDbMode = modeId;
+
+    const buttons = document.querySelectorAll('button[data-vector-db-mode]');
+    const panels = document.querySelectorAll('.vector-db-panel');
+
+    buttons.forEach(button => {
+        const isActive = button.dataset.vectorDbMode === modeId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    panels.forEach(panel => {
+        const isActive = panel.dataset.vectorDbMode === modeId;
+        panel.classList.toggle('is-active', isActive);
+        panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+
+    drawVectorDbCanvas();
+}
+
+function cycleVectorDbMode() {
+    const currentIndex = vectorDbModes.findIndex(mode => mode.id === activeVectorDbMode);
+    const nextIndex = (currentIndex + 1) % vectorDbModes.length;
+    setVectorDbMode(vectorDbModes[nextIndex].id);
+}
+
+function setupVectorDbSection() {
+    const buttons = document.querySelectorAll('button[data-vector-db-mode]');
+    const panels = document.querySelectorAll('.vector-db-panel');
+    if (!buttons.length || !panels.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setVectorDbMode(button.dataset.vectorDbMode));
+    });
+
+    const nextButton = document.getElementById('vectorDbNext');
+    if (nextButton) {
+        nextButton.addEventListener('click', cycleVectorDbMode);
+    }
+
+    setVectorDbMode(activeVectorDbMode);
 }
 
 function setupMatrixControls() {
@@ -5044,6 +5394,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupVectorControls();
     setupVectorScenes();
     setupVectorModes();
+    setupVectorDbSection();
     setupMatrixControls();
     setupBackpropStepper();
     setupNeuronLab();
