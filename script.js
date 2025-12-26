@@ -358,9 +358,36 @@ const matrixState = {
         [2, 1],
         [0, 1]
     ],
-    operation: 'multiply',
+    operation: 'add',
     progress: 1
 };
+
+const matrixModeState = {
+    mode: 'basic'
+};
+
+const matrixDeepState = {
+    a: [
+        [1, 2],
+        [3, 4]
+    ],
+    b: [
+        [2, 1],
+        [0, 1]
+    ],
+    operation: 'determinant',
+    progress: 1
+};
+
+const matrixDetExample = [
+    [1.2, 0.6],
+    [0.2, 1.1]
+];
+
+const matrixInverseExample = [
+    [1, 2],
+    [3, 4]
+];
 
 const matrixOperationConfig = {
     multiply: {
@@ -373,15 +400,35 @@ const matrixOperationConfig = {
         note: 'Addition combines matching entries in each matrix.',
         animate: true
     },
+    scale: {
+        formula: 'A = \\begin{bmatrix} s_x & 0 \\\\ 0 & s_y \\end{bmatrix}',
+        note: 'Scaling stretches or compresses the axes by s_x and s_y.',
+        animate: false
+    },
+    shear: {
+        formula: 'A = \\begin{bmatrix} 1 & k \\\\ 0 & 1 \\end{bmatrix}',
+        note: 'Shear slides one axis, slanting the grid while keeping lines parallel.',
+        animate: false
+    },
     step: {
         formula: 'c_{ij} = \\sum_k a_{ik} b_{kj}',
         note: 'Each entry is a row-by-column dot product.',
         animate: true,
         speed: 0.03
     },
+    determinant: {
+        formula: '\\det(A) = ad - bc',
+        note: 'Determinant is the area scale factor; sign indicates a flip.',
+        animate: false
+    },
+    inverse: {
+        formula: 'A^{-1} = \\frac{1}{\\det(A)}\\begin{bmatrix} d & -b \\\\ -c & a \\end{bmatrix}',
+        note: 'The inverse undoes the transform: A^{-1}(Ax) = x.',
+        animate: false
+    },
     covariance: {
         formula: '\\Sigma^{-1} = (1/\\det \\Sigma)\\,\\text{adj}(\\Sigma)',
-        note: 'Covariance summarizes spread; the inverse (precision) reweights directions.',
+        note: 'Covariance summarizes spread; the precision matrix reweights directions.',
         animate: false
     },
     identity: {
@@ -416,6 +463,29 @@ function multiplyMatrices(a, b) {
         }
     }
     return result;
+}
+
+function determinant2x2(matrix) {
+    return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+}
+
+function invert2x2(matrix) {
+    const det = determinant2x2(matrix);
+    if (Math.abs(det) < 1e-6) return null;
+    return [
+        [matrix[1][1] / det, -matrix[0][1] / det],
+        [-matrix[1][0] / det, matrix[0][0] / det]
+    ];
+}
+
+function formatNumber(value, digits = 2) {
+    if (typeof value !== 'number') return String(value);
+    const fixed = value.toFixed(digits);
+    return fixed.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+}
+
+function formatMatrix(matrix, digits = 2) {
+    return matrix.map(row => row.map(value => formatNumber(value, digits)));
 }
 
 function fillRectWithAlpha(ctx, color, alpha, x, y, width, height) {
@@ -513,17 +583,109 @@ function drawMatrixBox(ctx, x, y, matrix, label, theme, options = {}) {
     return { width, height };
 }
 
-function drawMatrixArithmetic(ctx, theme) {
-    const a = matrixState.a;
-    const b = matrixState.b;
-    const result = matrixState.operation === 'add' ? addMatrices(a, b) : multiplyMatrices(a, b);
+function drawMatrixTransformComparison(ctx, canvas, matrix, theme, options = {}) {
+    const leftOrigin = { x: canvas.width * 0.28, y: canvas.height * 0.62 };
+    const rightOrigin = { x: canvas.width * 0.72, y: canvas.height * 0.62 };
+    const scale = options.scale || 22;
+    const size = options.size || 4;
+    const vector = options.vector || { x: 1.6, y: 1 };
+
+    drawGrid(ctx, leftOrigin, scale, size, [
+        [1, 0],
+        [0, 1]
+    ], theme.grid);
+    drawAxes(ctx, leftOrigin, scale, size, theme.axis);
+
+    drawGrid(ctx, rightOrigin, scale, size, matrix, theme.primary);
+    drawAxes(ctx, rightOrigin, scale, size, theme.axis);
+
+    const leftStart = mapToCanvas({ x: 0, y: 0 }, leftOrigin, scale);
+    const leftEnd = mapToCanvas(vector, leftOrigin, scale);
+    drawArrow(ctx, leftStart.x, leftStart.y, leftEnd.x, leftEnd.y, theme.secondary);
+
+    const transformed = applyMatrix(vector, matrix);
+    const rightStart = mapToCanvas({ x: 0, y: 0 }, rightOrigin, scale);
+    const rightEnd = mapToCanvas(transformed, rightOrigin, scale);
+    drawArrow(ctx, rightStart.x, rightStart.y, rightEnd.x, rightEnd.y, theme.success);
+
+    if (options.fillSquare) {
+        const square = [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 0, y: 1 }
+        ];
+        const transformedSquare = square.map(point => applyMatrix(point, matrix));
+        const squareCanvas = transformedSquare.map(point => mapToCanvas(point, rightOrigin, scale));
+
+        ctx.save();
+        ctx.fillStyle = theme.primary;
+        ctx.globalAlpha = 0.2;
+        ctx.beginPath();
+        squareCanvas.forEach((point, index) => {
+            if (index === 0) ctx.moveTo(point.x, point.y);
+            else ctx.lineTo(point.x, point.y);
+        });
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = theme.primary;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    if (options.labelLeft || options.labelRight) {
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        if (options.labelLeft) ctx.fillText(options.labelLeft, leftOrigin.x, leftOrigin.y - 96);
+        if (options.labelRight) ctx.fillText(options.labelRight, rightOrigin.x, rightOrigin.y - 96);
+    }
+}
+
+function drawMatrixScalingVisualization(ctx, canvas, theme) {
+    const matrix = [
+        [1.5, 0],
+        [0, 0.7]
+    ];
+
+    drawMatrixTransformComparison(ctx, canvas, matrix, theme, {
+        fillSquare: true,
+        labelLeft: 'Before',
+        labelRight: 'Scaled grid'
+    });
+
+    drawMatrixBox(ctx, 18, 24, formatMatrix(matrix, 2), 'Scale A', theme);
+}
+
+function drawMatrixShearVisualization(ctx, canvas, theme) {
+    const matrix = [
+        [1, 0.8],
+        [0, 1]
+    ];
+
+    drawMatrixTransformComparison(ctx, canvas, matrix, theme, {
+        fillSquare: true,
+        labelLeft: 'Before',
+        labelRight: 'Sheared grid',
+        vector: { x: 1.4, y: 1.2 }
+    });
+
+    drawMatrixBox(ctx, 18, 24, formatMatrix(matrix, 2), 'Shear A', theme);
+}
+
+function drawMatrixArithmetic(ctx, theme, state) {
+    const a = state.a;
+    const b = state.b;
+    const result = state.operation === 'add' ? addMatrices(a, b) : multiplyMatrices(a, b);
 
     const startX = 32;
     const startY = 74;
     const gap = 22;
     const boxA = drawMatrixBox(ctx, startX, startY, a, 'A', theme);
     const centerY = startY + boxA.height / 2;
-    const opSymbol = matrixState.operation === 'add' ? '+' : '×';
+    const opSymbol = state.operation === 'add' ? '+' : '×';
 
     ctx.fillStyle = theme.ink;
     ctx.font = 'bold 22px Nunito, Arial';
@@ -537,14 +699,14 @@ function drawMatrixArithmetic(ctx, theme) {
     ctx.fillText('=', eqX, centerY);
 
     ctx.save();
-    ctx.globalAlpha = Math.min(1, matrixState.progress);
+    ctx.globalAlpha = Math.min(1, state.progress);
     drawMatrixBox(ctx, eqX + gap, startY, result, 'C', theme);
     ctx.restore();
 }
 
-function drawMatrixMultiplicationSteps(ctx, theme) {
-    const a = matrixState.a;
-    const b = matrixState.b;
+function drawMatrixMultiplicationSteps(ctx, theme, state) {
+    const a = state.a;
+    const b = state.b;
     const result = multiplyMatrices(a, b);
     const steps = [
         { row: 0, col: 0 },
@@ -552,7 +714,7 @@ function drawMatrixMultiplicationSteps(ctx, theme) {
         { row: 1, col: 0 },
         { row: 1, col: 1 }
     ];
-    const stepIndex = Math.min(steps.length - 1, Math.floor(matrixState.progress * steps.length));
+    const stepIndex = Math.min(steps.length - 1, Math.floor(state.progress * steps.length));
     const activeStep = steps[stepIndex];
     const display = result.map(row => row.map(() => '?'));
     const highlightCells = [];
@@ -658,8 +820,8 @@ function drawCovariancePrecision(ctx, theme) {
     ctx.fillText('precision shape', precCenterX, ellipseY + 55);
 }
 
-function drawIdentityMatrix(ctx, theme) {
-    const a = matrixState.a;
+function drawIdentityMatrix(ctx, theme, state) {
+    const a = state.a;
     const identity = [
         [1, 0],
         [0, 1]
@@ -790,38 +952,185 @@ function drawEigenVisualization(ctx, canvas, theme) {
     ctx.fillText('lambda2 = 0.6', centerX - 90, centerY + size + 40);
 }
 
-function drawMatrixOperation(ctx, canvas, theme) {
-    if (matrixState.operation === 'add' || matrixState.operation === 'multiply') {
-        drawMatrixArithmetic(ctx, theme);
+function drawDeterminantVisualization(ctx, canvas, theme) {
+    const matrix = matrixDetExample;
+    const det = determinant2x2(matrix);
+    const origin = { x: canvas.width * 0.45, y: canvas.height * 0.68 };
+    const scale = 60;
+    const size = 3;
+
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const square = [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 1 },
+        { x: 0, y: 1 }
+    ];
+    const squareCanvas = square.map(point => mapToCanvas(point, origin, scale));
+
+    ctx.save();
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    squareCanvas.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+
+    const transformed = square.map(point => applyMatrix(point, matrix));
+    const transformedCanvas = transformed.map(point => mapToCanvas(point, origin, scale));
+
+    ctx.save();
+    ctx.fillStyle = theme.primary;
+    ctx.globalAlpha = 0.2;
+    ctx.beginPath();
+    transformedCanvas.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = theme.primary;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    const originCanvas = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const e1End = mapToCanvas(applyMatrix({ x: 1, y: 0 }, matrix), origin, scale);
+    const e2End = mapToCanvas(applyMatrix({ x: 0, y: 1 }, matrix), origin, scale);
+    drawArrow(ctx, originCanvas.x, originCanvas.y, e1End.x, e1End.y, theme.secondary);
+    drawArrow(ctx, originCanvas.x, originCanvas.y, e2End.x, e2End.y, theme.warning);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('Ae1', e1End.x + 6, e1End.y - 6);
+    ctx.fillText('Ae2', e2End.x + 6, e2End.y - 6);
+
+    drawMatrixBox(ctx, 20, 24, formatMatrix(matrix, 2), 'A', theme);
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(`det(A) = ${formatNumber(det, 2)} (area scale)`, 20, canvas.height - 18);
+}
+
+function drawInverseVisualization(ctx, canvas, theme) {
+    const matrix = matrixInverseExample;
+    const det = determinant2x2(matrix);
+    const inverse = invert2x2(matrix);
+
+    if (!inverse) {
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 14px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('det(A) = 0, no inverse exists.', canvas.width / 2, canvas.height / 2);
         return;
     }
 
-    if (matrixState.operation === 'step') {
-        drawMatrixMultiplicationSteps(ctx, theme);
+    const leftOrigin = { x: canvas.width * 0.28, y: canvas.height * 0.62 };
+    const rightOrigin = { x: canvas.width * 0.72, y: canvas.height * 0.62 };
+    const scale = 22;
+    const size = 4;
+
+    drawGrid(ctx, leftOrigin, scale, size, [
+        [1, 0],
+        [0, 1]
+    ], theme.grid);
+    drawAxes(ctx, leftOrigin, scale, size, theme.axis);
+
+    drawGrid(ctx, rightOrigin, scale, size, matrix, theme.primary);
+    drawAxes(ctx, rightOrigin, scale, size, theme.axis);
+
+    const vector = { x: 1.5, y: 1 };
+    const leftStart = mapToCanvas({ x: 0, y: 0 }, leftOrigin, scale);
+    const leftEnd = mapToCanvas(vector, leftOrigin, scale);
+    drawArrow(ctx, leftStart.x, leftStart.y, leftEnd.x, leftEnd.y, theme.secondary);
+
+    const transformed = applyMatrix(vector, matrix);
+    const rightStart = mapToCanvas({ x: 0, y: 0 }, rightOrigin, scale);
+    const rightEnd = mapToCanvas(transformed, rightOrigin, scale);
+    drawArrow(ctx, rightStart.x, rightStart.y, rightEnd.x, rightEnd.y, theme.success);
+
+    drawMatrixBox(ctx, 20, 24, formatMatrix(matrix, 2), 'A', theme);
+    drawMatrixBox(ctx, canvas.width - 120, 24, formatMatrix(inverse, 2), 'A^-1', theme);
+
+    const arrowStartX = leftOrigin.x + 50;
+    const arrowEndX = rightOrigin.x - 50;
+    const topY = 108;
+    const bottomY = 130;
+    drawArrow(ctx, arrowStartX, topY, arrowEndX, topY, theme.primary);
+    drawArrow(ctx, arrowEndX, bottomY, arrowStartX, bottomY, theme.secondary);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('A', (arrowStartX + arrowEndX) / 2, topY - 8);
+    ctx.fillText('A^-1', (arrowStartX + arrowEndX) / 2, bottomY - 8);
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`det(A) = ${formatNumber(det, 2)}`, 20, canvas.height - 18);
+}
+
+function drawMatrixOperation(ctx, canvas, theme, state = matrixState) {
+    if (state.operation === 'add' || state.operation === 'multiply') {
+        drawMatrixArithmetic(ctx, theme, state);
         return;
     }
 
-    if (matrixState.operation === 'covariance') {
+    if (state.operation === 'scale') {
+        drawMatrixScalingVisualization(ctx, canvas, theme);
+        return;
+    }
+
+    if (state.operation === 'shear') {
+        drawMatrixShearVisualization(ctx, canvas, theme);
+        return;
+    }
+
+    if (state.operation === 'step') {
+        drawMatrixMultiplicationSteps(ctx, theme, state);
+        return;
+    }
+
+    if (state.operation === 'determinant') {
+        drawDeterminantVisualization(ctx, canvas, theme);
+        return;
+    }
+
+    if (state.operation === 'inverse') {
+        drawInverseVisualization(ctx, canvas, theme);
+        return;
+    }
+
+    if (state.operation === 'covariance') {
         drawCovariancePrecision(ctx, theme);
         return;
     }
 
-    if (matrixState.operation === 'identity') {
-        drawIdentityMatrix(ctx, theme);
+    if (state.operation === 'identity') {
+        drawIdentityMatrix(ctx, theme, state);
         return;
     }
 
-    if (matrixState.operation === 'onehot') {
+    if (state.operation === 'onehot') {
         drawOneHotEncoding(ctx, theme);
         return;
     }
 
-    if (matrixState.operation === 'eigen') {
+    if (state.operation === 'eigen') {
         drawEigenVisualization(ctx, canvas, theme);
         return;
     }
 
-    drawMatrixArithmetic(ctx, theme);
+    drawMatrixArithmetic(ctx, theme, state);
 }
 
 function drawMatrixCanvas() {
@@ -830,29 +1139,38 @@ function drawMatrixCanvas() {
     const ctx = canvas.getContext('2d');
     const theme = getThemeColors();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMatrixOperation(ctx, canvas, theme);
+    drawMatrixOperation(ctx, canvas, theme, matrixState);
 }
 
-function updateMatrixUI() {
-    const config = matrixOperationConfig[matrixState.operation] || matrixOperationConfig.multiply;
-    const formula = document.getElementById('matrixOperationFormula');
-    const note = document.getElementById('matrixOperationNote');
-    const buttons = document.querySelectorAll('[data-matrix-op]');
-    const animateButton = document.getElementById('matrixAnimateButton');
+function drawMatrixDeepCanvas() {
+    const canvas = document.getElementById('matrixDeepCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMatrixOperation(ctx, canvas, theme, matrixDeepState);
+}
 
-    buttons.forEach(button => {
-        button.classList.toggle('is-active', button.dataset.matrixOp === matrixState.operation);
-    });
+function updateMatrixUIForState(state, elements) {
+    const config = matrixOperationConfig[state.operation] || matrixOperationConfig.multiply;
+    const { formulaEl, noteEl, buttons, animateButton } = elements;
 
-    if (formula) {
-        formula.innerHTML = `\\[${config.formula}\\]`;
+    if (buttons && buttons.length) {
+        buttons.forEach(button => {
+            const key = button.dataset.matrixOp || button.dataset.matrixDeepOp;
+            button.classList.toggle('is-active', key === state.operation);
+        });
+    }
+
+    if (formulaEl) {
+        formulaEl.innerHTML = `\\[${config.formula}\\]`;
         if (window.MathJax && window.MathJax.typesetPromise) {
-            window.MathJax.typesetPromise([formula]);
+            window.MathJax.typesetPromise([formulaEl]);
         }
     }
 
-    if (note) {
-        note.textContent = config.note;
+    if (noteEl) {
+        noteEl.textContent = config.note;
     }
 
     if (animateButton) {
@@ -860,30 +1178,1702 @@ function updateMatrixUI() {
     }
 }
 
-function setMatrixOperation(operation) {
+function updateMatrixBasicUI() {
+    updateMatrixUIForState(matrixState, {
+        formulaEl: document.getElementById('matrixOperationFormula'),
+        noteEl: document.getElementById('matrixOperationNote'),
+        buttons: document.querySelectorAll('[data-matrix-op]'),
+        animateButton: document.getElementById('matrixAnimateButton')
+    });
+}
+
+function updateMatrixDeepUI() {
+    updateMatrixUIForState(matrixDeepState, {
+        formulaEl: document.getElementById('matrixDeepFormula'),
+        noteEl: document.getElementById('matrixDeepNote'),
+        buttons: document.querySelectorAll('[data-matrix-deep-op]'),
+        animateButton: document.getElementById('matrixDeepAnimateButton')
+    });
+}
+
+function setMatrixMode(mode) {
+    matrixModeState.mode = mode;
+    const buttons = document.querySelectorAll('[data-matrix-mode]');
+    const panels = document.querySelectorAll('.matrix-mode-panel');
+
+    buttons.forEach(button => {
+        const isActive = button.dataset.matrixMode === mode;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    panels.forEach(panel => {
+        const isActive = panel.dataset.matrixMode === mode;
+        panel.classList.toggle('is-active', isActive);
+        panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+
+    updateMatrixBasicUI();
+    updateMatrixDeepUI();
+    drawMatrixCanvas();
+    drawMatrixDeepCanvas();
+}
+
+function setupMatrixModes() {
+    const buttons = document.querySelectorAll('[data-matrix-mode]');
+    if (!buttons.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setMatrixMode(button.dataset.matrixMode));
+    });
+
+    setMatrixMode(matrixModeState.mode);
+}
+
+// ============================================
+// Probability Section Visualization
+// ============================================
+const probabilityModes = [
+    {
+        id: 'bernoulli',
+        type: 'bars',
+        labels: ['0', '1'],
+        values: [0.35, 0.65],
+        note: 'Bernoulli random variable: binary success/failure.'
+    },
+    {
+        id: 'categorical',
+        type: 'bars',
+        labels: ['A', 'B', 'C', 'D', 'E'],
+        values: [0.35, 0.2, 0.18, 0.17, 0.1],
+        note: 'Categorical distribution over multiple classes.'
+    },
+    {
+        id: 'binomial',
+        type: 'binomial',
+        n: 10,
+        p: 0.5,
+        note: 'Binomial distribution with n=10, p=0.5.'
+    },
+    {
+        id: 'normal',
+        type: 'curve',
+        note: 'Normal distribution with mean 0 and standard deviation 1.'
+    },
+    {
+        id: 'bayes',
+        type: 'bayes',
+        note: 'Bayes update: prior × likelihood → posterior.'
+    }
+];
+
+const probabilityState = {
+    modeId: probabilityModes[0].id
+};
+
+const probabilityDepthState = {
+    mode: 'basic'
+};
+
+const probabilityVennNotes = {
+    event: 'Highlight A: \\(P(A)\\).',
+    complement: 'Outside A: \\(P(\\overline{A}) = 1 - P(A)\\).',
+    union: 'Union: \\(P(A \\cup B)\\) covers A or B.',
+    intersection: 'Intersection: \\(P(A \\cap B)\\) shows both events.',
+    conditional: 'Within B, the overlap gives \\(P(A \\mid B)\\).',
+    bayes: 'Bayes swaps the condition: \\(P(A \\mid B) = \\frac{P(B \\mid A)P(A)}{P(B)}\\).'
+};
+
+const probabilityVennState = {
+    mode: 'event'
+};
+
+const spamWordData = {
+    free: { spam: 0.65, ham: 0.1 },
+    win: { spam: 0.6, ham: 0.08 },
+    meeting: { spam: 0.05, ham: 0.3 },
+    project: { spam: 0.07, ham: 0.25 },
+    offer: { spam: 0.45, ham: 0.15 }
+};
+
+const spamFilterState = {
+    prior: 0.3,
+    words: new Set(['free', 'win'])
+};
+
+const probabilitySampleState = {
+    a: 0.6,
+    b: 0.5,
+    points: 220,
+    samples: []
+};
+
+const mlLifecycleSteps = {
+    training: [
+        {
+            title: 'Load data batch',
+            summary: 'Sample a mini-batch of examples.',
+            text: 'Pull a batch of inputs and labels from the dataset.'
+        },
+        {
+            title: 'Forward pass',
+            summary: 'Run data through the model.',
+            text: 'Compute predictions using the current weights.'
+        },
+        {
+            title: 'Loss',
+            summary: 'Measure prediction error.',
+            text: 'Compare predictions to targets to get a loss value.'
+        },
+        {
+            title: 'Backpropagate',
+            summary: 'Send gradients backward.',
+            text: 'Use the chain rule to compute gradients for each weight.'
+        },
+        {
+            title: 'Update weights',
+            summary: 'Step the weights and repeat.',
+            text: 'Apply the learning rate to update weights before the next batch.'
+        }
+    ],
+    inference: [
+        {
+            title: 'Input features',
+            summary: 'Receive a new example.',
+            text: 'Collect the features you want the model to score.'
+        },
+        {
+            title: 'Forward pass',
+            summary: 'Apply the trained model.',
+            text: 'Run the features through the learned weights.'
+        },
+        {
+            title: 'Prediction',
+            summary: 'Get a score or probability.',
+            text: 'Read the model output as a class, score, or probability.'
+        },
+        {
+            title: 'Decision',
+            summary: 'Act on the output.',
+            text: 'Trigger the action: display, alert, or recommendation.'
+        }
+    ]
+};
+
+const mlLifecycleState = {
+    phase: 'training',
+    stepIndex: 0,
+    timer: null
+};
+
+const mlAlgorithmSteps = {
+    linear: {
+        label: 'Linear Regression',
+        steps: [
+            { title: 'Plot data', summary: 'Scatter the training points.', text: 'Plot feature-target pairs in a coordinate plane.' },
+            { title: 'Fit the line', summary: 'Minimize squared error.', text: 'Find the line that best fits the data trend.' },
+            { title: 'Predict', summary: 'Read the line at a new x.', text: 'Use the fitted line to estimate a new y value.' }
+        ]
+    },
+    logistic: {
+        label: 'Logistic Regression',
+        steps: [
+            { title: 'Plot classes', summary: 'Label the points.', text: 'Visualize class A vs class B data.' },
+            { title: 'Find boundary', summary: 'Separate the classes.', text: 'Learn a boundary that splits the classes.' },
+            { title: 'Score probability', summary: 'Output a probability.', text: 'Convert the score into a probability with a sigmoid.' }
+        ]
+    },
+    knn: {
+        label: 'k-NN',
+        steps: [
+            { title: 'Store data', summary: 'Keep labeled points.', text: 'k-NN memorizes the training examples.' },
+            { title: 'Find neighbors', summary: 'Pick the closest k.', text: 'Measure distances from the query to all points.' },
+            { title: 'Vote', summary: 'Majority wins.', text: 'Predict the label from the nearest neighbors.' }
+        ]
+    },
+    tree: {
+        label: 'Decision Trees',
+        steps: [
+            { title: 'Pick a split', summary: 'Choose a feature cut.', text: 'Select the best split to reduce impurity.' },
+            { title: 'Split again', summary: 'Refine the regions.', text: 'Keep splitting until regions are pure enough.' },
+            { title: 'Assign leaves', summary: 'Label each region.', text: 'Each leaf predicts a class or value.' }
+        ]
+    },
+    forest: {
+        label: 'Random Forest',
+        steps: [
+            { title: 'Bootstrap data', summary: 'Sample data for each tree.', text: 'Each tree sees a different bootstrapped dataset.' },
+            { title: 'Grow trees', summary: 'Train many trees.', text: 'Split with random feature subsets.' },
+            { title: 'Vote', summary: 'Aggregate the trees.', text: 'Combine tree predictions by voting.' }
+        ]
+    },
+    svm: {
+        label: 'Support Vector Machine',
+        steps: [
+            { title: 'Plot classes', summary: 'Place the data.', text: 'Visualize points from two classes.' },
+            { title: 'Maximize margin', summary: 'Find the widest gap.', text: 'Fit the boundary that maximizes the margin.' },
+            { title: 'Support vectors', summary: 'Anchor the boundary.', text: 'Only a few points define the solution.' }
+        ]
+    },
+    bayes: {
+        label: 'Naive Bayes',
+        steps: [
+            { title: 'Estimate likelihoods', summary: 'Model each class.', text: 'Estimate distributions for each class.' },
+            { title: 'Apply Bayes', summary: 'Combine prior and likelihood.', text: 'Compute posterior probabilities.' },
+            { title: 'Pick a class', summary: 'Highest posterior wins.', text: 'Choose the class with larger probability.' }
+        ]
+    },
+    kmeans: {
+        label: 'k-Means',
+        steps: [
+            { title: 'Initialize centers', summary: 'Pick starting centroids.', text: 'Start with initial cluster centers.' },
+            { title: 'Assign points', summary: 'Group by nearest center.', text: 'Each point joins its closest centroid.' },
+            { title: 'Update centers', summary: 'Move to the mean.', text: 'Recompute centers and repeat.' }
+        ]
+    },
+    pca: {
+        label: 'PCA',
+        steps: [
+            { title: 'Plot data', summary: 'Show the point cloud.', text: 'Display the data in the original space.' },
+            { title: 'Find principal axis', summary: 'Max variance direction.', text: 'Compute the direction with the highest variance.' },
+            { title: 'Project', summary: 'Drop to a lower dimension.', text: 'Project points onto the principal axis.' }
+        ]
+    }
+};
+
+const mlAlgorithmState = {
+    algoId: 'linear',
+    stepIndex: 0,
+    timer: null
+};
+
+const mlAlgoData = {
+    regression: [
+        { x: -1.6, y: -0.9 },
+        { x: -1.2, y: -0.6 },
+        { x: -0.8, y: -0.3 },
+        { x: -0.4, y: 0.1 },
+        { x: 0.0, y: 0.2 },
+        { x: 0.4, y: 0.5 },
+        { x: 0.8, y: 0.7 },
+        { x: 1.2, y: 1.0 }
+    ],
+    classA: [
+        { x: -1.2, y: -0.8 },
+        { x: -0.9, y: -1.1 },
+        { x: -0.6, y: -0.4 },
+        { x: -0.3, y: -0.7 },
+        { x: -0.1, y: -0.2 }
+    ],
+    classB: [
+        { x: 0.6, y: 0.8 },
+        { x: 0.9, y: 0.4 },
+        { x: 0.8, y: 0.1 },
+        { x: 1.1, y: 0.7 },
+        { x: 0.3, y: 0.5 }
+    ],
+    knnQuery: { x: 0.15, y: 0.05 },
+    nbQuery: { x: 0.2, y: 0.1 },
+    svmBoundary: { m: 0.35, b: 0.1 },
+    kmeansPoints: [
+        { x: -1.1, y: 0.8 },
+        { x: -0.8, y: 0.6 },
+        { x: -1.2, y: 0.3 },
+        { x: 0.9, y: 0.7 },
+        { x: 0.6, y: 0.4 },
+        { x: 1.1, y: 0.2 },
+        { x: -0.1, y: -0.9 },
+        { x: 0.2, y: -1.1 },
+        { x: 0.4, y: -0.6 }
+    ],
+    kmeansCentroidsA: [
+        { x: -0.9, y: 0.7 },
+        { x: 0.9, y: 0.5 },
+        { x: 0.1, y: -0.9 }
+    ],
+    kmeansCentroidsB: [
+        { x: -1.0, y: 0.6 },
+        { x: 0.85, y: 0.45 },
+        { x: 0.2, y: -0.85 }
+    ],
+    pcaPoints: [
+        { x: -1.2, y: -0.8 },
+        { x: -0.9, y: -0.4 },
+        { x: -0.6, y: -0.1 },
+        { x: -0.2, y: 0.2 },
+        { x: 0.2, y: 0.5 },
+        { x: 0.6, y: 0.8 },
+        { x: 1.0, y: 1.1 }
+    ],
+    pcaAxis: { m: 0.8, b: -0.1 }
+};
+
+function combination(n, k) {
+    if (k < 0 || k > n) return 0;
+    const m = Math.min(k, n - k);
+    let result = 1;
+    for (let i = 1; i <= m; i++) {
+        result *= (n - m + i) / i;
+    }
+    return result;
+}
+
+function binomialPmf(n, p) {
+    const values = [];
+    for (let k = 0; k <= n; k++) {
+        const coeff = combination(n, k);
+        values.push(coeff * Math.pow(p, k) * Math.pow(1 - p, n - k));
+    }
+    return values;
+}
+
+function getProbabilityMode() {
+    return probabilityModes.find(mode => mode.id === probabilityState.modeId) || probabilityModes[0];
+}
+
+function drawProbabilityBars(ctx, canvas, mode, theme) {
+    const chartLeft = 60;
+    const chartBottom = canvas.height - 70;
+    const maxHeight = 150;
+    const barCount = mode.values.length;
+    const totalWidth = canvas.width - chartLeft - 40;
+    const gap = Math.min(14, totalWidth / (barCount * 5));
+    const barWidth = Math.max(14, (totalWidth - gap * (barCount - 1)) / barCount);
+    const colors = [theme.primary, theme.secondary, theme.warning, theme.success, theme.danger, theme.primary];
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(chartLeft - 20, chartBottom);
+    ctx.lineTo(chartLeft + totalWidth + 10, chartBottom);
+    ctx.stroke();
+
+    mode.values.forEach((value, index) => {
+        const x = chartLeft + index * (barWidth + gap);
+        const height = value * maxHeight;
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fillRect(x, chartBottom - height, barWidth, height);
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.textAlign = 'center';
+        const showLabel = barCount <= 7 || index % 2 === 0;
+        if (showLabel) {
+            ctx.fillText(mode.labels[index], x + barWidth / 2, chartBottom + 18);
+        }
+        if (barCount <= 7) {
+            ctx.fillText(`${Math.round(value * 100)}%`, x + barWidth / 2, chartBottom - height - 10);
+        }
+    });
+}
+
+function drawProbabilityCurve(ctx, canvas, theme) {
+    const chartLeft = 50;
+    const chartRight = canvas.width - 30;
+    const chartTop = 40;
+    const chartBottom = canvas.height - 70;
+    const centerY = chartBottom;
+    const scaleX = (chartRight - chartLeft) / 6;
+    const scaleY = 140;
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(chartLeft, centerY);
+    ctx.lineTo(chartRight, centerY);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.fillStyle = theme.primary;
+    ctx.globalAlpha = 0.12;
+    ctx.beginPath();
+    for (let x = -3; x <= 3; x += 0.05) {
+        const y = Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+        const canvasX = chartLeft + (x + 3) * scaleX;
+        const canvasY = centerY - y * scaleY;
+        if (x === -3) ctx.moveTo(canvasX, canvasY);
+        else ctx.lineTo(canvasX, canvasY);
+    }
+    ctx.lineTo(chartRight, centerY);
+    ctx.lineTo(chartLeft, centerY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.strokeStyle = theme.primary;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let x = -3; x <= 3; x += 0.05) {
+        const y = Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+        const canvasX = chartLeft + (x + 3) * scaleX;
+        const canvasY = centerY - y * scaleY;
+        if (x === -3) ctx.moveTo(canvasX, canvasY);
+        else ctx.lineTo(canvasX, canvasY);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('mean = 0', chartLeft + 3 * scaleX, chartTop + 10);
+}
+
+function drawProbabilityBayes(ctx, canvas, theme) {
+    const chartLeft = 50;
+    const chartBottom = canvas.height - 70;
+    const groupGap = 60;
+    const barGap = 12;
+    const barWidth = 26;
+    const maxHeight = 150;
+
+    const prior = [0.6, 0.4];
+    const likelihood = [0.2, 0.7];
+    const norm = prior[0] * likelihood[0] + prior[1] * likelihood[1];
+    const posterior = [prior[0] * likelihood[0] / norm, prior[1] * likelihood[1] / norm];
+
+    const groups = [
+        { label: 'Prior', values: prior },
+        { label: 'Likelihood', values: likelihood },
+        { label: 'Posterior', values: posterior }
+    ];
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(chartLeft - 20, chartBottom);
+    ctx.lineTo(canvas.width - 30, chartBottom);
+    ctx.stroke();
+
+    groups.forEach((group, groupIndex) => {
+        const groupX = chartLeft + groupIndex * (barWidth * 2 + barGap + groupGap);
+        group.values.forEach((value, index) => {
+            const x = groupX + index * (barWidth + barGap);
+            const height = value * maxHeight;
+            ctx.fillStyle = index === 0 ? theme.primary : theme.secondary;
+            ctx.fillRect(x, chartBottom - height, barWidth, height);
+            ctx.fillStyle = theme.ink;
+            ctx.font = 'bold 10px Nunito, Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(index === 0 ? 'H1' : 'H2', x + barWidth / 2, chartBottom + 14);
+        });
+
+        ctx.fillStyle = theme.inkSoft;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(group.label, groupX + barWidth + barGap / 2, chartBottom + 34);
+    });
+}
+
+function drawProbabilityCanvas() {
+    const canvas = document.getElementById('probabilityCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const mode = getProbabilityMode();
+    if (mode.type === 'curve') {
+        drawProbabilityCurve(ctx, canvas, theme);
+        return;
+    }
+    if (mode.type === 'bayes') {
+        drawProbabilityBayes(ctx, canvas, theme);
+        return;
+    } else {
+        let labels = mode.labels;
+        let values = mode.values;
+        if (mode.type === 'binomial') {
+            labels = Array.from({ length: mode.n + 1 }, (_, i) => String(i));
+            values = binomialPmf(mode.n, mode.p);
+        }
+        drawProbabilityBars(ctx, canvas, { labels, values }, theme);
+    }
+}
+
+function formatProbabilityValue(value) {
+    if (!Number.isFinite(value)) return '-';
+    if (value === 0) return '0';
+    if (value < 0.001) return value.toExponential(2);
+    return value.toFixed(3);
+}
+
+function drawProbabilityVennCanvas() {
+    const canvas = document.getElementById('probabilityVennCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const rect = {
+        x: 35,
+        y: 25,
+        w: canvas.width - 70,
+        h: canvas.height - 60
+    };
+
+    const radius = Math.min(rect.w, rect.h) * 0.28;
+    const centerY = rect.y + rect.h * 0.52;
+    const circleA = { x: rect.x + rect.w * 0.42, y: centerY, r: radius };
+    const circleB = { x: rect.x + rect.w * 0.62, y: centerY, r: radius };
+
+    const fillCircle = (circle, color, alpha) => {
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    };
+
+    const fillIntersection = (circle1, circle2, color, alpha) => {
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(circle1.x, circle1.y, circle1.r, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.beginPath();
+        ctx.arc(circle2.x, circle2.y, circle2.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    };
+
+    const fillComplement = (circle, color, alpha) => {
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    };
+
+    ctx.fillStyle = theme.panel;
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+
+    const mode = probabilityVennState.mode;
+    if (mode === 'event') {
+        fillCircle(circleA, theme.primary, 0.24);
+    } else if (mode === 'complement') {
+        fillComplement(circleA, theme.secondary, 0.18);
+    } else if (mode === 'union') {
+        fillCircle(circleA, theme.primary, 0.22);
+        fillCircle(circleB, theme.secondary, 0.22);
+    } else if (mode === 'intersection') {
+        fillIntersection(circleA, circleB, theme.primary, 0.32);
+    } else if (mode === 'conditional') {
+        fillCircle(circleB, theme.secondary, 0.18);
+        fillIntersection(circleA, circleB, theme.primary, 0.36);
+    } else if (mode === 'bayes') {
+        fillCircle(circleA, theme.primary, 0.18);
+        fillCircle(circleB, theme.secondary, 0.18);
+        fillIntersection(circleA, circleB, theme.warning, 0.4);
+    }
+
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(circleA.x, circleA.y, circleA.r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(circleB.x, circleB.y, circleB.r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('S', rect.x + 8, rect.y + 18);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 14px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('A', circleA.x - circleA.r * 0.3, circleA.y - circleA.r * 0.4);
+    ctx.fillText('B', circleB.x + circleB.r * 0.3, circleB.y - circleB.r * 0.4);
+}
+
+function setProbabilityVennMode(mode) {
+    if (!probabilityVennNotes[mode]) return;
+    probabilityVennState.mode = mode;
+
+    const buttons = document.querySelectorAll('[data-venn-mode]');
+    buttons.forEach(button => {
+        const isActive = button.dataset.vennMode === mode;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    const noteEl = document.getElementById('probabilityVennNote');
+    if (noteEl) {
+        noteEl.innerHTML = probabilityVennNotes[mode];
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([noteEl]);
+        }
+    }
+
+    drawProbabilityVennCanvas();
+}
+
+function setupProbabilityVenn() {
+    const buttons = document.querySelectorAll('[data-venn-mode]');
+    if (!buttons.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setProbabilityVennMode(button.dataset.vennMode));
+    });
+
+    setProbabilityVennMode(probabilityVennState.mode);
+}
+
+function computeSpamFilter() {
+    const words = Array.from(spamFilterState.words);
+    let pSpam = 1;
+    let pHam = 1;
+
+    words.forEach(word => {
+        const data = spamWordData[word];
+        if (!data) return;
+        pSpam *= data.spam;
+        pHam *= data.ham;
+    });
+
+    const prior = spamFilterState.prior;
+    const spamScore = prior * pSpam;
+    const hamScore = (1 - prior) * pHam;
+    const denom = spamScore + hamScore || 1;
+    const posteriorSpam = spamScore / denom;
+
+    return {
+        prior,
+        pSpam,
+        pHam,
+        posteriorSpam
+    };
+}
+
+function drawSpamFilterCanvas() {
+    const canvas = document.getElementById('spamFilterCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const data = computeSpamFilter();
+    const groups = [
+        { label: 'Prior', values: [data.prior, 1 - data.prior] },
+        { label: 'Likelihood', values: [data.pSpam, data.pHam] },
+        { label: 'Posterior', values: [data.posteriorSpam, 1 - data.posteriorSpam] }
+    ];
+
+    const chartLeft = 50;
+    const chartBottom = canvas.height - 70;
+    const groupGap = 55;
+    const barGap = 12;
+    const barWidth = 26;
+    const maxHeight = 150;
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(chartLeft - 20, chartBottom);
+    ctx.lineTo(canvas.width - 30, chartBottom);
+    ctx.stroke();
+
+    groups.forEach((group, groupIndex) => {
+        const groupX = chartLeft + groupIndex * (barWidth * 2 + barGap + groupGap);
+        const scaled = group.values.map(value => Math.sqrt(Math.max(value, 0)));
+        const maxScaled = Math.max(...scaled, 0.0001);
+
+        group.values.forEach((value, index) => {
+            const x = groupX + index * (barWidth + barGap);
+            const height = (scaled[index] / maxScaled) * maxHeight;
+            ctx.fillStyle = index === 0 ? theme.primary : theme.secondary;
+            ctx.fillRect(x, chartBottom - height, barWidth, height);
+
+            const label = index === 0 ? 'spam' : 'ham';
+            ctx.fillStyle = theme.ink;
+            ctx.font = 'bold 10px Nunito, Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + barWidth / 2, chartBottom + 14);
+
+            const valueText = group.label === 'Likelihood'
+                ? formatProbabilityValue(value)
+                : `${Math.round(value * 100)}%`;
+            ctx.fillStyle = theme.inkSoft;
+            ctx.font = 'bold 10px Nunito, Arial';
+            ctx.fillText(valueText, x + barWidth / 2, chartBottom - height - 8);
+        });
+
+        ctx.fillStyle = theme.inkSoft;
+        ctx.font = 'bold 11px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(group.label, groupX + barWidth + barGap / 2, chartBottom + 34);
+    });
+}
+
+function updateSpamFilterUI() {
+    const data = computeSpamFilter();
+    const priorEl = document.getElementById('spamPriorVal');
+    const spamLikeEl = document.getElementById('spamLikelihood');
+    const hamLikeEl = document.getElementById('hamLikelihood');
+    const posteriorEl = document.getElementById('spamPosterior');
+    const noteEl = document.getElementById('spamFilterNote');
+
+    if (priorEl) priorEl.textContent = data.prior.toFixed(2);
+    if (spamLikeEl) spamLikeEl.textContent = formatProbabilityValue(data.pSpam);
+    if (hamLikeEl) hamLikeEl.textContent = formatProbabilityValue(data.pHam);
+    if (posteriorEl) posteriorEl.textContent = `${(data.posteriorSpam * 100).toFixed(1)}%`;
+
+    const label = data.posteriorSpam >= 0.5 ? 'spam' : 'ham';
+    if (noteEl) {
+        noteEl.textContent = `Posterior leans ${label}. Bag-of-words multiplies word likelihoods.`;
+    }
+
+    document.querySelectorAll('[data-spam-word]').forEach(button => {
+        const word = button.dataset.spamWord;
+        const isActive = spamFilterState.words.has(word);
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    drawSpamFilterCanvas();
+}
+
+function setupSpamFilter() {
+    const priorInput = document.getElementById('spamPrior');
+    const buttons = document.querySelectorAll('[data-spam-word]');
+    if (!priorInput && !buttons.length) return;
+
+    if (priorInput) {
+        priorInput.addEventListener('input', event => {
+            spamFilterState.prior = parseFloat(event.target.value);
+            updateSpamFilterUI();
+        });
+    }
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const word = button.dataset.spamWord;
+            if (!word) return;
+            if (spamFilterState.words.has(word)) {
+                spamFilterState.words.delete(word);
+            } else {
+                spamFilterState.words.add(word);
+            }
+            updateSpamFilterUI();
+        });
+    });
+
+    updateSpamFilterUI();
+}
+
+function generateSamplePoints() {
+    const samples = [];
+    for (let i = 0; i < probabilitySampleState.points; i++) {
+        samples.push({ x: Math.random(), y: Math.random() });
+    }
+    probabilitySampleState.samples = samples;
+}
+
+function ensureSamplePoints() {
+    if (probabilitySampleState.samples.length !== probabilitySampleState.points) {
+        generateSamplePoints();
+    }
+}
+
+function computeSampleSpaceStats() {
+    ensureSamplePoints();
+    const { a, b, samples } = probabilitySampleState;
+    let countA = 0;
+    let countB = 0;
+    let countAB = 0;
+
+    samples.forEach(sample => {
+        const inA = sample.x <= a;
+        const inB = sample.y <= b;
+        if (inA) countA += 1;
+        if (inB) countB += 1;
+        if (inA && inB) countAB += 1;
+    });
+
+    const total = samples.length || 1;
+    const pA = countA / total;
+    const pB = countB / total;
+    const pAB = countAB / total;
+    const pAgivenB = countB ? countAB / countB : 0;
+
+    return { total, countA, countB, countAB, pA, pB, pAB, pAgivenB };
+}
+
+function drawSampleSpaceCanvas() {
+    const canvas = document.getElementById('sampleSpaceCanvas');
+    if (!canvas) return;
+
+    ensureSamplePoints();
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const rect = {
+        x: 40,
+        y: 25,
+        w: canvas.width - 70,
+        h: canvas.height - 60
+    };
+    const boundaryX = rect.x + rect.w * probabilitySampleState.a;
+    const boundaryY = rect.y + rect.h * probabilitySampleState.b;
+
+    ctx.fillStyle = theme.panel;
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = theme.primary;
+    ctx.fillRect(rect.x, rect.y, rect.w * probabilitySampleState.a, rect.h);
+    ctx.fillStyle = theme.secondary;
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h * probabilitySampleState.b);
+    ctx.globalAlpha = 0.24;
+    ctx.fillStyle = theme.warning;
+    ctx.fillRect(rect.x, rect.y, rect.w * probabilitySampleState.a, rect.h * probabilitySampleState.b);
+    ctx.restore();
+
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(boundaryX, rect.y);
+    ctx.lineTo(boundaryX, rect.y + rect.h);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(rect.x, boundaryY);
+    ctx.lineTo(rect.x + rect.w, boundaryY);
+    ctx.stroke();
+
+    probabilitySampleState.samples.forEach(sample => {
+        const px = rect.x + sample.x * rect.w;
+        const py = rect.y + sample.y * rect.h;
+        const inA = sample.x <= probabilitySampleState.a;
+        const inB = sample.y <= probabilitySampleState.b;
+
+        if (inA && inB) {
+            ctx.fillStyle = theme.warning;
+        } else if (inA) {
+            ctx.fillStyle = theme.primary;
+        } else if (inB) {
+            ctx.fillStyle = theme.secondary;
+        } else {
+            ctx.fillStyle = theme.axis;
+        }
+        ctx.beginPath();
+        ctx.arc(px, py, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('A', rect.x + 8, rect.y + rect.h / 2);
+    ctx.textAlign = 'right';
+    ctx.fillText('B', rect.x + rect.w - 8, rect.y + 16);
+}
+
+function updateSampleSpaceUI() {
+    const stats = computeSampleSpaceStats();
+    const aLabel = document.getElementById('sampleAVal');
+    const bLabel = document.getElementById('sampleBVal');
+    const pAEl = document.getElementById('samplePA');
+    const pBEl = document.getElementById('samplePB');
+    const pABEl = document.getElementById('samplePAB');
+    const pAgivenBEl = document.getElementById('samplePAgivenB');
+    const noteEl = document.getElementById('sampleSpaceNote');
+
+    if (aLabel) aLabel.textContent = probabilitySampleState.a.toFixed(2);
+    if (bLabel) bLabel.textContent = probabilitySampleState.b.toFixed(2);
+    if (pAEl) pAEl.textContent = stats.pA.toFixed(2);
+    if (pBEl) pBEl.textContent = stats.pB.toFixed(2);
+    if (pABEl) pABEl.textContent = stats.pAB.toFixed(2);
+    if (pAgivenBEl) pAgivenBEl.textContent = stats.pAgivenB.toFixed(2);
+    if (noteEl) {
+        noteEl.textContent = `Overlap count: ${stats.countAB} of ${stats.total} points.`;
+    }
+
+    drawSampleSpaceCanvas();
+}
+
+function setupSampleSpace() {
+    const inputA = document.getElementById('sampleA');
+    const inputB = document.getElementById('sampleB');
+    const reseedButton = document.getElementById('sampleReseed');
+    if (!inputA && !inputB && !reseedButton) return;
+
+    if (inputA) {
+        inputA.addEventListener('input', event => {
+            probabilitySampleState.a = parseFloat(event.target.value);
+            updateSampleSpaceUI();
+        });
+    }
+    if (inputB) {
+        inputB.addEventListener('input', event => {
+            probabilitySampleState.b = parseFloat(event.target.value);
+            updateSampleSpaceUI();
+        });
+    }
+    if (reseedButton) {
+        reseedButton.addEventListener('click', () => {
+            generateSamplePoints();
+            updateSampleSpaceUI();
+        });
+    }
+
+    updateSampleSpaceUI();
+}
+
+function getMlLifecycleSteps() {
+    return mlLifecycleSteps[mlLifecycleState.phase] || mlLifecycleSteps.training;
+}
+
+function renderMlStepList() {
+    const list = document.getElementById('mlStepList');
+    if (!list) return;
+
+    const steps = getMlLifecycleSteps();
+    list.innerHTML = '';
+
+    steps.forEach((step, index) => {
+        const item = document.createElement('li');
+        item.classList.add('ml-step-item');
+        item.dataset.mlStep = index.toString();
+        item.tabIndex = 0;
+        item.setAttribute('role', 'button');
+        item.innerHTML = `<strong>${step.title}</strong>: ${step.summary}`;
+        item.addEventListener('click', () => setMlLifecycleStep(index));
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setMlLifecycleStep(index);
+            }
+        });
+        list.appendChild(item);
+    });
+}
+
+function updateMlLifecycleUI() {
+    const steps = getMlLifecycleSteps();
+    const step = steps[mlLifecycleState.stepIndex] || steps[0];
+    const badgeEl = document.getElementById('mlStepBadge');
+    const titleEl = document.getElementById('mlStepTitle');
+    const textEl = document.getElementById('mlStepText');
+
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${mlLifecycleState.stepIndex + 1} of ${steps.length}`;
+    }
+    if (titleEl) {
+        titleEl.textContent = step.title;
+    }
+    if (textEl) {
+        textEl.textContent = step.text;
+    }
+
+    document.querySelectorAll('[data-ml-phase]').forEach(button => {
+        const isActive = button.dataset.mlPhase === mlLifecycleState.phase;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    const listItems = document.querySelectorAll('.ml-step-list [data-ml-step]');
+    listItems.forEach(item => {
+        const index = parseInt(item.dataset.mlStep, 10);
+        const isActive = index === mlLifecycleState.stepIndex;
+        item.classList.toggle('is-active', isActive);
+        if (isActive) {
+            item.setAttribute('aria-current', 'step');
+        } else {
+            item.removeAttribute('aria-current');
+        }
+    });
+}
+
+function drawMlLifecycleCanvas() {
+    const canvas = document.getElementById('mlLifecycleCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const boxW = 110;
+    const boxH = 44;
+
+    const drawBox = (node, isActive) => {
+        ctx.fillStyle = isActive ? theme.primary : theme.panel;
+        ctx.strokeStyle = isActive ? theme.primary : theme.grid;
+        ctx.lineWidth = isActive ? 2.5 : 2;
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(node.x, node.y, boxW, boxH, 10);
+        } else {
+            ctx.rect(node.x, node.y, boxW, boxH);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = isActive ? '#ffffff' : theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const words = node.label.split(' ');
+        if (words.length > 1) {
+            const mid = Math.ceil(words.length / 2);
+            const line1 = words.slice(0, mid).join(' ');
+            const line2 = words.slice(mid).join(' ');
+            ctx.fillText(line1, node.x + boxW / 2, node.y + boxH / 2 - 7);
+            ctx.fillText(line2, node.x + boxW / 2, node.y + boxH / 2 + 7);
+        } else {
+            ctx.fillText(node.label, node.x + boxW / 2, node.y + boxH / 2);
+        }
+    };
+
+    if (mlLifecycleState.phase === 'training') {
+        const gapX = 24;
+        const gapY = 36;
+        const totalWidth = boxW * 3 + gapX * 2;
+        const startX = (canvas.width - totalWidth) / 2;
+        const startY = 50;
+
+        const nodes = [
+            { label: 'Data batch', x: startX, y: startY },
+            { label: 'Forward', x: startX + boxW + gapX, y: startY },
+            { label: 'Prediction', x: startX + 2 * (boxW + gapX), y: startY },
+            { label: 'Loss', x: startX + 2 * (boxW + gapX), y: startY + boxH + gapY },
+            { label: 'Backprop', x: startX + boxW + gapX, y: startY + boxH + gapY },
+            { label: 'Update', x: startX, y: startY + boxH + gapY }
+        ];
+
+        const activeIndex = Math.min(mlLifecycleState.stepIndex, nodes.length - 1);
+        const arrowColor = (index) => (index <= activeIndex ? theme.primary : theme.grid);
+
+        drawArrow(ctx, nodes[0].x + boxW, nodes[0].y + boxH / 2, nodes[1].x, nodes[1].y + boxH / 2, arrowColor(0));
+        drawArrow(ctx, nodes[1].x + boxW, nodes[1].y + boxH / 2, nodes[2].x, nodes[2].y + boxH / 2, arrowColor(1));
+        drawArrow(ctx, nodes[2].x + boxW / 2, nodes[2].y + boxH, nodes[3].x + boxW / 2, nodes[3].y, arrowColor(2));
+        drawArrow(ctx, nodes[3].x, nodes[3].y + boxH / 2, nodes[4].x + boxW, nodes[4].y + boxH / 2, arrowColor(3));
+        drawArrow(ctx, nodes[4].x, nodes[4].y + boxH / 2, nodes[5].x + boxW, nodes[5].y + boxH / 2, arrowColor(4));
+        drawArrow(ctx, nodes[5].x + boxW / 2, nodes[5].y, nodes[0].x + boxW / 2, nodes[0].y + boxH, arrowColor(5));
+
+        nodes.forEach((node, index) => drawBox(node, index === activeIndex));
+    } else {
+        const gapX = 24;
+        const totalWidth = boxW * 4 + gapX * 3;
+        const startX = (canvas.width - totalWidth) / 2;
+        const startY = 90;
+
+        const nodes = [
+            { label: 'Input', x: startX, y: startY },
+            { label: 'Model', x: startX + boxW + gapX, y: startY },
+            { label: 'Prediction', x: startX + 2 * (boxW + gapX), y: startY },
+            { label: 'Decision', x: startX + 3 * (boxW + gapX), y: startY }
+        ];
+
+        const activeIndex = Math.min(mlLifecycleState.stepIndex, nodes.length - 1);
+        const arrowColor = (index) => (index <= activeIndex ? theme.primary : theme.grid);
+
+        drawArrow(ctx, nodes[0].x + boxW, nodes[0].y + boxH / 2, nodes[1].x, nodes[1].y + boxH / 2, arrowColor(0));
+        drawArrow(ctx, nodes[1].x + boxW, nodes[1].y + boxH / 2, nodes[2].x, nodes[2].y + boxH / 2, arrowColor(1));
+        drawArrow(ctx, nodes[2].x + boxW, nodes[2].y + boxH / 2, nodes[3].x, nodes[3].y + boxH / 2, arrowColor(2));
+
+        nodes.forEach((node, index) => drawBox(node, index === activeIndex));
+    }
+}
+
+function setMlLifecyclePhase(phase) {
+    if (!mlLifecycleSteps[phase]) return;
+    mlLifecycleState.phase = phase;
+    mlLifecycleState.stepIndex = 0;
+    renderMlStepList();
+    updateMlLifecycleUI();
+    drawMlLifecycleCanvas();
+}
+
+function setMlLifecycleStep(stepIndex) {
+    const steps = getMlLifecycleSteps();
+    const total = steps.length;
+    mlLifecycleState.stepIndex = ((stepIndex % total) + total) % total;
+    updateMlLifecycleUI();
+    drawMlLifecycleCanvas();
+}
+
+function advanceMlLifecycleStep(direction = 1) {
+    setMlLifecycleStep(mlLifecycleState.stepIndex + direction);
+}
+
+function toggleMlLifecyclePlay() {
+    const button = document.getElementById('mlPlaySteps');
+    toggleAutoPlay(mlLifecycleState, button, 'Play steps', 'Pause', () => advanceMlLifecycleStep(1), 1400);
+}
+
+function setupMlLifecycleStepper() {
+    const phaseButtons = document.querySelectorAll('[data-ml-phase]');
+    const prevButton = document.getElementById('mlPrevStep');
+    const nextButton = document.getElementById('mlNextStep');
+    const playButton = document.getElementById('mlPlaySteps');
+    const resetButton = document.getElementById('mlReset');
+
+    if (!phaseButtons.length && !prevButton && !nextButton && !playButton && !resetButton) return;
+
+    phaseButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(mlLifecycleState, playButton, 'Play steps');
+            setMlLifecyclePhase(button.dataset.mlPhase);
+        });
+    });
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceMlLifecycleStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceMlLifecycleStep(1));
+    if (playButton) playButton.addEventListener('click', toggleMlLifecyclePlay);
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            stopAutoPlay(mlLifecycleState, playButton, 'Play steps');
+            setMlLifecycleStep(0);
+        });
+    }
+
+    renderMlStepList();
+    updateMlLifecycleUI();
+    drawMlLifecycleCanvas();
+}
+
+function getMlAlgorithmConfig() {
+    return mlAlgorithmSteps[mlAlgorithmState.algoId] || mlAlgorithmSteps.linear;
+}
+
+function renderMlAlgorithmStepList() {
+    const list = document.getElementById('mlAlgoStepList');
+    if (!list) return;
+
+    const steps = getMlAlgorithmConfig().steps;
+    list.innerHTML = '';
+
+    steps.forEach((step, index) => {
+        const item = document.createElement('li');
+        item.dataset.mlAlgoStep = index.toString();
+        item.tabIndex = 0;
+        item.setAttribute('role', 'button');
+        item.innerHTML = `<strong>${step.title}</strong>: ${step.summary}`;
+        item.addEventListener('click', () => setMlAlgorithmStep(index));
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setMlAlgorithmStep(index);
+            }
+        });
+        list.appendChild(item);
+    });
+}
+
+function updateMlAlgorithmUI() {
+    const config = getMlAlgorithmConfig();
+    const step = config.steps[mlAlgorithmState.stepIndex] || config.steps[0];
+    const badgeEl = document.getElementById('mlAlgoStepBadge');
+    const titleEl = document.getElementById('mlAlgoStepTitle');
+    const textEl = document.getElementById('mlAlgoStepText');
+
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${mlAlgorithmState.stepIndex + 1} of ${config.steps.length}`;
+    }
+    if (titleEl) {
+        titleEl.textContent = step.title;
+    }
+    if (textEl) {
+        textEl.textContent = step.text;
+    }
+
+    document.querySelectorAll('[data-ml-algo]').forEach(button => {
+        const isActive = button.dataset.mlAlgo === mlAlgorithmState.algoId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('.ml-step-list [data-ml-algo-step]').forEach(item => {
+        const index = parseInt(item.dataset.mlAlgoStep, 10);
+        const isActive = index === mlAlgorithmState.stepIndex;
+        item.classList.toggle('is-active', isActive);
+        if (isActive) {
+            item.setAttribute('aria-current', 'step');
+        } else {
+            item.removeAttribute('aria-current');
+        }
+    });
+}
+
+function drawMlAlgoCanvas() {
+    const canvas = document.getElementById('mlAlgoCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const origin = { x: canvas.width / 2, y: canvas.height / 2 + 20 };
+    const scale = 80;
+    const size = 2;
+
+    const drawPointSet = (points, color, radius = 4, strokeColor = null) => {
+        points.forEach(point => {
+            const mapped = mapToCanvas(point, origin, scale);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(mapped.x, mapped.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            if (strokeColor) {
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+    };
+
+    const drawLine = (p1, p2, color, width = 2, dash = []) => {
+        const a = mapToCanvas(p1, origin, scale);
+        const b = mapToCanvas(p2, origin, scale);
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.restore();
+    };
+
+    const drawBoundary = (m, b, color, width = 2, dash = []) => {
+        const x1 = -2.2;
+        const x2 = 2.2;
+        drawLine({ x: x1, y: m * x1 + b }, { x: x2, y: m * x2 + b }, color, width, dash);
+    };
+
+    const drawEllipse = (center, rx, ry, rotation, color, alpha) => {
+        const mapped = mapToCanvas(center, origin, scale);
+        ctx.save();
+        ctx.translate(mapped.x, mapped.y);
+        ctx.rotate(-rotation);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx * scale, ry * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        ctx.globalAlpha = 1;
+    };
+
+    const algoId = mlAlgorithmState.algoId;
+    const stepIndex = mlAlgorithmState.stepIndex;
+
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    if (algoId === 'linear') {
+        drawPointSet(mlAlgoData.regression, theme.secondary);
+        if (stepIndex >= 1) {
+            drawBoundary(0.6, 0.1, theme.primary, 3);
+        }
+        if (stepIndex >= 2) {
+            const x = 1.4;
+            const y = 0.6 * x + 0.1;
+            drawLine({ x, y: -2 }, { x, y }, theme.inkSoft, 1.5, [6, 6]);
+            drawPointSet([{ x, y }], theme.warning, 6);
+        }
+    } else if (algoId === 'logistic') {
+        drawPointSet(mlAlgoData.classA, theme.secondary);
+        drawPointSet(mlAlgoData.classB, theme.primary);
+        if (stepIndex >= 1) {
+            drawBoundary(0.7, 0.0, theme.warning, 3);
+        }
+        if (stepIndex >= 2) {
+            const query = { x: 0.2, y: 0.1 };
+            drawPointSet([query], theme.warning, 6);
+            const barX = canvas.width - 70;
+            const barY = 70;
+            const barH = 140;
+            const prob = 0.7;
+            ctx.fillStyle = theme.grid;
+            ctx.fillRect(barX, barY, 20, barH);
+            ctx.fillStyle = theme.primary;
+            ctx.fillRect(barX, barY + (1 - prob) * barH, 20, prob * barH);
+            ctx.fillStyle = theme.inkSoft;
+            ctx.font = 'bold 11px Nunito, Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('P(B)', barX + 10, barY + barH + 16);
+        }
+    } else if (algoId === 'knn') {
+        drawPointSet(mlAlgoData.classA, theme.secondary);
+        drawPointSet(mlAlgoData.classB, theme.primary);
+        const query = mlAlgoData.knnQuery;
+        const neighbors = [...mlAlgoData.classA, ...mlAlgoData.classB].map(point => ({
+            point,
+            dist: Math.hypot(point.x - query.x, point.y - query.y)
+        })).sort((a, b) => a.dist - b.dist).slice(0, 3);
+
+        if (stepIndex >= 1) {
+            ctx.save();
+            ctx.strokeStyle = theme.warning;
+            ctx.setLineDash([6, 6]);
+            ctx.lineWidth = 2;
+            const radius = neighbors[2].dist;
+            const mapped = mapToCanvas(query, origin, scale);
+            ctx.beginPath();
+            ctx.arc(mapped.x, mapped.y, radius * scale, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+            drawPointSet(neighbors.map(n => n.point), theme.warning, 6, theme.warning);
+        }
+        const majority = neighbors.filter(n => mlAlgoData.classB.includes(n.point)).length >= 2;
+        const queryColor = stepIndex >= 2 ? (majority ? theme.primary : theme.secondary) : theme.ink;
+        drawPointSet([query], queryColor, 6);
+    } else if (algoId === 'tree') {
+        drawPointSet(mlAlgoData.classA, theme.secondary);
+        drawPointSet(mlAlgoData.classB, theme.primary);
+        if (stepIndex >= 0) {
+            drawLine({ x: 0, y: -2 }, { x: 0, y: 2 }, theme.warning, 2);
+        }
+        if (stepIndex >= 1) {
+            drawLine({ x: -2, y: -0.2 }, { x: 0, y: -0.2 }, theme.warning, 2);
+        }
+        if (stepIndex >= 2) {
+            ctx.save();
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = theme.secondary;
+            const leftBottom = mapToCanvas({ x: -2, y: -2 }, origin, scale);
+            const leftTop = mapToCanvas({ x: 0, y: -0.2 }, origin, scale);
+            ctx.fillRect(leftBottom.x, leftTop.y, leftTop.x - leftBottom.x, leftBottom.y - leftTop.y);
+            ctx.fillStyle = theme.primary;
+            const rightBottom = mapToCanvas({ x: 0, y: -2 }, origin, scale);
+            const rightTop = mapToCanvas({ x: 2, y: 2 }, origin, scale);
+            ctx.fillRect(rightBottom.x, rightTop.y, rightTop.x - rightBottom.x, rightBottom.y - rightTop.y);
+            ctx.restore();
+        }
+    } else if (algoId === 'forest') {
+        drawPointSet(mlAlgoData.classA, theme.secondary);
+        drawPointSet(mlAlgoData.classB, theme.primary);
+        if (stepIndex >= 1) {
+            drawBoundary(0.5, -0.2, theme.inkSoft, 1.5, [4, 4]);
+            drawBoundary(0.3, 0.3, theme.inkSoft, 1.5, [4, 4]);
+            drawLine({ x: -0.2, y: -2 }, { x: -0.2, y: 2 }, theme.inkSoft, 1.5, [4, 4]);
+        }
+        if (stepIndex >= 2) {
+            ctx.save();
+            ctx.globalAlpha = 0.12;
+            ctx.fillStyle = theme.primary;
+            const topLeft = mapToCanvas({ x: -2, y: 2 }, origin, scale);
+            const bottomRight = mapToCanvas({ x: 2, y: -2 }, origin, scale);
+            ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+            ctx.restore();
+        }
+    } else if (algoId === 'svm') {
+        drawPointSet(mlAlgoData.classA, theme.secondary);
+        drawPointSet(mlAlgoData.classB, theme.primary);
+        if (stepIndex >= 1) {
+            const { m, b } = mlAlgoData.svmBoundary;
+            drawBoundary(m, b, theme.warning, 3);
+            drawBoundary(m, b + 0.4, theme.warning, 1.5, [6, 6]);
+            drawBoundary(m, b - 0.4, theme.warning, 1.5, [6, 6]);
+        }
+        if (stepIndex >= 2) {
+            const support = [mlAlgoData.classA[2], mlAlgoData.classB[2]];
+            drawPointSet(support, 'transparent', 7, theme.warning);
+        }
+    } else if (algoId === 'bayes') {
+        drawPointSet(mlAlgoData.classA, theme.secondary);
+        drawPointSet(mlAlgoData.classB, theme.primary);
+        if (stepIndex >= 1) {
+            drawEllipse({ x: -0.7, y: -0.6 }, 0.7, 0.45, 0.3, theme.secondary, 0.18);
+            drawEllipse({ x: 0.7, y: 0.5 }, 0.6, 0.4, -0.3, theme.primary, 0.18);
+        }
+        if (stepIndex >= 2) {
+            drawPointSet([mlAlgoData.nbQuery], theme.warning, 6);
+            const barX = canvas.width - 70;
+            const barY = 70;
+            const barH = 140;
+            ctx.fillStyle = theme.grid;
+            ctx.fillRect(barX, barY, 20, barH);
+            ctx.fillStyle = theme.secondary;
+            ctx.fillRect(barX, barY + barH * 0.3, 20, barH * 0.7);
+            ctx.fillStyle = theme.primary;
+            ctx.fillRect(barX + 24, barY + barH * 0.5, 20, barH * 0.5);
+            ctx.fillStyle = theme.inkSoft;
+            ctx.font = 'bold 11px Nunito, Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('A', barX + 10, barY + barH + 16);
+            ctx.fillText('B', barX + 34, barY + barH + 16);
+        }
+    } else if (algoId === 'kmeans') {
+        drawPointSet(mlAlgoData.kmeansPoints, theme.inkSoft, 3);
+        if (stepIndex >= 0) {
+            drawPointSet(mlAlgoData.kmeansCentroidsA, theme.warning, 7, theme.warning);
+        }
+        if (stepIndex >= 1) {
+            const centroids = mlAlgoData.kmeansCentroidsA;
+            const colors = [theme.secondary, theme.primary, theme.warning];
+            mlAlgoData.kmeansPoints.forEach(point => {
+                const nearestIndex = centroids
+                    .map(center => Math.hypot(point.x - center.x, point.y - center.y))
+                    .reduce((best, dist, idx, arr) => (dist < arr[best] ? idx : best), 0);
+                drawPointSet([point], colors[nearestIndex], 4);
+            });
+        }
+        if (stepIndex >= 2) {
+            drawPointSet(mlAlgoData.kmeansCentroidsB, theme.warning, 7, theme.warning);
+            mlAlgoData.kmeansCentroidsA.forEach((center, index) => {
+                drawLine(center, mlAlgoData.kmeansCentroidsB[index], theme.warning, 1.5, [4, 4]);
+            });
+        }
+    } else if (algoId === 'pca') {
+        drawPointSet(mlAlgoData.pcaPoints, theme.secondary);
+        if (stepIndex >= 1) {
+            drawBoundary(mlAlgoData.pcaAxis.m, mlAlgoData.pcaAxis.b, theme.warning, 3);
+        }
+        if (stepIndex >= 2) {
+            mlAlgoData.pcaPoints.forEach(point => {
+                const m = mlAlgoData.pcaAxis.m;
+                const b = mlAlgoData.pcaAxis.b;
+                const projX = (point.x + m * (point.y - b)) / (1 + m * m);
+                const projY = m * projX + b;
+                drawLine(point, { x: projX, y: projY }, theme.inkSoft, 1, [4, 4]);
+                drawPointSet([{ x: projX, y: projY }], theme.warning, 4);
+            });
+        }
+    }
+}
+
+function setMlAlgorithm(algoId) {
+    if (!mlAlgorithmSteps[algoId]) return;
+    mlAlgorithmState.algoId = algoId;
+    mlAlgorithmState.stepIndex = 0;
+    renderMlAlgorithmStepList();
+    updateMlAlgorithmUI();
+    drawMlAlgoCanvas();
+}
+
+function setMlAlgorithmStep(stepIndex) {
+    const steps = getMlAlgorithmConfig().steps;
+    const total = steps.length;
+    mlAlgorithmState.stepIndex = ((stepIndex % total) + total) % total;
+    updateMlAlgorithmUI();
+    drawMlAlgoCanvas();
+}
+
+function advanceMlAlgorithmStep(direction = 1) {
+    setMlAlgorithmStep(mlAlgorithmState.stepIndex + direction);
+}
+
+function toggleMlAlgorithmPlay() {
+    const button = document.getElementById('mlAlgoPlay');
+    toggleAutoPlay(mlAlgorithmState, button, 'Play steps', 'Pause', () => advanceMlAlgorithmStep(1), 1400);
+}
+
+function setupMlAlgorithmStepper() {
+    const algoButtons = document.querySelectorAll('[data-ml-algo]');
+    const prevButton = document.getElementById('mlAlgoPrev');
+    const nextButton = document.getElementById('mlAlgoNext');
+    const playButton = document.getElementById('mlAlgoPlay');
+    const resetButton = document.getElementById('mlAlgoReset');
+
+    if (!algoButtons.length && !prevButton && !nextButton && !playButton && !resetButton) return;
+
+    algoButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            stopAutoPlay(mlAlgorithmState, playButton, 'Play steps');
+            setMlAlgorithm(button.dataset.mlAlgo);
+        });
+    });
+
+    if (prevButton) prevButton.addEventListener('click', () => advanceMlAlgorithmStep(-1));
+    if (nextButton) nextButton.addEventListener('click', () => advanceMlAlgorithmStep(1));
+    if (playButton) playButton.addEventListener('click', toggleMlAlgorithmPlay);
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            stopAutoPlay(mlAlgorithmState, playButton, 'Play steps');
+            setMlAlgorithmStep(0);
+        });
+    }
+
+    renderMlAlgorithmStepList();
+    updateMlAlgorithmUI();
+    drawMlAlgoCanvas();
+}
+
+function setupMlMiniVisuals() {
+    const visuals = document.querySelectorAll('.ml-mini-vis');
+    if (!visuals.length) return;
+
+    visuals.forEach(visual => {
+        const card = visual.closest('.ml-card');
+        const caption = card ? card.querySelector('.ml-caption') : null;
+        const baseText = visual.dataset.mlCaption || (caption ? caption.textContent.trim() : '');
+        const altText = visual.dataset.mlCaptionAlt || baseText;
+        const hoverText = visual.dataset.mlCaptionHover || baseText;
+
+        if (caption && !caption.textContent.trim() && baseText) {
+            caption.textContent = baseText;
+        }
+
+        const updateCaption = () => {
+            if (!caption) return;
+            caption.textContent = visual.classList.contains('is-alt') ? altText : baseText;
+        };
+
+        const showHover = () => {
+            if (caption && hoverText) {
+                caption.textContent = hoverText;
+            }
+            visual.classList.add('is-hover');
+        };
+
+        const hideHover = () => {
+            visual.classList.remove('is-hover');
+            updateCaption();
+        };
+
+        const toggleState = () => {
+            if (visual.dataset.mlToggle !== 'true') return;
+            visual.classList.toggle('is-alt');
+            visual.setAttribute('aria-pressed', visual.classList.contains('is-alt') ? 'true' : 'false');
+            updateCaption();
+        };
+
+        visual.addEventListener('mouseenter', showHover);
+        visual.addEventListener('mouseleave', hideHover);
+        visual.addEventListener('focus', showHover);
+        visual.addEventListener('blur', hideHover);
+
+        if (visual.dataset.mlToggle === 'true') {
+            visual.addEventListener('click', toggleState);
+            visual.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleState();
+                }
+            });
+        }
+
+        updateCaption();
+    });
+}
+
+function setProbabilityMode(modeId) {
+    if (!probabilityModes.some(mode => mode.id === modeId)) return;
+    probabilityState.modeId = modeId;
+
+    const buttons = document.querySelectorAll('[data-probability-mode]');
+    buttons.forEach(button => {
+        const isActive = button.dataset.probabilityMode === modeId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    const noteEl = document.getElementById('probabilityNote');
+    if (noteEl) {
+        noteEl.textContent = getProbabilityMode().note;
+    }
+
+    drawProbabilityCanvas();
+}
+
+function setupProbabilitySection() {
+    const buttons = document.querySelectorAll('[data-probability-mode]');
+    if (!buttons.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setProbabilityMode(button.dataset.probabilityMode));
+    });
+
+    setProbabilityMode(probabilityState.modeId);
+}
+
+function setProbabilityDepth(mode) {
+    probabilityDepthState.mode = mode;
+    const buttons = document.querySelectorAll('[data-probability-depth]');
+    const panels = document.querySelectorAll('.probability-mode-panel');
+
+    buttons.forEach(button => {
+        const isActive = button.dataset.probabilityDepth === mode;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    panels.forEach(panel => {
+        const isActive = panel.dataset.probabilityDepth === mode;
+        panel.classList.toggle('is-active', isActive);
+        panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+
+    drawProbabilityCanvas();
+    drawProbabilityVennCanvas();
+    drawSpamFilterCanvas();
+    drawSampleSpaceCanvas();
+}
+
+function setupProbabilityDepth() {
+    const buttons = document.querySelectorAll('[data-probability-depth]');
+    if (!buttons.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setProbabilityDepth(button.dataset.probabilityDepth));
+    });
+
+    setProbabilityDepth(probabilityDepthState.mode);
+}
+
+function setMatrixBasicOperation(operation) {
     matrixState.operation = operation;
     matrixState.progress = operation === 'step' ? 0 : 1;
-    updateMatrixUI();
+    updateMatrixBasicUI();
     drawMatrixCanvas();
 }
 
-function animateMatrixOperation() {
-    const canvas = document.getElementById('matrixCanvas');
+function setMatrixDeepOperation(operation) {
+    matrixDeepState.operation = operation;
+    matrixDeepState.progress = operation === 'step' ? 0 : 1;
+    updateMatrixDeepUI();
+    drawMatrixDeepCanvas();
+}
+
+function animateMatrixOperationForState(state, canvasId) {
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return;
-    const config = matrixOperationConfig[matrixState.operation] || matrixOperationConfig.multiply;
+    const config = matrixOperationConfig[state.operation] || matrixOperationConfig.multiply;
     if (!config.animate) return;
     let progress = 0;
     const speed = config.speed || 0.04;
     const animate = () => {
         progress += speed;
-        matrixState.progress = Math.min(1, progress);
-        drawMatrixCanvas();
+        state.progress = Math.min(1, progress);
+        if (canvasId === 'matrixDeepCanvas') {
+            drawMatrixDeepCanvas();
+        } else {
+            drawMatrixCanvas();
+        }
         if (progress < 1) {
             requestAnimationFrame(animate);
         }
     };
-    matrixState.progress = 0;
+    state.progress = 0;
     animate();
+}
+
+function animateMatrixBasicOperation() {
+    animateMatrixOperationForState(matrixState, 'matrixCanvas');
+}
+
+function animateMatrixDeepOperation() {
+    animateMatrixOperationForState(matrixDeepState, 'matrixDeepCanvas');
 }
 function initMatrixCanvas() {
     const canvas = document.getElementById('matrixCanvas');
@@ -2448,6 +4438,7 @@ function updateCnnUI() {
     const noteEl = document.getElementById('cnnExampleNote');
     const patchEl = document.getElementById('cnnPatch');
     const valueEl = document.getElementById('cnnOutputValue');
+    const mathNoteEl = document.getElementById('cnnMathNote');
     const badgeEl = document.getElementById('cnnStepBadge');
     const titleEl = document.getElementById('cnnStepTitle');
     const textEl = document.getElementById('cnnStepText');
@@ -2458,6 +4449,20 @@ function updateCnnUI() {
     if (badgeEl) badgeEl.textContent = `Step ${cnnState.stepIndex + 1} of ${total}`;
     if (titleEl) titleEl.textContent = `Filter at row ${row + 1}, col ${col + 1}`;
     if (textEl) textEl.textContent = 'Multiply the 3x3 patch by the filter, then sum to get one output cell.';
+    if (mathNoteEl) {
+        const kernel = example.kernel;
+        const terms = [];
+        let sum = 0;
+        for (let r = 0; r < kernel.length; r++) {
+            for (let c = 0; c < kernel[0].length; c++) {
+                const value = example.grid[row + r][col + c];
+                const weight = kernel[r][c];
+                sum += value * weight;
+                terms.push(`${value}*${weight}`);
+            }
+        }
+        mathNoteEl.textContent = `Dot product: ${terms.join(' + ')} = ${sum.toFixed(2)}`;
+    }
 }
 
 function drawCnnGrid(ctx, grid, startX, startY, cellSize, theme, highlight) {
@@ -2620,7 +4625,7 @@ const rnnExamples = [
         label: 'Next word prediction',
         tokens: ['The', 'cat', 'sat', 'down'],
         outputs: ['cat', 'sat', 'down', '.'],
-        hidden: [0.22, 0.45, 0.63, 0.58],
+        inputs: [0.4, 0.9, 0.3, 0.7],
         note: 'Each hidden state carries context to the next word.'
     },
     {
@@ -2628,7 +4633,7 @@ const rnnExamples = [
         label: 'Forecast',
         tokens: ['Temp', 'rises', 'then', 'drops'],
         outputs: ['rises', 'then', 'drops', 'tomorrow'],
-        hidden: [0.31, 0.5, 0.42, 0.6],
+        inputs: [0.6, 0.7, 0.4, 0.8],
         note: 'Sequence trends show up in the hidden state.'
     },
     {
@@ -2636,10 +4641,34 @@ const rnnExamples = [
         label: 'Music pattern',
         tokens: ['C', 'D', 'E', 'G'],
         outputs: ['D', 'E', 'G', 'A'],
-        hidden: [0.18, 0.35, 0.54, 0.7],
+        inputs: [0.2, 0.4, 0.6, 0.8],
         note: 'Rhythm and melody are learned across steps.'
     }
 ];
+
+const rnnMathConfig = {
+    wX: 0.8,
+    wH: 0.9,
+    b: -0.1
+};
+
+function computeRnnTrace(inputs, config) {
+    const pre = [];
+    const hidden = [];
+    let hPrev = 0;
+    inputs.forEach(value => {
+        const z = config.wX * value + config.wH * hPrev + config.b;
+        const h = Math.tanh(z);
+        pre.push(z);
+        hidden.push(h);
+        hPrev = h;
+    });
+    return { pre, hidden };
+}
+
+rnnExamples.forEach(example => {
+    example.math = computeRnnTrace(example.inputs, rnnMathConfig);
+});
 
 const rnnState = {
     exampleId: rnnExamples[0].id,
@@ -2651,25 +4680,44 @@ function getRnnExample() {
     return rnnExamples.find(example => example.id === rnnState.exampleId) || rnnExamples[0];
 }
 
+function getRnnHiddenValues(example) {
+    return example.math?.hidden || example.hidden || [];
+}
+
 function updateRnnUI() {
     const example = getRnnExample();
     const step = rnnState.stepIndex;
     const total = example.tokens.length;
+    const inputValues = example.inputs || [];
+    const hiddenValues = getRnnHiddenValues(example);
+    const inputValue = inputValues[step] ?? 0;
+    const prevHidden = step === 0 ? 0 : hiddenValues[step - 1] ?? 0;
+    const hiddenValue = hiddenValues[step] ?? 0;
     const tokenEl = document.getElementById('rnnToken');
     const hiddenEl = document.getElementById('rnnHidden');
+    const inputEl = document.getElementById('rnnInputValue');
+    const prevHiddenEl = document.getElementById('rnnPrevHidden');
     const outputEl = document.getElementById('rnnOutput');
     const noteEl = document.getElementById('rnnExampleNote');
+    const mathNoteEl = document.getElementById('rnnMathNote');
     const badgeEl = document.getElementById('rnnStepBadge');
     const titleEl = document.getElementById('rnnStepTitle');
     const textEl = document.getElementById('rnnStepText');
 
     if (tokenEl) tokenEl.textContent = example.tokens[step];
-    if (hiddenEl) hiddenEl.textContent = example.hidden[step].toFixed(2);
+    if (inputEl) inputEl.textContent = formatNumber(inputValue, 2);
+    if (prevHiddenEl) prevHiddenEl.textContent = formatNumber(prevHidden, 2);
+    if (hiddenEl) hiddenEl.textContent = formatNumber(hiddenValue, 2);
     if (outputEl) outputEl.textContent = example.outputs[step];
     if (noteEl) noteEl.textContent = example.note;
     if (badgeEl) badgeEl.textContent = `Step ${step + 1} of ${total}`;
     if (titleEl) titleEl.textContent = `Time step ${step + 1}`;
     if (textEl) textEl.textContent = 'Input -> hidden state -> output at this time step.';
+    if (mathNoteEl) {
+        const bias = rnnMathConfig.b;
+        const biasTerm = bias >= 0 ? `+ ${formatNumber(bias, 2)}` : `- ${formatNumber(Math.abs(bias), 2)}`;
+        mathNoteEl.textContent = `Scalar demo: tanh(${formatNumber(rnnMathConfig.wX, 2)}*${formatNumber(inputValue, 2)} + ${formatNumber(rnnMathConfig.wH, 2)}*${formatNumber(prevHidden, 2)} ${biasTerm}) = ${formatNumber(hiddenValue, 2)}`;
+    }
 }
 
 function drawRnnCanvas() {
@@ -2681,6 +4729,7 @@ function drawRnnCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const example = getRnnExample();
+    const hiddenValues = getRnnHiddenValues(example);
     const count = example.tokens.length;
     const gap = 12;
     const maxWidth = canvas.width - 40;
@@ -2707,7 +4756,7 @@ function drawRnnCanvas() {
         drawArrow(ctx, x + tokenWidth / 2, tokenY + tokenHeight, x + tokenWidth / 2, hiddenY - 16, index <= rnnState.stepIndex ? theme.primary : theme.grid);
     });
 
-    example.hidden.forEach((value, index) => {
+    hiddenValues.forEach((value, index) => {
         const x = startX + index * (tokenWidth + gap) + tokenWidth / 2;
         const isActive = index === rnnState.stepIndex;
         ctx.fillStyle = isActive ? theme.secondary : theme.grid;
@@ -2719,9 +4768,9 @@ function drawRnnCanvas() {
         ctx.stroke();
         ctx.fillStyle = isActive ? 'white' : theme.ink;
         ctx.font = 'bold 11px Nunito, Arial';
-        ctx.fillText(value.toFixed(2), x, hiddenY + 4);
+        ctx.fillText(formatNumber(hiddenValues[index] ?? 0, 2), x, hiddenY + 4);
 
-        if (index < example.hidden.length - 1) {
+        if (index < hiddenValues.length - 1) {
             const nextX = startX + (index + 1) * (tokenWidth + gap) + tokenWidth / 2;
             drawArrow(ctx, x + 16, hiddenY, nextX - 16, hiddenY, index < rnnState.stepIndex ? theme.secondary : theme.grid);
         }
@@ -2838,23 +4887,35 @@ function updateLstmUI() {
     const example = getLstmExample();
     const step = lstmState.stepIndex;
     const total = lstmSteps.length;
+    const memoryAfter = getLstmMemoryAfter(example);
+    const hiddenOutput = example.output * Math.tanh(memoryAfter);
     const memoryBeforeEl = document.getElementById('lstmMemoryBefore');
     const forgetEl = document.getElementById('lstmForgetGate');
     const inputEl = document.getElementById('lstmInputGate');
     const outputEl = document.getElementById('lstmOutputGate');
+    const candidateEl = document.getElementById('lstmCandidate');
+    const memoryAfterEl = document.getElementById('lstmMemoryAfter');
+    const hiddenEl = document.getElementById('lstmHiddenOutput');
     const noteEl = document.getElementById('lstmExampleNote');
+    const mathNoteEl = document.getElementById('lstmMathNote');
     const badgeEl = document.getElementById('lstmStepBadge');
     const titleEl = document.getElementById('lstmStepTitle');
     const textEl = document.getElementById('lstmStepText');
 
-    if (memoryBeforeEl) memoryBeforeEl.textContent = example.memoryBefore.toFixed(2);
-    if (forgetEl) forgetEl.textContent = example.forget.toFixed(2);
-    if (inputEl) inputEl.textContent = example.input.toFixed(2);
-    if (outputEl) outputEl.textContent = example.output.toFixed(2);
+    if (memoryBeforeEl) memoryBeforeEl.textContent = formatNumber(example.memoryBefore, 2);
+    if (forgetEl) forgetEl.textContent = formatNumber(example.forget, 2);
+    if (inputEl) inputEl.textContent = formatNumber(example.input, 2);
+    if (outputEl) outputEl.textContent = formatNumber(example.output, 2);
+    if (candidateEl) candidateEl.textContent = formatNumber(example.candidate, 2);
+    if (memoryAfterEl) memoryAfterEl.textContent = formatNumber(memoryAfter, 2);
+    if (hiddenEl) hiddenEl.textContent = formatNumber(hiddenOutput, 2);
     if (noteEl) noteEl.textContent = example.note;
     if (badgeEl) badgeEl.textContent = `Step ${step + 1} of ${total}`;
     if (titleEl) titleEl.textContent = lstmSteps[step].title;
     if (textEl) textEl.textContent = lstmSteps[step].text;
+    if (mathNoteEl) {
+        mathNoteEl.textContent = `Scalar demo: c_t = f_t * c_{t-1} + i_t * c~_t = ${formatNumber(example.forget, 2)}*${formatNumber(example.memoryBefore, 2)} + ${formatNumber(example.input, 2)}*${formatNumber(example.candidate, 2)} = ${formatNumber(memoryAfter, 2)}; h_t = o_t * tanh(c_t) = ${formatNumber(example.output, 2)}*tanh(${formatNumber(memoryAfter, 2)}) = ${formatNumber(hiddenOutput, 2)}`;
+    }
 }
 
 function drawLstmCanvas() {
@@ -4227,6 +6288,39 @@ function drawDistanceScene(ctx, canvas) {
     ctx.fillText('y', b.x + 6, b.y - 6);
 }
 
+function drawBasisScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const origin = { x: canvas.width * 0.5, y: canvas.height * 0.62 };
+    const scale = 34;
+    const size = 5;
+    drawCoordinatePlane(ctx, origin, scale, size, theme);
+
+    const e1 = { x: 1, y: 0 };
+    const e2 = { x: 0, y: 1 };
+    const vector = { x: 2, y: 1.5 };
+
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const e1End = mapToCanvas(e1, origin, scale);
+    const e2End = mapToCanvas(e2, origin, scale);
+    const vEnd = mapToCanvas(vector, origin, scale);
+    const xComp = mapToCanvas({ x: vector.x, y: 0 }, origin, scale);
+    const yComp = mapToCanvas({ x: 0, y: vector.y }, origin, scale);
+
+    drawArrow(ctx, start.x, start.y, e1End.x, e1End.y, theme.secondary);
+    drawArrow(ctx, start.x, start.y, e2End.x, e2End.y, theme.warning);
+    drawArrow(ctx, start.x, start.y, vEnd.x, vEnd.y, theme.primary);
+
+    drawDashedLine(ctx, vEnd.x, vEnd.y, xComp.x, xComp.y, theme.grid);
+    drawDashedLine(ctx, vEnd.x, vEnd.y, yComp.x, yComp.y, theme.grid);
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillText('e1', e1End.x + 6, e1End.y - 6);
+    ctx.fillText('e2', e2End.x + 6, e2End.y - 6);
+    ctx.fillText('x', vEnd.x + 6, vEnd.y - 6);
+    ctx.fillText('x = 2e1 + 1.5e2', origin.x - 70, origin.y - 120);
+}
+
 function drawProjectionScene(ctx, canvas) {
     const theme = getThemeColors();
     const origin = { x: canvas.width * 0.5, y: canvas.height * 0.62 };
@@ -4353,15 +6447,31 @@ function drawAttentionScene(ctx, canvas) {
 
 const vectorScenes = [
     {
-        title: 'Scene 1: Projection is a 1D summary',
-        visual: 'Pick a direction \\(u\\) and drop a perpendicular from \\(x\\). The shadow coordinate is \\(x \\cdot u\\).',
-        example: 'Let \\(x = [3, 4]\\), \\(u = [1, 0]\\). Projection is \\([3, 0]\\).',
-        intuition: 'PCA finds the direction where projections have the most spread.',
-        math: '\\(\\mathrm{proj}_u(x) = (x \\cdot u)u\\) for unit \\(u\\).',
-        draw: drawProjectionScene
+        title: 'Scene 1: Magnitude and normalization',
+        visual: 'Length is distance from the origin. Normalization keeps direction but fixes scale.',
+        example: 'If \\(x = [3, 4]\\), then \\(\\lVert x \\rVert = 5\\) and \\(\\hat{x} = [0.6, 0.8]\\).',
+        intuition: 'Cosine similarity compares directions after normalization.',
+        math: '\\(\\lVert x \\rVert_2 = \\sqrt{x_1^2 + x_2^2}\\), \\(\\hat{x} = x / \\lVert x \\rVert\\)',
+        draw: drawNormScene
     },
     {
-        title: 'Scene 2: Gradients are arrows',
+        title: 'Scene 2: Dot product is alignment',
+        visual: 'Project \\(x\\) onto \\(w\\). The dot product is the length of the shadow.',
+        example: 'If \\(x = [2, 1]\\), \\(w = [3, 0]\\), then \\(x \\cdot w = 6\\).',
+        intuition: 'Large dot products mean strong feature alignment.',
+        math: '\\(x \\cdot w = \\lVert x \\rVert \\lVert w \\rVert \\cos\\theta\\)',
+        draw: drawDotProductScene
+    },
+    {
+        title: 'Scene 3: Basis and linear combinations',
+        visual: 'Any vector can be written as a mix of basis directions.',
+        example: '\\(x = 2e_1 + 1.5e_2\\) in 2D.',
+        intuition: 'Changing the basis changes coordinates, not the point in space.',
+        math: '\\(x = \\sum_i \\alpha_i b_i\\)',
+        draw: drawBasisScene
+    },
+    {
+        title: 'Scene 4: Gradients are arrows',
         visual: 'On a loss landscape, the gradient arrow points steepest uphill. Step the opposite way to go downhill.',
         example: 'If \\(\\nabla L = [2, -1]\\) and \\(\\eta = 0.1\\), the step is \\([-0.2, 0.1]\\).',
         intuition: 'Training is repeatedly following these arrows downhill.',
@@ -4369,7 +6479,7 @@ const vectorScenes = [
         draw: drawGradientScene
     },
     {
-        title: 'Scene 3: Regularization pulls to zero',
+        title: 'Scene 5: Regularization pulls to zero',
         visual: 'Data-fit pushes weights somewhere. Regularization adds a pull back toward the origin.',
         example: 'L2 has circular contours; L1 has diamond contours that encourage zeros.',
         intuition: 'Where the contour touches the constraint explains sparsity in L1.',
@@ -4377,7 +6487,7 @@ const vectorScenes = [
         draw: drawRegularizationScene
     },
     {
-        title: 'Scene 4: Attention as a spotlight',
+        title: 'Scene 6: Attention as a spotlight',
         visual: 'A query arrow compares to key arrows. Softmax turns scores into weights, then you average the value arrows.',
         example: 'If scores are \\(s = [2, 1, 0]\\), the weight on 2 is largest, so output leans toward \\(v_1\\).',
         intuition: 'Attention is a weighted average that points where alignment is strongest.',
@@ -4771,6 +6881,13 @@ function refreshAllVisuals() {
     drawVectorSceneCanvas();
     drawVectorDbCanvas();
     drawMatrixCanvas();
+    drawMatrixDeepCanvas();
+    drawProbabilityCanvas();
+    drawProbabilityVennCanvas();
+    drawSpamFilterCanvas();
+    drawSampleSpaceCanvas();
+    drawMlLifecycleCanvas();
+    drawMlAlgoCanvas();
     drawGradientCanvas();
     drawActivationFunctions();
     drawNeuralNetwork();
@@ -5219,74 +7336,65 @@ function setupMatrixControls() {
     if (!buttons.length) return;
 
     buttons.forEach(button => {
-        button.addEventListener('click', () => setMatrixOperation(button.dataset.matrixOp));
+        button.addEventListener('click', () => setMatrixBasicOperation(button.dataset.matrixOp));
     });
 
-    updateMatrixUI();
+    updateMatrixBasicUI();
     drawMatrixCanvas();
+}
+
+function setupMatrixDeepControls() {
+    const buttons = document.querySelectorAll('[data-matrix-deep-op]');
+    if (!buttons.length) return;
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => setMatrixDeepOperation(button.dataset.matrixDeepOp));
+    });
+
+    updateMatrixDeepUI();
+    drawMatrixDeepCanvas();
 }
 
 function setupHolidayParade() {
     const parade = document.querySelector('.holiday-parade');
     if (!parade) return;
 
-    const santa = parade.querySelector('.holiday-character.santa');
-    const spidey = parade.querySelector('.holiday-character.spidey');
-    const sections = Array.from(document.querySelectorAll('.example-section'));
-    if (!sections.length) return;
+    const santaRide = parade.querySelector('.santa-ride');
+    if (!santaRide) return;
 
-    const restartAnimation = (el, className) => {
-        if (!el) return;
-        el.classList.remove('is-active', 'santa-fly', 'spidey-crawl');
-        void el.offsetWidth;
-        el.classList.add('is-active', className);
-    };
+    let hasPlayed = false;
 
-    const cleanup = (event) => {
-        event.currentTarget.classList.remove('is-active', 'santa-fly', 'spidey-crawl');
-    };
-
-    [santa, spidey].forEach(el => {
-        if (el) {
-            el.addEventListener('animationend', cleanup);
-        }
-    });
-
-    let lastTriggerAt = 0;
-    const triggerParade = () => {
+    const playRideOnce = () => {
         if (document.body.dataset.theme !== 'holiday') return;
-        const now = Date.now();
-        if (now - lastTriggerAt < 900) return;
-        lastTriggerAt = now;
-        restartAnimation(santa, 'santa-fly');
-        setTimeout(() => restartAnimation(spidey, 'spidey-crawl'), 320);
+        if (hasPlayed) return;
+        hasPlayed = true;
+        santaRide.classList.remove('is-active');
+        void santaRide.offsetWidth;
+        santaRide.classList.add('is-active');
     };
 
-    const observerCallback = (entries) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting || entry.intersectionRatio < 0.45) return;
-            if (document.body.dataset.theme !== 'holiday') return;
-            const section = entry.target;
-            if (section.dataset.holidayComplete === 'true') return;
-            section.dataset.holidayComplete = 'true';
-            triggerParade();
-        });
+    const resetRide = () => {
+        hasPlayed = false;
+        santaRide.classList.remove('is-active');
     };
 
-    let observer;
-    const observeSections = () => {
-        if (observer) observer.disconnect();
-        observer = new IntersectionObserver(observerCallback, { threshold: [0.45] });
-        sections.forEach(section => observer.observe(section));
-    };
-
-    observeSections();
+    santaRide.addEventListener('animationend', () => {
+        santaRide.classList.remove('is-active');
+    });
 
     document.addEventListener('mlmath:theme-change', (event) => {
-        if (event.detail && event.detail.theme === 'holiday') {
-            observeSections();
+        const theme = event.detail?.theme;
+        if (theme === 'holiday') {
+            resetRide();
+            playRideOnce();
+        } else {
+            resetRide();
         }
     });
+
+    if (document.body.dataset.theme === 'holiday') {
+        playRideOnce();
+    }
 }
 
 function setupThemeSwitcher() {
@@ -5395,7 +7503,17 @@ document.addEventListener('DOMContentLoaded', function() {
     setupVectorScenes();
     setupVectorModes();
     setupVectorDbSection();
+    setupMatrixModes();
     setupMatrixControls();
+    setupMatrixDeepControls();
+    setupProbabilitySection();
+    setupProbabilityDepth();
+    setupProbabilityVenn();
+    setupSpamFilter();
+    setupSampleSpace();
+    setupMlLifecycleStepper();
+    setupMlAlgorithmStepper();
+    setupMlMiniVisuals();
     setupBackpropStepper();
     setupNeuronLab();
     setupDigitLab();
