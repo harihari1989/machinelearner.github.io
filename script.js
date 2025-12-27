@@ -359,7 +359,10 @@ const matrixState = {
         [0, 1]
     ],
     operation: 'add',
-    progress: 1
+    progress: 1,
+    scaleX: 1.5,
+    scaleY: 0.7,
+    shearX: 0.8
 };
 
 const matrixModeState = {
@@ -428,7 +431,7 @@ const matrixOperationConfig = {
     },
     covariance: {
         formula: '\\Sigma^{-1} = (1/\\det \\Sigma)\\,\\text{adj}(\\Sigma)',
-        note: 'Covariance summarizes spread; the precision matrix reweights directions.',
+        note: 'Step 1: center data. Step 2: covariance ellipse shows spread. Step 3: precision (inverse) reweights directions.',
         animate: false
     },
     identity: {
@@ -644,10 +647,10 @@ function drawMatrixTransformComparison(ctx, canvas, matrix, theme, options = {})
     }
 }
 
-function drawMatrixScalingVisualization(ctx, canvas, theme) {
+function drawMatrixScalingVisualization(ctx, canvas, theme, state) {
     const matrix = [
-        [1.5, 0],
-        [0, 0.7]
+        [state.scaleX, 0],
+        [0, state.scaleY]
     ];
 
     drawMatrixTransformComparison(ctx, canvas, matrix, theme, {
@@ -659,9 +662,9 @@ function drawMatrixScalingVisualization(ctx, canvas, theme) {
     drawMatrixBox(ctx, 18, 24, formatMatrix(matrix, 2), 'Scale A', theme);
 }
 
-function drawMatrixShearVisualization(ctx, canvas, theme) {
+function drawMatrixShearVisualization(ctx, canvas, theme, state) {
     const matrix = [
-        [1, 0.8],
+        [1, state.shearX],
         [0, 1]
     ];
 
@@ -776,9 +779,9 @@ function drawCovariancePrecision(ctx, theme) {
         ['-0.50', '1.00']
     ];
 
-    const startY = 40;
-    const leftX = 40;
-    const gap = 28;
+    const startY = 28;
+    const leftX = 32;
+    const gap = 26;
     const boxSigma = drawMatrixBox(ctx, leftX, startY, covariance, 'Sigma', theme);
     const centerY = startY + boxSigma.height / 2;
     const arrowX = leftX + boxSigma.width + gap;
@@ -792,32 +795,75 @@ function drawCovariancePrecision(ctx, theme) {
     const rightX = arrowX + gap;
     const boxPrecision = drawMatrixBox(ctx, rightX, startY, precision, 'Sigma^-1', theme);
 
-    const ellipseY = 235;
-    const covCenterX = leftX + boxSigma.width / 2;
-    const precCenterX = rightX + boxPrecision.width / 2;
+    const panelTop = startY + Math.max(boxSigma.height, boxPrecision.height) + 70;
+    const panelHeight = Math.max(110, ctx.canvas.height - panelTop - 18);
+    const panelGap = 12;
+    const panelWidth = (ctx.canvas.width - 40 - panelGap * 2) / 3;
+    const points = [
+        { x: -0.8, y: -0.2 },
+        { x: -0.6, y: -0.1 },
+        { x: -0.3, y: 0.05 },
+        { x: 0.05, y: 0.2 },
+        { x: 0.35, y: 0.35 },
+        { x: 0.6, y: 0.55 },
+        { x: 0.2, y: -0.1 },
+        { x: -0.1, y: 0.0 }
+    ];
+    const mean = points.reduce((acc, point) => ({ x: acc.x + point.x, y: acc.y + point.y }), { x: 0, y: 0 });
+    mean.x /= points.length;
+    mean.y /= points.length;
 
-    ctx.save();
-    ctx.strokeStyle = theme.primary;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(covCenterX, ellipseY, 56, 28, Math.PI / 6, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
+    const panels = [
+        { label: '1. Center', type: 'mean' },
+        { label: '2. Covariance', type: 'cov' },
+        { label: '3. Precision', type: 'prec' }
+    ];
 
-    ctx.save();
-    ctx.strokeStyle = theme.secondary;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(precCenterX, ellipseY, 28, 56, -Math.PI / 6, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
+    panels.forEach((panel, index) => {
+        const rect = {
+            x: 20 + index * (panelWidth + panelGap),
+            y: panelTop,
+            width: panelWidth,
+            height: panelHeight
+        };
+        const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme);
+        drawMiniScatter(ctx, origin, scale, points, theme.primary, 3);
 
-    ctx.fillStyle = theme.inkSoft;
-    ctx.font = 'bold 12px Nunito, Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText('covariance shape', covCenterX, ellipseY + 55);
-    ctx.fillText('precision shape', precCenterX, ellipseY + 55);
+        if (panel.type === 'mean') {
+            drawMiniVector(ctx, origin, scale, mean, theme.secondary);
+            const meanPoint = mapToCanvas(mean, origin, scale);
+            drawPoint(ctx, meanPoint.x, meanPoint.y, theme.secondary, 4);
+        }
+
+        if (panel.type === 'cov') {
+            ctx.save();
+            ctx.strokeStyle = theme.primary;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(origin.x, origin.y, scale * 0.75, scale * 0.35, Math.PI / 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        if (panel.type === 'prec') {
+            ctx.save();
+            ctx.strokeStyle = theme.secondary;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(origin.x, origin.y, scale * 0.35, scale * 0.75, -Math.PI / 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        drawMiniLabel(ctx, rect, panel.label, theme);
+    });
+
+    const arrowY = panelTop + panelHeight / 2;
+    for (let i = 0; i < 2; i++) {
+        const startX = 20 + (i + 1) * panelWidth + i * panelGap + 6;
+        const endX = startX + panelGap - 12;
+        drawArrow(ctx, startX, arrowY, endX, arrowY, theme.axis);
+    }
 }
 
 function drawIdentityMatrix(ctx, theme, state) {
@@ -1086,12 +1132,12 @@ function drawMatrixOperation(ctx, canvas, theme, state = matrixState) {
     }
 
     if (state.operation === 'scale') {
-        drawMatrixScalingVisualization(ctx, canvas, theme);
+        drawMatrixScalingVisualization(ctx, canvas, theme, state);
         return;
     }
 
     if (state.operation === 'shear') {
-        drawMatrixShearVisualization(ctx, canvas, theme);
+        drawMatrixShearVisualization(ctx, canvas, theme, state);
         return;
     }
 
@@ -1178,6 +1224,36 @@ function updateMatrixUIForState(state, elements) {
     }
 }
 
+function updateMatrixTransformLabels() {
+    const scaleXLabel = document.getElementById('matrixScaleXVal');
+    const scaleYLabel = document.getElementById('matrixScaleYVal');
+    const shearLabel = document.getElementById('matrixShearVal');
+
+    if (scaleXLabel) scaleXLabel.textContent = formatNumber(matrixState.scaleX, 2);
+    if (scaleYLabel) scaleYLabel.textContent = formatNumber(matrixState.scaleY, 2);
+    if (shearLabel) shearLabel.textContent = formatNumber(matrixState.shearX, 2);
+}
+
+function updateMatrixTransformControls() {
+    const controls = document.getElementById('matrixTransformControls');
+    if (!controls) return;
+
+    const scaleGroup = controls.querySelector('[data-matrix-control="scale"]');
+    const shearGroup = controls.querySelector('[data-matrix-control="shear"]');
+    const hint = document.getElementById('matrixTransformHint');
+
+    const showScale = matrixState.operation === 'scale';
+    const showShear = matrixState.operation === 'shear';
+    const showControls = showScale || showShear;
+
+    controls.hidden = !showControls;
+    if (scaleGroup) scaleGroup.hidden = !showScale;
+    if (shearGroup) shearGroup.hidden = !showShear;
+    if (hint) hint.hidden = !showControls;
+
+    updateMatrixTransformLabels();
+}
+
 function updateMatrixBasicUI() {
     updateMatrixUIForState(matrixState, {
         formulaEl: document.getElementById('matrixOperationFormula'),
@@ -1185,6 +1261,7 @@ function updateMatrixBasicUI() {
         buttons: document.querySelectorAll('[data-matrix-op]'),
         animateButton: document.getElementById('matrixAnimateButton')
     });
+    updateMatrixTransformControls();
 }
 
 function updateMatrixDeepUI() {
@@ -1239,26 +1316,30 @@ const probabilityModes = [
         type: 'bars',
         labels: ['0', '1'],
         values: [0.35, 0.65],
-        note: 'Bernoulli random variable: binary success/failure.'
+        annotation: 'p = 0.65',
+        note: 'Binary outcomes with parameter p. Use for clicks, coins, yes/no labels.'
     },
     {
         id: 'categorical',
         type: 'bars',
         labels: ['A', 'B', 'C', 'D', 'E'],
         values: [0.35, 0.2, 0.18, 0.17, 0.1],
-        note: 'Categorical distribution over multiple classes.'
+        annotation: 'sum p_i = 1',
+        note: 'Multiple discrete outcomes with probabilities. Use for class labels or choices.'
     },
     {
         id: 'binomial',
         type: 'binomial',
         n: 10,
         p: 0.5,
-        note: 'Binomial distribution with n=10, p=0.5.'
+        annotation: 'n = 10, p = 0.5',
+        note: 'Counts successes in n trials with probability p. Use for pass/fail counts in batches.'
     },
     {
         id: 'normal',
         type: 'curve',
-        note: 'Normal distribution with mean 0 and standard deviation 1.'
+        annotation: 'mu = 0, sigma = 1',
+        note: 'Continuous bell curve with mean (mu) and standard deviation (sigma). Use for noise, heights, residuals.'
     },
     {
         id: 'bayes',
@@ -1610,11 +1691,6 @@ function drawProbabilityCurve(ctx, canvas, theme) {
         else ctx.lineTo(canvasX, canvasY);
     }
     ctx.stroke();
-
-    ctx.fillStyle = theme.inkSoft;
-    ctx.font = 'bold 11px Nunito, Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('mean = 0', chartLeft + 3 * scaleX, chartTop + 10);
 }
 
 function drawProbabilityBayes(ctx, canvas, theme) {
@@ -1663,6 +1739,128 @@ function drawProbabilityBayes(ctx, canvas, theme) {
     });
 }
 
+function drawProbabilityAnnotation(ctx, canvas, text, theme) {
+    if (!text) return;
+
+    ctx.save();
+    ctx.font = 'bold 11px Nunito, Arial';
+    const paddingX = 10;
+    const paddingY = 6;
+    const textWidth = ctx.measureText(text).width;
+    const boxWidth = textWidth + paddingX * 2;
+    const boxHeight = 24;
+    const x = 16;
+    const y = 14;
+
+    drawRoundedRect(ctx, x, y, boxWidth, boxHeight, 10);
+    ctx.fillStyle = theme.panel;
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = theme.ink;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x + paddingX, y + boxHeight / 2 + 1);
+    ctx.restore();
+}
+
+function drawProbabilityCardBernoulli(ctx, canvas, theme) {
+    const rect = {
+        x: 26,
+        y: 16,
+        width: canvas.width - 52,
+        height: canvas.height - 40
+    };
+    drawMiniBars(ctx, rect, [0.35, 0.65], [theme.grid, theme.primary], theme, { gap: 12 });
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('0', rect.x + rect.width * 0.25, rect.y + rect.height + 14);
+    ctx.fillText('1', rect.x + rect.width * 0.75, rect.y + rect.height + 14);
+}
+
+function drawProbabilityCardBinomial(ctx, canvas, theme) {
+    const rect = {
+        x: 18,
+        y: 16,
+        width: canvas.width - 36,
+        height: canvas.height - 40
+    };
+    const values = binomialPmf(6, 0.5);
+    drawMiniBars(ctx, rect, values, [theme.primary, theme.secondary, theme.warning, theme.success], theme, { gap: 4 });
+}
+
+function drawProbabilityCardCategorical(ctx, canvas, theme) {
+    const rect = {
+        x: 24,
+        y: 16,
+        width: canvas.width - 48,
+        height: canvas.height - 40
+    };
+    drawMiniBars(ctx, rect, [0.4, 0.25, 0.2, 0.15], [theme.primary, theme.secondary, theme.warning, theme.success], theme, { gap: 8 });
+}
+
+function drawProbabilityCardNormal(ctx, canvas, theme) {
+    const left = 16;
+    const right = canvas.width - 16;
+    const top = 16;
+    const bottom = canvas.height - 24;
+    const scaleX = (right - left) / 6;
+    const scaleY = (bottom - top) * 0.9;
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(left, bottom);
+    ctx.lineTo(right, bottom);
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.primary;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let x = -3; x <= 3; x += 0.05) {
+        const y = Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+        const canvasX = left + (x + 3) * scaleX;
+        const canvasY = bottom - y * scaleY;
+        if (x === -3) ctx.moveTo(canvasX, canvasY);
+        else ctx.lineTo(canvasX, canvasY);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.inkSoft;
+    ctx.lineWidth = 1;
+    const meanX = left + 3 * scaleX;
+    ctx.beginPath();
+    ctx.moveTo(meanX, bottom);
+    ctx.lineTo(meanX, top + 6);
+    ctx.stroke();
+}
+
+function drawProbabilityCardVisuals() {
+    const canvases = document.querySelectorAll('.probability-card-canvas');
+    if (!canvases.length) return;
+    const theme = getThemeColors();
+    const drawers = {
+        bernoulli: drawProbabilityCardBernoulli,
+        binomial: drawProbabilityCardBinomial,
+        categorical: drawProbabilityCardCategorical,
+        normal: drawProbabilityCardNormal
+    };
+
+    canvases.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const draw = drawers[canvas.dataset.probabilityCard];
+        if (draw) {
+            draw(ctx, canvas, theme);
+        }
+    });
+}
+
 function drawProbabilityCanvas() {
     const canvas = document.getElementById('probabilityCanvas');
     if (!canvas) return;
@@ -1674,11 +1872,8 @@ function drawProbabilityCanvas() {
     const mode = getProbabilityMode();
     if (mode.type === 'curve') {
         drawProbabilityCurve(ctx, canvas, theme);
-        return;
-    }
-    if (mode.type === 'bayes') {
+    } else if (mode.type === 'bayes') {
         drawProbabilityBayes(ctx, canvas, theme);
-        return;
     } else {
         let labels = mode.labels;
         let values = mode.values;
@@ -1688,6 +1883,7 @@ function drawProbabilityCanvas() {
         }
         drawProbabilityBars(ctx, canvas, { labels, values }, theme);
     }
+    drawProbabilityAnnotation(ctx, canvas, mode.annotation, theme);
 }
 
 function formatProbabilityValue(value) {
@@ -6159,6 +6355,423 @@ function drawSceneCaption(ctx, canvas, color, title, detail) {
     ctx.restore();
 }
 
+function drawMiniNode(ctx, x, y, width, height, label, theme, options = {}) {
+    const fill = options.fill || theme.panel;
+    const stroke = options.stroke || theme.axis;
+    const textColor = options.textColor || theme.ink;
+    const radius = options.radius ?? 8;
+    const fontSize = options.fontSize || 11;
+
+    drawRoundedRect(ctx, x, y, width, height, radius);
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = `bold ${fontSize}px Nunito, Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x + width / 2, y + height / 2);
+}
+
+function drawMiniMatrixBlock(ctx, x, y, width, height, rows, cols, label, theme, options = {}) {
+    const fill = options.fill || theme.panel;
+    const stroke = options.stroke || theme.axis;
+
+    drawRoundedRect(ctx, x, y, width, height, 10);
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1;
+    for (let r = 1; r < rows; r++) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + (height / rows) * r);
+        ctx.lineTo(x + width, y + (height / rows) * r);
+        ctx.stroke();
+    }
+    for (let c = 1; c < cols; c++) {
+        ctx.beginPath();
+        ctx.moveTo(x + (width / cols) * c, y);
+        ctx.lineTo(x + (width / cols) * c, y + height);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = theme.ink;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x + width / 2, y + height / 2);
+}
+
+function drawMiniBars(ctx, rect, values, colors, theme, options = {}) {
+    const count = values.length;
+    const gap = options.gap ?? 6;
+    const barWidth = (rect.width - gap * (count - 1)) / count;
+    const baseY = rect.y + rect.height;
+
+    values.forEach((value, index) => {
+        const height = Math.max(2, value * rect.height);
+        const x = rect.x + index * (barWidth + gap);
+        const y = baseY - height;
+        ctx.fillStyle = colors[index] || theme.primary;
+        ctx.fillRect(x, y, barWidth, height);
+    });
+}
+
+function drawMiniAxisPanel(ctx, rect, theme, options = {}) {
+    const padding = options.padding ?? 8;
+
+    if (options.background !== false) {
+        drawRoundedRect(ctx, rect.x, rect.y, rect.width, rect.height, 10);
+        ctx.fillStyle = theme.panel;
+        ctx.strokeStyle = theme.panelBorder;
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    const origin = {
+        x: rect.x + rect.width / 2,
+        y: rect.y + rect.height / 2
+    };
+    const scale = Math.min(rect.width, rect.height) / 2 - padding;
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(rect.x + padding, origin.y);
+    ctx.lineTo(rect.x + rect.width - padding, origin.y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(origin.x, rect.y + padding);
+    ctx.lineTo(origin.x, rect.y + rect.height - padding);
+    ctx.stroke();
+
+    return { origin, scale };
+}
+
+function drawMiniVector(ctx, origin, scale, vector, color) {
+    const start = mapToCanvas({ x: 0, y: 0 }, origin, scale);
+    const end = mapToCanvas(vector, origin, scale);
+    drawArrow(ctx, start.x, start.y, end.x, end.y, color);
+    return { start, end };
+}
+
+function drawMiniScatter(ctx, origin, scale, points, color, radius = 3) {
+    points.forEach(point => {
+        const mapped = mapToCanvas(point, origin, scale);
+        drawPoint(ctx, mapped.x, mapped.y, color, radius);
+    });
+}
+
+function drawMiniLabel(ctx, rect, text, theme) {
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(text, rect.x + 4, rect.y - 4);
+}
+
+function drawFormulaCard(ctx, rect, card, theme) {
+    const accent = theme[card.colorKey] || theme.primary;
+
+    ctx.save();
+    drawRoundedRect(ctx, rect.x, rect.y, rect.width, rect.height, 12);
+    ctx.fillStyle = theme.panel;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = accent;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(card.title, rect.x + 10, rect.y + 8);
+
+    const content = {
+        x: rect.x + 10,
+        y: rect.y + 26,
+        width: rect.width - 20,
+        height: rect.height - 36
+    };
+    card.draw(ctx, content, theme, accent);
+    ctx.restore();
+}
+
+function drawFormulaCards(ctx, canvas, cards, theme) {
+    const padding = 16;
+    const gap = 14;
+    const columns = cards.length === 1 ? 1 : 2;
+    const rows = Math.ceil(cards.length / columns);
+    const cardWidth = (canvas.width - padding * 2 - gap * (columns - 1)) / columns;
+    const cardHeight = (canvas.height - padding * 2 - gap * (rows - 1)) / rows;
+
+    cards.forEach((card, index) => {
+        const row = Math.floor(index / columns);
+        const col = index % columns;
+        let x = padding + col * (cardWidth + gap);
+        const y = padding + row * (cardHeight + gap);
+
+        if (columns === 2 && cards.length % 2 === 1 && row === rows - 1 && col === 0) {
+            x = padding + (canvas.width - padding * 2 - cardWidth) / 2;
+        }
+
+        drawFormulaCard(ctx, { x, y, width: cardWidth, height: cardHeight }, card, theme);
+    });
+}
+
+function drawAffineMini(ctx, rect, theme, accent) {
+    const boxW = Math.min(36, rect.width * 0.22);
+    const boxH = Math.min(26, rect.height * 0.4);
+    const gap = (rect.width - boxW * 3) / 4;
+    const y = rect.y + rect.height / 2 - boxH / 2;
+    const x1 = rect.x + gap;
+    const x2 = x1 + boxW + gap;
+    const x3 = x2 + boxW + gap;
+
+    drawMiniNode(ctx, x1, y, boxW, boxH, 'x', theme);
+    drawMiniNode(ctx, x2, y, boxW, boxH, 'W', theme, { stroke: accent });
+    drawMiniNode(ctx, x3, y, boxW, boxH, 'h', theme, { stroke: theme.success });
+
+    drawArrow(ctx, x1 + boxW, y + boxH / 2, x2, y + boxH / 2, theme.axis);
+    drawArrow(ctx, x2 + boxW, y + boxH / 2, x3, y + boxH / 2, theme.axis);
+
+    const biasX = x3 + boxW / 2;
+    const biasTop = y - 18;
+    drawArrow(ctx, biasX, biasTop, biasX, y + 6, theme.warning);
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('b', biasX, biasTop - 2);
+}
+
+function drawReluMini(ctx, rect, theme, accent) {
+    const origin = {
+        x: rect.x + rect.width * 0.32,
+        y: rect.y + rect.height * 0.72
+    };
+    const xLeft = origin.x - rect.width * 0.2;
+    const xRight = origin.x + rect.width * 0.55;
+    const yTop = origin.y - rect.height * 0.55;
+    const yBottom = origin.y + rect.height * 0.18;
+    const diag = Math.min(xRight - origin.x, origin.y - yTop);
+
+    drawArrow(ctx, xLeft, origin.y, xRight, origin.y, theme.axis);
+    drawArrow(ctx, origin.x, yBottom, origin.x, yTop, theme.axis);
+
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(xLeft, origin.y);
+    ctx.lineTo(origin.x, origin.y);
+    ctx.lineTo(origin.x + diag, origin.y - diag);
+    ctx.stroke();
+
+    drawPoint(ctx, origin.x + diag * 0.7, origin.y - diag * 0.7, theme.success, 4);
+}
+
+function drawChainRuleMini(ctx, rect, theme, accent) {
+    const boxW = Math.min(40, rect.width * 0.26);
+    const boxH = Math.min(26, rect.height * 0.4);
+    const gap = (rect.width - boxW * 3) / 4;
+    const y = rect.y + rect.height / 2 - boxH / 2;
+    const x1 = rect.x + gap;
+    const x2 = x1 + boxW + gap;
+    const x3 = x2 + boxW + gap;
+
+    drawMiniNode(ctx, x1, y, boxW, boxH, 'x', theme);
+    drawMiniNode(ctx, x2, y, boxW, boxH, 'g(x)', theme, { stroke: accent });
+    drawMiniNode(ctx, x3, y, boxW, boxH, 'f(g)', theme, { stroke: theme.secondary });
+
+    drawArrow(ctx, x1 + boxW, y + boxH / 2, x2, y + boxH / 2, accent);
+    drawArrow(ctx, x2 + boxW, y + boxH / 2, x3, y + boxH / 2, accent);
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText("g'", x1 + boxW + gap / 2, y - 2);
+    ctx.fillText("f'", x2 + boxW + gap / 2, y - 2);
+}
+
+function drawGradientStepMini(ctx, rect, theme) {
+    const left = rect.x + 8;
+    const right = rect.x + rect.width - 8;
+    const bottom = rect.y + rect.height - 18;
+    const midX = (left + right) / 2;
+    const height = rect.height * 0.55;
+    const curveY = (x) => {
+        const t = (x - midX) / (rect.width * 0.5);
+        return bottom - (t * t + 0.2) * height;
+    };
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = left; x <= right; x += 2) {
+        const y = curveY(x);
+        if (x === left) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    const pointX = rect.x + rect.width * 0.68;
+    const pointY = curveY(pointX);
+    drawPoint(ctx, pointX, pointY, theme.success, 5);
+    drawArrow(ctx, pointX, pointY, pointX + 24, pointY - 20, theme.danger);
+    drawArrow(ctx, pointX, pointY, pointX - 24, pointY + 20, theme.success);
+}
+
+function drawScoresMini(ctx, rect, theme, accent) {
+    const centerY = rect.y + rect.height / 2;
+    const dotGap = 10;
+    const dotX = rect.x + 10;
+    [-1, 0, 1].forEach((offset) => {
+        drawPoint(ctx, dotX, centerY + offset * dotGap, theme.primary, 3.5);
+    });
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('x', dotX, centerY + 22);
+
+    const blockW = rect.width * 0.22;
+    const blockH = rect.height * 0.5;
+    const blockX = rect.x + rect.width * 0.33;
+    const blockY = rect.y + rect.height * 0.25;
+    drawMiniMatrixBlock(ctx, blockX, blockY, blockW, blockH, 3, 2, 'W', theme, { fill: '#e0f2fe' });
+
+    drawArrow(ctx, dotX + 6, centerY, blockX - 6, centerY, theme.axis);
+
+    const barsRect = {
+        x: rect.x + rect.width * 0.68,
+        y: rect.y + rect.height * 0.25,
+        width: rect.width * 0.24,
+        height: rect.height * 0.5
+    };
+    drawMiniBars(ctx, barsRect, [0.7, 0.45, 0.2], [accent, theme.secondary, theme.warning], theme);
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('z', barsRect.x + barsRect.width / 2, barsRect.y + barsRect.height + 14);
+}
+
+function drawSoftmaxMini(ctx, rect, theme) {
+    const leftRect = {
+        x: rect.x + 6,
+        y: rect.y + 12,
+        width: rect.width * 0.34,
+        height: rect.height - 24
+    };
+    const rightRect = {
+        x: rect.x + rect.width * 0.6,
+        y: rect.y + 12,
+        width: rect.width * 0.34,
+        height: rect.height - 24
+    };
+
+    drawMiniBars(ctx, leftRect, [0.8, 0.45, 0.3, 0.2], [theme.grid, theme.grid, theme.grid, theme.grid], theme);
+    drawMiniBars(ctx, rightRect, [0.55, 0.2, 0.15, 0.1], [theme.primary, theme.secondary, theme.warning, theme.success], theme);
+
+    drawArrow(ctx, leftRect.x + leftRect.width + 6, rect.y + rect.height / 2, rightRect.x - 6, rect.y + rect.height / 2, theme.axis);
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('softmax', rect.x + rect.width * 0.5, rect.y + rect.height / 2 - 10);
+}
+
+function drawCrossEntropyMini(ctx, rect, theme, accent) {
+    const barsRect = {
+        x: rect.x + 8,
+        y: rect.y + 12,
+        width: rect.width * 0.6,
+        height: rect.height - 24
+    };
+    const values = [0.6, 0.2, 0.12, 0.08];
+    const colors = [accent, theme.grid, theme.grid, theme.grid];
+    drawMiniBars(ctx, barsRect, values, colors, theme);
+
+    const lossX = barsRect.x + barsRect.width + 16;
+    const lossTop = barsRect.y;
+    const lossBottom = barsRect.y + barsRect.height;
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(lossX, lossBottom);
+    ctx.lineTo(lossX, lossTop);
+    ctx.stroke();
+
+    const loss = Math.min(1, Math.max(0, -Math.log(values[0]) / 3));
+    const lossY = lossBottom - loss * (lossBottom - lossTop);
+    ctx.fillStyle = theme.danger;
+    ctx.beginPath();
+    ctx.arc(lossX, lossY, 4, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 10px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('loss', lossX, lossBottom + 12);
+}
+
+function drawMatrixForwardMini(ctx, rect, theme) {
+    const blockW = rect.width * 0.22;
+    const blockH = rect.height * 0.6;
+    const gap = rect.width * 0.08;
+    const y = rect.y + rect.height * 0.2;
+    const x1 = rect.x + gap;
+    const x2 = x1 + blockW + gap;
+    const x3 = x2 + blockW + gap;
+
+    drawMiniMatrixBlock(ctx, x1, y, blockW, blockH, 3, 3, 'X', theme, { fill: '#e0f2fe' });
+    drawMiniMatrixBlock(ctx, x2, y, blockW, blockH, 3, 2, 'W', theme, { fill: '#bbf7d0' });
+    drawMiniMatrixBlock(ctx, x3, y, blockW, blockH, 3, 2, 'Y', theme, { fill: '#fecdd3' });
+
+    drawArrow(ctx, x1 + blockW, y + blockH / 2, x2, y + blockH / 2, theme.axis);
+    drawArrow(ctx, x2 + blockW, y + blockH / 2, x3, y + blockH / 2, theme.axis);
+}
+
+function drawGradXMini(ctx, rect, theme) {
+    const blockW = rect.width * 0.25;
+    const blockH = rect.height * 0.5;
+    const gap = rect.width * 0.08;
+    const y = rect.y + rect.height * 0.25;
+    const x1 = rect.x + gap;
+    const x2 = x1 + blockW + gap;
+    const x3 = x2 + blockW + gap;
+
+    drawMiniMatrixBlock(ctx, x1, y, blockW, blockH, 3, 2, 'dY', theme, { fill: '#fde68a' });
+    drawMiniMatrixBlock(ctx, x2, y, blockW, blockH, 2, 3, 'W^T', theme, { fill: '#bbf7d0' });
+    drawMiniMatrixBlock(ctx, x3, y, blockW, blockH, 3, 3, 'dX', theme, { fill: '#e0f2fe' });
+
+    drawArrow(ctx, x1 + blockW, y + blockH / 2, x2, y + blockH / 2, theme.axis);
+    drawArrow(ctx, x2 + blockW, y + blockH / 2, x3, y + blockH / 2, theme.axis);
+}
+
+function drawGradWMini(ctx, rect, theme) {
+    const blockW = rect.width * 0.26;
+    const blockH = rect.height * 0.45;
+    const xLeft = rect.x + rect.width * 0.1;
+    const xRight = rect.x + rect.width * 0.6;
+    const yTop = rect.y + rect.height * 0.18;
+    const yBottom = rect.y + rect.height * 0.55;
+
+    drawMiniMatrixBlock(ctx, xLeft, yBottom, blockW, blockH, 3, 3, 'X^T', theme, { fill: '#e0f2fe' });
+    drawMiniMatrixBlock(ctx, xLeft, yTop, blockW, blockH, 3, 2, 'dY', theme, { fill: '#fde68a' });
+    drawMiniMatrixBlock(ctx, xRight, rect.y + rect.height * 0.35, blockW, blockH, 2, 2, 'dW', theme, { fill: '#bbf7d0' });
+
+    drawArrow(ctx, xLeft + blockW, yTop + blockH / 2, xRight, rect.y + rect.height * 0.45, theme.axis);
+    drawArrow(ctx, xLeft + blockW, yBottom + blockH / 2, xRight, rect.y + rect.height * 0.55, theme.axis);
+}
+
 // ============================================
 // Vector Storyboard Scenes
 // ============================================
@@ -6445,9 +7058,260 @@ function drawAttentionScene(ctx, canvas) {
     ctx.fillText('out', outEnd.x + 6, outEnd.y + 8);
 }
 
+function drawVectorStatsScene(ctx, canvas) {
+    const theme = getThemeColors();
+    const padding = 18;
+    const gap = 14;
+    const panelWidth = (canvas.width - padding * 2 - gap * 2) / 3;
+    const panelHeight = 170;
+    const panelY = 82;
+
+    const points = [
+        { x: -0.8, y: -0.2 },
+        { x: -0.6, y: -0.1 },
+        { x: -0.3, y: 0.05 },
+        { x: 0.05, y: 0.2 },
+        { x: 0.35, y: 0.35 },
+        { x: 0.6, y: 0.55 },
+        { x: 0.2, y: -0.1 },
+        { x: -0.1, y: 0.0 }
+    ];
+    const mean = points.reduce((acc, point) => ({ x: acc.x + point.x, y: acc.y + point.y }), { x: 0, y: 0 });
+    mean.x /= points.length;
+    mean.y /= points.length;
+
+    const panels = [
+        { label: '1. Center data', type: 'mean' },
+        { label: '2. Covariance', type: 'cov' },
+        { label: '3. Precision', type: 'prec' }
+    ];
+
+    panels.forEach((panel, index) => {
+        const rect = {
+            x: padding + index * (panelWidth + gap),
+            y: panelY,
+            width: panelWidth,
+            height: panelHeight
+        };
+        const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme);
+        drawMiniScatter(ctx, origin, scale, points, theme.primary, 3);
+
+        if (panel.type === 'mean') {
+            drawMiniVector(ctx, origin, scale, mean, theme.secondary);
+            const meanPoint = mapToCanvas(mean, origin, scale);
+            drawPoint(ctx, meanPoint.x, meanPoint.y, theme.secondary, 4);
+        }
+
+        if (panel.type === 'cov') {
+            ctx.save();
+            ctx.strokeStyle = theme.primary;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(origin.x, origin.y, scale * 0.75, scale * 0.35, Math.PI / 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        if (panel.type === 'prec') {
+            ctx.save();
+            ctx.strokeStyle = theme.secondary;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(origin.x, origin.y, scale * 0.35, scale * 0.75, -Math.PI / 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        drawMiniLabel(ctx, rect, panel.label, theme);
+    });
+
+    const arrowY = panelY + panelHeight / 2;
+    for (let i = 0; i < 2; i++) {
+        const startX = padding + (i + 1) * panelWidth + i * gap + 6;
+        const endX = startX + gap - 12;
+        drawArrow(ctx, startX, arrowY, endX, arrowY, theme.axis);
+    }
+}
+
+function drawVectorCardProjection(ctx, canvas, theme) {
+    const rect = { x: 12, y: 12, width: canvas.width - 24, height: canvas.height - 24 };
+    const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme, { background: false });
+    const uVec = { x: 1, y: 0 };
+    const xVec = { x: 0.8, y: 0.6 };
+    const proj = { x: xVec.x, y: 0 };
+
+    drawMiniVector(ctx, origin, scale, uVec, theme.secondary);
+    drawMiniVector(ctx, origin, scale, xVec, theme.primary);
+    drawMiniVector(ctx, origin, scale, proj, theme.success);
+
+    const xEnd = mapToCanvas(xVec, origin, scale);
+    const projEnd = mapToCanvas(proj, origin, scale);
+    drawDashedLine(ctx, xEnd.x, xEnd.y, projEnd.x, projEnd.y, theme.warning);
+}
+
+function drawVectorCardNorm(ctx, canvas, theme) {
+    const rect = { x: 12, y: 12, width: canvas.width - 24, height: canvas.height - 24 };
+    const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme, { background: false });
+    const vec = { x: 0.6, y: 0.8 };
+    drawMiniVector(ctx, origin, scale, vec, theme.primary);
+    ctx.save();
+    ctx.strokeStyle = theme.success;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(origin.x, origin.y, scale * 1, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawVectorCardSubspace(ctx, canvas, theme) {
+    const rect = { x: 12, y: 12, width: canvas.width - 24, height: canvas.height - 24 };
+    const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme, { background: false });
+    const b1 = { x: 0.9, y: 0.2 };
+    const b2 = { x: 0.2, y: 0.9 };
+    const corner = [
+        { x: 0, y: 0 },
+        b1,
+        { x: b1.x + b2.x, y: b1.y + b2.y },
+        b2
+    ].map(point => mapToCanvas(point, origin, scale));
+
+    ctx.save();
+    ctx.fillStyle = theme.primary;
+    ctx.globalAlpha = 0.18;
+    ctx.beginPath();
+    corner.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    drawMiniVector(ctx, origin, scale, b1, theme.secondary);
+    drawMiniVector(ctx, origin, scale, b2, theme.warning);
+}
+
+function drawVectorCardGradient(ctx, canvas, theme) {
+    const center = { x: canvas.width / 2, y: canvas.height / 2 };
+    const rings = [
+        { rx: canvas.width * 0.32, ry: canvas.height * 0.2 },
+        { rx: canvas.width * 0.22, ry: canvas.height * 0.14 },
+        { rx: canvas.width * 0.14, ry: canvas.height * 0.09 }
+    ];
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1.5;
+    rings.forEach(ring => {
+        ctx.beginPath();
+        ctx.ellipse(center.x, center.y, ring.rx, ring.ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+    });
+
+    const point = { x: center.x + rings[0].rx * 0.55, y: center.y - rings[0].ry * 0.55 };
+    drawPoint(ctx, point.x, point.y, theme.primary, 4);
+    drawArrow(ctx, point.x, point.y, point.x + 26, point.y - 18, theme.danger);
+}
+
+function drawVectorCardStats(ctx, canvas, theme) {
+    const rect = { x: 12, y: 12, width: canvas.width - 24, height: canvas.height - 24 };
+    const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme, { background: false });
+    const points = [
+        { x: -0.7, y: -0.2 },
+        { x: -0.4, y: 0.0 },
+        { x: -0.1, y: 0.15 },
+        { x: 0.2, y: 0.25 },
+        { x: 0.5, y: 0.4 },
+        { x: 0.3, y: -0.05 }
+    ];
+    const mean = points.reduce((acc, point) => ({ x: acc.x + point.x, y: acc.y + point.y }), { x: 0, y: 0 });
+    mean.x /= points.length;
+    mean.y /= points.length;
+
+    drawMiniScatter(ctx, origin, scale, points, theme.primary, 3);
+    drawMiniVector(ctx, origin, scale, mean, theme.secondary);
+    const meanPoint = mapToCanvas(mean, origin, scale);
+    drawPoint(ctx, meanPoint.x, meanPoint.y, theme.secondary, 4);
+    ctx.save();
+    ctx.strokeStyle = theme.secondary;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(origin.x, origin.y, scale * 0.7, scale * 0.35, Math.PI / 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawVectorCardRegularization(ctx, canvas, theme) {
+    const center = { x: canvas.width / 2, y: canvas.height / 2 };
+    const radius = Math.min(canvas.width, canvas.height) * 0.3;
+
+    ctx.strokeStyle = theme.secondary;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.warning;
+    ctx.beginPath();
+    ctx.moveTo(center.x + radius, center.y);
+    ctx.lineTo(center.x, center.y - radius);
+    ctx.lineTo(center.x - radius, center.y);
+    ctx.lineTo(center.x, center.y + radius);
+    ctx.closePath();
+    ctx.stroke();
+}
+
+function drawVectorCardAttention(ctx, canvas, theme) {
+    const rect = { x: 12, y: 12, width: canvas.width - 24, height: canvas.height - 24 };
+    const { origin, scale } = drawMiniAxisPanel(ctx, rect, theme, { background: false });
+    const q = { x: 0.8, y: 0.6 };
+    const k1 = { x: 0.7, y: 0.4 };
+    const k2 = { x: -0.6, y: 0.7 };
+    const k3 = { x: -0.4, y: -0.5 };
+    const out = { x: 0.55, y: 0.35 };
+
+    drawMiniVector(ctx, origin, scale, k2, theme.secondary);
+    drawMiniVector(ctx, origin, scale, k3, theme.secondary);
+    drawMiniVector(ctx, origin, scale, k1, theme.warning);
+    drawMiniVector(ctx, origin, scale, q, theme.primary);
+    drawMiniVector(ctx, origin, scale, out, theme.success);
+}
+
+function drawVectorCardVisuals() {
+    const canvases = document.querySelectorAll('.vector-card-canvas');
+    if (!canvases.length) return;
+    const theme = getThemeColors();
+    const drawers = {
+        projection: drawVectorCardProjection,
+        norm: drawVectorCardNorm,
+        subspace: drawVectorCardSubspace,
+        gradient: drawVectorCardGradient,
+        stats: drawVectorCardStats,
+        regularization: drawVectorCardRegularization,
+        attention: drawVectorCardAttention
+    };
+
+    canvases.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const draw = drawers[canvas.dataset.vectorCard];
+        if (draw) {
+            draw(ctx, canvas, theme);
+        }
+    });
+}
+
 const vectorScenes = [
     {
-        title: 'Scene 1: Magnitude and normalization',
+        title: 'Scene 1: Projections and orthogonality',
+        visual: 'Drop a perpendicular from x to the line spanned by u. The shadow is the projection.',
+        example: 'If \\(x = [3, 4]\\), \\(u = [4, 0]\\), then \\(\\mathrm{proj}_u(x) = [3, 0]\\).',
+        intuition: 'Orthogonal axes separate coordinates cleanly for PCA/SVD.',
+        math: '\\(\\mathrm{proj}_u(x) = \\frac{x \\cdot u}{u \\cdot u}u\\)',
+        draw: drawProjectionScene
+    },
+    {
+        title: 'Scene 2: Norms and normalization',
         visual: 'Length is distance from the origin. Normalization keeps direction but fixes scale.',
         example: 'If \\(x = [3, 4]\\), then \\(\\lVert x \\rVert = 5\\) and \\(\\hat{x} = [0.6, 0.8]\\).',
         intuition: 'Cosine similarity compares directions after normalization.',
@@ -6455,42 +7319,42 @@ const vectorScenes = [
         draw: drawNormScene
     },
     {
-        title: 'Scene 2: Dot product is alignment',
-        visual: 'Project \\(x\\) onto \\(w\\). The dot product is the length of the shadow.',
-        example: 'If \\(x = [2, 1]\\), \\(w = [3, 0]\\), then \\(x \\cdot w = 6\\).',
-        intuition: 'Large dot products mean strong feature alignment.',
-        math: '\\(x \\cdot w = \\lVert x \\rVert \\lVert w \\rVert \\cos\\theta\\)',
-        draw: drawDotProductScene
-    },
-    {
-        title: 'Scene 3: Basis and linear combinations',
-        visual: 'Any vector can be written as a mix of basis directions.',
+        title: 'Scene 3: Subspaces, basis, rank',
+        visual: 'Two independent basis vectors span a plane; their combinations fill the subspace.',
         example: '\\(x = 2e_1 + 1.5e_2\\) in 2D.',
-        intuition: 'Changing the basis changes coordinates, not the point in space.',
-        math: '\\(x = \\sum_i \\alpha_i b_i\\)',
+        intuition: 'Rank counts how many independent directions a matrix can reach.',
+        math: '\\(x = \\sum_i \\alpha_i b_i\\), \\(\\mathrm{rank}(A) = \\dim(\\mathrm{span})\\)',
         draw: drawBasisScene
     },
     {
-        title: 'Scene 4: Gradients are arrows',
-        visual: 'On a loss landscape, the gradient arrow points steepest uphill. Step the opposite way to go downhill.',
-        example: 'If \\(\\nabla L = [2, -1]\\) and \\(\\eta = 0.1\\), the step is \\([-0.2, 0.1]\\).',
-        intuition: 'Training is repeatedly following these arrows downhill.',
-        math: '\\(\\theta \\leftarrow \\theta - \\eta \\nabla_\\theta L\\)',
+        title: 'Scene 4: Gradients, Jacobians, Hessians',
+        visual: 'Gradients point uphill. Jacobians stack partials; Hessians show curvature.',
+        example: 'If \\(\\nabla L = [2, -1]\\), the downhill step is \\([-0.2, 0.1]\\) for \\(\\eta=0.1\\).',
+        intuition: 'Jacobian shapes vector outputs; Hessian curvature guides second-order updates.',
+        math: '\\(\\nabla f\\)<br>\\(J_{ij}=\\partial f_i/\\partial x_j\\)<br>\\(H_{ij}=\\partial^2 f/\\partial x_i\\partial x_j\\)',
         draw: drawGradientScene
     },
     {
-        title: 'Scene 5: Regularization pulls to zero',
+        title: 'Scene 5: Vector statistics',
+        visual: 'Step 1: center the cloud. Step 2: fit the covariance ellipse. Step 3: invert to get precision.',
+        example: 'Mean \\(\\mu\\) anchors the cloud; covariance \\(\\Sigma\\) sets its stretch.',
+        intuition: 'Precision shrinks wide directions and highlights tight ones.',
+        math: '\\(\\mu = \\frac{1}{n}\\sum x_i\\)<br>\\(\\Sigma = \\frac{1}{n}\\sum (x_i-\\mu)(x_i-\\mu)^T\\)<br>\\(\\Sigma^{-1}\\)',
+        draw: drawVectorStatsScene
+    },
+    {
+        title: 'Scene 6: Regularization geometry',
         visual: 'Data-fit pushes weights somewhere. Regularization adds a pull back toward the origin.',
         example: 'L2 has circular contours; L1 has diamond contours that encourage zeros.',
         intuition: 'Where the contour touches the constraint explains sparsity in L1.',
-        math: '\\[L + \\lambda\\lVert w \\rVert_2^2\\]\\[L + \\lambda\\lVert w \\rVert_1\\]',
+        math: '\\(L + \\lambda\\lVert w \\rVert_2^2\\)<br>\\(L + \\lambda\\lVert w \\rVert_1\\)',
         draw: drawRegularizationScene
     },
     {
-        title: 'Scene 6: Attention as a spotlight',
+        title: 'Scene 7: Attention via dot products',
         visual: 'A query arrow compares to key arrows. Softmax turns scores into weights, then you average the value arrows.',
-        example: 'If scores are \\(s = [2, 1, 0]\\), the weight on 2 is largest, so output leans toward \\(v_1\\).',
-        intuition: 'Attention is a weighted average that points where alignment is strongest.',
+        example: 'If scores are \\(s = [2, 1, 0]\\), the largest weight leans output toward \\(v_1\\).',
+        intuition: 'Attention is a weighted sum that points where alignment is strongest.',
         math: '\\(s_i = \\frac{q \\cdot k_i}{\\sqrt{d}}\\), \\(\\alpha = \\mathrm{softmax}(s)\\), \\(\\mathrm{out} = \\sum_i \\alpha_i v_i\\)',
         draw: drawAttentionScene
     }
@@ -6555,213 +7419,61 @@ function setupVectorScenes() {
 
 function drawLinearAlgebraScene(ctx, canvas) {
     const theme = getThemeColors();
-    const leftOrigin = { x: canvas.width * 0.28, y: canvas.height * 0.48 };
-    const rightOrigin = { x: canvas.width * 0.72, y: canvas.height * 0.48 };
-    const scale = 16;
-    const size = 4;
-    const transform = [
-        [1.1, 0.4],
-        [0.2, 0.9]
-    ];
-
-    drawGrid(ctx, leftOrigin, scale, size, [
-        [1, 0],
-        [0, 1]
-    ], theme.grid);
-    drawGrid(ctx, rightOrigin, scale, size, transform, theme.primary);
-
-    const vector = { x: 2, y: 1 };
-    const vecStart = mapToCanvas({ x: 0, y: 0 }, leftOrigin, scale);
-    const vecEnd = mapToCanvas(vector, leftOrigin, scale);
-    drawArrow(ctx, vecStart.x, vecStart.y, vecEnd.x, vecEnd.y, theme.primary);
-
-    const transformed = applyMatrix(vector, transform);
-    const tStart = mapToCanvas({ x: 0, y: 0 }, rightOrigin, scale);
-    const tEnd = mapToCanvas(transformed, rightOrigin, scale);
-    drawArrow(ctx, tStart.x, tStart.y, tEnd.x, tEnd.y, theme.secondary);
-
-    ctx.fillStyle = theme.ink;
-    ctx.font = 'bold 12px Nunito, Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Before', leftOrigin.x, leftOrigin.y - 90);
-    ctx.fillText('After W', rightOrigin.x, rightOrigin.y - 90);
-
-    drawSceneCaption(
-        ctx,
-        canvas,
-        theme.primary,
-        'Matrix machines',
-        'A grid gets stretched and tilted when you multiply by W.'
-    );
+    drawFormulaCards(ctx, canvas, [
+        {
+            title: 'h = Wx + b',
+            colorKey: 'primary',
+            draw: drawAffineMini
+        },
+        {
+            title: 'a = ReLU(h)',
+            colorKey: 'secondary',
+            draw: drawReluMini
+        }
+    ], theme);
 }
 
 function drawCalculusScene(ctx, canvas) {
     const theme = getThemeColors();
-    const boxY = 34;
-    const boxWidth = 90;
-    const boxHeight = 36;
-    const startX = 40;
-    const gap = 30;
-    const labels = ['x', 'g(x)', 'f(g(x))'];
-
-    labels.forEach((label, index) => {
-        const x = startX + index * (boxWidth + gap);
-        drawRoundedRect(ctx, x, boxY, boxWidth, boxHeight, 10);
-        ctx.fillStyle = '#fff';
-        ctx.strokeStyle = theme.secondary;
-        ctx.lineWidth = 2;
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = theme.ink;
-        ctx.font = 'bold 12px Nunito, Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label, x + boxWidth / 2, boxY + boxHeight / 2);
-        if (index < labels.length - 1) {
-            drawArrow(ctx, x + boxWidth, boxY + boxHeight / 2, x + boxWidth + gap - 8, boxY + boxHeight / 2, theme.secondary);
+    drawFormulaCards(ctx, canvas, [
+        {
+            title: "d/dx f(g(x)) = f'(g(x)) g'(x)",
+            colorKey: 'secondary',
+            draw: drawChainRuleMini
         }
-    });
-
-    const curveBottom = canvas.height - 90;
-    const midX = canvas.width / 2;
-    const scale = 60;
-
-    const curveY = (x) => {
-        const xNorm = (x - midX) / scale;
-        const value = 0.6 * xNorm * xNorm + 0.25 * xNorm + 0.4;
-        return curveBottom - value * 80;
-    };
-
-    ctx.strokeStyle = theme.secondary;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    for (let x = 30; x <= canvas.width - 30; x += 2) {
-        const y = curveY(x);
-        if (x === 30) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
-    }
-    ctx.stroke();
-
-    const x0 = midX + 60;
-    const y0 = curveY(x0);
-    const y1 = curveY(x0 + 1);
-    const slope = y1 - y0;
-
-    ctx.strokeStyle = theme.ink;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x0 - 60, y0 - slope * 60);
-    ctx.lineTo(x0 + 60, y0 + slope * 60);
-    ctx.stroke();
-
-    ctx.fillStyle = theme.secondary;
-    ctx.beginPath();
-    ctx.arc(x0, y0, 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = theme.ink;
-    ctx.font = 'bold 12px Nunito, Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText('Tangent = slope', x0 + 10, y0 - 10);
-
-    drawSceneCaption(
-        ctx,
-        canvas,
-        theme.secondary,
-        'Chain rule',
-        'Slopes multiply as signals move through layers.'
-    );
+    ], theme);
 }
 
 function drawOptimizationScene(ctx, canvas) {
     const theme = getThemeColors();
-    const curveBottom = canvas.height - 90;
-    const midX = canvas.width / 2;
-    const hillY = (x) => {
-        const xNorm = (x - midX) / 60;
-        return curveBottom - (xNorm * xNorm + 0.2) * 70;
-    };
-
-    ctx.strokeStyle = theme.success;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    for (let x = 40; x <= canvas.width - 40; x += 2) {
-        const y = hillY(x);
-        if (x === 40) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
+    drawFormulaCards(ctx, canvas, [
+        {
+            title: 'theta = theta - eta grad L',
+            colorKey: 'success',
+            draw: drawGradientStepMini
         }
-    }
-    ctx.stroke();
-
-    const steps = [70, 120, 170, 210, 240, 260];
-    for (let i = 0; i < steps.length; i++) {
-        const x = steps[i];
-        const y = hillY(x);
-        ctx.fillStyle = i === steps.length - 1 ? theme.ink : theme.success;
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, 2 * Math.PI);
-        ctx.fill();
-        if (i > 0) {
-            const prevX = steps[i - 1];
-            const prevY = hillY(prevX);
-            drawArrow(ctx, prevX, prevY, x, y, theme.success);
-        }
-    }
-
-    drawSceneCaption(
-        ctx,
-        canvas,
-        theme.success,
-        'Gradient descent',
-        'Small steps head toward the lowest point.'
-    );
+    ], theme);
 }
 
 function drawProbabilityScene(ctx, canvas) {
     const theme = getThemeColors();
-    const bars = [
-        { label: 'Cat', value: 0.58, color: theme.primary },
-        { label: 'Dog', value: 0.22, color: theme.secondary },
-        { label: 'Fox', value: 0.12, color: theme.warning },
-        { label: 'Owl', value: 0.08, color: theme.success }
-    ];
-    const chartLeft = 60;
-    const chartBottom = canvas.height - 110;
-    const barWidth = 50;
-    const gap = 22;
-    const maxHeight = 140;
-
-    ctx.strokeStyle = theme.grid;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(chartLeft - 20, chartBottom);
-    ctx.lineTo(chartLeft + bars.length * (barWidth + gap), chartBottom);
-    ctx.stroke();
-
-    bars.forEach((bar, index) => {
-        const x = chartLeft + index * (barWidth + gap);
-        const height = bar.value * maxHeight;
-        ctx.fillStyle = bar.color;
-        ctx.fillRect(x, chartBottom - height, barWidth, height);
-        ctx.fillStyle = theme.ink;
-        ctx.font = 'bold 11px Nunito, Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(bar.label, x + barWidth / 2, chartBottom + 18);
-        ctx.fillText(`${Math.round(bar.value * 100)}%`, x + barWidth / 2, chartBottom - height - 10);
-    });
-
-    drawSceneCaption(
-        ctx,
-        canvas,
-        theme.warning,
-        'Softmax confidence',
-        'Bigger bars mean higher confidence for that class.'
-    );
+    drawFormulaCards(ctx, canvas, [
+        {
+            title: 'z = Wx + b',
+            colorKey: 'primary',
+            draw: drawScoresMini
+        },
+        {
+            title: 'yhat = softmax(z)',
+            colorKey: 'warning',
+            draw: drawSoftmaxMini
+        },
+        {
+            title: 'L = -sum y log yhat',
+            colorKey: 'danger',
+            draw: drawCrossEntropyMini
+        }
+    ], theme);
 }
 
 function drawMatrixBlock(ctx, x, y, width, height, rows, cols, color, label) {
@@ -6796,26 +7508,23 @@ function drawMatrixBlock(ctx, x, y, width, height, rows, cols, color, label) {
 
 function drawMatrixCalcScene(ctx, canvas) {
     const theme = getThemeColors();
-    const blockY = 90;
-    drawMatrixBlock(ctx, 40, blockY, 90, 120, 3, 3, '#bae6fd', 'X (batch)');
-    drawMatrixBlock(ctx, 170, blockY, 90, 120, 3, 2, '#bbf7d0', 'W (weights)');
-    drawMatrixBlock(ctx, 300, blockY, 90, 120, 3, 2, '#fecdd3', 'Y (output)');
-
-    drawArrow(ctx, 130, blockY + 60, 170, blockY + 60, theme.primary);
-    drawArrow(ctx, 260, blockY + 60, 300, blockY + 60, theme.primary);
-
-    ctx.fillStyle = theme.ink;
-    ctx.font = 'bold 12px Nunito, Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('X · W', 215, blockY + 40);
-
-    drawSceneCaption(
-        ctx,
-        canvas,
-        theme.primary,
-        'Batch gradients',
-        'Shapes guide the fast gradient rules for backprop.'
-    );
+    drawFormulaCards(ctx, canvas, [
+        {
+            title: 'Y = XW',
+            colorKey: 'primary',
+            draw: drawMatrixForwardMini
+        },
+        {
+            title: 'dL/dX = dL/dY W^T',
+            colorKey: 'secondary',
+            draw: drawGradXMini
+        },
+        {
+            title: 'dL/dW = X^T dL/dY',
+            colorKey: 'success',
+            draw: drawGradWMini
+        }
+    ], theme);
 }
 
 function drawFundamentalsCanvas(topicId) {
@@ -6879,10 +7588,12 @@ function initFundamentals() {
 function refreshAllVisuals() {
     updateVectorPlayground();
     drawVectorSceneCanvas();
+    drawVectorCardVisuals();
     drawVectorDbCanvas();
     drawMatrixCanvas();
     drawMatrixDeepCanvas();
     drawProbabilityCanvas();
+    drawProbabilityCardVisuals();
     drawProbabilityVennCanvas();
     drawSpamFilterCanvas();
     drawSampleSpaceCanvas();
@@ -7339,8 +8050,35 @@ function setupMatrixControls() {
         button.addEventListener('click', () => setMatrixBasicOperation(button.dataset.matrixOp));
     });
 
+    setupMatrixTransformControls();
     updateMatrixBasicUI();
     drawMatrixCanvas();
+}
+
+function setupMatrixTransformControls() {
+    const scaleXInput = document.getElementById('matrixScaleX');
+    const scaleYInput = document.getElementById('matrixScaleY');
+    const shearInput = document.getElementById('matrixShear');
+
+    if (!scaleXInput || !scaleYInput || !shearInput) return;
+
+    scaleXInput.value = matrixState.scaleX;
+    scaleYInput.value = matrixState.scaleY;
+    shearInput.value = matrixState.shearX;
+
+    const update = () => {
+        matrixState.scaleX = parseFloat(scaleXInput.value);
+        matrixState.scaleY = parseFloat(scaleYInput.value);
+        matrixState.shearX = parseFloat(shearInput.value);
+        updateMatrixTransformLabels();
+        drawMatrixCanvas();
+    };
+
+    [scaleXInput, scaleYInput, shearInput].forEach(input => {
+        input.addEventListener('input', update);
+    });
+
+    update();
 }
 
 function setupMatrixDeepControls() {
