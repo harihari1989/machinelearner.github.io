@@ -746,6 +746,11 @@ main {
     gap: 0.8rem;
 }
 
+.matrix-transform-controls {
+    display: grid;
+    gap: 0.6rem;
+}
+
 .vector-scenes {
     margin-top: 2.5rem;
 }
@@ -1576,6 +1581,13 @@ canvas {
     box-shadow: 0 10px 18px rgba(30, 41, 59, 0.12);
     max-width: 100%;
     height: auto;
+}
+
+.card-canvas {
+    border-width: 2px;
+    border-radius: 12px;
+    box-shadow: none;
+    margin: 0.6rem 0 0.8rem;
 }
 
 .controls {

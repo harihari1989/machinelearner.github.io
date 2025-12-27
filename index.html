@@ -294,7 +294,7 @@
                 <div class="content-grid vector-scenes">
                     <div class="explanation">
                         <h3>Deep dive: advanced geometry</h3>
-                        <p>Step through norms, projections, basis, gradients, regularization, and attention with visual intuition.</p>
+                        <p>Step through projections, norms, subspaces, gradients, vector stats, regularization, and attention with visual intuition.</p>
                         <div class="math-formula">
                             \[
                             \lVert x \rVert = \sqrt{x_1^2 + x_2^2}, \quad x \cdot w = \sum_i x_i w_i, \quad x = \sum_i \alpha_i b_i
@@ -302,8 +302,8 @@
                         </div>
                         <div class="scene-panel" id="vectorScenePanel" aria-live="polite">
                             <div class="scene-header">
-                                <span class="scene-badge" id="vectorSceneBadge">Scene 1 of 6</span>
-                                <h4 id="vectorSceneTitle">Scene 1: Magnitude and normalization</h4>
+                                <span class="scene-badge" id="vectorSceneBadge">Scene 1 of 7</span>
+                                <h4 id="vectorSceneTitle">Scene 1: Projections and orthogonality</h4>
                             </div>
                             <div class="scene-block">
                                 <h5>Visual</h5>
@@ -335,6 +335,7 @@
                         <article class="vector-card">
                             <span class="path-step">1</span>
                             <h4>Projections & orthogonality</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorProjectionCanvas" data-vector-card="projection" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>Projection onto \(u\): \( \mathrm{proj}_u(x) = \frac{x \cdot u}{u \cdot u} u \).</li>
                                 <li>Orthogonal vectors give clean coordinate systems (PCA/SVD).</li>
@@ -343,6 +344,7 @@
                         <article class="vector-card">
                             <span class="path-step">2</span>
                             <h4>Norms & normalization</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorNormCanvas" data-vector-card="norm" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>Length: \( \lVert x \rVert_2 = \sqrt{\sum_i x_i^2} \).</li>
                                 <li>Normalize to compare directions independent of scale.</li>
@@ -351,6 +353,7 @@
                         <article class="vector-card">
                             <span class="path-step">3</span>
                             <h4>Subspaces, basis, rank</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorSubspaceCanvas" data-vector-card="subspace" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>Span is the set of all linear combinations of vectors.</li>
                                 <li>Rank is the dimension of that span (effective dimensionality).</li>
@@ -359,6 +362,7 @@
                         <article class="vector-card">
                             <span class="path-step">4</span>
                             <h4>Gradients, Jacobians, Hessians</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorGradientCanvas" data-vector-card="gradient" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>\(\nabla_\theta L\) points steepest uphill.</li>
                                 <li>Jacobians handle vector outputs; Hessians capture curvature.</li>
@@ -367,6 +371,7 @@
                         <article class="vector-card">
                             <span class="path-step">5</span>
                             <h4>Vector statistics</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorStatsCanvas" data-vector-card="stats" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>Mean vector and covariance describe feature distributions.</li>
                                 <li>Centering and whitening stabilize training and PCA.</li>
@@ -375,6 +380,7 @@
                         <article class="vector-card">
                             <span class="path-step">6</span>
                             <h4>Regularization geometry</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorRegularizationCanvas" data-vector-card="regularization" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>L2 prefers small norms; L1 encourages sparsity.</li>
                                 <li>Constraint shapes explain why L1 yields zeros.</li>
@@ -383,6 +389,7 @@
                         <article class="vector-card">
                             <span class="path-step">7</span>
                             <h4>Attention via dot products</h4>
+                            <canvas class="card-canvas vector-card-canvas" id="vectorAttentionCanvas" data-vector-card="attention" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
                                 <li>Similarity scores become weights after softmax.</li>
                                 <li>Output is a weighted sum of value vectors.</li>
@@ -425,6 +432,21 @@
                                 <button class="toggle-btn" type="button" data-matrix-op="scale">Scaling</button>
                                 <button class="toggle-btn" type="button" data-matrix-op="shear">Shear</button>
                             </div>
+                            <div class="matrix-transform-controls" id="matrixTransformControls" hidden>
+                                <div class="slider-group" data-matrix-control="scale" hidden>
+                                    <span class="slider-title">Scaling factors</span>
+                                    <label>sx <span id="matrixScaleXVal">1.50</span></label>
+                                    <input type="range" id="matrixScaleX" min="0.3" max="2.5" step="0.05" value="1.5">
+                                    <label>sy <span id="matrixScaleYVal">0.70</span></label>
+                                    <input type="range" id="matrixScaleY" min="0.3" max="2.5" step="0.05" value="0.7">
+                                </div>
+                                <div class="slider-group" data-matrix-control="shear" hidden>
+                                    <span class="slider-title">Shear amount</span>
+                                    <label>k (x-shear) <span id="matrixShearVal">0.80</span></label>
+                                    <input type="range" id="matrixShear" min="-1.2" max="1.2" step="0.05" value="0.8">
+                                </div>
+                            </div>
+                            <p class="helper-text" id="matrixTransformHint" hidden>Drag the sliders to stretch or slant the grid.</p>
                             <button type="button" id="matrixAnimateButton" onclick="animateMatrixBasicOperation()">Animate</button>
                         </div>
                     </div>
@@ -638,6 +660,7 @@
                 <div class="probability-grid">
                     <article class="probability-card">
                         <h4>Bernoulli</h4>
+                        <canvas class="card-canvas probability-card-canvas" id="probabilityBernoulliCanvas" data-probability-card="bernoulli" width="220" height="120" aria-hidden="true"></canvas>
                         <p>Binary outcomes with parameter \(p\).</p>
                         <p class="example-note">Use for clicks, coins, yes/no labels.</p>
                         <div class="math-formula math-mini">
@@ -648,6 +671,7 @@
                     </article>
                     <article class="probability-card">
                         <h4>Binomial</h4>
+                        <canvas class="card-canvas probability-card-canvas" id="probabilityBinomialCanvas" data-probability-card="binomial" width="220" height="120" aria-hidden="true"></canvas>
                         <p>Counts successes in \(n\) trials.</p>
                         <p class="example-note">Use for pass/fail counts in batches.</p>
                         <div class="math-formula math-mini">
@@ -658,6 +682,7 @@
                     </article>
                     <article class="probability-card">
                         <h4>Categorical</h4>
+                        <canvas class="card-canvas probability-card-canvas" id="probabilityCategoricalCanvas" data-probability-card="categorical" width="220" height="120" aria-hidden="true"></canvas>
                         <p>Multiple discrete outcomes with probabilities.</p>
                         <p class="example-note">Use for class labels or choices.</p>
                         <div class="math-formula math-mini">
@@ -668,6 +693,7 @@
                     </article>
                     <article class="probability-card">
                         <h4>Normal</h4>
+                        <canvas class="card-canvas probability-card-canvas" id="probabilityNormalCanvas" data-probability-card="normal" width="220" height="120" aria-hidden="true"></canvas>
                         <p>Continuous bell curve with \(\mu\) and \(\sigma\).</p>
                         <p class="example-note">Use for noise, heights, residuals.</p>
                         <div class="math-formula math-mini">
