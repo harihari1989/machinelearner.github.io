@@ -1317,7 +1317,7 @@ const probabilityModes = [
         labels: ['0', '1'],
         values: [0.35, 0.65],
         annotation: 'p = 0.65',
-        note: 'Binary outcomes with parameter p. Use for clicks, coins, yes/no labels.'
+        note: 'Bars show P(X=0) and P(X=1). Y-axis is probability; x-axis is the outcome.'
     },
     {
         id: 'categorical',
@@ -1325,7 +1325,7 @@ const probabilityModes = [
         labels: ['A', 'B', 'C', 'D', 'E'],
         values: [0.35, 0.2, 0.18, 0.17, 0.1],
         annotation: 'sum p_i = 1',
-        note: 'Multiple discrete outcomes with probabilities. Use for class labels or choices.'
+        note: 'Bars show P(X=i) across categories. Y-axis is probability; x-axis lists classes.'
     },
     {
         id: 'binomial',
@@ -1333,18 +1333,18 @@ const probabilityModes = [
         n: 10,
         p: 0.5,
         annotation: 'n = 10, p = 0.5',
-        note: 'Counts successes in n trials with probability p. Use for pass/fail counts in batches.'
+        note: 'Bars show P(X=k) for k successes. Y-axis is probability; x-axis is k.'
     },
     {
         id: 'normal',
         type: 'curve',
         annotation: 'mu = 0, sigma = 1',
-        note: 'Continuous bell curve with mean (mu) and standard deviation (sigma). Use for noise, heights, residuals.'
+        note: 'Curve shows probability density; area under the curve between two x-values equals probability.'
     },
     {
         id: 'bayes',
         type: 'bayes',
-        note: 'Bayes update: prior × likelihood → posterior.'
+        note: 'Bars show hypotheses H1/H2. Compare prior, likelihood, and posterior after Bayes update.'
     }
 ];
 
@@ -1451,73 +1451,101 @@ const mlAlgorithmSteps = {
     linear: {
         label: 'Linear Regression',
         steps: [
-            { title: 'Plot data', summary: 'Scatter the training points.', text: 'Plot feature-target pairs in a coordinate plane.' },
-            { title: 'Fit the line', summary: 'Minimize squared error.', text: 'Find the line that best fits the data trend.' },
-            { title: 'Predict', summary: 'Read the line at a new x.', text: 'Use the fitted line to estimate a new y value.' }
+            { title: 'Prepare data', summary: 'Clean, scale, and add a bias term.', text: 'Normalize features, handle missing values, and append a column of ones for the intercept.' },
+            { title: 'Define the model', summary: 'Linear score plus bias.', text: 'Model the target as \( \\hat{y} = \\mathbf{w}^T\\mathbf{x} + b \\).' },
+            { title: 'Choose the loss', summary: 'Mean squared error (MSE).', text: 'Measure average squared residuals to penalize large errors.' },
+            { title: 'Optimize weights', summary: 'Solve closed-form or use gradient descent.', text: 'Use the normal equation for small data or iterative updates for large data.' },
+            { title: 'Validate fit', summary: 'Check residuals and metrics.', text: 'Evaluate on a holdout set with RMSE and inspect bias/variance.' },
+            { title: 'Predict new data', summary: 'Apply the learned line.', text: 'Use the fitted parameters to estimate continuous targets.' }
         ]
     },
     logistic: {
         label: 'Logistic Regression',
         steps: [
-            { title: 'Plot classes', summary: 'Label the points.', text: 'Visualize class A vs class B data.' },
-            { title: 'Find boundary', summary: 'Separate the classes.', text: 'Learn a boundary that splits the classes.' },
-            { title: 'Score probability', summary: 'Output a probability.', text: 'Convert the score into a probability with a sigmoid.' }
+            { title: 'Prepare data', summary: 'Scale features and encode labels.', text: 'Standardize inputs and map labels to 0/1.' },
+            { title: 'Compute scores', summary: 'Linear combination of features.', text: 'Calculate \( z = \\mathbf{w}^T\\mathbf{x} + b \\).' },
+            { title: 'Apply sigmoid', summary: 'Convert score to probability.', text: 'Use \( \\sigma(z) \\) to get \( P(y=1 \\mid x) \\).' },
+            { title: 'Define log-loss', summary: 'Penalize confident wrong predictions.', text: 'Use cross-entropy to shape the boundary.' },
+            { title: 'Optimize parameters', summary: 'Gradient descent or LBFGS.', text: 'Update weights to reduce log-loss.' },
+            { title: 'Decide class', summary: 'Threshold the probability.', text: 'Predict class 1 if \( P(y=1 \\mid x) \\geq \\tau \\).' },
+            { title: 'Evaluate', summary: 'Measure accuracy and calibration.', text: 'Check confusion matrix, ROC-AUC, and probability calibration.' }
         ]
     },
     knn: {
         label: 'k-NN',
         steps: [
-            { title: 'Store data', summary: 'Keep labeled points.', text: 'k-NN memorizes the training examples.' },
-            { title: 'Find neighbors', summary: 'Pick the closest k.', text: 'Measure distances from the query to all points.' },
-            { title: 'Vote', summary: 'Majority wins.', text: 'Predict the label from the nearest neighbors.' }
+            { title: 'Choose k + distance', summary: 'Set k and a metric.', text: 'Pick k and a distance function (Euclidean, cosine, etc.).' },
+            { title: 'Scale features', summary: 'Make distances meaningful.', text: 'Normalize features so one dimension does not dominate.' },
+            { title: 'Compute distances', summary: 'Compare query to all points.', text: 'Measure distance from the query to every labeled example.' },
+            { title: 'Select k nearest', summary: 'Keep the closest points.', text: 'Sort by distance and retain the top k neighbors.' },
+            { title: 'Aggregate labels', summary: 'Vote or average.', text: 'Use majority vote for classification or mean for regression.' },
+            { title: 'Predict + explain', summary: 'Return label and neighbors.', text: 'Provide the prediction with neighbor influence for interpretability.' }
         ]
     },
     tree: {
         label: 'Decision Trees',
         steps: [
-            { title: 'Pick a split', summary: 'Choose a feature cut.', text: 'Select the best split to reduce impurity.' },
-            { title: 'Split again', summary: 'Refine the regions.', text: 'Keep splitting until regions are pure enough.' },
-            { title: 'Assign leaves', summary: 'Label each region.', text: 'Each leaf predicts a class or value.' }
+            { title: 'Pick a criterion', summary: 'Gini, entropy, or MSE.', text: 'Choose how to measure impurity or error.' },
+            { title: 'Search splits', summary: 'Evaluate candidate thresholds.', text: 'Try each feature and threshold to find the best gain.' },
+            { title: 'Split the data', summary: 'Partition into child nodes.', text: 'Send samples left or right based on the split rule.' },
+            { title: 'Recurse', summary: 'Grow deeper branches.', text: 'Repeat splitting for each child node.' },
+            { title: 'Stop growth', summary: 'Limit depth or samples.', text: 'Stop when purity is high or data is too sparse.' },
+            { title: 'Assign leaves', summary: 'Output a prediction.', text: 'Use the majority class or mean target in each leaf.' }
         ]
     },
     forest: {
         label: 'Random Forest',
         steps: [
-            { title: 'Bootstrap data', summary: 'Sample data for each tree.', text: 'Each tree sees a different bootstrapped dataset.' },
-            { title: 'Grow trees', summary: 'Train many trees.', text: 'Split with random feature subsets.' },
-            { title: 'Vote', summary: 'Aggregate the trees.', text: 'Combine tree predictions by voting.' }
+            { title: 'Set hyperparameters', summary: 'Trees, depth, features.', text: 'Choose number of trees, max depth, and features per split.' },
+            { title: 'Bootstrap samples', summary: 'Resample with replacement.', text: 'Create a unique dataset for each tree.' },
+            { title: 'Grow each tree', summary: 'Random feature splits.', text: 'At each node, consider only a subset of features.' },
+            { title: 'Repeat for all trees', summary: 'Build an ensemble.', text: 'Train many diverse trees in parallel.' },
+            { title: 'Aggregate outputs', summary: 'Vote or average.', text: 'Use majority vote for classification or mean for regression.' },
+            { title: 'Estimate error', summary: 'Use out-of-bag samples.', text: 'Check OOB error without a full validation split.' }
         ]
     },
     svm: {
         label: 'Support Vector Machine',
         steps: [
-            { title: 'Plot classes', summary: 'Place the data.', text: 'Visualize points from two classes.' },
-            { title: 'Maximize margin', summary: 'Find the widest gap.', text: 'Fit the boundary that maximizes the margin.' },
-            { title: 'Support vectors', summary: 'Anchor the boundary.', text: 'Only a few points define the solution.' }
+            { title: 'Scale features', summary: 'Normalize inputs.', text: 'SVM is sensitive to feature scale, so standardize.' },
+            { title: 'Choose kernel + C', summary: 'Linear or nonlinear.', text: 'Pick kernel type and regularization strength.' },
+            { title: 'Optimize margin', summary: 'Solve the max-margin problem.', text: 'Find the hyperplane that separates classes with the widest margin.' },
+            { title: 'Identify support vectors', summary: 'Boundary-defining points.', text: 'Only a subset of points determine the decision boundary.' },
+            { title: 'Compute decision function', summary: 'Score new points.', text: 'Use support vectors to compute the signed distance.' },
+            { title: 'Predict label', summary: 'Use sign or calibrated probability.', text: 'Assign class based on the decision score.' }
         ]
     },
     bayes: {
         label: 'Naive Bayes',
         steps: [
-            { title: 'Estimate likelihoods', summary: 'Model each class.', text: 'Estimate distributions for each class.' },
-            { title: 'Apply Bayes', summary: 'Combine prior and likelihood.', text: 'Compute posterior probabilities.' },
-            { title: 'Pick a class', summary: 'Highest posterior wins.', text: 'Choose the class with larger probability.' }
+            { title: 'Compute priors', summary: 'Class frequencies.', text: 'Estimate \( P(y) \\) from class counts.' },
+            { title: 'Estimate likelihoods', summary: 'Feature distributions per class.', text: 'Use Gaussian, Bernoulli, or multinomial likelihoods.' },
+            { title: 'Assume independence', summary: 'Multiply feature likelihoods.', text: 'Use \( P(x\\mid y) = \\prod_i P(x_i \\mid y) \\).' },
+            { title: 'Apply Bayes rule', summary: 'Compute posteriors.', text: 'Calculate \( P(y \\mid x) \\propto P(y)P(x\\mid y) \\).' },
+            { title: 'Use log-probabilities', summary: 'Prevent underflow.', text: 'Sum log-likelihoods instead of multiplying small values.' },
+            { title: 'Pick the class', summary: 'Largest posterior wins.', text: 'Choose the class with the highest posterior probability.' }
         ]
     },
     kmeans: {
         label: 'k-Means',
         steps: [
-            { title: 'Initialize centers', summary: 'Pick starting centroids.', text: 'Start with initial cluster centers.' },
-            { title: 'Assign points', summary: 'Group by nearest center.', text: 'Each point joins its closest centroid.' },
-            { title: 'Update centers', summary: 'Move to the mean.', text: 'Recompute centers and repeat.' }
+            { title: 'Choose k', summary: 'Decide number of clusters.', text: 'Pick k using domain knowledge or elbow method.' },
+            { title: 'Initialize centroids', summary: 'Start positions.', text: 'Use random seeds or k-means++ for better starts.' },
+            { title: 'Assign points', summary: 'Nearest centroid.', text: 'Label each point by its closest centroid.' },
+            { title: 'Update centroids', summary: 'Mean of each cluster.', text: 'Move centroids to the average of assigned points.' },
+            { title: 'Repeat until stable', summary: 'Converge assignments.', text: 'Stop when centroids change little or max iterations reached.' },
+            { title: 'Evaluate clustering', summary: 'Check inertia or silhouette.', text: 'Measure compactness and separation.' }
         ]
     },
     pca: {
         label: 'PCA',
         steps: [
-            { title: 'Plot data', summary: 'Show the point cloud.', text: 'Display the data in the original space.' },
-            { title: 'Find principal axis', summary: 'Max variance direction.', text: 'Compute the direction with the highest variance.' },
-            { title: 'Project', summary: 'Drop to a lower dimension.', text: 'Project points onto the principal axis.' }
+            { title: 'Center data', summary: 'Zero-mean features.', text: 'Subtract the mean from each feature (and scale if needed).' },
+            { title: 'Compute covariance', summary: 'Feature correlations.', text: 'Build the covariance matrix (or use SVD).' },
+            { title: 'Find eigenvectors', summary: 'Principal components.', text: 'Compute eigenvectors and eigenvalues.' },
+            { title: 'Rank components', summary: 'Sort by variance.', text: 'Order by eigenvalues to keep the most informative axes.' },
+            { title: 'Select k components', summary: 'Dimensionality choice.', text: 'Pick the top k components to retain variance.' },
+            { title: 'Project data', summary: 'Lower-dimensional embedding.', text: 'Multiply by the selected component matrix.' }
         ]
     }
 };
@@ -1629,6 +1657,16 @@ function drawProbabilityBars(ctx, canvas, mode, theme) {
     ctx.lineTo(chartLeft + totalWidth + 10, chartBottom);
     ctx.stroke();
 
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Outcome', chartLeft + totalWidth / 2, chartBottom + 44);
+    ctx.save();
+    ctx.translate(chartLeft - 45, chartBottom - maxHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Probability', 0, 0);
+    ctx.restore();
+
     mode.values.forEach((value, index) => {
         const x = chartLeft + index * (barWidth + gap);
         const height = value * maxHeight;
@@ -1691,6 +1729,16 @@ function drawProbabilityCurve(ctx, canvas, theme) {
         else ctx.lineTo(canvasX, canvasY);
     }
     ctx.stroke();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Value (x)', (chartLeft + chartRight) / 2, chartBottom + 34);
+    ctx.save();
+    ctx.translate(chartLeft - 35, centerY - scaleY / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Density', 0, 0);
+    ctx.restore();
 }
 
 function drawProbabilityBayes(ctx, canvas, theme) {
@@ -1718,6 +1766,16 @@ function drawProbabilityBayes(ctx, canvas, theme) {
     ctx.moveTo(chartLeft - 20, chartBottom);
     ctx.lineTo(canvas.width - 30, chartBottom);
     ctx.stroke();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Hypotheses (H1, H2)', canvas.width / 2, chartBottom + 52);
+    ctx.save();
+    ctx.translate(chartLeft - 40, chartBottom - maxHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Probability', 0, 0);
+    ctx.restore();
 
     groups.forEach((group, groupIndex) => {
         const groupX = chartLeft + groupIndex * (barWidth * 2 + barGap + groupGap);
@@ -7328,10 +7386,10 @@ const vectorScenes = [
     },
     {
         title: 'Scene 4: Gradients, Jacobians, Hessians',
-        visual: 'Gradients point uphill. Jacobians stack partials; Hessians show curvature.',
-        example: 'If \\(\\nabla L = [2, -1]\\), the downhill step is \\([-0.2, 0.1]\\) for \\(\\eta=0.1\\).',
-        intuition: 'Jacobian shapes vector outputs; Hessian curvature guides second-order updates.',
-        math: '\\(\\nabla f\\)<br>\\(J_{ij}=\\partial f_i/\\partial x_j\\)<br>\\(H_{ij}=\\partial^2 f/\\partial x_i\\partial x_j\\)',
+        visual: 'Gradients point uphill. The Jacobian maps tiny input nudges to output nudges; the Hessian captures curvature.',
+        example: 'If \\(f: \\mathbb{R}^2 \\to \\mathbb{R}^2\\), then \\(J\\) is a 2x2 matrix. For a loss \\(L\\), \\(H\\) is also 2x2.',
+        intuition: 'J is the best local linear map; H eigenvalues show bowl (+), peak (-), or saddle (mixed) curvature.',
+        math: '\\(df \\approx J\\,dx\\)<br>\\(J_{ij}=\\partial f_i/\\partial x_j\\)<br>\\(H = \\nabla^2 L\\)<br>\\(\\Delta x = -H^{-1}\\nabla L\\)',
         draw: drawGradientScene
     },
     {
@@ -7613,6 +7671,12 @@ function refreshAllVisuals() {
     drawTransformerAdvancedOverviewCanvas();
     drawBackpropStep();
     drawFundamentalsCanvas(activeFundamentalId || fundamentalsTopics[0].id);
+    drawBanditCharts();
+    drawGridworld();
+    drawGridworldChart();
+    drawMonteCarlo();
+    drawTdCharts();
+    drawControlCharts();
 }
 
 function setupVectorControls() {
@@ -8230,6 +8294,1806 @@ function initMatrixCanvas() {
 }
 
 // ============================================
+// Reinforcement Learning modules
+// ============================================
+const visualizationMeta = {
+    fundamentalsCanvas: {
+        goal: 'Visualize the selected foundations concept',
+        input: 'Active tab (linear, calculus, optimization, probability, matrix)',
+        variables: 'Vectors, gradients, probabilities, matrices'
+    },
+    vectorCanvas: {
+        goal: 'Show vector operations and results',
+        input: 'Vector components, scale, operation',
+        variables: 'ax, ay, bx, by, scale'
+    },
+    vectorSceneCanvas: {
+        goal: 'Illustrate the selected vector deep-dive scene',
+        input: 'Scene selection',
+        variables: 'Projection, norms, basis, gradients'
+    },
+    vectorProjectionCanvas: {
+        goal: 'Show projection of one vector onto another',
+        input: 'Example vectors',
+        variables: 'x, u, proj_u(x)'
+    },
+    vectorNormCanvas: {
+        goal: 'Show vector length and normalization',
+        input: 'Example vector',
+        variables: 'norm, unit vector'
+    },
+    vectorSubspaceCanvas: {
+        goal: 'Show span and rank intuition',
+        input: 'Basis vectors',
+        variables: 'basis, subspace'
+    },
+    vectorGradientCanvas: {
+        goal: 'Show gradient, Jacobian, and Hessian intuition',
+        input: 'Example function',
+        variables: 'grad, J, H'
+    },
+    vectorStatsCanvas: {
+        goal: 'Show mean and covariance geometry',
+        input: 'Sample points',
+        variables: 'mu, Sigma'
+    },
+    vectorRegularizationCanvas: {
+        goal: 'Show L1 vs L2 geometry',
+        input: 'Penalty choice',
+        variables: 'norm, constraint shape'
+    },
+    vectorAttentionCanvas: {
+        goal: 'Show dot-product attention flow',
+        input: 'Query, keys, values',
+        variables: 'scores, weights, output'
+    },
+    matrixCanvas: {
+        goal: 'Show matrix operations visually',
+        input: 'Operation toggle',
+        variables: 'Matrix entries, transform'
+    },
+    matrixDeepCanvas: {
+        goal: 'Show deeper matrix concepts',
+        input: 'Selected concept',
+        variables: 'determinant, inverse, eigen, covariance'
+    },
+    probabilityCanvas: {
+        goal: 'Show the selected distribution or Bayes update',
+        input: 'Distribution mode',
+        variables: 'p, n, mu, sigma, priors'
+    },
+    probabilityVennCanvas: {
+        goal: 'Highlight event relationships',
+        input: 'Venn mode',
+        variables: 'A, B, union, intersection'
+    },
+    spamFilterCanvas: {
+        goal: 'Visualize Bayesian spam filtering',
+        input: 'Prior and word toggles',
+        variables: 'P(spam), likelihoods, posterior'
+    },
+    sampleSpaceCanvas: {
+        goal: 'Simulate sample space counts',
+        input: 'A width, B height, resample',
+        variables: 'counts, probabilities'
+    },
+    probabilityBernoulliCanvas: {
+        goal: 'Show Bernoulli PMF',
+        input: 'p',
+        variables: 'P(X=0/1)'
+    },
+    probabilityBinomialCanvas: {
+        goal: 'Show Binomial PMF',
+        input: 'n, p',
+        variables: 'P(X=k)'
+    },
+    probabilityCategoricalCanvas: {
+        goal: 'Show Categorical PMF',
+        input: 'p_i',
+        variables: 'class probabilities'
+    },
+    probabilityNormalCanvas: {
+        goal: 'Show Normal density',
+        input: 'mu, sigma',
+        variables: 'density curve'
+    },
+    gradientCanvas: {
+        goal: 'Show gradient descent path',
+        input: 'Learning rate, run/reset',
+        variables: 'theta, gradient, loss surface'
+    },
+    activationCanvas: {
+        goal: 'Compare activation functions',
+        input: 'Curve toggles',
+        variables: 'sigmoid, relu, tanh'
+    },
+    mlAlgoCanvas: {
+        goal: 'Show algorithm step visualization',
+        input: 'Selected algorithm and step',
+        variables: 'data points, boundary, centroids'
+    },
+    mlLifecycleCanvas: {
+        goal: 'Show training vs inference steps',
+        input: 'Phase and step',
+        variables: 'weights, loss, predictions'
+    },
+    neuralNetCanvas: {
+        goal: 'Show forward propagation flow',
+        input: 'Run/reset',
+        variables: 'weights, activations'
+    },
+    neuronCanvas: {
+        goal: 'Show single neuron steps',
+        input: 'Step controls',
+        variables: 'weights, bias, activation'
+    },
+    digitLabCanvas: {
+        goal: 'Show digit inference/training',
+        input: 'Digit, mode, step',
+        variables: 'logits, probabilities, loss'
+    },
+    backpropCanvas: {
+        goal: 'Show gradient flow in backprop',
+        input: 'Step controls',
+        variables: 'gradients, weights'
+    },
+    deepNetCanvas: {
+        goal: 'Show deep network flow',
+        input: 'Step controls',
+        variables: 'layers, activations'
+    },
+    cnnCanvas: {
+        goal: 'Show convolution feature extraction',
+        input: 'Step controls',
+        variables: 'filters, feature maps'
+    },
+    rnnCanvas: {
+        goal: 'Show recurrent unrolling',
+        input: 'Step controls',
+        variables: 'hidden state, sequence'
+    },
+    lstmCanvas: {
+        goal: 'Show LSTM gate dynamics',
+        input: 'Step controls',
+        variables: 'cell state, gates'
+    },
+    transformerCanvas: {
+        goal: 'Show transformer block flow',
+        input: 'Step controls',
+        variables: 'attention weights, tokens'
+    },
+    transformerAdvancedOverviewCanvas: {
+        goal: 'Show transformer stage overview',
+        input: 'Step controls',
+        variables: 'block stages'
+    },
+    transformerAdvancedCanvas: {
+        goal: 'Show detailed transformer math',
+        input: 'Step controls',
+        variables: 'Q, K, V, attention, MLP'
+    },
+    vectorDbCanvas: {
+        goal: 'Show vector DB pipeline views',
+        input: 'Selected view',
+        variables: 'embeddings, neighbors'
+    },
+    rlPolicyCanvas: {
+        goal: 'Show policy vs value chain',
+        input: 'Policy bias slider',
+        variables: 'V(s), Q(s,a)'
+    },
+    banditMeansCanvas: {
+        goal: 'Compare true vs estimated means',
+        input: 'Bandit settings',
+        variables: 'arm means, estimates'
+    },
+    banditRegretCanvas: {
+        goal: 'Show cumulative regret',
+        input: 'Bandit steps',
+        variables: 'regret over time'
+    },
+    banditActionsCanvas: {
+        goal: 'Show action frequencies',
+        input: 'Bandit steps',
+        variables: 'selection counts'
+    },
+    gridworldCanvas: {
+        goal: 'Show grid values and policy',
+        input: 'Algorithm, gamma, step cost, slip, overlays',
+        variables: 'V(s), policy'
+    },
+    gridworldChart: {
+        goal: 'Track value convergence',
+        input: 'Iterations',
+        variables: 'max delta V, avg V'
+    },
+    mcGridCanvas: {
+        goal: 'Show episode rollouts and values',
+        input: 'Episodes, epsilon',
+        variables: 'trajectory, V(s)'
+    },
+    mcReturnsCanvas: {
+        goal: 'Show recent returns',
+        input: 'Episodes',
+        variables: 'G per episode'
+    },
+    mcValueCanvas: {
+        goal: 'Show value estimate over time',
+        input: 'Episodes',
+        variables: 'V(start)'
+    },
+    tdValueCanvas: {
+        goal: 'Show value estimates per state',
+        input: 'Alpha, episodes',
+        variables: 'V(s)'
+    },
+    tdErrorCanvas: {
+        goal: 'Show TD error',
+        input: 'Episode',
+        variables: 'delta_t'
+    },
+    tdEpisodeCanvas: {
+        goal: 'Show V over episodes',
+        input: 'Episodes',
+        variables: 'V(s) history'
+    },
+    controlGridCanvas: {
+        goal: 'Show greedy policy',
+        input: 'Algorithm, epsilon, alpha',
+        variables: 'Q, policy'
+    },
+    controlQCanvas: {
+        goal: 'Show Q heatmaps per action',
+        input: 'Algorithm',
+        variables: 'Q(s,a)'
+    },
+    controlEpsCanvas: {
+        goal: 'Show exploration schedule',
+        input: 'Epsilon slider',
+        variables: 'epsilon over time'
+    },
+    controlReturnCanvas: {
+        goal: 'Show return per episode',
+        input: 'Training steps',
+        variables: 'episode return'
+    }
+};
+
+function setupVisualizationMeta() {
+    Object.entries(visualizationMeta).forEach(([id, meta]) => {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
+        const parent = canvas.parentElement;
+        if (!parent) return;
+        if (parent.querySelector(`.viz-meta[data-for="${id}"]`)) return;
+        const metaEl = document.createElement('div');
+        metaEl.className = 'viz-meta';
+        metaEl.dataset.for = id;
+        metaEl.innerHTML = `
+            <div><span class="viz-meta-label">Goal:</span> ${meta.goal}</div>
+            <div><span class="viz-meta-label">Input:</span> ${meta.input}</div>
+            <div><span class="viz-meta-label">Variables:</span> ${meta.variables}</div>
+        `;
+        canvas.insertAdjacentElement('afterend', metaEl);
+    });
+}
+function createSeededRng(seed) {
+    let t = seed >>> 0;
+    return function() {
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ t >>> 15, 1 | t);
+        r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+        return ((r ^ r >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+function randNormal(rng) {
+    let u = 0;
+    let v = 0;
+    while (u === 0) u = rng();
+    while (v === 0) v = rng();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
+function sampleGamma(shape, rng) {
+    if (shape < 1) {
+        const u = rng();
+        return sampleGamma(1 + shape, rng) * Math.pow(u, 1 / shape);
+    }
+    const d = shape - 1 / 3;
+    const c = 1 / Math.sqrt(9 * d);
+    while (true) {
+        let x = randNormal(rng);
+        let v = 1 + c * x;
+        if (v <= 0) continue;
+        v = v * v * v;
+        const u = rng();
+        if (u < 1 - 0.0331 * x * x * x * x) return d * v;
+        if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v;
+    }
+}
+
+function sampleBeta(alpha, beta, rng) {
+    const x = sampleGamma(alpha, rng);
+    const y = sampleGamma(beta, rng);
+    return x / (x + y);
+}
+
+function drawLineChart(ctx, seriesList, options = {}) {
+    const series = Array.isArray(seriesList[0]) ? seriesList : [seriesList];
+    const width = ctx.canvas.width;
+    const height = ctx.canvas.height;
+    const padding = 30;
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = options.background || '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    const maxLen = Math.max(...series.map(s => s.length));
+    const maxY = options.maxY ?? Math.max(1, ...series.flat());
+    const minY = options.minY ?? 0;
+    const colors = options.colors || ['#0ea5e9', '#f97316', '#10b981', '#ef4444'];
+
+    ctx.strokeStyle = '#cbd5f5';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, height - padding);
+    ctx.lineTo(width - padding, height - padding);
+    ctx.stroke();
+
+    series.forEach((data, idx) => {
+        if (data.length < 2) return;
+        ctx.strokeStyle = colors[idx % colors.length];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach((value, i) => {
+            const x = padding + (width - 2 * padding) * (i / Math.max(1, maxLen - 1));
+            const y = height - padding - (height - 2 * padding) * ((value - minY) / (maxY - minY));
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+    });
+}
+
+function drawBarChart(ctx, values, options = {}) {
+    const width = ctx.canvas.width;
+    const height = ctx.canvas.height;
+    const padding = 24;
+    const max = options.max ?? Math.max(1, ...values);
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = options.background || '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    const barWidth = (width - 2 * padding) / values.length;
+    values.forEach((value, i) => {
+        const x = padding + i * barWidth;
+        const h = (height - 2 * padding) * (value / max);
+        ctx.fillStyle = options.colors ? options.colors[i % options.colors.length] : '#38bdf8';
+        ctx.fillRect(x + 4, height - padding - h, barWidth - 8, h);
+    });
+}
+
+class BanditEnv {
+    constructor({ arms = 5, noise = 0.2, seed = 1, rewardMode = 'gaussian' } = {}) {
+        this.arms = arms;
+        this.noise = noise;
+        this.rewardMode = rewardMode;
+        this.rng = createSeededRng(seed);
+        this.armMeans = [];
+        this.reset(seed);
+    }
+
+    reset(seed) {
+        if (seed !== undefined) {
+            this.rng = createSeededRng(seed);
+        }
+        this.armMeans = Array.from({ length: this.arms }, () => 0.1 + 0.8 * this.rng());
+        return 0;
+    }
+
+    actions() {
+        return Array.from({ length: this.arms }, (_, i) => i);
+    }
+
+    step(action) {
+        const mean = this.armMeans[action];
+        let reward = mean + this.noise * randNormal(this.rng);
+        if (this.rewardMode === 'bernoulli') {
+            reward = this.rng() < mean ? 1 : 0;
+        }
+        return { nextState: 0, reward, done: false, info: { mean } };
+    }
+}
+
+class GridworldEnv {
+    constructor({ rows = 5, cols = 5, walls = [], terminals = [], start = 0, stepCost = 0, slip = 0, seed = 1 } = {}) {
+        this.rows = rows;
+        this.cols = cols;
+        this.walls = new Set(walls);
+        this.terminalRewards = new Map(terminals);
+        this.stepCost = stepCost;
+        this.slip = slip;
+        this.start = start;
+        this.state = start;
+        this.rng = createSeededRng(seed);
+    }
+
+    toIndex(row, col) {
+        return row * this.cols + col;
+    }
+
+    fromIndex(index) {
+        return { row: Math.floor(index / this.cols), col: index % this.cols };
+    }
+
+    isWall(index) {
+        return this.walls.has(index);
+    }
+
+    isTerminal(index) {
+        return this.terminalRewards.has(index);
+    }
+
+    reset(seed) {
+        if (seed !== undefined) {
+            this.rng = createSeededRng(seed);
+        }
+        this.state = this.start;
+        return this.state;
+    }
+
+    actions(state = this.state) {
+        if (this.isWall(state) || this.isTerminal(state)) return [];
+        return [0, 1, 2, 3];
+    }
+
+    deterministicTransition(state, action) {
+        if (this.isTerminal(state)) {
+            return { nextState: state, reward: 0, done: true, info: { terminal: true } };
+        }
+        if (this.isWall(state)) {
+            return { nextState: state, reward: 0, done: false, info: { wall: true } };
+        }
+        const { row, col } = this.fromIndex(state);
+        const deltas = [
+            { row: -1, col: 0 },
+            { row: 0, col: 1 },
+            { row: 1, col: 0 },
+            { row: 0, col: -1 }
+        ];
+        const move = deltas[action] || deltas[0];
+        const nextRow = clamp(row + move.row, 0, this.rows - 1);
+        const nextCol = clamp(col + move.col, 0, this.cols - 1);
+        let nextState = this.toIndex(nextRow, nextCol);
+        if (this.isWall(nextState)) {
+            nextState = state;
+        }
+        let reward = this.stepCost;
+        let done = false;
+        if (this.isTerminal(nextState)) {
+            reward += this.terminalRewards.get(nextState);
+            done = true;
+        }
+        return { nextState, reward, done, info: {} };
+    }
+
+    expectedTransitions(state, action) {
+        const slip = clamp(this.slip || 0, 0, 1);
+        if (slip === 0) {
+            return [{ prob: 1, ...this.deterministicTransition(state, action) }];
+        }
+        const left = (action + 3) % 4;
+        const right = (action + 1) % 4;
+        const mainProb = 1 - slip;
+        const sideProb = slip / 2;
+        const choices = [
+            { action, prob: mainProb },
+            { action: left, prob: sideProb },
+            { action: right, prob: sideProb }
+        ];
+        return choices.map(choice => ({
+            prob: choice.prob,
+            ...this.deterministicTransition(state, choice.action)
+        }));
+    }
+
+    sampleAction(action) {
+        const slip = clamp(this.slip || 0, 0, 1);
+        if (slip === 0) return action;
+        const roll = this.rng();
+        if (roll > slip) return action;
+        const left = (action + 3) % 4;
+        const right = (action + 1) % 4;
+        return roll < slip / 2 ? left : right;
+    }
+
+    sampleTransition(state, action) {
+        const actual = this.sampleAction(action);
+        return this.deterministicTransition(state, actual);
+    }
+
+    step(action) {
+        const actual = this.sampleAction(action);
+        const result = this.deterministicTransition(this.state, actual);
+        this.state = result.nextState;
+        return result;
+    }
+}
+
+function setupRlFundamentals() {
+    const gammaInput = document.getElementById('rlGamma');
+    const policyInput = document.getElementById('rlPolicyBias');
+    if (!gammaInput || !policyInput) return;
+    const rewardInputs = document.querySelectorAll('.rl-reward-input');
+    const gammaLabel = document.getElementById('rlGammaVal');
+    const policyLabel = document.getElementById('rlPolicyBiasVal');
+    const returnValue = document.getElementById('rlReturnValue');
+    const policyTable = document.getElementById('rlPolicyTable');
+
+    const updateReturn = () => {
+        const gamma = parseFloat(gammaInput.value);
+        let total = 0;
+        rewardInputs.forEach((input, idx) => {
+            const r = parseFloat(input.value || '0');
+            total += Math.pow(gamma, idx) * r;
+        });
+        if (gammaLabel) gammaLabel.textContent = gamma.toFixed(2);
+        if (returnValue) returnValue.textContent = total.toFixed(2);
+    };
+
+    const updatePolicy = () => {
+        const gamma = parseFloat(gammaInput.value);
+        const pRight = parseFloat(policyInput.value);
+        const qRight = gamma * 1;
+        const qLeft = gamma * -1;
+        const vMid = pRight * qRight + (1 - pRight) * qLeft;
+        if (policyLabel) policyLabel.textContent = pRight.toFixed(2);
+        if (policyTable) {
+            policyTable.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>State</th><th>V(s)</th><th>Q(s,left)</th><th>Q(s,right)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>s0 (terminal)</td><td>-1.00</td><td>-</td><td>-</td></tr>
+                        <tr><td>s1</td><td>${vMid.toFixed(2)}</td><td>${qLeft.toFixed(2)}</td><td>${qRight.toFixed(2)}</td></tr>
+                        <tr><td>s2 (terminal)</td><td>1.00</td><td>-</td><td>-</td></tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        drawRlPolicyCanvas(pRight, vMid);
+    };
+
+    const updateAll = () => {
+        updateReturn();
+        updatePolicy();
+    };
+
+    gammaInput.addEventListener('input', updateAll);
+    policyInput.addEventListener('input', updateAll);
+    rewardInputs.forEach(input => input.addEventListener('input', updateReturn));
+    updateAll();
+}
+
+function drawRlPolicyCanvas(pRight, vMid) {
+    const canvas = document.getElementById('rlPolicyCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const nodes = [
+        { x: 60, y: 70, label: 's0\n-1' },
+        { x: 180, y: 70, label: `s1\n${vMid.toFixed(2)}` },
+        { x: 300, y: 70, label: 's2\n+1' }
+    ];
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(nodes[1].x - 40, nodes[1].y);
+    ctx.lineTo(nodes[0].x + 40, nodes[0].y);
+    ctx.moveTo(nodes[1].x + 40, nodes[1].y);
+    ctx.lineTo(nodes[2].x - 40, nodes[2].y);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1 + 4 * (1 - pRight);
+    ctx.beginPath();
+    ctx.moveTo(nodes[1].x - 40, nodes[1].y - 10);
+    ctx.lineTo(nodes[0].x + 40, nodes[0].y - 10);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 1 + 4 * pRight;
+    ctx.beginPath();
+    ctx.moveTo(nodes[1].x + 40, nodes[1].y + 10);
+    ctx.lineTo(nodes[2].x - 40, nodes[2].y + 10);
+    ctx.stroke();
+
+    nodes.forEach(node => {
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#1f2937';
+        ctx.font = '12px "Nunito", sans-serif';
+        const lines = node.label.split('\n');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(lines[0], node.x, node.y - 6);
+        ctx.fillText(lines[1], node.x, node.y + 10);
+    });
+}
+
+const banditState = {
+    env: null,
+    rng: createSeededRng(7),
+    t: 0,
+    horizon: 200,
+    counts: [],
+    estimates: [],
+    regrets: [],
+    actionCounts: [],
+    betaA: [],
+    betaB: [],
+    playing: false,
+    timer: null,
+    bestMean: 0,
+    epsilon: 0.2
+};
+
+function setupBandits() {
+    const meansCanvas = document.getElementById('banditMeansCanvas');
+    if (!meansCanvas) return;
+    const dom = {
+        seed: document.getElementById('banditSeed'),
+        arms: document.getElementById('banditArms'),
+        armsVal: document.getElementById('banditArmsVal'),
+        horizon: document.getElementById('banditHorizon'),
+        horizonVal: document.getElementById('banditHorizonVal'),
+        noise: document.getElementById('banditNoise'),
+        noiseVal: document.getElementById('banditNoiseVal'),
+        alg: document.getElementById('banditAlg'),
+        epsilon: document.getElementById('banditEpsilon'),
+        epsilonVal: document.getElementById('banditEpsilonVal'),
+        decay: document.getElementById('banditDecay'),
+        decayVal: document.getElementById('banditDecayVal'),
+        ucbC: document.getElementById('banditUcbC'),
+        ucbCVal: document.getElementById('banditUcbCVal'),
+        prior: document.getElementById('banditPrior'),
+        step: document.getElementById('banditStep'),
+        play: document.getElementById('banditPlay'),
+        reset: document.getElementById('banditReset')
+    };
+
+    const syncLabels = () => {
+        if (dom.armsVal) dom.armsVal.textContent = dom.arms.value;
+        if (dom.horizonVal) dom.horizonVal.textContent = dom.horizon.value;
+        if (dom.noiseVal) dom.noiseVal.textContent = parseFloat(dom.noise.value).toFixed(2);
+        if (dom.epsilonVal) dom.epsilonVal.textContent = parseFloat(dom.epsilon.value).toFixed(2);
+        if (dom.decayVal) dom.decayVal.textContent = parseFloat(dom.decay.value).toFixed(3);
+        if (dom.ucbCVal) dom.ucbCVal.textContent = parseFloat(dom.ucbC.value).toFixed(1);
+    };
+
+    const reset = () => {
+        syncLabels();
+        if (banditState.timer) {
+            clearInterval(banditState.timer);
+            banditState.timer = null;
+        }
+        banditState.playing = false;
+        if (dom.play) dom.play.textContent = 'Play';
+        const seed = parseInt(dom.seed.value, 10) || 1;
+        banditState.rng = createSeededRng(seed);
+        const arms = parseInt(dom.arms.value, 10);
+        const noise = parseFloat(dom.noise.value);
+        banditState.horizon = parseInt(dom.horizon.value, 10);
+        const rewardMode = dom.alg.value === 'thompson' ? 'bernoulli' : 'gaussian';
+        banditState.env = new BanditEnv({ arms, noise, seed, rewardMode });
+        banditState.t = 0;
+        banditState.counts = Array(arms).fill(0);
+        banditState.estimates = Array(arms).fill(0);
+        banditState.actionCounts = Array(arms).fill(0);
+        banditState.regrets = [0];
+        banditState.bestMean = Math.max(...banditState.env.armMeans);
+        const prior = parseFloat(dom.prior.value) || 1;
+        banditState.betaA = Array(arms).fill(prior);
+        banditState.betaB = Array(arms).fill(prior);
+        banditState.epsilon = parseFloat(dom.epsilon.value);
+        drawBanditCharts();
+    };
+
+    const selectAction = () => {
+        const alg = dom.alg.value;
+        const arms = banditState.env.armMeans.length;
+        if (alg === 'epsilon') {
+            const epsilon = banditState.epsilon;
+            if (banditState.rng() < epsilon) {
+                return Math.floor(banditState.rng() * arms);
+            }
+            return banditState.estimates.indexOf(Math.max(...banditState.estimates));
+        }
+        if (alg === 'ucb1') {
+            const c = parseFloat(dom.ucbC.value);
+            for (let i = 0; i < arms; i++) {
+                if (banditState.counts[i] === 0) return i;
+            }
+            const total = Math.max(1, banditState.t);
+            let best = 0;
+            let bestScore = -Infinity;
+            for (let i = 0; i < arms; i++) {
+                const bonus = c * Math.sqrt(Math.log(total + 1) / banditState.counts[i]);
+                const score = banditState.estimates[i] + bonus;
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = i;
+                }
+            }
+            return best;
+        }
+        let best = 0;
+        let bestSample = -Infinity;
+        for (let i = 0; i < arms; i++) {
+            const sample = sampleBeta(banditState.betaA[i], banditState.betaB[i], banditState.rng);
+            if (sample > bestSample) {
+                bestSample = sample;
+                best = i;
+            }
+        }
+        return best;
+    };
+
+    const step = () => {
+        if (!banditState.env || banditState.t >= banditState.horizon) {
+            banditState.playing = false;
+            if (dom.play) dom.play.textContent = 'Play';
+            if (banditState.timer) {
+                clearInterval(banditState.timer);
+                banditState.timer = null;
+            }
+            return;
+        }
+        const action = selectAction();
+        const result = banditState.env.step(action);
+        banditState.t += 1;
+        banditState.counts[action] += 1;
+        banditState.actionCounts[action] += 1;
+        banditState.estimates[action] += (result.reward - banditState.estimates[action]) / banditState.counts[action];
+        const lastRegret = banditState.regrets[banditState.regrets.length - 1];
+        const regret = lastRegret + (banditState.bestMean - banditState.env.armMeans[action]);
+        banditState.regrets.push(regret);
+        if (dom.alg.value === 'thompson') {
+            if (result.reward > 0) banditState.betaA[action] += 1;
+            else banditState.betaB[action] += 1;
+        }
+        if (dom.alg.value === 'epsilon') {
+            const decay = parseFloat(dom.decay.value);
+            banditState.epsilon = Math.max(0, banditState.epsilon - decay);
+        }
+        drawBanditCharts();
+    };
+
+    const togglePlay = () => {
+        banditState.playing = !banditState.playing;
+        if (dom.play) dom.play.textContent = banditState.playing ? 'Pause' : 'Play';
+        if (banditState.playing) {
+            banditState.timer = setInterval(step, 250);
+        } else if (banditState.timer) {
+            clearInterval(banditState.timer);
+        }
+    };
+
+    dom.arms.addEventListener('input', reset);
+    dom.horizon.addEventListener('input', reset);
+    dom.noise.addEventListener('input', reset);
+    dom.alg.addEventListener('change', reset);
+    dom.seed.addEventListener('change', reset);
+    dom.prior.addEventListener('change', reset);
+    dom.epsilon.addEventListener('input', () => {
+        syncLabels();
+        banditState.epsilon = parseFloat(dom.epsilon.value);
+    });
+    dom.decay.addEventListener('input', syncLabels);
+    dom.ucbC.addEventListener('input', syncLabels);
+    if (dom.step) dom.step.addEventListener('click', step);
+    if (dom.play) dom.play.addEventListener('click', togglePlay);
+    if (dom.reset) dom.reset.addEventListener('click', reset);
+    reset();
+}
+
+function drawBanditCharts() {
+    const meansCanvas = document.getElementById('banditMeansCanvas');
+    const regretCanvas = document.getElementById('banditRegretCanvas');
+    const actionCanvas = document.getElementById('banditActionsCanvas');
+    if (!meansCanvas || !banditState.env) return;
+    const meansCtx = meansCanvas.getContext('2d');
+    const arms = banditState.env.armMeans.length;
+    const width = meansCanvas.width;
+    const height = meansCanvas.height;
+    meansCtx.clearRect(0, 0, width, height);
+    meansCtx.fillStyle = '#ffffff';
+    meansCtx.fillRect(0, 0, width, height);
+    const padding = 30;
+    const barWidth = (width - 2 * padding) / arms;
+    for (let i = 0; i < arms; i++) {
+        const trueMean = banditState.env.armMeans[i];
+        const est = banditState.estimates[i];
+        const x = padding + i * barWidth;
+        const trueH = (height - 2 * padding) * trueMean;
+        const estH = (height - 2 * padding) * clamp(est, 0, 1);
+        meansCtx.fillStyle = '#bae6fd';
+        meansCtx.fillRect(x + 6, height - padding - trueH, barWidth - 12, trueH);
+        meansCtx.fillStyle = '#0ea5e9';
+        meansCtx.fillRect(x + 14, height - padding - estH, barWidth - 28, estH);
+        meansCtx.fillStyle = '#1f2937';
+        meansCtx.font = '12px "Nunito", sans-serif';
+        meansCtx.textAlign = 'center';
+        meansCtx.fillText(`A${i + 1}`, x + barWidth / 2, height - 10);
+    }
+
+    if (regretCanvas) {
+        const regretCtx = regretCanvas.getContext('2d');
+        drawLineChart(regretCtx, banditState.regrets, { colors: ['#ef4444'] });
+    }
+    if (actionCanvas) {
+        const actionCtx = actionCanvas.getContext('2d');
+        const total = Math.max(1, banditState.t);
+        const freqs = banditState.actionCounts.map(count => count / total);
+        drawBarChart(actionCtx, freqs, { colors: ['#38bdf8', '#f97316', '#10b981', '#facc15', '#f472b6', '#a78bfa'] });
+    }
+}
+
+const gridState = {
+    env: null,
+    V: [],
+    policy: [],
+    history: [],
+    deltaHistory: [],
+    avgHistory: [],
+    viewIndex: 0,
+    anim: null,
+    selectedState: null,
+    playing: false,
+    timer: null
+};
+
+function createPresetGridworld(presetId = 'classic-5', seed = 5) {
+    if (presetId === 'open-7') {
+        const rows = 7;
+        const cols = 7;
+        const terminals = [
+            [0 * cols + 6, 1],
+            [6 * cols + 0, -1]
+        ];
+        return new GridworldEnv({
+            rows,
+            cols,
+            walls: [],
+            terminals,
+            start: 3 * cols + 3,
+            seed
+        });
+    }
+    if (presetId === 'maze-8') {
+        const rows = 8;
+        const cols = 8;
+        const walls = [];
+        for (let r = 1; r < 7; r++) {
+            if (r !== 4) walls.push(r * cols + 3);
+        }
+        for (let c = 1; c < 7; c++) {
+            if (c !== 5) walls.push(4 * cols + c);
+        }
+        const terminals = [
+            [0 * cols + 7, 1],
+            [7 * cols + 0, -1]
+        ];
+        return new GridworldEnv({
+            rows,
+            cols,
+            walls,
+            terminals,
+            start: 7 * cols + 3,
+            seed
+        });
+    }
+    const rows = 5;
+    const cols = 5;
+    const walls = [
+        1 * cols + 1,
+        2 * cols + 2,
+        3 * cols + 1
+    ];
+    const terminals = [
+        [0 * cols + 4, 1],
+        [4 * cols + 0, -1]
+    ];
+    return new GridworldEnv({
+        rows,
+        cols,
+        walls,
+        terminals,
+        start: 4 * cols + 2,
+        seed
+    });
+}
+
+function createRandomGridworld(rows, cols, seed = 1) {
+    const rng = createSeededRng(seed);
+    const total = rows * cols;
+    const start = Math.floor(rows / 2) * cols + Math.floor(cols / 2);
+    const candidates = Array.from({ length: total }, (_, i) => i).filter(i => i !== start);
+    const pick = () => candidates.splice(Math.floor(rng() * candidates.length), 1)[0];
+    const terminalA = pick();
+    const terminalB = pick();
+    const terminalRewards = [
+        [terminalA, 1],
+        [terminalB, -1]
+    ];
+    const wallCount = Math.floor(total * 0.15);
+    const walls = [];
+    for (let i = 0; i < wallCount && candidates.length; i++) {
+        walls.push(pick());
+    }
+    return new GridworldEnv({
+        rows,
+        cols,
+        walls,
+        terminals: terminalRewards,
+        start,
+        seed
+    });
+}
+
+function setupGridworld() {
+    const canvas = document.getElementById('gridworldCanvas');
+    if (!canvas) return;
+    const dom = {
+        gamma: document.getElementById('gridGamma'),
+        gammaVal: document.getElementById('gridGammaVal'),
+        stepCost: document.getElementById('gridStepCost'),
+        stepCostVal: document.getElementById('gridStepCostVal'),
+        slip: document.getElementById('gridSlip'),
+        slipVal: document.getElementById('gridSlipVal'),
+        preset: document.getElementById('gridPreset'),
+        algo: document.getElementById('gridAlgo'),
+        iter: document.getElementById('gridIter'),
+        iterVal: document.getElementById('gridIterVal'),
+        showValues: document.getElementById('gridShowValues'),
+        showHeat: document.getElementById('gridShowHeat'),
+        showPolicy: document.getElementById('gridShowPolicy'),
+        iterate: document.getElementById('gridIterate'),
+        play: document.getElementById('gridPlay'),
+        randomize: document.getElementById('gridRandomize'),
+        inspectValues: document.getElementById('gridInspectValues')
+    };
+
+    const updateLabels = () => {
+        if (dom.gammaVal) dom.gammaVal.textContent = parseFloat(dom.gamma.value).toFixed(2);
+        if (dom.stepCostVal) dom.stepCostVal.textContent = parseFloat(dom.stepCost.value).toFixed(2);
+        if (dom.slipVal) dom.slipVal.textContent = parseFloat(dom.slip.value).toFixed(2);
+    };
+
+    const buildEnv = (seed) => {
+        const presetId = dom.preset?.value || 'classic-5';
+        return createPresetGridworld(presetId, seed);
+    };
+
+    const applyEnvParams = (env) => {
+        env.stepCost = parseFloat(dom.stepCost.value);
+        env.slip = parseFloat(dom.slip.value);
+        return env;
+    };
+
+    const resetGrid = (seed, envOverride) => {
+        if (gridState.timer) {
+            clearInterval(gridState.timer);
+            gridState.timer = null;
+        }
+        gridState.playing = false;
+        if (dom.play) dom.play.textContent = 'Play';
+        updateLabels();
+        const env = envOverride || buildEnv(seed);
+        gridState.env = applyEnvParams(env);
+        const n = gridState.env.rows * gridState.env.cols;
+        gridState.V = Array(n).fill(0);
+        gridState.policy = Array.from({ length: n }, () => Math.floor(Math.random() * 4));
+        gridState.history = [{ V: gridState.V.slice(), policy: gridState.policy.slice() }];
+        gridState.deltaHistory = [0];
+        gridState.avgHistory = [0];
+        gridState.viewIndex = 0;
+        gridState.anim = null;
+        if (dom.iter) {
+            dom.iter.max = 0;
+            dom.iter.value = 0;
+        }
+        if (dom.iterVal) dom.iterVal.textContent = '0';
+        drawGridworld();
+        drawGridworldChart();
+    };
+
+    const computeQ = (state, action, values, gamma) => {
+        const transitions = gridState.env.expectedTransitions(state, action);
+        return transitions.reduce((sum, result) => {
+            const next = result.done ? 0 : gamma * values[result.nextState];
+            return sum + result.prob * (result.reward + next);
+        }, 0);
+    };
+
+    const improvePolicy = (values) => {
+        const policy = gridState.policy.slice();
+        for (let i = 0; i < policy.length; i++) {
+            if (gridState.env.isWall(i) || gridState.env.isTerminal(i)) {
+                continue;
+            }
+            let best = 0;
+            let bestQ = -Infinity;
+            for (let a = 0; a < 4; a++) {
+                const q = computeQ(i, a, values, parseFloat(dom.gamma.value));
+                if (q > bestQ) {
+                    bestQ = q;
+                    best = a;
+                }
+            }
+            policy[i] = best;
+        }
+        return policy;
+    };
+
+    const iterate = () => {
+        const gamma = parseFloat(dom.gamma.value);
+        if (dom.gammaVal) dom.gammaVal.textContent = gamma.toFixed(2);
+        const algo = dom.algo.value;
+        if (algo === 'policy-improve') {
+            gridState.policy = improvePolicy(gridState.V);
+            const n = gridState.V.length;
+            const avgV = gridState.V.reduce((sum, v) => sum + v, 0) / n;
+            gridState.history.push({ V: gridState.V.slice(), policy: gridState.policy.slice() });
+            gridState.deltaHistory.push(0);
+            gridState.avgHistory.push(avgV);
+            gridState.viewIndex = gridState.history.length - 1;
+            if (dom.iter) {
+                dom.iter.max = gridState.history.length - 1;
+                dom.iter.value = gridState.viewIndex;
+            }
+            if (dom.iterVal) dom.iterVal.textContent = gridState.viewIndex.toString();
+            startGridAnimation(gridState.history[gridState.viewIndex].V);
+            drawGridworldChart();
+            return;
+        }
+        const n = gridState.V.length;
+        const nextV = gridState.V.slice();
+        let maxDelta = 0;
+        for (let i = 0; i < n; i++) {
+            if (gridState.env.isWall(i) || gridState.env.isTerminal(i)) {
+                nextV[i] = 0;
+                continue;
+            }
+            if (algo === 'policy-eval') {
+                const action = gridState.policy[i];
+                nextV[i] = computeQ(i, action, gridState.V, gamma);
+            } else {
+                let bestQ = -Infinity;
+                for (let a = 0; a < 4; a++) {
+                    const q = computeQ(i, a, gridState.V, gamma);
+                    if (q > bestQ) bestQ = q;
+                }
+                nextV[i] = bestQ;
+            }
+            maxDelta = Math.max(maxDelta, Math.abs(nextV[i] - gridState.V[i]));
+        }
+        gridState.V = nextV;
+        if (algo === 'policy-iteration') {
+            gridState.policy = improvePolicy(gridState.V);
+        } else if (algo === 'value-iteration') {
+            gridState.policy = improvePolicy(gridState.V);
+        }
+        gridState.history.push({ V: gridState.V.slice(), policy: gridState.policy.slice() });
+        const avgV = gridState.V.reduce((sum, v) => sum + v, 0) / n;
+        gridState.deltaHistory.push(maxDelta);
+        gridState.avgHistory.push(avgV);
+        gridState.viewIndex = gridState.history.length - 1;
+        if (dom.iter) {
+            dom.iter.max = gridState.history.length - 1;
+            dom.iter.value = gridState.viewIndex;
+        }
+        if (dom.iterVal) dom.iterVal.textContent = gridState.viewIndex.toString();
+        startGridAnimation(gridState.history[gridState.viewIndex].V);
+        drawGridworldChart();
+    };
+
+    const togglePlay = () => {
+        gridState.playing = !gridState.playing;
+        if (dom.play) dom.play.textContent = gridState.playing ? 'Pause' : 'Play';
+        if (gridState.playing) {
+            gridState.timer = setInterval(iterate, 300);
+        } else if (gridState.timer) {
+            clearInterval(gridState.timer);
+        }
+    };
+
+    const onSlider = () => {
+        const idx = parseInt(dom.iter.value, 10);
+        gridState.viewIndex = idx;
+        if (dom.iterVal) dom.iterVal.textContent = idx.toString();
+        const snapshot = gridState.history[idx];
+        if (snapshot) {
+            gridState.policy = snapshot.policy.slice();
+            startGridAnimation(snapshot.V);
+        }
+    };
+
+    const onCanvasClick = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const cellSize = Math.min(canvas.width / gridState.env.cols, canvas.height / gridState.env.rows);
+        const offsetX = (canvas.width - cellSize * gridState.env.cols) / 2;
+        const offsetY = (canvas.height - cellSize * gridState.env.rows) / 2;
+        const col = Math.floor((x - offsetX) / cellSize);
+        const row = Math.floor((y - offsetY) / cellSize);
+        if (row < 0 || col < 0 || row >= gridState.env.rows || col >= gridState.env.cols) {
+            return;
+        }
+        const idx = gridState.env.toIndex(row, col);
+        gridState.selectedState = idx;
+        if (!dom.inspectValues) return;
+        if (gridState.env.isWall(idx)) {
+            dom.inspectValues.textContent = 'Wall cell.';
+            return;
+        }
+        if (gridState.env.isTerminal(idx)) {
+            dom.inspectValues.textContent = 'Terminal state.';
+            return;
+        }
+        const gamma = parseFloat(dom.gamma.value);
+        const values = gridState.history[gridState.viewIndex].V;
+        const actions = ['Up', 'Right', 'Down', 'Left'];
+        dom.inspectValues.innerHTML = actions.map((label, a) => {
+            const q = computeQ(idx, a, values, gamma);
+            return `<div>${label}: ${q.toFixed(2)}</div>`;
+        }).join('');
+    };
+
+    if (dom.iterate) dom.iterate.addEventListener('click', iterate);
+    if (dom.play) dom.play.addEventListener('click', togglePlay);
+    if (dom.randomize) {
+        dom.randomize.addEventListener('click', () => {
+            const seed = Math.floor(Math.random() * 1000);
+            const baseEnv = buildEnv(seed);
+            const randomEnv = createRandomGridworld(baseEnv.rows, baseEnv.cols, seed);
+            resetGrid(seed, randomEnv);
+        });
+    }
+    if (dom.iter) dom.iter.addEventListener('input', onSlider);
+    if (dom.gamma) dom.gamma.addEventListener('input', updateLabels);
+    if (dom.stepCost) dom.stepCost.addEventListener('input', () => resetGrid(5, gridState.env));
+    if (dom.slip) dom.slip.addEventListener('input', () => resetGrid(5, gridState.env));
+    if (dom.preset) dom.preset.addEventListener('change', () => resetGrid(5));
+    if (canvas) canvas.addEventListener('click', onCanvasClick);
+    resetGrid(5);
+}
+
+function startGridAnimation(targetValues) {
+    if (!targetValues) return;
+    const fromValues = gridState.anim?.currentValues || gridState.history[gridState.viewIndex]?.V || targetValues;
+    gridState.anim = {
+        start: performance.now(),
+        duration: 300,
+        from: fromValues.slice(),
+        to: targetValues.slice(),
+        currentValues: fromValues.slice()
+    };
+    requestAnimationFrame(drawGridworld);
+}
+
+function drawGridworld() {
+    const canvas = document.getElementById('gridworldCanvas');
+    if (!canvas || !gridState.env) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const dom = {
+        showValues: document.getElementById('gridShowValues'),
+        showHeat: document.getElementById('gridShowHeat'),
+        showPolicy: document.getElementById('gridShowPolicy')
+    };
+    const width = canvas.width;
+    const height = canvas.height;
+    const cellSize = Math.min(width / gridState.env.cols, height / gridState.env.rows);
+    const offsetX = (width - cellSize * gridState.env.cols) / 2;
+    const offsetY = (height - cellSize * gridState.env.rows) / 2;
+    ctx.clearRect(0, 0, width, height);
+
+    let displayValues = gridState.history[gridState.viewIndex]?.V || gridState.V;
+    if (gridState.anim) {
+        const now = performance.now();
+        const t = clamp((now - gridState.anim.start) / gridState.anim.duration, 0, 1);
+        displayValues = gridState.anim.from.map((v, i) => lerp(v, gridState.anim.to[i], t));
+        if (t < 1) {
+            gridState.anim.currentValues = displayValues;
+            requestAnimationFrame(drawGridworld);
+        } else {
+            gridState.anim = null;
+        }
+    }
+    const values = displayValues || [];
+    const valueMin = Math.min(...values);
+    const valueMax = Math.max(...values);
+
+    for (let r = 0; r < gridState.env.rows; r++) {
+        for (let c = 0; c < gridState.env.cols; c++) {
+            const idx = gridState.env.toIndex(r, c);
+            const x = offsetX + c * cellSize;
+            const y = offsetY + r * cellSize;
+            if (gridState.env.isWall(idx)) {
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillRect(x, y, cellSize, cellSize);
+            } else if (gridState.env.isTerminal(idx)) {
+                const reward = gridState.env.terminalRewards.get(idx);
+                ctx.fillStyle = reward > 0 ? '#bbf7d0' : '#fecaca';
+                ctx.fillRect(x, y, cellSize, cellSize);
+            } else if (dom.showHeat?.checked) {
+                const normalized = (values[idx] - valueMin) / Math.max(0.0001, valueMax - valueMin);
+                const color = `rgba(56, 189, 248, ${0.15 + normalized * 0.6})`;
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, cellSize, cellSize);
+            } else {
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(x, y, cellSize, cellSize);
+            }
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.strokeRect(x, y, cellSize, cellSize);
+            if (dom.showValues?.checked && !gridState.env.isWall(idx)) {
+                ctx.fillStyle = '#1f2937';
+                ctx.font = '12px "Nunito", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(values[idx].toFixed(2), x + cellSize / 2, y + cellSize / 2 + 4);
+            }
+        }
+    }
+
+    if (dom.showPolicy?.checked) {
+        const policy = gridState.history[gridState.viewIndex]?.policy || gridState.policy;
+        const arrows = [
+            { dx: 0, dy: -12 },
+            { dx: 12, dy: 0 },
+            { dx: 0, dy: 12 },
+            { dx: -12, dy: 0 }
+        ];
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        for (let r = 0; r < gridState.env.rows; r++) {
+            for (let c = 0; c < gridState.env.cols; c++) {
+                const idx = gridState.env.toIndex(r, c);
+                if (gridState.env.isWall(idx) || gridState.env.isTerminal(idx)) continue;
+                const action = policy[idx] ?? 0;
+                const centerX = offsetX + c * cellSize + cellSize / 2;
+                const centerY = offsetY + r * cellSize + cellSize / 2;
+                const arrow = arrows[action];
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + arrow.dx, centerY + arrow.dy);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function drawGridworldChart() {
+    const chart = document.getElementById('gridworldChart');
+    if (!chart) return;
+    const ctx = chart.getContext('2d');
+    drawLineChart(ctx, [gridState.deltaHistory, gridState.avgHistory], {
+        colors: ['#ef4444', '#0ea5e9'],
+        maxY: Math.max(1, ...gridState.deltaHistory, ...gridState.avgHistory)
+    });
+}
+
+const mcState = {
+    env: null,
+    values: [],
+    Q: [],
+    saCounts: [],
+    policy: [],
+    counts: [],
+    returnHistory: [],
+    valueHistory: [],
+    path: [],
+    pathIndex: 0,
+    playing: false,
+    timer: null
+};
+
+function setupMonteCarlo() {
+    const canvas = document.getElementById('mcGridCanvas');
+    if (!canvas) return;
+    const dom = {
+        episodes: document.getElementById('mcEpisodes'),
+        epsilon: document.getElementById('mcEpsilon'),
+        epsilonVal: document.getElementById('mcEpsilonVal'),
+        run: document.getElementById('mcRun'),
+        play: document.getElementById('mcPlay'),
+        reset: document.getElementById('mcReset')
+    };
+
+    const reset = () => {
+        if (mcState.timer) {
+            clearInterval(mcState.timer);
+            mcState.timer = null;
+        }
+        mcState.playing = false;
+        if (dom.play) dom.play.textContent = 'Play';
+        mcState.env = createPresetGridworld('classic-5', 12);
+        mcState.env.stepCost = -0.04;
+        mcState.env.slip = 0;
+        const n = mcState.env.rows * mcState.env.cols;
+        mcState.values = Array(n).fill(0);
+        mcState.Q = Array.from({ length: n }, () => Array(4).fill(0));
+        mcState.saCounts = Array.from({ length: n }, () => Array(4).fill(0));
+        mcState.policy = Array.from({ length: n }, () => 0);
+        mcState.counts = Array(n).fill(0);
+        mcState.returnHistory = [];
+        mcState.valueHistory = [];
+        mcState.path = [];
+        mcState.pathIndex = 0;
+        drawMonteCarlo();
+    };
+
+    const runEpisode = () => {
+        const gamma = 0.9;
+        const epsilon = parseFloat(dom.epsilon.value);
+        if (dom.epsilonVal) dom.epsilonVal.textContent = epsilon.toFixed(2);
+        let state = mcState.env.reset();
+        const episode = [];
+        for (let step = 0; step < 40; step++) {
+            const actions = mcState.env.actions(state);
+            if (!actions.length) break;
+            let action = mcState.policy[state] ?? actions[0];
+            if (Math.random() < epsilon) {
+                action = actions[Math.floor(Math.random() * actions.length)];
+            }
+            const result = mcState.env.sampleTransition(state, action);
+            episode.push({ state, action, reward: result.reward });
+            state = result.nextState;
+            if (result.done) break;
+        }
+        let G = 0;
+        const visited = new Set();
+        for (let t = episode.length - 1; t >= 0; t--) {
+            const step = episode[t];
+            G = step.reward + gamma * G;
+            const key = `${step.state}-${step.action}`;
+            if (!visited.has(key)) {
+                visited.add(key);
+                mcState.saCounts[step.state][step.action] += 1;
+                const count = mcState.saCounts[step.state][step.action];
+                const oldQ = mcState.Q[step.state][step.action];
+                mcState.Q[step.state][step.action] = oldQ + (G - oldQ) / count;
+                mcState.counts[step.state] += 1;
+            }
+        }
+        mcState.values = mcState.Q.map(qValues => Math.max(...qValues));
+        mcState.policy = mcState.Q.map(qValues => qValues.indexOf(Math.max(...qValues)));
+        mcState.returnHistory.push(G);
+        const startValue = mcState.values[mcState.env.start] || 0;
+        mcState.valueHistory.push(startValue);
+        mcState.path = episode.map(step => step.state);
+        mcState.pathIndex = 0;
+        drawMonteCarlo();
+    };
+
+    const play = () => {
+        mcState.playing = !mcState.playing;
+        if (dom.play) dom.play.textContent = mcState.playing ? 'Pause' : 'Play';
+        if (mcState.playing) {
+            mcState.timer = setInterval(() => {
+                runEpisode();
+            }, 400);
+        } else if (mcState.timer) {
+            clearInterval(mcState.timer);
+        }
+    };
+
+    if (dom.epsilon) dom.epsilon.addEventListener('input', () => {
+        if (dom.epsilonVal) dom.epsilonVal.textContent = parseFloat(dom.epsilon.value).toFixed(2);
+    });
+    if (dom.run) dom.run.addEventListener('click', runEpisode);
+    if (dom.play) dom.play.addEventListener('click', play);
+    if (dom.reset) dom.reset.addEventListener('click', reset);
+    reset();
+}
+
+function drawMonteCarlo() {
+    const gridCanvas = document.getElementById('mcGridCanvas');
+    if (!gridCanvas || !mcState.env) return;
+    const ctx = gridCanvas.getContext('2d');
+    const width = gridCanvas.width;
+    const height = gridCanvas.height;
+    const cellSize = Math.min(width / mcState.env.cols, height / mcState.env.rows);
+    const offsetX = (width - cellSize * mcState.env.cols) / 2;
+    const offsetY = (height - cellSize * mcState.env.rows) / 2;
+    ctx.clearRect(0, 0, width, height);
+    for (let r = 0; r < mcState.env.rows; r++) {
+        for (let c = 0; c < mcState.env.cols; c++) {
+            const idx = mcState.env.toIndex(r, c);
+            const x = offsetX + c * cellSize;
+            const y = offsetY + r * cellSize;
+            if (mcState.env.isWall(idx)) {
+                ctx.fillStyle = '#94a3b8';
+            } else if (mcState.env.isTerminal(idx)) {
+                const reward = mcState.env.terminalRewards.get(idx);
+                ctx.fillStyle = reward > 0 ? '#bbf7d0' : '#fecaca';
+            } else {
+                const value = mcState.values[idx] || 0;
+                const intensity = clamp((value + 1) / 2, 0, 1);
+                ctx.fillStyle = `rgba(56, 189, 248, ${0.1 + intensity * 0.6})`;
+            }
+            ctx.fillRect(x, y, cellSize, cellSize);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.strokeRect(x, y, cellSize, cellSize);
+        }
+    }
+    if (mcState.path.length) {
+        const idx = mcState.path[Math.min(mcState.pathIndex, mcState.path.length - 1)];
+        const { row, col } = mcState.env.fromIndex(idx);
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.arc(offsetX + col * cellSize + cellSize / 2, offsetY + row * cellSize + cellSize / 2, cellSize / 4, 0, Math.PI * 2);
+        ctx.fill();
+        mcState.pathIndex = (mcState.pathIndex + 1) % mcState.path.length;
+    }
+
+    const returnsCanvas = document.getElementById('mcReturnsCanvas');
+    if (returnsCanvas) {
+        const rctx = returnsCanvas.getContext('2d');
+        const values = mcState.returnHistory.slice(-20);
+        drawBarChart(rctx, values.map(v => v + 2), { max: 4, colors: ['#38bdf8'] });
+    }
+    const valueCanvas = document.getElementById('mcValueCanvas');
+    if (valueCanvas) {
+        const vctx = valueCanvas.getContext('2d');
+        drawLineChart(vctx, mcState.valueHistory, { colors: ['#10b981'] });
+    }
+}
+
+const tdState = {
+    values: Array(5).fill(0.5),
+    history: [],
+    lastDeltas: [],
+    playing: false,
+    timer: null
+};
+
+function setupTd() {
+    const canvas = document.getElementById('tdValueCanvas');
+    if (!canvas) return;
+    const dom = {
+        alpha: document.getElementById('tdAlpha'),
+        alphaVal: document.getElementById('tdAlphaVal'),
+        run: document.getElementById('tdRun'),
+        play: document.getElementById('tdPlay'),
+        reset: document.getElementById('tdReset')
+    };
+
+    const reset = () => {
+        if (tdState.timer) {
+            clearInterval(tdState.timer);
+            tdState.timer = null;
+        }
+        tdState.playing = false;
+        if (dom.play) dom.play.textContent = 'Play';
+        tdState.values = Array(5).fill(0.5);
+        tdState.history = [];
+        tdState.lastDeltas = [];
+        drawTdCharts();
+    };
+
+    const runEpisode = () => {
+        const alpha = parseFloat(dom.alpha.value);
+        if (dom.alphaVal) dom.alphaVal.textContent = alpha.toFixed(2);
+        let state = 2;
+        const gamma = 1;
+        const deltas = [];
+        for (let step = 0; step < 50; step++) {
+            const action = Math.random() < 0.5 ? -1 : 1;
+            const next = state + action;
+            let reward = 0;
+            let done = false;
+            if (next < 0) {
+                reward = 0;
+                done = true;
+            } else if (next > 4) {
+                reward = 1;
+                done = true;
+            }
+            const nextValue = done ? 0 : tdState.values[next];
+            const delta = reward + gamma * nextValue - tdState.values[state];
+            tdState.values[state] += alpha * delta;
+            deltas.push(delta);
+            if (done) break;
+            state = next;
+        }
+        tdState.lastDeltas = deltas;
+        tdState.history.push(tdState.values.slice());
+        drawTdCharts();
+    };
+
+    const play = () => {
+        tdState.playing = !tdState.playing;
+        if (dom.play) dom.play.textContent = tdState.playing ? 'Pause' : 'Play';
+        if (tdState.playing) {
+            tdState.timer = setInterval(runEpisode, 350);
+        } else if (tdState.timer) {
+            clearInterval(tdState.timer);
+        }
+    };
+
+    if (dom.alpha) dom.alpha.addEventListener('input', () => {
+        if (dom.alphaVal) dom.alphaVal.textContent = parseFloat(dom.alpha.value).toFixed(2);
+    });
+    if (dom.run) dom.run.addEventListener('click', runEpisode);
+    if (dom.play) dom.play.addEventListener('click', play);
+    if (dom.reset) dom.reset.addEventListener('click', reset);
+    reset();
+}
+
+function drawTdCharts() {
+    const valueCanvas = document.getElementById('tdValueCanvas');
+    if (valueCanvas) {
+        const ctx = valueCanvas.getContext('2d');
+        drawBarChart(ctx, tdState.values, { colors: ['#0ea5e9', '#38bdf8', '#60a5fa', '#a78bfa', '#f472b6'] });
+    }
+    const errorCanvas = document.getElementById('tdErrorCanvas');
+    if (errorCanvas) {
+        const ctx = errorCanvas.getContext('2d');
+        drawLineChart(ctx, tdState.lastDeltas, { colors: ['#ef4444'] });
+    }
+    const episodeCanvas = document.getElementById('tdEpisodeCanvas');
+    if (episodeCanvas) {
+        const ctx = episodeCanvas.getContext('2d');
+        const series = [];
+        for (let i = 0; i < 5; i++) {
+            series.push(tdState.history.map(values => values[i]));
+        }
+        drawLineChart(ctx, series, {
+            colors: ['#0ea5e9', '#38bdf8', '#60a5fa', '#a78bfa', '#f472b6'],
+            maxY: 1
+        });
+    }
+}
+
+const controlState = {
+    env: null,
+    Q: [],
+    returns: [],
+    epsilonHistory: [],
+    playing: false,
+    timer: null
+};
+
+function setupControl() {
+    const canvas = document.getElementById('controlGridCanvas');
+    if (!canvas) return;
+    const dom = {
+        algo: document.getElementById('controlAlgo'),
+        epsilon: document.getElementById('controlEpsilon'),
+        epsilonVal: document.getElementById('controlEpsilonVal'),
+        alpha: document.getElementById('controlAlpha'),
+        alphaVal: document.getElementById('controlAlphaVal'),
+        run: document.getElementById('controlRun'),
+        play: document.getElementById('controlPlay'),
+        reset: document.getElementById('controlReset')
+    };
+
+    const reset = () => {
+        if (controlState.timer) {
+            clearInterval(controlState.timer);
+            controlState.timer = null;
+        }
+        controlState.playing = false;
+        if (dom.play) dom.play.textContent = 'Play';
+        controlState.env = createPresetGridworld('classic-5', 22);
+        controlState.env.stepCost = -0.04;
+        controlState.env.slip = 0;
+        const n = controlState.env.rows * controlState.env.cols;
+        controlState.Q = Array.from({ length: n }, () => Array(4).fill(0));
+        controlState.returns = [];
+        controlState.epsilonHistory = [];
+        drawControlCharts();
+    };
+
+    const chooseAction = (state, epsilon) => {
+        const actions = controlState.env.actions(state);
+        if (!actions.length) return null;
+        if (Math.random() < epsilon) {
+            return actions[Math.floor(Math.random() * actions.length)];
+        }
+        const qValues = controlState.Q[state];
+        let best = actions[0];
+        let bestQ = -Infinity;
+        actions.forEach(action => {
+            const q = qValues[action];
+            if (q > bestQ) {
+                bestQ = q;
+                best = action;
+            }
+        });
+        return best;
+    };
+
+    const expectedQ = (state, epsilon) => {
+        const actions = controlState.env.actions(state);
+        if (!actions.length) return 0;
+        const qValues = controlState.Q[state];
+        const best = Math.max(...actions.map(a => qValues[a]));
+        const uniform = actions.length;
+        return actions.reduce((sum, action) => {
+            const prob = action === qValues.indexOf(best) ? (1 - epsilon) + epsilon / uniform : epsilon / uniform;
+            return sum + prob * qValues[action];
+        }, 0);
+    };
+
+    const runEpisode = () => {
+        const epsilon = parseFloat(dom.epsilon.value);
+        const alpha = parseFloat(dom.alpha.value);
+        const gamma = 0.9;
+        if (dom.epsilonVal) dom.epsilonVal.textContent = epsilon.toFixed(2);
+        if (dom.alphaVal) dom.alphaVal.textContent = alpha.toFixed(2);
+        let state = controlState.env.reset();
+        let action = chooseAction(state, epsilon);
+        let totalReward = 0;
+        for (let step = 0; step < 60; step++) {
+            if (action === null) break;
+            const result = controlState.env.step(action);
+            totalReward += result.reward;
+            const nextAction = chooseAction(result.nextState, epsilon);
+            let target = result.reward;
+            if (!result.done) {
+                if (dom.algo.value === 'sarsa') {
+                    target += gamma * controlState.Q[result.nextState][nextAction ?? 0];
+                } else if (dom.algo.value === 'expected') {
+                    target += gamma * expectedQ(result.nextState, epsilon);
+                } else {
+                    const nextQs = controlState.Q[result.nextState];
+                    target += gamma * Math.max(...nextQs);
+                }
+            }
+            controlState.Q[state][action] += alpha * (target - controlState.Q[state][action]);
+            if (result.done) break;
+            state = result.nextState;
+            action = dom.algo.value === 'sarsa' ? nextAction : chooseAction(state, epsilon);
+        }
+        controlState.returns.push(totalReward);
+        controlState.epsilonHistory.push(epsilon);
+        drawControlCharts();
+    };
+
+    const play = () => {
+        controlState.playing = !controlState.playing;
+        if (dom.play) dom.play.textContent = controlState.playing ? 'Pause' : 'Play';
+        if (controlState.playing) {
+            controlState.timer = setInterval(runEpisode, 350);
+        } else if (controlState.timer) {
+            clearInterval(controlState.timer);
+        }
+    };
+
+    if (dom.epsilon) dom.epsilon.addEventListener('input', () => {
+        if (dom.epsilonVal) dom.epsilonVal.textContent = parseFloat(dom.epsilon.value).toFixed(2);
+    });
+    if (dom.alpha) dom.alpha.addEventListener('input', () => {
+        if (dom.alphaVal) dom.alphaVal.textContent = parseFloat(dom.alpha.value).toFixed(2);
+    });
+    if (dom.run) dom.run.addEventListener('click', runEpisode);
+    if (dom.play) dom.play.addEventListener('click', play);
+    if (dom.reset) dom.reset.addEventListener('click', reset);
+    reset();
+}
+
+function drawControlCharts() {
+    const gridCanvas = document.getElementById('controlGridCanvas');
+    if (gridCanvas && controlState.env) {
+        const ctx = gridCanvas.getContext('2d');
+        const width = gridCanvas.width;
+        const height = gridCanvas.height;
+        const cellSize = Math.min(width / controlState.env.cols, height / controlState.env.rows);
+        const offsetX = (width - cellSize * controlState.env.cols) / 2;
+        const offsetY = (height - cellSize * controlState.env.rows) / 2;
+        ctx.clearRect(0, 0, width, height);
+        for (let r = 0; r < controlState.env.rows; r++) {
+            for (let c = 0; c < controlState.env.cols; c++) {
+                const idx = controlState.env.toIndex(r, c);
+                const x = offsetX + c * cellSize;
+                const y = offsetY + r * cellSize;
+                if (controlState.env.isWall(idx)) {
+                    ctx.fillStyle = '#94a3b8';
+                } else if (controlState.env.isTerminal(idx)) {
+                    const reward = controlState.env.terminalRewards.get(idx);
+                    ctx.fillStyle = reward > 0 ? '#bbf7d0' : '#fecaca';
+                } else {
+                    ctx.fillStyle = '#f8fafc';
+                }
+                ctx.fillRect(x, y, cellSize, cellSize);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.strokeRect(x, y, cellSize, cellSize);
+                if (!controlState.env.isWall(idx) && !controlState.env.isTerminal(idx)) {
+                    const qValues = controlState.Q[idx];
+                    const bestAction = qValues.indexOf(Math.max(...qValues));
+                    const arrows = [
+                        { dx: 0, dy: -12 },
+                        { dx: 12, dy: 0 },
+                        { dx: 0, dy: 12 },
+                        { dx: -12, dy: 0 }
+                    ];
+                    const arrow = arrows[bestAction];
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + cellSize / 2, y + cellSize / 2);
+                    ctx.lineTo(x + cellSize / 2 + arrow.dx, y + cellSize / 2 + arrow.dy);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+    const qCanvas = document.getElementById('controlQCanvas');
+    if (qCanvas && controlState.env) {
+        const ctx = qCanvas.getContext('2d');
+        const width = qCanvas.width;
+        const height = qCanvas.height;
+        ctx.clearRect(0, 0, width, height);
+        const miniWidth = width / 2;
+        const miniHeight = height / 2;
+        const actions = ['Up', 'Right', 'Down', 'Left'];
+        for (let i = 0; i < 4; i++) {
+            const offsetX = (i % 2) * miniWidth;
+            const offsetY = Math.floor(i / 2) * miniHeight;
+            const cellSize = Math.min(miniWidth / controlState.env.cols, miniHeight / controlState.env.rows);
+            const gridWidth = cellSize * controlState.env.cols;
+            const gridHeight = cellSize * controlState.env.rows;
+            const originX = offsetX + (miniWidth - gridWidth) / 2;
+            const originY = offsetY + (miniHeight - gridHeight) / 2;
+            for (let r = 0; r < controlState.env.rows; r++) {
+                for (let c = 0; c < controlState.env.cols; c++) {
+                    const idx = controlState.env.toIndex(r, c);
+                    const q = controlState.Q[idx][i] || 0;
+                    const intensity = clamp((q + 1) / 2, 0, 1);
+                    ctx.fillStyle = `rgba(14, 165, 233, ${0.15 + intensity * 0.6})`;
+                    ctx.fillRect(originX + c * cellSize, originY + r * cellSize, cellSize, cellSize);
+                    ctx.strokeStyle = '#e2e8f0';
+                    ctx.strokeRect(originX + c * cellSize, originY + r * cellSize, cellSize, cellSize);
+                }
+            }
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '12px "Nunito", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(actions[i], offsetX + miniWidth / 2, offsetY + miniHeight - 8);
+        }
+    }
+    const epsCanvas = document.getElementById('controlEpsCanvas');
+    if (epsCanvas) {
+        const ctx = epsCanvas.getContext('2d');
+        drawLineChart(ctx, controlState.epsilonHistory, { colors: ['#f97316'], maxY: 1 });
+    }
+    const returnCanvas = document.getElementById('controlReturnCanvas');
+    if (returnCanvas) {
+        const ctx = returnCanvas.getContext('2d');
+        drawLineChart(ctx, controlState.returns, { colors: ['#10b981'] });
+    }
+}
+
+// ============================================
 // Initialize all canvases on page load
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -8261,7 +10125,14 @@ document.addEventListener('DOMContentLoaded', function() {
     setupLstmLab();
     setupTransformerLab();
     setupTransformerAdvanced();
+    setupRlFundamentals();
+    setupBandits();
+    setupGridworld();
+    setupMonteCarlo();
+    setupTd();
+    setupControl();
     setupHolidayParade();
+    setupVisualizationMeta();
     refreshAllVisuals();
     
     // Add event listeners for activation function checkboxes

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artificial Intelligence Math Foundation</title>
+    <title>Arttificial Intelligence Math Foundations</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
@@ -19,7 +19,7 @@
 </head>
 <body data-theme="light">
     <header>
-        <h1>🧠 Artificial Intelligence Math Foundation</h1>
+        <h1>🧠 Arttificial Intelligence Math Foundations</h1>
         <p>Playful visuals and mini missions to explore the math behind neural networks</p>
         <div class="mode-switcher" role="group" aria-label="Theme mode">
             <span class="mode-label">Mode:</span>
@@ -36,6 +36,7 @@
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml">Machine Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning">Reinforcement Learning</button>
     </div>
 
     <div class="holiday-parade" aria-hidden="true">
@@ -61,6 +62,7 @@
     <main>
         <section class="chapter is-active" data-chapter="foundations">
             <nav class="chapter-nav" aria-label="Foundations sections">
+                <a href="#ai-categories">What is AI?</a>
                 <a href="#fundamentals">Foundations</a>
                 <a href="#vectors">Vectors</a>
                 <a href="#matrices">Matrices</a>
@@ -69,44 +71,123 @@
                 <a href="#activations">Activation Functions</a>
             </nav>
 
+            <section class="example-section ai-intro" id="ai-categories">
+                <div class="ai-hero">
+                    <div class="ai-hero-copy">
+                        <h2>What is AI?</h2>
+                        <p class="section-intro">AI builds systems that can sense, decide, and improve with data.</p>
+                        <div class="ai-definition">
+                            <p><strong>Artificial Intelligence (AI)</strong> is the field of creating systems that perceive their world, reason or learn from data, and choose actions to reach goals.</p>
+                        </div>
+                        <div class="ai-intuition">
+                            <article class="ai-intuition-card">
+                                <h3>Intuition: a curious student</h3>
+                                <p>AI studies examples, forms internal rules, then gets feedback to refine them.</p>
+                            </article>
+                            <article class="ai-intuition-card">
+                                <h3>Intuition: a navigator</h3>
+                                <p>AI observes a map, plans a route, acts, then updates the plan after each step.</p>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="ai-hero-visual" aria-hidden="true">
+                        <div class="ai-loop">
+                            <span class="ai-loop-step">Perceive</span>
+                            <span class="ai-loop-arrow">&rarr;</span>
+                            <span class="ai-loop-step">Represent</span>
+                            <span class="ai-loop-arrow">&rarr;</span>
+                            <span class="ai-loop-step">Learn/Plan</span>
+                            <span class="ai-loop-arrow">&rarr;</span>
+                            <span class="ai-loop-step">Act</span>
+                            <span class="ai-loop-arrow">&rarr;</span>
+                            <span class="ai-loop-step">Feedback</span>
+                        </div>
+                        <div class="ai-goal">Goal: reduce error or maximize reward</div>
+                        <div class="ai-signal-grid">
+                            <span class="ai-signal">Data</span>
+                            <span class="ai-signal">Model</span>
+                            <span class="ai-signal">Action</span>
+                        </div>
+                        <div class="math-formula math-mini ai-math-flow">
+                            \[
+                            \mathbf{x} \xrightarrow{f_\theta} \hat{\mathbf{y}}
+                            \quad L(\hat{\mathbf{y}}, \mathbf{y})
+                            \quad \theta \leftarrow \theta - \eta \nabla_\theta L
+                            \]
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-categories">
+                    <h3>AI categories in practice</h3>
+                    <p class="section-intro">Different AI families focus on different parts of the loop, but they often work together.</p>
+                    <div class="ai-category-grid">
+                        <article class="ai-category-card">
+                            <h4>Symbolic & search</h4>
+                            <p>Rules, logic, planning, and graph search to make decisions.</p>
+                        </article>
+                        <article class="ai-category-card">
+                            <h4>Machine learning</h4>
+                            <p>Models that learn patterns from labeled or unlabeled data.</p>
+                        </article>
+                        <article class="ai-category-card">
+                            <h4>Deep learning</h4>
+                            <p>Neural networks for vision, speech, language, and high-dimensional signals.</p>
+                        </article>
+                        <article class="ai-category-card">
+                            <h4>Reinforcement learning</h4>
+                            <p>Agents learn policies through interaction and rewards.</p>
+                        </article>
+                        <article class="ai-category-card">
+                            <h4>Generative AI</h4>
+                            <p>Models that create text, images, or audio from learned distributions.</p>
+                        </article>
+                        <article class="ai-category-card">
+                            <h4>Embodied & robotics</h4>
+                            <p>Perception plus control to act in the physical world.</p>
+                        </article>
+                    </div>
+                    <p class="ai-category-note">Most real systems blend categories, such as robots that plan with search and see with deep learning.</p>
+                </div>
+            </section>
+
             <!-- Foundations Section -->
             <section id="fundamentals" class="example-section fundamentals-section">
-                <h2>Foundations: Your Self-Guided Math Path</h2>
-            <p class="section-intro">Start here! Each step unlocks a superpower for understanding neural networks. Tap a tab to switch the graphic and see the idea in action.</p>
-            <div class="learning-path">
-                <div class="path-card">
-                    <span class="path-step">Step 1</span>
-                    <h4>Linear Algebra: Space Benders</h4>
-                    <p>Learn how vectors and matrices stretch, rotate, and move space.</p>
-                    <span class="path-goal">Goal: read \( \mathbf{h} = W\mathbf{x} + \mathbf{b} \).</span>
+                <h2>Foundations: Core Math Roadmap</h2>
+                <p class="section-intro">A compact roadmap of the math that powers modern AI. Switch tabs to see each idea in action.</p>
+                <div class="learning-path">
+                    <div class="path-card">
+                        <span class="path-step">Step 1</span>
+                        <h4>Linear Algebra: Space Benders</h4>
+                        <p>Learn how vectors and matrices stretch, rotate, and move space.</p>
+                        <span class="path-goal">Goal: read \( \mathbf{h} = W\mathbf{x} + \mathbf{b} \).</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 2</span>
+                        <h4>Calculus: Change Detective</h4>
+                        <p>Understand slopes, tiny nudges, and the chain rule.</p>
+                        <span class="path-goal">Goal: follow gradients through a network.</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 3</span>
+                        <h4>Optimization: Mountain Hikes</h4>
+                        <p>Use gradients to walk downhill and find the best answers.</p>
+                        <span class="path-goal">Goal: tune the learning rate \( \eta \).</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 4</span>
+                        <h4>Probability: Confidence Radar</h4>
+                        <p>Turn scores into probabilities and measure mistakes.</p>
+                        <span class="path-goal">Goal: use softmax and cross-entropy.</span>
+                    </div>
+                    <div class="path-card">
+                        <span class="path-step">Step 5</span>
+                        <h4>Matrix Calculus: Fast Backprop</h4>
+                        <p>Compute gradients for whole batches at once.</p>
+                        <span class="path-goal">Goal: track shapes and vectorized rules.</span>
+                    </div>
                 </div>
-                <div class="path-card">
-                    <span class="path-step">Step 2</span>
-                    <h4>Calculus: Change Detective</h4>
-                    <p>Understand slopes, tiny nudges, and the chain rule.</p>
-                    <span class="path-goal">Goal: follow gradients through a network.</span>
-                </div>
-                <div class="path-card">
-                    <span class="path-step">Step 3</span>
-                    <h4>Optimization: Mountain Hikes</h4>
-                    <p>Use gradients to walk downhill and find the best answers.</p>
-                    <span class="path-goal">Goal: tune the learning rate \( \eta \).</span>
-                </div>
-                <div class="path-card">
-                    <span class="path-step">Step 4</span>
-                    <h4>Probability: Confidence Radar</h4>
-                    <p>Turn scores into probabilities and measure mistakes.</p>
-                    <span class="path-goal">Goal: use softmax and cross-entropy.</span>
-                </div>
-                <div class="path-card">
-                    <span class="path-step">Step 5</span>
-                    <h4>Matrix Calculus: Fast Backprop</h4>
-                    <p>Compute gradients for whole batches at once.</p>
-                    <span class="path-goal">Goal: track shapes and vectorized rules.</span>
-                </div>
-            </div>
-            <div class="content-grid fundamentals-grid">
-                <div class="explanation">
+                <div class="content-grid fundamentals-grid">
+                    <div class="explanation">
                     <p class="foundation-lead">Neural networks are a stack of math ideas. Each tab below zooms in on one layer of that stack.</p>
                     <div class="concept-tabs" role="tablist">
                         <button class="concept-tab is-active" data-topic="linear" role="tab" aria-controls="concept-linear" aria-selected="true">Linear Algebra</button>
@@ -179,7 +260,13 @@
                                 L = -\sum_i y_i \log \hat{y}_i
                                 \]
                             </div>
-                            <p>Key result (used constantly): \( \nabla_{\mathbf{z}} L = \hat{\mathbf{y}} - \mathbf{y} \).</p>
+                            <p>Loss derivation: with \( \hat{\mathbf{y}} = \mathrm{softmax}(\mathbf{z}) \), the log-softmax derivative gives a simple gradient.</p>
+                            <div class="math-formula">
+                                \[
+                                \frac{\partial L}{\partial z_j} = \sum_i y_i (\hat{y}_j - \delta_{ij}) = \hat{y}_j - y_j
+                                \]
+                            </div>
+                            <p>Result: \( \nabla_{\mathbf{z}} L = \hat{\mathbf{y}} - \mathbf{y} \), the signal that drives backprop.</p>
                             <div class="mini-mission">Mini mission: spot the biggest probability bar.</div>
                         </div>
                         <div class="concept-panel" id="concept-matrix" data-topic="matrix" role="tabpanel">
@@ -201,15 +288,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="visualization">
-                    <canvas id="fundamentalsCanvas" width="420" height="360"></canvas>
-                    <div class="controls fundamentals-controls">
-                        <button onclick="cycleFundamentals()">Next concept</button>
-                        <p class="helper-text">Tap a tab to switch the picture.</p>
+                    <div class="visualization">
+                        <canvas id="fundamentalsCanvas" width="420" height="360"></canvas>
+                        <div class="controls fundamentals-controls">
+                            <button onclick="cycleFundamentals()">Next concept</button>
+                            <p class="helper-text">Tap a tab to switch the picture.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
         <!-- Vectors Section -->
         <section id="vectors" class="example-section">
@@ -364,8 +451,11 @@
                             <h4>Gradients, Jacobians, Hessians</h4>
                             <canvas class="card-canvas vector-card-canvas" id="vectorGradientCanvas" data-vector-card="gradient" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
-                                <li>\(\nabla_\theta L\) points steepest uphill.</li>
-                                <li>Jacobians handle vector outputs; Hessians capture curvature.</li>
+                                <li>\(\nabla_x L\) is the gradient of a scalar loss with respect to a vector.</li>
+                                <li>Jacobian \(J\) stacks partials: \(J_{ij} = \partial f_i / \partial x_j\).</li>
+                                <li>If \(f: \mathbb{R}^n \to \mathbb{R}^m\), then \(J\) is \(m \times n\) and \(f(x+\Delta x) \approx f(x) + J\Delta x\).</li>
+                                <li>Hessian \(H = \nabla^2 L\) captures curvature; eigenvalues reveal minima vs saddles.</li>
+                                <li>Second-order step: \(\Delta x = -H^{-1} \nabla L\) (Newton-style).</li>
                             </ul>
                         </article>
                         <article class="vector-card">
@@ -522,6 +612,7 @@
                     </div>
                     <div class="visualization">
                         <canvas id="probabilityCanvas" width="420" height="320"></canvas>
+                        <p class="figure-note">Graph. Bars show probability mass per outcome; the curve shows probability density; Bayes view compares prior, likelihood, and posterior.</p>
                     </div>
                 </div>
             </div>
@@ -776,10 +867,50 @@
 
         <section class="chapter" data-chapter="ml">
             <nav class="chapter-nav" aria-label="Machine learning sections">
+                <a href="#ml-intro">Definition</a>
                 <a href="#ml-algorithms">Algorithms</a>
                 <a href="#ml-walkthroughs">Algorithm Walkthroughs</a>
                 <a href="#ml-lifecycle">Training &amp; Inference</a>
             </nav>
+
+            <section id="ml-intro" class="example-section">
+                <h2>What is Machine Learning?</h2>
+                <p class="section-intro">Machine learning is the study of systems that learn patterns from data to make predictions or decisions without being explicitly programmed for each case.</p>
+                <div class="content-grid">
+                    <div class="explanation">
+                        <h3>Definition</h3>
+                        <p>Given data \(x\) and outcomes \(y\), machine learning finds a function \(f_\theta\) that maps inputs to outputs by optimizing parameters \(\theta\) to reduce error.</p>
+                        <div class="math-formula">
+                            \[
+                            \theta^* = \arg\min_\theta \frac{1}{n} \sum_{i=1}^{n} \mathcal{L}(f_\theta(x_i), y_i)
+                            \]
+                        </div>
+                        <h3>How it works (intuitive)</h3>
+                        <ul class="concept-bullets">
+                            <li><strong>Observe</strong>: collect examples and features.</li>
+                            <li><strong>Learn</strong>: fit a model that captures patterns.</li>
+                            <li><strong>Evaluate</strong>: test on new data to check generalization.</li>
+                            <li><strong>Use</strong>: deploy the model to make predictions.</li>
+                        </ul>
+                    </div>
+                    <div class="visualization">
+                        <div class="guide-stack">
+                            <article class="guide-card">
+                                <h4>Supervised learning</h4>
+                                <p>Learn from labeled examples to predict targets or classes.</p>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Unsupervised learning</h4>
+                                <p>Discover structure or clusters without labels.</p>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Self-supervised learning</h4>
+                                <p>Generate labels from data itself to learn useful representations.</p>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Machine Learning Algorithms Section -->
             <section id="ml-algorithms" class="example-section">
@@ -1089,6 +1220,129 @@
                                 <p class="example-note">Dimensionality reduction.</p>
                             </article>
                         </div>
+                    </div>
+                </div>
+                <div class="ml-derivations">
+                    <h3>Formulas and derivations</h3>
+                    <p class="section-intro">Short derivations that connect each algorithm to its core objective.</p>
+                    <div class="ml-derivation-grid">
+                        <article class="guide-card">
+                            <h4>Linear Regression</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                J(\mathbf{w}) = \frac{1}{n}\lVert X\mathbf{w} - \mathbf{y} \rVert^2
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Take gradient: \( \nabla J = \frac{2}{n} X^T (X\mathbf{w} - \mathbf{y}) \).</li>
+                                <li>Set to zero: \( X^T X \mathbf{w} = X^T \mathbf{y} \).</li>
+                                <li>Solve for \( \mathbf{w} \) (normal equation) or use gradient descent.</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>Logistic Regression</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                L = -\sum_i y_i \log \sigma(z_i) + (1-y_i)\log(1-\sigma(z_i))
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Let \( z_i = \mathbf{w}^T \mathbf{x}_i + b \), \( p_i = \sigma(z_i) \).</li>
+                                <li>Derivative: \( \partial L / \partial z_i = p_i - y_i \).</li>
+                                <li>Gradient: \( \nabla_{\mathbf{w}} L = X^T(\mathbf{p} - \mathbf{y}) \).</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>k-NN</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                \hat{y} = \text{mode}\{y_i : i \in \mathcal{N}_k(x)\}
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>No training objective; store all labeled points.</li>
+                                <li>Compute distances \( d(x, x_i) \) to all points.</li>
+                                <li>Pick the k closest neighbors and vote (or average for regression).</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>Decision Trees</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                \text{Gain} = H(\text{parent}) - \sum_k p_k H(\text{child}_k)
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Compute impurity (entropy or Gini) at the parent node.</li>
+                                <li>Evaluate candidate splits and compute weighted child impurity.</li>
+                                <li>Choose the split with the largest information gain.</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>Random Forest</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                \hat{y} = \frac{1}{T} \sum_{t=1}^T h_t(x)
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Train many trees on bootstrapped samples with random feature subsets.</li>
+                                <li>Aggregate predictions by averaging or voting.</li>
+                                <li>Averaging reduces variance when trees are diverse.</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>Support Vector Machine</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                \min_{\mathbf{w}} \; \frac{1}{2}\lVert \mathbf{w} \rVert^2 + C \sum_i \max(0, 1 - y_i \mathbf{w}^T \mathbf{x}_i)
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Maximize margin by minimizing \( \lVert \mathbf{w} \rVert^2 \).</li>
+                                <li>Hinge loss penalizes points inside the margin or misclassified.</li>
+                                <li>Only support vectors affect the optimal boundary.</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>Naive Bayes</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                P(y \mid x) \propto P(y)\prod_i P(x_i \mid y)
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Start from Bayes: \( P(y \mid x) = P(x \mid y)P(y)/P(x) \).</li>
+                                <li>Assume conditional independence: \( P(x \mid y) = \prod_i P(x_i \mid y) \).</li>
+                                <li>Choose the class with the largest posterior.</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>k-Means</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                \min_{\{\mu_k\}} \sum_i \lVert x_i - \mu_{c_i} \rVert^2
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Assign each point to the nearest centroid.</li>
+                                <li>Update centroids by setting \( \partial J / \partial \mu_k = 0 \Rightarrow \mu_k = \text{mean} \).</li>
+                                <li>Repeat until assignments stabilize.</li>
+                            </ol>
+                        </article>
+                        <article class="guide-card">
+                            <h4>PCA</h4>
+                            <div class="math-formula math-mini">
+                                \[
+                                \max_{\lVert \mathbf{w} \rVert = 1} \mathbf{w}^T \Sigma \mathbf{w}
+                                \]
+                            </div>
+                            <ol class="step-list">
+                                <li>Use Lagrange multiplier: \( \Sigma \mathbf{w} = \lambda \mathbf{w} \).</li>
+                                <li>The top eigenvector gives the max-variance direction.</li>
+                                <li>Project data onto the leading eigenvectors.</li>
+                            </ol>
+                        </article>
                     </div>
                 </div>
             </section>
@@ -1933,6 +2187,7 @@
                 <a href="#prompt-engineering">Prompt Engineering</a>
                 <a href="#llm-fundamentals">LLM Fundamentals</a>
                 <a href="#vector-databases">Vector Databases</a>
+                <a href="#sutskever-list">Sutskever's List</a>
                 <a href="#ai-agents">AI Agents</a>
             </nav>
 
@@ -2881,6 +3136,340 @@ Return JSON with owner, task, and due.</pre>
                 </div>
             </section>
 
+            <section id="sutskever-list" class="example-section">
+                <h2>Sutskever's List: Core Readings</h2>
+                <p class="section-intro">A curated reading list with the main themes and ideas captured for quick scanning.</p>
+                <div class="reading-grid">
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Transformers</span>
+                            <span class="reading-year">Year: 2017</span>
+                        </div>
+                        <h3><a href="https://github.com/harvardnlp/annotated-transformer" target="_blank" rel="noopener noreferrer">The Annotated Transformer</a></h3>
+                        <p class="reading-summary">Annotated walkthrough of the Transformer model that uses self-attention for sequence tasks.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Attention-based encoder-decoder design.</li>
+                            <li><strong>Main idea</strong>: Line-by-line implementation clarifies attention, masking, and positional encoding.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3><a href="https://scottaaronson.blog/?p=3718" target="_blank" rel="noopener noreferrer">The First Law of Complexodynamics</a></h3>
+                        <p class="reading-summary">Blog essay connecting complexity, computation, and principles relevant to AI foundations.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Complexity growth in closed systems.</li>
+                            <li><strong>Main idea</strong>: Links entropy, computation, and limits of organized structure.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/" target="_blank" rel="noopener noreferrer">The Unreasonable Effectiveness of Recurrent Neural Networks</a></h3>
+                        <p class="reading-summary">Karpathy's blog showing why RNNs are powerful for sequence tasks with intuitive examples.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Sequence modeling with RNNs.</li>
+                            <li><strong>Main idea</strong>: Character-level RNNs learn structure and generate coherent sequences.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="noopener noreferrer">Understanding LSTM Networks</a></h3>
+                        <p class="reading-summary">Christopher Olah's visual and intuitive explanation of LSTM mechanisms and gates.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Gating and long-term memory.</li>
+                            <li><strong>Main idea</strong>: Input/forget/output gates control information flow and gradients.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: 2014</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1409.2329" target="_blank" rel="noopener noreferrer">Recurrent Neural Network Regularization</a></h3>
+                        <p class="reading-summary">Shows how regularization like dropout improves recurrent architectures.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Regularization for recurrent nets.</li>
+                            <li><strong>Main idea</strong>: Dropout-style methods improve generalization without breaking sequence learning.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3><a href="https://www.cs.toronto.edu/~hinton/absps/desc.pdf" target="_blank" rel="noopener noreferrer">Keeping Neural Networks Simple by Minimizing the Description Length of the Weights</a></h3>
+                        <p class="reading-summary">Explores regularization and model simplicity through information theory principles.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Minimum description length (MDL).</li>
+                            <li><strong>Main idea</strong>: Penalizing complexity encourages simpler, better-generalizing models.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: 2015</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1506.03134" target="_blank" rel="noopener noreferrer">Pointer Networks</a></h3>
+                        <p class="reading-summary">Neural architecture for solving combinatorial problems by learning pointer outputs.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Attention as a pointer mechanism.</li>
+                            <li><strong>Main idea</strong>: Output indices of input elements for variable-length solutions.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Vision</span>
+                            <span class="reading-year">Year: 2012</span>
+                        </div>
+                        <h3><a href="https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks" target="_blank" rel="noopener noreferrer">ImageNet Classification with Deep Convolutional Neural Networks</a></h3>
+                        <p class="reading-summary">AlexNet paper that sparked the modern deep learning vision revolution.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Deep CNNs for large-scale vision.</li>
+                            <li><strong>Main idea</strong>: ReLU, dropout, and GPU training drive major accuracy gains.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: 2015</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1511.06391" target="_blank" rel="noopener noreferrer">Order Matters: Sequence to Sequence for Sets</a></h3>
+                        <p class="reading-summary">Explores how ordering impacts seq2seq model performance.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Set prediction with seq2seq.</li>
+                            <li><strong>Main idea</strong>: Learning an output order improves performance on set tasks.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Systems</span>
+                            <span class="reading-year">Year: 2018</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1811.06965" target="_blank" rel="noopener noreferrer">GPipe: Easy Scaling with Micro-Batch Pipeline Parallelism</a></h3>
+                        <p class="reading-summary">Describes pipeline parallelism for scaling large neural networks.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Model-parallel scaling.</li>
+                            <li><strong>Main idea</strong>: Micro-batch pipeline parallelism trains very large networks efficiently.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Vision</span>
+                            <span class="reading-year">Year: 2015</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener noreferrer">Deep Residual Learning for Image Recognition</a></h3>
+                        <p class="reading-summary">ResNet paper that introduced residual connections to enable very deep models.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Residual learning.</li>
+                            <li><strong>Main idea</strong>: Identity skip connections allow very deep CNNs to train.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Vision</span>
+                            <span class="reading-year">Year: 2015</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1511.07122" target="_blank" rel="noopener noreferrer">Multi-Scale Context Aggregation by Dilated Convolutions</a></h3>
+                        <p class="reading-summary">Introduces dilated convolutions for large receptive fields without pooling.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Multi-scale context.</li>
+                            <li><strong>Main idea</strong>: Dilated convolutions expand receptive fields while preserving resolution.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Graph Networks</span>
+                            <span class="reading-year">Year: 2017</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1704.01212" target="_blank" rel="noopener noreferrer">Neural Message Passing for Quantum Chemistry</a></h3>
+                        <p class="reading-summary">Graph neural network model for learning on structured data.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Message-passing GNNs.</li>
+                            <li><strong>Main idea</strong>: Iterative node updates capture molecular structure for property prediction.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Transformers</span>
+                            <span class="reading-year">Year: 2017</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention Is All You Need</a></h3>
+                        <p class="reading-summary">Introduced the Transformer with self-attention, the foundation of modern NLP and LLMs.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Self-attention for sequence modeling.</li>
+                            <li><strong>Main idea</strong>: Replace recurrence with attention for parallel training and long-range context.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: 2014</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1409.3215" target="_blank" rel="noopener noreferrer">Neural Machine Translation by Jointly Learning to Align and Translate</a></h3>
+                        <p class="reading-summary">Shows how attention improves neural translation by aligning outputs with inputs.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Attention in seq2seq translation.</li>
+                            <li><strong>Main idea</strong>: Alignment learns which source tokens to focus on for each output.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Vision</span>
+                            <span class="reading-year">Year: 2016</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1603.05027" target="_blank" rel="noopener noreferrer">Identity Mappings in Deep Residual Networks</a></h3>
+                        <p class="reading-summary">Improves ResNet training using identity skip connections.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Optimization of deep residual networks.</li>
+                            <li><strong>Main idea</strong>: Pre-activation and identity skips improve gradient flow.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: 2017</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1706.01427" target="_blank" rel="noopener noreferrer">A Simple Neural Network Module for Relational Reasoning</a></h3>
+                        <p class="reading-summary">Introduces a module for relational reasoning tasks.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Relational reasoning.</li>
+                            <li><strong>Main idea</strong>: Explicit pairwise relations improve reasoning performance.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Generative Models</span>
+                            <span class="reading-year">Year: 2015</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1511.05644" target="_blank" rel="noopener noreferrer">Variational Lossy Autoencoder</a></h3>
+                        <p class="reading-summary">Combines autoencoder with variational losses for generative modeling.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Lossy compression in generative models.</li>
+                            <li><strong>Main idea</strong>: Balance reconstruction with latent codes that capture global structure.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Sequence Models</span>
+                            <span class="reading-year">Year: 2018</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1806.01822" target="_blank" rel="noopener noreferrer">Relational Recurrent Neural Networks</a></h3>
+                        <p class="reading-summary">Combines relational reasoning with RNN mechanisms.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Memory + relational reasoning.</li>
+                            <li><strong>Main idea</strong>: Memory slots interact through attention to improve sequence modeling.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: 2014</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1407.5671" target="_blank" rel="noopener noreferrer">Quantifying the Rise and Fall of Complexity in Closed Systems: The Coffee Automaton</a></h3>
+                        <p class="reading-summary">Examines complexity measures in closed computational systems.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Complexity dynamics.</li>
+                            <li><strong>Main idea</strong>: Complexity can rise and fall as systems evolve over time.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Memory Networks</span>
+                            <span class="reading-year">Year: 2014</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1410.5401" target="_blank" rel="noopener noreferrer">Neural Turing Machines</a></h3>
+                        <p class="reading-summary">Early memory-augmented neural network with external controller.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Differentiable external memory.</li>
+                            <li><strong>Main idea</strong>: A controller learns to read and write memory for algorithmic tasks.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Speech</span>
+                            <span class="reading-year">Year: 2015</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/1512.02595" target="_blank" rel="noopener noreferrer">Deep Speech 2: End-to-End Speech Recognition</a></h3>
+                        <p class="reading-summary">End-to-end speech model demonstrating RNN and CNN integration.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: End-to-end speech recognition.</li>
+                            <li><strong>Main idea</strong>: CNN + RNN stacks with CTC scale to large speech datasets.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Scaling</span>
+                            <span class="reading-year">Year: 2020</span>
+                        </div>
+                        <h3><a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Scaling Laws for Neural Language Models</a></h3>
+                        <p class="reading-summary">Shows how model and data scaling improve language model performance.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Empirical scaling behavior.</li>
+                            <li><strong>Main idea</strong>: Performance follows power laws in data, parameters, and compute.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3 class="reading-title">A Tutorial Introduction to the Minimum Description Length Principle</h3>
+                        <p class="reading-summary">Introductory explanation of MDL principle connecting compression and learning.</p>
+                        <p class="reading-link-note">Link unavailable.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Compression-based model selection.</li>
+                            <li><strong>Main idea</strong>: Better compression implies better generalization.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3 class="reading-title">Machine Super Intelligence</h3>
+                        <p class="reading-summary">Discusses theoretical aspects of AGI and intelligence measures.</p>
+                        <p class="reading-link-note">Link unavailable.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Theoretical intelligence measures.</li>
+                            <li><strong>Main idea</strong>: Frames limits and metrics for machine intelligence.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Theory</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3 class="reading-title">Kolmogorov Complexity and Algorithmic Randomness</h3>
+                        <p class="reading-summary">Foundations of algorithmic complexity and information theory.</p>
+                        <p class="reading-link-note">Link unavailable.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Algorithmic information theory.</li>
+                            <li><strong>Main idea</strong>: Randomness is defined by shortest program length.</li>
+                        </ul>
+                    </article>
+                    <article class="reading-card">
+                        <div class="reading-meta">
+                            <span class="reading-category">Vision</span>
+                            <span class="reading-year">Year: n/a</span>
+                        </div>
+                        <h3><a href="https://cs231n.github.io/" target="_blank" rel="noopener noreferrer">CS231n: Convolutional Neural Networks for Visual Recognition</a></h3>
+                        <p class="reading-summary">Stanford course notes covering fundamentals of CNNs and vision models.</p>
+                        <ul class="concept-bullets reading-bullets">
+                            <li><strong>Theme</strong>: Practical CNN foundations.</li>
+                            <li><strong>Main idea</strong>: Clear explanations of architectures, training, and regularization.</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
             <!-- AI Agents Section -->
             <section id="ai-agents" class="example-section">
                 <h2>AI Agents: Tool-Using Systems</h2>
@@ -2957,6 +3546,731 @@ Return JSON with owner, task, and due.</pre>
                             <div class="info-card">
                                 <h5>Safety</h5>
                                 <p>Guardrails for tool use, data access, and output policy.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="chapter" data-chapter="reinforcement-learning">
+            <nav class="chapter-nav" aria-label="Reinforcement learning sections">
+                <a href="#rl-fundamentals">Fundamentals</a>
+                <a href="#rl-bandits">Bandits</a>
+                <a href="#rl-gridworld">MDP + Dynamic Programming</a>
+                <a href="#rl-mc">Monte Carlo</a>
+                <a href="#rl-td">Temporal Difference</a>
+                <a href="#rl-control">Control</a>
+                <a href="#rl-deep">Deep RL</a>
+            </nav>
+
+            <section id="rl-fundamentals" class="example-section">
+                <h2>Reinforcement Learning Fundamentals</h2>
+                <p class="section-intro">Agents learn by interacting with an environment, collecting rewards, and improving a policy.</p>
+                <div class="rl-definition">
+                    <p><strong>Reinforcement learning (RL)</strong> is a learning framework where an agent chooses actions in a state, receives rewards, and updates its policy to maximize long-term return.</p>
+                    <div class="math-formula math-mini">
+                        \[
+                        \text{Goal: } \max_\pi \; \mathbb{E}_\pi \left[\sum_{t=0}^{\infty} \gamma^t r_t \right]
+                        \]
+                    </div>
+                </div>
+                <div class="content-grid rl-fundamentals-grid">
+                    <div class="explanation">
+                        <h3>Core concepts</h3>
+                        <ul class="concept-bullets">
+                            <li><strong>Agent & environment</strong>: the learner and the world it interacts with.</li>
+                            <li><strong>Episode / trajectory</strong>: a sequence of states, actions, and rewards.</li>
+                            <li><strong>Reward vs return</strong>: immediate feedback \(r_t\) vs discounted sum \(G_t\).</li>
+                            <li><strong>Discount \(\gamma\)</strong>: weighs future rewards.</li>
+                            <li><strong>Policy</strong> \( \pi(a|s) \): behavior rule.</li>
+                            <li><strong>Value</strong> \( V^\pi(s) \), <strong>Action-value</strong> \( Q^\pi(s,a) \).</li>
+                            <li><strong>Optimal</strong> \( V^*, Q^* \): best achievable values.</li>
+                        </ul>
+                        <div class="code-block">
+                            <h4>Minimal environment interface</h4>
+                            <pre><code>reset(seed?) -&gt; observation/state
+step(action) -&gt; { nextState, reward, done, info }
+actions(state) -&gt; action list
+// render helpers stay separate from logic</code></pre>
+                        </div>
+                        <div class="rl-interface-explain">
+                            <p><strong>reset(seed?)</strong> starts a new episode and returns the initial state (optionally deterministic with a seed).</p>
+                            <p><strong>step(action)</strong> applies an action and returns the transition tuple: next state, reward, terminal flag, and any extra info.</p>
+                            <p><strong>actions(state)</strong> exposes valid actions so the agent can plan or explore safely.</p>
+                            <p><strong>Render helpers</strong> stay separate so learning logic is deterministic and testable.</p>
+                        </div>
+                        <div class="math-formula">
+                            \[
+                            V^\pi(s) = \mathbb{E}_\pi\left[\sum_{t=0}^{\infty} \gamma^t r_{t} \mid s_0 = s \right]
+                            \]
+                            \[
+                            Q^\pi(s,a) = \mathbb{E}_\pi\left[\sum_{t=0}^{\infty} \gamma^t r_{t} \mid s_0 = s, a_0 = a \right]
+                            \]
+                        </div>
+                    </div>
+                    <div class="visualization rl-fundamentals-visuals">
+                        <div class="rl-card">
+                            <h3>Return calculator</h3>
+                            <div class="rl-control-row">
+                                <label for="rlGamma">Discount \(\gamma\)</label>
+                                <input type="range" id="rlGamma" min="0" max="0.99" step="0.01" value="0.9">
+                                <span id="rlGammaVal">0.90</span>
+                            </div>
+                            <div class="rl-reward-list" id="rlRewardList">
+                                <label>r₀ <input type="number" class="rl-reward-input" value="1"></label>
+                                <label>r₁ <input type="number" class="rl-reward-input" value="0"></label>
+                                <label>r₂ <input type="number" class="rl-reward-input" value="1"></label>
+                                <label>r₃ <input type="number" class="rl-reward-input" value="2"></label>
+                                <label>r₄ <input type="number" class="rl-reward-input" value="0"></label>
+                            </div>
+                            <div class="rl-return-output">Return \(G\) = <span id="rlReturnValue">0.00</span></div>
+                            <div class="math-formula math-mini">
+                                \[
+                                G = r_0 + \gamma r_1 + \gamma^2 r_2 + \gamma^3 r_3 + \cdots
+                                \]
+                            </div>
+                        </div>
+                        <div class="rl-card">
+                            <h3>Policy vs value (3-state chain)</h3>
+                            <div class="rl-control-row">
+                                <label for="rlPolicyBias">Policy \( \pi(\text{right} \mid s_1) \)</label>
+                                <input type="range" id="rlPolicyBias" min="0" max="1" step="0.05" value="0.5">
+                                <span id="rlPolicyBiasVal">0.50</span>
+                            </div>
+                            <canvas id="rlPolicyCanvas" width="360" height="140"></canvas>
+                            <div class="rl-table" id="rlPolicyTable"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rl-walkthrough">
+                    <h3>Reinforcement Learning: a gentle mathematical walkthrough</h3>
+                    <p class="section-intro">RL formalizes learning by experience: act, observe, update, repeat.</p>
+                    <div class="guide-stack">
+                        <article class="guide-card">
+                            <h4>1. Interaction over time</h4>
+                            <p>At each step the agent is in a state \(s\), takes an action \(a\), receives a reward \(r\), and lands in a new state \(s'\).</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                s_0 \rightarrow a_0 \rightarrow r_1 \rightarrow s_1 \rightarrow a_1 \rightarrow r_2 \rightarrow s_2 \rightarrow \cdots
+                                \]
+                            </div>
+                            <p>This sequence is a trajectory (episode).</p>
+                        </article>
+                        <article class="guide-card">
+                            <h4>2. Rewards vs return</h4>
+                            <p>Rewards are immediate feedback. Returns add up future rewards with discounting.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots
+                                \]
+                            </div>
+                            <ul class="concept-bullets">
+                                <li>\(\gamma = 0\): only care about now.</li>
+                                <li>\(\gamma \approx 1\): care about long-term outcomes.</li>
+                            </ul>
+                        </article>
+                        <article class="guide-card">
+                            <h4>3. Policy</h4>
+                            <p>A policy tells the agent how to act:</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                \pi(a \mid s)
+                                \]
+                            </div>
+                            <ul class="concept-bullets">
+                                <li>Deterministic: always take the same action.</li>
+                                <li>Stochastic: choose actions by probability.</li>
+                            </ul>
+                        </article>
+                        <article class="guide-card">
+                            <h4>4. Value functions</h4>
+                            <p>Value functions measure how good states or actions are under a policy.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                V^\pi(s) = \mathbb{E}_\pi\left[\sum_{t=0}^{\infty} \gamma^t r_t \mid s_0=s \right]
+                                \]
+                                \[
+                                Q^\pi(s,a) = \mathbb{E}_\pi\left[\sum_{t=0}^{\infty} \gamma^t r_t \mid s_0=s, a_0=a \right]
+                                \]
+                            </div>
+                            <p>V evaluates a state; Q evaluates a decision.</p>
+                        </article>
+                        <article class="guide-card">
+                            <h4>5. Bellman equations</h4>
+                            <p>Value is defined recursively: immediate reward plus discounted value of the next state.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                V^\pi(s) = \sum_a \pi(a \mid s) \sum_{s'} P(s' \mid s,a)\left[R(s,a,s') + \gamma V^\pi(s')\right]
+                                \]
+                                \[
+                                V^*(s) = \max_a \sum_{s'} P(s' \mid s,a)\left[R(s,a,s') + \gamma V^*(s')\right]
+                                \]
+                            </div>
+                        </article>
+                        <article class="guide-card">
+                            <h4>6. Dynamic programming (model known)</h4>
+                            <p>If transitions and rewards are known, compute values directly.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                V_{k+1}(s) = \max_a \sum_{s'} P(s' \mid s,a)\left[R + \gamma V_k(s')\right]
+                                \]
+                            </div>
+                            <p>Policy iteration alternates evaluation and greedy improvement.</p>
+                        </article>
+                        <article class="guide-card">
+                            <h4>7. Monte Carlo methods</h4>
+                            <p>Learn from complete episodes when the model is unknown.</p>
+                            <ul class="concept-bullets">
+                                <li>Generate an episode and compute the return.</li>
+                                <li>Update the first visit of each state (or state-action).</li>
+                                <li>Unbiased but high variance; must wait for episode end.</li>
+                            </ul>
+                        </article>
+                        <article class="guide-card">
+                            <h4>8. Temporal Difference (TD)</h4>
+                            <p>Update values online using one-step bootstrapping.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                V(s) \leftarrow V(s) + \alpha \left[r + \gamma V(s') - V(s)\right]
+                                \]
+                                \[
+                                \delta = r + \gamma V(s') - V(s)
+                                \]
+                            </div>
+                            <p>\(\delta\) is the TD error: how wrong the prediction was.</p>
+                        </article>
+                        <article class="guide-card">
+                            <h4>9. Learning control</h4>
+                            <p>Learn the best actions, not just values.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                Q(s,a) \leftarrow Q(s,a) + \alpha\left[r + \gamma Q(s',a') - Q(s,a)\right]
+                                \]
+                                \[
+                                Q(s,a) \leftarrow Q(s,a) + \alpha\left[r + \gamma \max_{a'} Q(s',a') - Q(s,a)\right]
+                                \]
+                            </div>
+                            <p>SARSA uses the next action taken; Q-learning uses the best possible next action.</p>
+                        </article>
+                        <article class="guide-card">
+                            <h4>10. Why deep RL exists</h4>
+                            <p>Tables do not scale to high-dimensional states or continuous actions.</p>
+                            <ul class="concept-bullets">
+                                <li>Approximate \(Q(s,a)\) or \(\pi(a \mid s)\) with neural networks.</li>
+                                <li>Use experience replay to break correlation.</li>
+                                <li>Use target networks to stabilize learning.</li>
+                                <li>Optimize parameters with gradient descent.</li>
+                            </ul>
+                        </article>
+                    </div>
+                    <h3>Big picture summary</h3>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h5>Reward</h5>
+                            <p>Immediate feedback signal.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Return</h5>
+                            <p>Discounted sum of future rewards.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Policy</h5>
+                            <p>Behavior rule \(\pi(a \mid s)\).</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Value</h5>
+                            <p>How good a state or action is.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Bellman</h5>
+                            <p>Recursive value definitions.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Monte Carlo</h5>
+                            <p>Learn from full episodes.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>TD learning</h5>
+                            <p>Learn step-by-step with bootstrapping.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Q-learning</h5>
+                            <p>Learn optimal behavior off-policy.</p>
+                        </div>
+                        <div class="info-card">
+                            <h5>Deep RL</h5>
+                            <p>Scale RL with neural networks.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rl-bandits" class="example-section">
+                <h2>Multi-Armed Bandits</h2>
+                <p class="section-intro">Explore exploration strategies and track regret as the agent learns.</p>
+                <div class="content-grid rl-bandits-grid">
+                    <div class="explanation">
+                        <h3>Algorithms</h3>
+                        <ul class="concept-bullets">
+                            <li><strong>\(\varepsilon\)-greedy</strong> with optional decay.</li>
+                            <li><strong>UCB1</strong> balances optimism and uncertainty.</li>
+                            <li><strong>Thompson Sampling</strong> for Bernoulli rewards.</li>
+                        </ul>
+                        <p><strong>What is a multi-armed bandit?</strong> An agent repeatedly chooses among \(K\) actions (arms) with unknown reward distributions. The goal is to maximize total reward by balancing exploration (learn the arms) and exploitation (use the best-known arm).</p>
+                        <div class="rl-algo-steps">
+                            <article class="rl-card">
+                                <h4>\(\varepsilon\)-greedy</h4>
+                                <ol class="step-list">
+                                    <li>Initialize action-value estimates and counts.</li>
+                                    <li>At each step, explore with probability \(\varepsilon\); otherwise exploit the best estimate.</li>
+                                    <li>Pull the chosen arm and observe the reward.</li>
+                                    <li>Update that arm’s estimate with an incremental mean.</li>
+                                    <li>Optionally decay \(\varepsilon\) to reduce exploration over time.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>UCB1</h4>
+                                <ol class="step-list">
+                                    <li>Initialize estimates and counts; try each arm at least once.</li>
+                                    <li>Compute the UCB score: \( \hat{\mu}_a + c \sqrt{\log t / n_a} \).</li>
+                                    <li>Select the arm with the highest UCB score.</li>
+                                    <li>Observe the reward and update the estimate and count.</li>
+                                    <li>Repeat to balance mean reward and uncertainty.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Thompson Sampling (Bernoulli)</h4>
+                                <ol class="step-list">
+                                    <li>Initialize Beta priors \(\alpha, \beta\) for each arm.</li>
+                                    <li>Sample a success probability from each arm’s Beta distribution.</li>
+                                    <li>Choose the arm with the highest sampled probability.</li>
+                                    <li>Observe reward (success/failure) and update \(\alpha, \beta\).</li>
+                                    <li>Repeat to naturally balance exploration and exploitation.</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="rl-control-panel">
+                            <div class="rl-control-row">
+                                <label for="banditSeed">Seed</label>
+                                <input type="number" id="banditSeed" value="7">
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditArms"># Arms</label>
+                                <input type="range" id="banditArms" min="2" max="8" value="5">
+                                <span id="banditArmsVal">5</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditHorizon">Horizon</label>
+                                <input type="range" id="banditHorizon" min="50" max="500" step="10" value="200">
+                                <span id="banditHorizonVal">200</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditNoise">Noise</label>
+                                <input type="range" id="banditNoise" min="0" max="1" step="0.05" value="0.2">
+                                <span id="banditNoiseVal">0.20</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditAlg">Algorithm</label>
+                                <select id="banditAlg">
+                                    <option value="epsilon">ε-greedy</option>
+                                    <option value="ucb1">UCB1</option>
+                                    <option value="thompson">Thompson Sampling</option>
+                                </select>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditEpsilon">ε</label>
+                                <input type="range" id="banditEpsilon" min="0" max="1" step="0.05" value="0.2">
+                                <span id="banditEpsilonVal">0.20</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditDecay">Decay</label>
+                                <input type="range" id="banditDecay" min="0" max="0.05" step="0.005" value="0">
+                                <span id="banditDecayVal">0.000</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditUcbC">UCB \(c\)</label>
+                                <input type="range" id="banditUcbC" min="0" max="3" step="0.1" value="1.4">
+                                <span id="banditUcbCVal">1.4</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="banditPrior">Thompson prior</label>
+                                <input type="number" id="banditPrior" value="1" min="0.1" step="0.1">
+                            </div>
+                            <div class="controls">
+                                <button type="button" id="banditStep">Step</button>
+                                <button type="button" id="banditPlay">Play</button>
+                                <button type="button" id="banditReset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visualization rl-bandits-visuals">
+                        <canvas id="banditMeansCanvas" width="420" height="220"></canvas>
+                        <p class="figure-note">Chart 1. True arm means (light) vs estimated means (dark).</p>
+                        <canvas id="banditRegretCanvas" width="420" height="180"></canvas>
+                        <p class="figure-note">Chart 2. Cumulative regret over time.</p>
+                        <canvas id="banditActionsCanvas" width="420" height="180"></canvas>
+                        <p class="figure-note">Chart 3. Action selection frequency by arm.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rl-gridworld" class="example-section">
+                <h2>MDP + Dynamic Programming (Gridworld)</h2>
+                <p class="section-intro">Solve a Markov Decision Process with Bellman updates and visualize value and policy.</p>
+                <div class="content-grid rl-gridworld-grid">
+                    <div class="explanation">
+                        <h3>MDP setup</h3>
+                        <ul class="concept-bullets">
+                            <li>MDP \( (S, A, P, R, \gamma) \) defines dynamics and rewards.</li>
+                            <li>Bellman expectation: \( V^\pi(s) = \sum_a \pi(a|s) \sum_{s'} P(s'|s,a) [R + \gamma V^\pi(s')] \).</li>
+                            <li>Bellman optimality: \( V^*(s) = \max_a \sum_{s'} P(s'|s,a) [R + \gamma V^*(s')] \).</li>
+                        </ul>
+                        <p><strong>Deep dive: Markov Decision Process.</strong> An MDP assumes the future depends only on the current state and action (the Markov property). Transitions \(P(s'|s,a)\) and rewards \(R(s,a,s')\) define how the agent moves. Dynamic programming solves the MDP by repeatedly applying Bellman backups until values and policies converge.</p>
+                        <div class="rl-control-panel">
+                            <div class="rl-control-row">
+                                <label for="gridGamma">Discount \(\gamma\)</label>
+                                <input type="range" id="gridGamma" min="0" max="0.99" step="0.01" value="0.9">
+                                <span id="gridGammaVal">0.90</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="gridStepCost">Step cost</label>
+                                <input type="range" id="gridStepCost" min="-0.2" max="0.1" step="0.01" value="-0.04">
+                                <span id="gridStepCostVal">-0.04</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="gridSlip">Slip probability</label>
+                                <input type="range" id="gridSlip" min="0" max="0.4" step="0.05" value="0">
+                                <span id="gridSlipVal">0.00</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="gridPreset">Preset</label>
+                                <select id="gridPreset">
+                                    <option value="classic-5">Classic 5x5</option>
+                                    <option value="open-7">Open 7x7</option>
+                                    <option value="maze-8">Maze 8x8</option>
+                                </select>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="gridAlgo">Algorithm</label>
+                                <select id="gridAlgo">
+                                    <option value="value-iteration">Value iteration</option>
+                                    <option value="policy-eval">Policy evaluation</option>
+                                    <option value="policy-improve">Policy improvement</option>
+                                    <option value="policy-iteration">Policy iteration</option>
+                                </select>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="gridIter">Iteration</label>
+                                <input type="range" id="gridIter" min="0" max="0" step="1" value="0">
+                                <span id="gridIterVal">0</span>
+                            </div>
+                            <div class="rl-toggle-row">
+                                <label><input type="checkbox" id="gridShowValues" checked> Show V(s)</label>
+                                <label><input type="checkbox" id="gridShowHeat" checked> Heatmap</label>
+                                <label><input type="checkbox" id="gridShowPolicy" checked> Policy arrows</label>
+                            </div>
+                            <div class="controls">
+                                <button type="button" id="gridIterate">Iterate</button>
+                                <button type="button" id="gridPlay">Play</button>
+                                <button type="button" id="gridRandomize">Randomize MDP</button>
+                            </div>
+                        </div>
+                        <div class="rl-algo-steps">
+                            <article class="rl-card">
+                                <h4>Policy evaluation (iterative)</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(V(s)\) for all states.</li>
+                                    <li>For each state, compute the Bellman expectation backup under \(\pi\).</li>
+                                    <li>Update \(V(s)\) with the new estimate.</li>
+                                    <li>Repeat until the max change \(\Delta V\) is below a threshold.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Policy improvement</h4>
+                                <ol class="step-list">
+                                    <li>Use the current \(V(s)\) to compute \(Q(s,a)\).</li>
+                                    <li>For each state, choose the greedy action \( \arg\max_a Q(s,a) \).</li>
+                                    <li>Update the policy to be greedy (or \(\varepsilon\)-greedy).</li>
+                                    <li>Repeat after re-evaluating the policy.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Policy iteration</h4>
+                                <ol class="step-list">
+                                    <li>Initialize a policy \(\pi\).</li>
+                                    <li>Evaluate \(\pi\) to compute \(V^\pi\).</li>
+                                    <li>Improve \(\pi\) by acting greedy with respect to \(V^\pi\).</li>
+                                    <li>Stop when the policy stops changing.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Value iteration</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(V(s)\) arbitrarily.</li>
+                                    <li>Apply the optimality backup \( V(s) \leftarrow \max_a \sum_{s'} P [R + \gamma V(s')] \).</li>
+                                    <li>Repeat until \(V\) converges.</li>
+                                    <li>Extract the greedy policy from the converged values.</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="rl-inspect" id="gridInspect">
+                            <h4>Inspect state</h4>
+                            <p>Click a cell to see Q(s,·).</p>
+                            <div id="gridInspectValues"></div>
+                        </div>
+                    </div>
+                    <div class="visualization rl-gridworld-visuals">
+                        <canvas id="gridworldCanvas" width="420" height="420"></canvas>
+                        <p class="figure-note">Grid. Values \(V(s)\), heatmap, and policy arrows per state.</p>
+                        <canvas id="gridworldChart" width="420" height="180"></canvas>
+                        <p class="figure-note">Chart. Max \(\Delta V\) and average \(V\) per iteration.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rl-mc" class="example-section">
+                <h2>Monte Carlo Methods</h2>
+                <p class="section-intro">Estimate values from complete episode returns.</p>
+                <div class="content-grid rl-mc-grid">
+                    <div class="explanation">
+                        <h3>Algorithms</h3>
+                        <ul class="concept-bullets">
+                            <li>First-visit MC prediction for \(V^\pi\).</li>
+                            <li>On-policy MC control with \(\varepsilon\)-soft policies.</li>
+                        </ul>
+                        <p><strong>Deep dive: Monte Carlo methods.</strong> MC methods wait until an episode ends, then use the realized return to update value estimates. They are unbiased but can have high variance, so averaging many episodes stabilizes learning.</p>
+                        <div class="rl-algo-steps">
+                            <article class="rl-card">
+                                <h4>First-visit MC prediction</h4>
+                                <ol class="step-list">
+                                    <li>Generate a full episode using policy \(\pi\).</li>
+                                    <li>For each state, find the first time it appears in the episode.</li>
+                                    <li>Compute the return \(G_t\) from that first visit to the end.</li>
+                                    <li>Update \(V(s)\) with the average of observed returns.</li>
+                                    <li>Repeat with many episodes to reduce variance.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>On-policy MC control (\(\varepsilon\)-soft)</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(Q(s,a)\) and a soft policy.</li>
+                                    <li>Generate an episode following the current policy.</li>
+                                    <li>Compute returns for each state-action first visit.</li>
+                                    <li>Update \(Q(s,a)\) with averaged returns.</li>
+                                    <li>Improve the policy to be \(\varepsilon\)-greedy w.r.t. \(Q\).</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="rl-control-panel">
+                            <div class="rl-control-row">
+                                <label for="mcEpisodes">Episodes</label>
+                                <input type="number" id="mcEpisodes" value="1" min="1" max="500">
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="mcEpsilon">ε-soft</label>
+                                <input type="range" id="mcEpsilon" min="0" max="1" step="0.05" value="0.2">
+                                <span id="mcEpsilonVal">0.20</span>
+                            </div>
+                            <div class="controls">
+                                <button type="button" id="mcRun">Run episode</button>
+                                <button type="button" id="mcPlay">Play</button>
+                                <button type="button" id="mcReset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visualization rl-mc-visuals">
+                        <canvas id="mcGridCanvas" width="420" height="320"></canvas>
+                        <p class="figure-note">Grid. Episode rollout animation and evolving \(V(s)\) heatmap.</p>
+                        <canvas id="mcReturnsCanvas" width="420" height="160"></canvas>
+                        <p class="figure-note">Chart. Returns histogram (recent episodes).</p>
+                        <canvas id="mcValueCanvas" width="420" height="160"></canvas>
+                        <p class="figure-note">Chart. Value estimate of the start state over episodes.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rl-td" class="example-section">
+                <h2>Temporal Difference Learning</h2>
+                <p class="section-intro">Blend bootstrapping with sampling for faster learning.</p>
+                <div class="content-grid rl-td-grid">
+                    <div class="explanation">
+                        <h3>TD(0) prediction</h3>
+                        <ul class="concept-bullets">
+                            <li>Update rule: \( V(s) \leftarrow V(s) + \alpha [r + \gamma V(s') - V(s)] \).</li>
+                            <li>Random-walk demo with 5 states.</li>
+                        </ul>
+                        <div class="rl-algo-steps">
+                            <article class="rl-card">
+                                <h4>TD(0) prediction</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(V(s)\) for all states.</li>
+                                    <li>Observe a transition \( (s, r, s') \).</li>
+                                    <li>Compute the TD error \( \delta = r + \gamma V(s') - V(s) \).</li>
+                                    <li>Update \(V(s) \leftarrow V(s) + \alpha \delta \).</li>
+                                    <li>Repeat over many episodes to converge.</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="rl-control-panel">
+                            <div class="rl-control-row">
+                                <label for="tdAlpha">α</label>
+                                <input type="range" id="tdAlpha" min="0.01" max="1" step="0.01" value="0.1">
+                                <span id="tdAlphaVal">0.10</span>
+                            </div>
+                            <div class="controls">
+                                <button type="button" id="tdRun">Run episode</button>
+                                <button type="button" id="tdPlay">Play</button>
+                                <button type="button" id="tdReset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visualization rl-td-visuals">
+                        <canvas id="tdValueCanvas" width="420" height="180"></canvas>
+                        <p class="figure-note">Chart. Current value estimates for the random-walk states.</p>
+                        <canvas id="tdErrorCanvas" width="420" height="160"></canvas>
+                        <p class="figure-note">Chart. TD error \(\delta_t\) over a single episode.</p>
+                        <canvas id="tdEpisodeCanvas" width="420" height="160"></canvas>
+                        <p class="figure-note">Chart. Value estimates per state across episodes.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rl-control" class="example-section">
+                <h2>Model-Free Control</h2>
+                <p class="section-intro">Learn optimal policies directly from experience.</p>
+                <div class="content-grid rl-control-grid">
+                    <div class="explanation">
+                        <h3>Algorithms</h3>
+                        <ul class="concept-bullets">
+                            <li><strong>SARSA</strong>: on-policy TD control.</li>
+                            <li><strong>Q-learning</strong>: off-policy TD control.</li>
+                            <li><strong>Expected SARSA</strong>: expectation over policy.</li>
+                        </ul>
+                        <div class="rl-algo-steps">
+                            <article class="rl-card">
+                                <h4>SARSA</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(Q(s,a)\) and choose a behavior policy.</li>
+                                    <li>Take action \(a\), observe \(r, s'\), and pick next action \(a'\) from the same policy.</li>
+                                    <li>Update \( Q(s,a) \leftarrow Q(s,a) + \alpha [r + \gamma Q(s',a') - Q(s,a)] \).</li>
+                                    <li>Set \(s \leftarrow s'\), \(a \leftarrow a'\) and repeat.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Q-learning</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(Q(s,a)\) and choose a behavior policy (e.g., \(\varepsilon\)-greedy).</li>
+                                    <li>Take action \(a\), observe \(r, s'\).</li>
+                                    <li>Update \( Q(s,a) \leftarrow Q(s,a) + \alpha [r + \gamma \max_{a'} Q(s',a') - Q(s,a)] \).</li>
+                                    <li>Repeat until Q-values converge to \(Q^*\).</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Expected SARSA</h4>
+                                <ol class="step-list">
+                                    <li>Initialize \(Q(s,a)\) and a stochastic policy.</li>
+                                    <li>Observe \(r, s'\) after taking action \(a\).</li>
+                                    <li>Compute expected next value \( \sum_{a'} \pi(a'|s') Q(s',a') \).</li>
+                                    <li>Update \( Q(s,a) \leftarrow Q(s,a) + \alpha [r + \gamma \mathbb{E}_{a'}Q(s',a') - Q(s,a)] \).</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="rl-control-panel">
+                            <div class="rl-control-row">
+                                <label for="controlAlgo">Algorithm</label>
+                                <select id="controlAlgo">
+                                    <option value="sarsa">SARSA</option>
+                                    <option value="qlearn">Q-learning</option>
+                                    <option value="expected">Expected SARSA</option>
+                                </select>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="controlEpsilon">ε</label>
+                                <input type="range" id="controlEpsilon" min="0" max="1" step="0.05" value="0.2">
+                                <span id="controlEpsilonVal">0.20</span>
+                            </div>
+                            <div class="rl-control-row">
+                                <label for="controlAlpha">α</label>
+                                <input type="range" id="controlAlpha" min="0.01" max="1" step="0.01" value="0.2">
+                                <span id="controlAlphaVal">0.20</span>
+                            </div>
+                            <div class="controls">
+                                <button type="button" id="controlRun">Run episode</button>
+                                <button type="button" id="controlPlay">Play</button>
+                                <button type="button" id="controlReset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visualization rl-control-visuals">
+                        <canvas id="controlGridCanvas" width="420" height="320"></canvas>
+                        <p class="figure-note">Grid. Greedy policy arrows from the current Q-table.</p>
+                        <canvas id="controlQCanvas" width="420" height="180"></canvas>
+                        <p class="figure-note">Chart. Q-value heatmaps per action (Up/Right/Down/Left).</p>
+                        <canvas id="controlEpsCanvas" width="420" height="160"></canvas>
+                        <p class="figure-note">Chart. Exploration schedule \(\varepsilon\) over time.</p>
+                        <canvas id="controlReturnCanvas" width="420" height="160"></canvas>
+                        <p class="figure-note">Chart. Episode return over training.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rl-deep" class="example-section">
+                <h2>Deep RL Concepts</h2>
+                <p class="section-intro">When state spaces grow, deep networks approximate value functions or policies.</p>
+                <div class="content-grid rl-deep-grid">
+                    <div class="explanation">
+                        <h3>Core ideas</h3>
+                        <ul class="concept-bullets">
+                            <li>Policy gradients optimize expected return directly.</li>
+                            <li>Replay buffers stabilize off-policy learning.</li>
+                            <li>Target networks reduce moving-target instability.</li>
+                        </ul>
+                        <div class="rl-algo-steps">
+                            <article class="rl-card">
+                                <h4>Policy gradient (REINFORCE-style)</h4>
+                                <ol class="step-list">
+                                    <li>Collect trajectories by sampling from \(\pi_\theta(a|s)\).</li>
+                                    <li>Compute returns or advantages for each action.</li>
+                                    <li>Estimate the gradient \( \nabla_\theta \log \pi_\theta(a|s) \hat{A} \).</li>
+                                    <li>Update parameters \( \theta \leftarrow \theta + \alpha \nabla_\theta J(\theta) \).</li>
+                                    <li>Repeat with variance reduction (baseline) for stability.</li>
+                                </ol>
+                            </article>
+                            <article class="rl-card">
+                                <h4>Deep Q-learning (conceptual)</h4>
+                                <ol class="step-list">
+                                    <li>Collect transitions into a replay buffer.</li>
+                                    <li>Sample mini-batches uniformly from the buffer.</li>
+                                    <li>Compute target \( r + \gamma \max_{a'} Q_{\text{target}}(s',a') \).</li>
+                                    <li>Minimize the TD loss between \(Q_\theta\) and targets.</li>
+                                    <li>Periodically sync the target network.</li>
+                                </ol>
+                            </article>
+                        </div>
+                        <div class="math-formula">
+                            \[
+                            \nabla_\theta J(\theta) = \mathbb{E}_\pi[\nabla_\theta \log \pi_\theta(a|s) \, \hat{A}(s,a)]
+                            \]
+                        </div>
+                    </div>
+                    <div class="visualization rl-deep-visuals">
+                        <div class="rl-card">
+                            <h3>Deep RL diagnostic loop</h3>
+                            <ol class="step-list">
+                                <li>Collect experience into a replay buffer.</li>
+                                <li>Sample mini-batches for stable updates.</li>
+                                <li>Sync target networks periodically.</li>
+                                <li>Track reward curves and policy entropy.</li>
+                            </ol>
+                        </div>
+                        <div class="rl-card">
+                            <h3>Policy gradient intuition</h3>
+                            <p>Increase the probability of actions that led to higher return and decrease others.</p>
+                            <div class="math-formula math-mini">
+                                \[
+                                \theta \leftarrow \theta + \alpha \nabla_\theta \log \pi_\theta(a|s) \, \hat{A}
+                                \]
                             </div>
                         </div>
                     </div>
