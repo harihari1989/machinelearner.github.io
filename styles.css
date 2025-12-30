@@ -823,6 +823,20 @@ main {
     margin: 2rem 0;
 }
 
+.probability-filter-grid {
+    margin: 2rem 0;
+}
+
+.probability-filter-visuals .guide-card {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: center;
+}
+
+.probability-filter-visuals .guide-card h4 {
+    text-align: center;
+}
+
 .spam-controls {
     display: grid;
     gap: 0.8rem;

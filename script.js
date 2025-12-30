@@ -2052,6 +2052,173 @@ function drawProbabilityVennCanvas() {
     ctx.fillText('B', circleB.x + circleB.r * 0.3, circleB.y - circleB.r * 0.4);
 }
 
+function drawHmmCanvas() {
+    const canvas = document.getElementById('probabilityHmmCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const steps = 4;
+    const paddingX = 45;
+    const hiddenY = 70;
+    const obsY = 160;
+    const stepX = (canvas.width - paddingX * 2) / (steps - 1);
+    const radius = 18;
+    const obsSize = 26;
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('P(X_t | X_{t-1})', paddingX, 20);
+    ctx.fillText('P(E_t | X_t)', paddingX, canvas.height - 12);
+
+    for (let i = 0; i < steps; i += 1) {
+        const x = paddingX + i * stepX;
+        if (i > 0) {
+            drawArrow(ctx, x - stepX + radius, hiddenY, x - radius, hiddenY, theme.axis);
+        }
+    }
+
+    for (let i = 0; i < steps; i += 1) {
+        const x = paddingX + i * stepX;
+
+        ctx.fillStyle = theme.panel;
+        ctx.strokeStyle = theme.primary;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, hiddenY, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`X${i + 1}`, x, hiddenY + 4);
+
+        drawArrow(ctx, x, hiddenY + radius + 2, x, obsY - obsSize / 2 - 2, theme.grid);
+
+        ctx.save();
+        ctx.fillStyle = theme.secondary;
+        ctx.globalAlpha = 0.18;
+        ctx.fillRect(x - obsSize / 2, obsY - obsSize / 2, obsSize, obsSize);
+        ctx.restore();
+
+        ctx.strokeStyle = theme.secondary;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x - obsSize / 2, obsY - obsSize / 2, obsSize, obsSize);
+
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`E${i + 1}`, x, obsY + 4);
+    }
+}
+
+function drawKalmanCanvas() {
+    const canvas = document.getElementById('probabilityKalmanCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const truePath = [1.0, 1.4, 2.0, 2.5, 2.2, 2.8, 3.3, 3.1];
+    const measurements = [1.2, 0.9, 2.4, 2.9, 1.9, 3.0, 3.5, 2.8];
+    const estimates = [];
+    let estimate = measurements[0];
+    measurements.forEach((value, index) => {
+        estimate = index === 0 ? value : estimate * 0.65 + value * 0.35;
+        estimates.push(estimate);
+    });
+
+    const allValues = truePath.concat(measurements, estimates);
+    const minVal = Math.min(...allValues) - 0.4;
+    const maxVal = Math.max(...allValues) + 0.4;
+
+    const padding = { left: 40, right: 20, top: 24, bottom: 30 };
+    const width = canvas.width - padding.left - padding.right;
+    const height = canvas.height - padding.top - padding.bottom;
+
+    const mapX = index => padding.left + (index / (truePath.length - 1)) * width;
+    const mapY = value => padding.top + (maxVal - value) / (maxVal - minVal) * height;
+
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, padding.top);
+    ctx.lineTo(padding.left, canvas.height - padding.bottom);
+    ctx.lineTo(canvas.width - padding.right, canvas.height - padding.bottom);
+    ctx.stroke();
+
+    const drawLine = (values, color, dashed) => {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash(dashed ? [6, 4] : []);
+        ctx.beginPath();
+        values.forEach((value, index) => {
+            const x = mapX(index);
+            const y = mapY(value);
+            if (index === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.restore();
+    };
+
+    drawLine(truePath, theme.inkSoft, true);
+    drawLine(estimates, theme.primary, false);
+
+    ctx.fillStyle = theme.warning;
+    measurements.forEach((value, index) => {
+        const x = mapX(index);
+        const y = mapY(value);
+        ctx.beginPath();
+        ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('state', padding.left - 30, padding.top + 4);
+    ctx.textAlign = 'right';
+    ctx.fillText('time', canvas.width - padding.right, canvas.height - 8);
+
+    const legendX = padding.left + 10;
+    const legendY = padding.top + 6;
+    ctx.save();
+    ctx.font = 'bold 12px Nunito, Arial';
+    ctx.fillStyle = theme.ink;
+
+    ctx.strokeStyle = theme.inkSoft;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY);
+    ctx.lineTo(legendX + 26, legendY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillText('true state', legendX + 34, legendY + 4);
+
+    ctx.strokeStyle = theme.primary;
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY + 16);
+    ctx.lineTo(legendX + 26, legendY + 16);
+    ctx.stroke();
+    ctx.fillText('estimate', legendX + 34, legendY + 20);
+
+    ctx.fillStyle = theme.warning;
+    ctx.beginPath();
+    ctx.arc(legendX + 13, legendY + 32, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = theme.ink;
+    ctx.fillText('measurement', legendX + 34, legendY + 36);
+    ctx.restore();
+}
+
 function setProbabilityVennMode(mode) {
     if (!probabilityVennNotes[mode]) return;
     probabilityVennState.mode = mode;
@@ -3072,6 +3239,8 @@ function setProbabilityDepth(mode) {
     drawProbabilityVennCanvas();
     drawSpamFilterCanvas();
     drawSampleSpaceCanvas();
+    drawHmmCanvas();
+    drawKalmanCanvas();
 }
 
 function setupProbabilityDepth() {
@@ -7655,6 +7824,8 @@ function refreshAllVisuals() {
     drawProbabilityVennCanvas();
     drawSpamFilterCanvas();
     drawSampleSpaceCanvas();
+    drawHmmCanvas();
+    drawKalmanCanvas();
     drawMlLifecycleCanvas();
     drawMlAlgoCanvas();
     drawGradientCanvas();
@@ -8367,6 +8538,16 @@ const visualizationMeta = {
         input: 'Venn mode',
         variables: 'A, B, union, intersection'
     },
+    probabilityHmmCanvas: {
+        goal: 'Show hidden states transitioning and emitting observations',
+        input: 'Observation sequence over time',
+        variables: 'P(X_t|X_{t-1}), P(E_t|X_t)'
+    },
+    probabilityKalmanCanvas: {
+        goal: 'Show a recursive estimate tracking noisy measurements',
+        input: 'Noisy observations over time',
+        variables: 'prediction, update, estimate'
+    },
     spamFilterCanvas: {
         goal: 'Visualize Bayesian spam filtering',
         input: 'Prior and word toggles',
@@ -8559,6 +8740,17 @@ const visualizationMeta = {
     }
 };
 
+function buildVizDescription(meta) {
+    const verbPrefix = /^(Show|Visualize|Illustrate|Compare|Track|Highlight|Simulate)\s+/i;
+    const goal = meta.goal ? meta.goal.replace(verbPrefix, '').trim() : '';
+    const input = meta.input ? meta.input.replace(/\.$/, '').trim() : '';
+    const variables = meta.variables ? meta.variables.replace(/\.$/, '').trim() : '';
+    const base = goal ? `Shows ${goal}` : 'Shows the visualization';
+    const inputPart = input ? ` using ${input}` : '';
+    const variablesPart = variables ? `, highlighting ${variables}` : '';
+    return `${base}${inputPart}${variablesPart}.`;
+}
+
 function setupVisualizationMeta() {
     Object.entries(visualizationMeta).forEach(([id, meta]) => {
         const canvas = document.getElementById(id);
@@ -8569,11 +8761,7 @@ function setupVisualizationMeta() {
         const metaEl = document.createElement('div');
         metaEl.className = 'viz-meta';
         metaEl.dataset.for = id;
-        metaEl.innerHTML = `
-            <div><span class="viz-meta-label">Goal:</span> ${meta.goal}</div>
-            <div><span class="viz-meta-label">Input:</span> ${meta.input}</div>
-            <div><span class="viz-meta-label">Variables:</span> ${meta.variables}</div>
-        `;
+        metaEl.textContent = buildVizDescription(meta);
         canvas.insertAdjacentElement('afterend', metaEl);
     });
 }
