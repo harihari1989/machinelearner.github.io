@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arttificial Intelligence Math Foundations</title>
+    <title>Artificial Intelligence Math Foundations</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
@@ -19,7 +19,7 @@
 </head>
 <body data-theme="light">
     <header>
-        <h1>🧠 Arttificial Intelligence Math Foundations</h1>
+        <h1>🧠 Artificial Intelligence Math Foundations</h1>
         <p>Playful visuals and mini missions to explore the math behind neural networks</p>
         <div class="mode-switcher" role="group" aria-label="Theme mode">
             <span class="mode-label">Mode:</span>
@@ -746,6 +746,45 @@
                     <div class="visualization">
                         <canvas id="sampleSpaceCanvas" width="420" height="320"></canvas>
                         <p class="helper-text">Counts update from simulated dots.</p>
+                    </div>
+                </div>
+                <div class="content-grid probability-filter-grid">
+                    <div class="explanation">
+                        <h3>Hidden Markov Models &amp; filters</h3>
+                        <h4>What is a Hidden Markov Model?</h4>
+                        <p>A Hidden Markov Model (HMM) describes a system with hidden states that evolve over time and generate observable data.</p>
+                        <ul class="concept-bullets">
+                            <li>Hidden states transition via a Markov process.</li>
+                            <li>Observations are emitted based on the current hidden state.</li>
+                            <li>The task is to infer hidden states from observations.</li>
+                        </ul>
+                        <div class="math-formula">
+                            \[
+                            P(X_t \mid X_{t-1}) \quad \text{and} \quad P(E_t \mid X_t)
+                            \]
+                        </div>
+                        <p class="example-note">Common uses: speech recognition, NLP, bioinformatics, and time-series analysis.</p>
+                        <h4>What filters do</h4>
+                        <p>Filters estimate hidden state as new, noisy observations arrive, updating beliefs step by step.</p>
+                        <ul class="concept-bullets">
+                            <li>Continuous states and observations.</li>
+                            <li>Linear dynamics and observation models.</li>
+                            <li>Gaussian noise assumptions.</li>
+                        </ul>
+                        <p>The Kalman filter provides an optimal recursive estimate under those conditions.</p>
+                        <p class="example-note">Used in radar tracking, navigation, and robotics for position/velocity estimates.</p>
+                    </div>
+                    <div class="visualization card-column probability-filter-visuals">
+                        <div class="guide-card">
+                            <h4>Hidden Markov Model</h4>
+                            <canvas id="probabilityHmmCanvas" width="420" height="220"></canvas>
+                            <p class="helper-text">Hidden states (circles) emit observations (squares) over time.</p>
+                        </div>
+                        <div class="guide-card">
+                            <h4>Kalman filter</h4>
+                            <canvas id="probabilityKalmanCanvas" width="420" height="220"></canvas>
+                            <p class="helper-text">Prediction (line) is corrected toward noisy measurements (dots).</p>
+                        </div>
                     </div>
                 </div>
                 <div class="probability-grid">
