@@ -69,6 +69,13 @@ These are reused across all sections to render vectors, matrices, charts, and di
 - Steppers and autoplay use `toggleAutoPlay()` (interval-based) to advance steps.
 - Examples: ML lifecycle, backprop, neuron lab, CNN/RNN/LSTM labs, transformer visualizations.
 
+### Jupyter-style notebook lab
+
+- Runtime: Python executes in-browser via Pyodide (`v0.25.1`) loaded on demand from CDN.
+- State: a shared `notebook_globals` dict persists across cells to mimic a notebook kernel.
+- Render path: `runNotebookCode()` captures `stdout`/`stderr` and injects text outputs, while matplotlib figures are saved to SVG and inserted into `.cell-output` as inline markup.
+- UX flow: per-cell "Run" buttons, "Run all" (sequential execution), "Clear outputs", and "Reset kernel" update a shared status chip and toggle `.has-error` for failures.
+
 ## Initialization lifecycle
 
 On `DOMContentLoaded`, the app:
