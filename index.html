@@ -37,6 +37,7 @@
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning">Reinforcement Learning</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="notebook">Notebook Lab</button>
     </div>
 
     <div class="holiday-parade" aria-hidden="true">
@@ -4312,6 +4313,335 @@ actions(state) -&gt; action list
                                 \]
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="chapter" data-chapter="notebook">
+            <nav class="chapter-nav" aria-label="Notebook lab sections">
+                <a href="#ipython-notebook">Math Notebook</a>
+                <a href="#notebook-python">Python</a>
+                <a href="#notebook-linear">Linear Algebra</a>
+                <a href="#notebook-calculus">Calculus + Optimization</a>
+                <a href="#notebook-probability">Probability + Activations</a>
+                <a href="#notebook-matrix">Matrix Calculus</a>
+            </nav>
+
+            <section id="ipython-notebook" class="example-section notebook-section">
+                <h2>Jupyter-Style Math Notebook</h2>
+                <p class="section-intro">Work through the foundations topics in order. Each cell runs in a shared kernel for a practical hands-on workshop.</p>
+                <div class="notebook-toolbar">
+                    <div class="toolbar-left">
+                        <span class="notebook-chip">Python kernel</span>
+                        <span class="notebook-status" id="notebookStatus">Idle</span>
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="notebook-btn" type="button" id="notebookRunAll">Run all</button>
+                        <button class="notebook-btn secondary" type="button" id="notebookClearAll">Clear outputs</button>
+                        <button class="notebook-btn secondary" type="button" id="notebookReset">Reset kernel</button>
+                    </div>
+                </div>
+
+                <div class="notebook-workspace">
+                    <article class="notebook-cell markdown-cell">
+                        <h4>Notebook goal</h4>
+                        <p>Cover the Foundations math with a practical hands-on workshop: linear algebra, calculus, optimization, probability, activations, and matrix calculus.</p>
+                    </article>
+
+                    <div class="notebook-group" id="notebook-python">
+                        <h3>Section 1: Python for math</h3>
+                        <p class="section-intro">Lists, loops, and functions to prep for vector math.</p>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [1]</span>
+                                <span class="cell-title">Numbers, lists, and summaries</span>
+                            </div>
+                            <textarea class="cell-editor" rows="7" spellcheck="false">values = [2.0, -1.0, 3.5, 4.2]
+mean = sum(values) / len(values)
+centered = [v - mean for v in values]
+
+print("mean =", round(mean, 3))
+print("centered =", [round(v, 3) for v in centered])</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [2]</span>
+                                <span class="cell-title">Functions and list math</span>
+                            </div>
+                            <textarea class="cell-editor" rows="8" spellcheck="false">def scale(xs, factor):
+    return [factor * x for x in xs]
+
+def add(a, b):
+    return [x + y for x, y in zip(a, b)]
+
+v = [1.0, -2.0, 0.5]
+w = [0.5, 1.5, -1.0]
+
+print("2v =", scale(v, 2))
+print("v + w =", add(v, w))</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="notebook-linear">
+                        <h3>Section 2: Linear algebra (vectors + matrices)</h3>
+                        <p class="section-intro">Dot products, norms, matrix-vector products, and matrix multiplication.</p>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [3]</span>
+                                <span class="cell-title">Vector ops</span>
+                            </div>
+                            <textarea class="cell-editor" rows="9" spellcheck="false">def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+def norm(a):
+    return (sum(x * x for x in a)) ** 0.5
+
+x = [2.0, -1.0, 0.5]
+w = [1.5, 0.2, -3.0]
+
+print("dot(x, w) =", round(dot(x, w), 3))
+print("||x|| =", round(norm(x), 3))</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [4]</span>
+                                <span class="cell-title">Matrices: matvec + matmul</span>
+                            </div>
+                            <textarea class="cell-editor" rows="12" spellcheck="false">def matvec(M, v):
+    return [dot(row, v) for row in M]
+
+def matmul(A, B):
+    cols = list(zip(*B))
+    return [[dot(row, col) for col in cols] for row in A]
+
+W = [
+    [1.0, 2.0],
+    [-1.0, 0.5],
+    [0.3, -0.7]
+]
+v = [1.0, -2.0]
+print("Wv =", matvec(W, v))
+
+A = [[1, 2], [3, 4]]
+B = [[2, 0], [1, 2]]
+print("AB =", matmul(A, B))</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="notebook-calculus">
+                        <h3>Section 3: Calculus + optimization</h3>
+                        <p class="section-intro">Estimate derivatives and follow gradients downhill.</p>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [5]</span>
+                                <span class="cell-title">Numerical derivative</span>
+                            </div>
+                            <textarea class="cell-editor" rows="9" spellcheck="false">def f(x):
+    return x ** 3 - 2 * x + 1
+
+def numerical_derivative(fn, x, eps=1e-5):
+    return (fn(x + eps) - fn(x - eps)) / (2 * eps)
+
+for x in [-1.0, 0.0, 2.0]:
+    print("f'(", x, ") =", round(numerical_derivative(f, x), 4))</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [6]</span>
+                                <span class="cell-title">Gradient descent on a quadratic</span>
+                            </div>
+                            <textarea class="cell-editor" rows="10" spellcheck="false">def loss(x):
+    return (x - 3) ** 2
+
+x = 0.0
+lr = 0.2
+for step in range(6):
+    grad = 2 * (x - 3)
+    x -= lr * grad
+    print("step", step, "x =", round(x, 4), "loss =", round(loss(x), 4))</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [7]</span>
+                                <span class="cell-title">Plot a curve</span>
+                            </div>
+                            <textarea class="cell-editor" rows="12" spellcheck="false">import matplotlib.pyplot as plt
+
+xs = [x / 10 for x in range(-30, 31)]
+ys = [x ** 2 - 2 * x + 1 for x in xs]
+
+plt.figure(figsize=(5, 3))
+plt.plot(xs, ys, label="f(x)=x^2-2x+1")
+plt.axhline(0, color="gray", linewidth=0.8)
+plt.scatter([1], [0], color="tomato", label="minimum")
+plt.title("Quadratic curve")
+plt.legend()
+plt.tight_layout()</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="notebook-probability">
+                        <h3>Section 4: Probability + activations</h3>
+                        <p class="section-intro">Turn scores into probabilities and compare activation curves.</p>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [8]</span>
+                                <span class="cell-title">Softmax + cross-entropy</span>
+                            </div>
+                            <textarea class="cell-editor" rows="10" spellcheck="false">import math
+
+def softmax(xs):
+    m = max(xs)
+    exps = [math.exp(x - m) for x in xs]
+    s = sum(exps)
+    return [e / s for e in exps]
+
+logits = [2.0, 0.5, -1.0]
+probs = softmax(logits)
+target = 0
+loss = -math.log(probs[target])
+
+print("probs =", [round(p, 3) for p in probs])
+print("cross-entropy loss =", round(loss, 4))</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [9]</span>
+                                <span class="cell-title">Activation functions</span>
+                            </div>
+                            <textarea class="cell-editor" rows="11" spellcheck="false">import math
+
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
+def relu(x):
+    return x if x > 0 else 0.0
+
+def tanh(x):
+    return math.tanh(x)
+
+xs = [-2, -1, 0, 1, 2]
+print("sigmoid =", [round(sigmoid(x), 3) for x in xs])
+print("relu =", [round(relu(x), 3) for x in xs])
+print("tanh =", [round(tanh(x), 3) for x in xs])</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [10]</span>
+                                <span class="cell-title">Plot activation curves</span>
+                            </div>
+                            <textarea class="cell-editor" rows="13" spellcheck="false">import math
+import matplotlib.pyplot as plt
+
+xs = [x / 10 for x in range(-50, 51)]
+sig = [1 / (1 + math.exp(-x)) for x in xs]
+rel = [x if x > 0 else 0 for x in xs]
+th = [math.tanh(x) for x in xs]
+
+plt.figure(figsize=(5, 3))
+plt.plot(xs, sig, label="sigmoid")
+plt.plot(xs, rel, label="relu")
+plt.plot(xs, th, label="tanh")
+plt.title("Activation curves")
+plt.legend()
+plt.tight_layout()</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="notebook-matrix">
+                        <h3>Section 5: Matrix calculus (batch gradients)</h3>
+                        <p class="section-intro">Compute a vectorized gradient for linear regression.</p>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [11]</span>
+                                <span class="cell-title">Batch gradient for linear regression</span>
+                            </div>
+                            <textarea class="cell-editor" rows="18" spellcheck="false">def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+def matvec(M, v):
+    return [dot(row, v) for row in M]
+
+def transpose(M):
+    return list(map(list, zip(*M)))
+
+X = [
+    [1.0, 0.5],
+    [1.0, -1.0],
+    [1.0, 2.0]
+]
+y = [1.0, -1.0, 3.0]
+w = [0.0, 0.0]
+
+preds = matvec(X, w)
+errors = [p - yi for p, yi in zip(preds, y)]
+loss = sum(e * e for e in errors) / len(y)
+
+Xt = transpose(X)
+grad = [
+    (2 / len(y)) * sum(xij * err for xij, err in zip(col, errors))
+    for col in Xt
+]
+
+print("loss =", round(loss, 4))
+print("grad =", [round(g, 4) for g in grad])</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
                     </div>
                 </div>
             </section>

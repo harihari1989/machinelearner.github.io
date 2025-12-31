@@ -10281,6 +10281,220 @@ function drawControlCharts() {
     }
 }
 
+const notebookCompilerState = {
+    pyodidePromise: null
+};
+
+function loadPyodideScript() {
+    if (window.loadPyodide) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load the Python runtime.'));
+        document.head.appendChild(script);
+    });
+}
+
+async function ensureNotebookPyodide(statusEl) {
+    if (!notebookCompilerState.pyodidePromise) {
+        if (statusEl) statusEl.textContent = 'Loading Python runtime...';
+        notebookCompilerState.pyodidePromise = (async () => {
+            await loadPyodideScript();
+            const pyodide = await window.loadPyodide({
+                indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/'
+            });
+            await pyodide.runPythonAsync('notebook_globals = {}');
+            return pyodide;
+        })().catch(err => {
+            notebookCompilerState.pyodidePromise = null;
+            throw err;
+        });
+    }
+    return notebookCompilerState.pyodidePromise;
+}
+
+async function runNotebookCode(code, outputEl, statusEl) {
+    if (!outputEl) return;
+    const trimmed = code.trim();
+    if (!trimmed) {
+        if (statusEl) statusEl.textContent = 'Add some code to run.';
+        outputEl.textContent = '';
+        outputEl.classList.remove('has-error');
+        return;
+    }
+
+    outputEl.textContent = '';
+    outputEl.classList.remove('has-error');
+    if (statusEl) statusEl.textContent = 'Loading Python runtime...';
+
+    let pyodide;
+    try {
+        pyodide = await ensureNotebookPyodide(statusEl);
+        const wantsPlot = /matplotlib|plt\./.test(code);
+        if (wantsPlot && pyodide.loadPackage) {
+            if (statusEl) statusEl.textContent = 'Loading matplotlib...';
+            await pyodide.loadPackage('matplotlib');
+        }
+        if (statusEl) statusEl.textContent = 'Running...';
+        pyodide.globals.set('code', code);
+        const resultJson = await pyodide.runPythonAsync(`
+import sys, io, traceback, json
+_stdout = io.StringIO()
+_stderr = io.StringIO()
+_svg = ""
+sys.stdout = _stdout
+sys.stderr = _stderr
+try:
+    exec(code, notebook_globals)
+    try:
+        import matplotlib.pyplot as plt
+        if plt.get_fignums():
+            _buf = io.StringIO()
+            plt.savefig(_buf, format="svg")
+            _svg = _buf.getvalue()
+            plt.close("all")
+    except Exception:
+        pass
+except Exception:
+    traceback.print_exc()
+finally:
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+json.dumps({"stdout": _stdout.getvalue(), "stderr": _stderr.getvalue(), "svg": _svg})
+        `);
+        const result = JSON.parse(resultJson);
+        if (result.stderr) {
+            outputEl.textContent = result.stderr;
+            outputEl.classList.add('has-error');
+        } else {
+            outputEl.classList.remove('has-error');
+            outputEl.innerHTML = '';
+            const hasText = result.stdout && result.stdout.trim();
+            const hasSvg = result.svg && result.svg.trim();
+            if (hasText) {
+                const textBlock = document.createElement('pre');
+                textBlock.className = 'cell-output-text';
+                textBlock.textContent = result.stdout;
+                outputEl.appendChild(textBlock);
+            }
+            if (hasSvg) {
+                const figure = document.createElement('div');
+                figure.className = 'cell-output-figure';
+                figure.innerHTML = result.svg;
+                outputEl.appendChild(figure);
+            }
+            if (!hasText && !hasSvg) {
+                outputEl.textContent = 'No output.';
+            }
+        }
+        if (statusEl) statusEl.textContent = 'Done.';
+    } catch (err) {
+        outputEl.textContent = err?.message || String(err);
+        outputEl.classList.add('has-error');
+        if (statusEl) statusEl.textContent = 'Error.';
+    } finally {
+        if (pyodide) {
+            pyodide.globals.delete('code');
+        }
+    }
+}
+
+async function resetNotebookKernel(statusEl, outputEls = []) {
+    if (!statusEl) return;
+    if (!notebookCompilerState.pyodidePromise) {
+        statusEl.textContent = 'Kernel will reset after first run.';
+        outputEls.forEach(outputEl => {
+            outputEl.textContent = '';
+            outputEl.classList.remove('has-error');
+        });
+        return;
+    }
+
+    try {
+        const pyodide = await notebookCompilerState.pyodidePromise;
+        await pyodide.runPythonAsync('notebook_globals = {}');
+        statusEl.textContent = 'Kernel reset.';
+        outputEls.forEach(outputEl => {
+            outputEl.textContent = '';
+            outputEl.classList.remove('has-error');
+        });
+    } catch (err) {
+        statusEl.textContent = err?.message || 'Failed to reset.';
+        outputEls.forEach(outputEl => {
+            outputEl.classList.add('has-error');
+        });
+    }
+}
+
+function setupNotebookLab() {
+    const lab = document.querySelector('.notebook-section');
+    if (!lab) return;
+
+    const status = document.getElementById('notebookStatus');
+    const runAllBtn = document.getElementById('notebookRunAll');
+    const clearAllBtn = document.getElementById('notebookClearAll');
+    const resetBtn = document.getElementById('notebookReset');
+
+    const cells = Array.from(lab.querySelectorAll('.code-cell'));
+    const runButtons = Array.from(lab.querySelectorAll('.cell-run'));
+    const outputs = cells.map(cell => cell.querySelector('.cell-output')).filter(Boolean);
+
+    const runCell = async (cell) => {
+        const editor = cell.querySelector('.cell-editor');
+        const output = cell.querySelector('.cell-output');
+        if (!editor || !output) return;
+        await runNotebookCode(editor.value, output, status);
+    };
+
+    const setControlsDisabled = (disabled) => {
+        runButtons.forEach(btn => {
+            btn.disabled = disabled;
+        });
+        [runAllBtn, clearAllBtn, resetBtn].forEach(btn => {
+            if (btn) btn.disabled = disabled;
+        });
+    };
+
+    runButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const cell = button.closest('.code-cell');
+            if (!cell) return;
+            runCell(cell);
+        });
+    });
+
+    if (runAllBtn) {
+        runAllBtn.addEventListener('click', async () => {
+            setControlsDisabled(true);
+            for (let i = 0; i < cells.length; i++) {
+                if (status) status.textContent = `Running cell ${i + 1} of ${cells.length}...`;
+                await runCell(cells[i]);
+            }
+            if (status) status.textContent = 'Done.';
+            setControlsDisabled(false);
+        });
+    }
+
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            outputs.forEach(output => {
+                output.textContent = '';
+                output.classList.remove('has-error');
+            });
+            if (status) status.textContent = 'Outputs cleared.';
+        });
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            resetNotebookKernel(status, outputs);
+        });
+    }
+}
+
 // ============================================
 // Initialize all canvases on page load
 // ============================================
@@ -10319,6 +10533,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupMonteCarlo();
     setupTd();
     setupControl();
+    setupNotebookLab();
     setupHolidayParade();
     setupVisualizationMeta();
     refreshAllVisuals();
