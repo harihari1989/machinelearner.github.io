@@ -136,6 +136,24 @@ function drawVectorPlayground(ctx, canvas, theme) {
         return;
     }
 
+    if (vectorState.operation === 'modulus') {
+        drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
+        drawPoint(ctx, aEndX, aEndY, theme.primary, 5);
+        const normA = Math.hypot(ax, ay);
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = theme.success;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(originX, originY, normA * unit, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('||x||', originX + normA * unit + 6, originY - 6);
+        return;
+    }
+
     if (vectorState.operation === 'addition') {
         drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
         drawVector(ctx, originX, originY, bx * unit, -by * unit, theme.secondary, 'w');
@@ -256,6 +274,10 @@ const vectorOperationConfig = {
         formula: 'x = [x_1, x_2],\\; w = [w_1, w_2]',
         metrics: []
     },
+    modulus: {
+        formula: '\\lVert x \\rVert = \\sqrt{x_1^2 + x_2^2}',
+        metrics: ['modulus']
+    },
     addition: {
         formula: 'x + w = [x_1 + w_1,\\; x_2 + w_2]',
         metrics: ['sum']
@@ -298,12 +320,14 @@ function updateVectorMetrics() {
     const dotEl = document.getElementById('vectorDot');
     const cosineEl = document.getElementById('vectorCosine');
     const angleEl = document.getElementById('vectorAngle');
+    const modulusEl = document.getElementById('vectorModulus');
     const distanceEl = document.getElementById('vectorDistance');
 
     if (sumEl) sumEl.textContent = `[${formatNumber(ax + bx)}, ${formatNumber(ay + by)}]`;
     if (dotEl) dotEl.textContent = formatNumber(dot);
     if (cosineEl) cosineEl.textContent = formatNumber(cosine);
     if (angleEl) angleEl.textContent = `${formatNumber(angleDeg, 1)}°`;
+    if (modulusEl) modulusEl.textContent = formatNumber(normA);
     if (distanceEl) distanceEl.textContent = formatNumber(distance);
 }
 
@@ -6830,6 +6854,23 @@ function drawChainRuleMini(ctx, rect, theme, accent) {
     ctx.fillText("f'", x2 + boxW + gap / 2, y - 2);
 }
 
+function drawChainFlowMini(ctx, rect, theme, accent) {
+    const boxW = Math.min(40, rect.width * 0.26);
+    const boxH = Math.min(26, rect.height * 0.4);
+    const gap = (rect.width - boxW * 3) / 4;
+    const y = rect.y + rect.height / 2 - boxH / 2;
+    const x1 = rect.x + gap;
+    const x2 = x1 + boxW + gap;
+    const x3 = x2 + boxW + gap;
+
+    drawMiniNode(ctx, x1, y, boxW, boxH, 'x', theme);
+    drawMiniNode(ctx, x2, y, boxW, boxH, 'y', theme, { stroke: accent });
+    drawMiniNode(ctx, x3, y, boxW, boxH, 'L', theme, { stroke: theme.secondary });
+
+    drawArrow(ctx, x1 + boxW, y + boxH / 2, x2, y + boxH / 2, accent);
+    drawArrow(ctx, x2 + boxW, y + boxH / 2, x3, y + boxH / 2, accent);
+}
+
 function drawGradientStepMini(ctx, rect, theme) {
     const left = rect.x + 8;
     const right = rect.x + rect.width - 8;
@@ -7074,7 +7115,7 @@ function drawNormScene(ctx, canvas) {
 
     ctx.fillStyle = theme.ink;
     ctx.font = 'bold 12px Nunito, Arial';
-    ctx.fillText('length = 5', origin.x + 10, origin.y - 5 * scale - 12);
+    ctx.fillText('||x|| = 5', origin.x + 10, origin.y - 5 * scale - 12);
 }
 
 function drawCosineScene(ctx, canvas) {
@@ -7539,10 +7580,10 @@ const vectorScenes = [
     },
     {
         title: 'Scene 2: Norms and normalization',
-        visual: 'Length is distance from the origin. Normalization keeps direction but fixes scale.',
-        example: 'If \\(x = [3, 4]\\), then \\(\\lVert x \\rVert = 5\\) and \\(\\hat{x} = [0.6, 0.8]\\).',
+        visual: 'Modulus (length) is the distance from the origin. Normalization keeps direction but fixes scale.',
+        example: 'If \\(x = [3, 4]\\), then modulus \\(\\lVert x \\rVert = 5\\) and \\(\\hat{x} = [0.6, 0.8]\\).',
         intuition: 'Cosine similarity compares directions after normalization.',
-        math: '\\(\\lVert x \\rVert_2 = \\sqrt{x_1^2 + x_2^2}\\), \\(\\hat{x} = x / \\lVert x \\rVert\\)',
+        math: '\\(\\lVert x \\rVert_2 = \\sqrt{x_1^2 + x_2^2}\\) (modulus), \\(\\hat{x} = x / \\lVert x \\rVert\\)',
         draw: drawNormScene
     },
     {
@@ -7664,7 +7705,12 @@ function drawCalculusScene(ctx, canvas) {
     const theme = getThemeColors();
     drawFormulaCards(ctx, canvas, [
         {
-            title: "d/dx f(g(x)) = f'(g(x)) g'(x)",
+            title: 'y = g(x) -> L = f(y)',
+            colorKey: 'secondary',
+            draw: drawChainFlowMini
+        },
+        {
+            title: 'dL/dx = dL/dy * dy/dx',
             colorKey: 'secondary',
             draw: drawChainRuleMini
         }
@@ -7675,7 +7721,7 @@ function drawOptimizationScene(ctx, canvas) {
     const theme = getThemeColors();
     drawFormulaCards(ctx, canvas, [
         {
-            title: 'theta = theta - eta grad L',
+            title: 'W = W - eta (yhat - y) x^T',
             colorKey: 'success',
             draw: drawGradientStepMini
         }
@@ -7737,17 +7783,17 @@ function drawMatrixCalcScene(ctx, canvas) {
     const theme = getThemeColors();
     drawFormulaCards(ctx, canvas, [
         {
-            title: 'Y = XW',
+            title: '1) Y = XW',
             colorKey: 'primary',
             draw: drawMatrixForwardMini
         },
         {
-            title: 'dL/dX = dL/dY W^T',
+            title: '2) dL/dX = dL/dY W^T',
             colorKey: 'secondary',
             draw: drawGradXMini
         },
         {
-            title: 'dL/dW = X^T dL/dY',
+            title: '3) dL/dW = X^T dL/dY',
             colorKey: 'success',
             draw: drawGradWMini
         }

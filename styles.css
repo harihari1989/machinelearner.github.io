@@ -1902,6 +1902,16 @@ main {
     list-style: disc;
 }
 
+.concept-steps {
+    list-style: decimal;
+    margin-left: 1.2rem;
+    color: var(--ink);
+}
+
+.concept-steps li {
+    margin-bottom: 0.35rem;
+}
+
 .mini-mission {
     background: var(--helper-bg);
     border-left: 4px solid var(--teal);
