@@ -10976,6 +10976,238 @@ async function resetNotebookKernel(statusEl, outputEls = []) {
     }
 }
 
+const fundamentalsPlaygroundSnippets = {
+    default: [
+        '# Example: vector dot + softmax',
+        'import math',
+        '',
+        'x = [2, -1, 3]',
+        'w = [0.5, 1.2, -0.7]',
+        '',
+        'dot = sum(a * b for a, b in zip(x, w))',
+        'scores = [dot, dot - 1.5, dot + 0.4]',
+        'exp_scores = [math.exp(s) for s in scores]',
+        'softmax = [s / sum(exp_scores) for s in exp_scores]',
+        '',
+        'print("dot:", round(dot, 3))',
+        'print("softmax:", [round(p, 3) for p in softmax])'
+    ].join('\n'),
+    vector: [
+        '# Vector basics: dot, norm, cosine similarity',
+        'import math',
+        '',
+        'x = [2.0, -1.0, 3.0]',
+        'w = [1.5, 0.5, -2.0]',
+        '',
+        'dot = sum(a * b for a, b in zip(x, w))',
+        'norm_x = math.sqrt(sum(v * v for v in x))',
+        'norm_w = math.sqrt(sum(v * v for v in w))',
+        'cosine = dot / (norm_x * norm_w)',
+        '',
+        'print("x:", x)',
+        'print("w:", w)',
+        'print("dot:", round(dot, 3))',
+        'print("||x||:", round(norm_x, 3))',
+        'print("||w||:", round(norm_w, 3))',
+        'print("cosine:", round(cosine, 3))'
+    ].join('\n'),
+    linear: [
+        '# Linear algebra: matrix * vector',
+        'W = [[1.2, -0.4],',
+        '     [0.3, 0.9]]',
+        'x = [2.0, -1.5]',
+        '',
+        'y = [',
+        '    W[0][0] * x[0] + W[0][1] * x[1],',
+        '    W[1][0] * x[0] + W[1][1] * x[1],',
+        ']',
+        '',
+        'print("y:", [round(v, 3) for v in y])'
+    ].join('\n'),
+    calculus: [
+        '# Chain rule via numeric gradient',
+        'import math',
+        '',
+        'def f(x):',
+        '    return math.sin(x ** 2)',
+        '',
+        'x = 1.3',
+        'eps = 1e-4',
+        'grad = (f(x + eps) - f(x - eps)) / (2 * eps)',
+        '',
+        'print("f(x):", round(f(x), 5))',
+        'print("df/dx approx:", round(grad, 5))'
+    ].join('\n'),
+    optimization: [
+        '# Gradient descent on a quadratic',
+        'def loss(w):',
+        '    return (w - 3) ** 2 + 1',
+        '',
+        'w = -4.0',
+        'lr = 0.2',
+        '',
+        'for step in range(6):',
+        '    grad = 2 * (w - 3)',
+        '    w = w - lr * grad',
+        '    print(f"step {step}: w={w:.3f} loss={loss(w):.3f}")'
+    ].join('\n'),
+    probability: [
+        '# Softmax and cross-entropy',
+        'import math',
+        '',
+        'logits = [2.2, 1.1, -0.7]',
+        'y_true = [1, 0, 0]',
+        '',
+        'exp_vals = [math.exp(z) for z in logits]',
+        'probs = [v / sum(exp_vals) for v in exp_vals]',
+        'loss = -sum(y * math.log(p) for y, p in zip(y_true, probs))',
+        '',
+        'print("probs:", [round(p, 3) for p in probs])',
+        'print("loss:", round(loss, 4))'
+    ].join('\n'),
+    matrix: [
+        '# Batch gradient for a linear model',
+        'X = [',
+        '    [1.0, 2.0],',
+        '    [0.0, -1.0],',
+        '    [3.0, 1.0],',
+        ']',
+        'W = [0.5, -0.2]',
+        'y = [1.0, 0.0, 1.0]',
+        '',
+        'y_hat = [W[0] * row[0] + W[1] * row[1] for row in X]',
+        'errors = [yh - yt for yh, yt in zip(y_hat, y)]',
+        '',
+        'grad_w0 = sum(row[0] * err for row, err in zip(X, errors))',
+        'grad_w1 = sum(row[1] * err for row, err in zip(X, errors))',
+        '',
+        'print("grad:", [round(grad_w0, 3), round(grad_w1, 3)])'
+    ].join('\n')
+};
+
+function setupFundamentalsPlayground() {
+    const openBtn = document.getElementById('fundamentalsPlaygroundToggle');
+    const loadBtn = document.getElementById('fundamentalsPlaygroundLoadExample');
+    const panel = document.getElementById('fundamentalsPlaygroundPanel');
+    const closeBtn = document.getElementById('fundamentalsPlaygroundClose');
+    const backdrop = document.getElementById('fundamentalsPlaygroundBackdrop');
+    const editor = document.getElementById('fundamentalsPythonEditor');
+    const runBtn = document.getElementById('fundamentalsPythonRun');
+    const resetCodeBtn = document.getElementById('fundamentalsPythonResetCode');
+    const clearBtn = document.getElementById('fundamentalsPythonClear');
+    const resetBtn = document.getElementById('fundamentalsPythonReset');
+    const output = document.getElementById('fundamentalsPythonOutput');
+    const status = document.getElementById('fundamentalsPythonStatus');
+    const snippetButtons = Array.from(document.querySelectorAll('[data-fundamentals-snippet]'));
+    const openButtons = Array.from(document.querySelectorAll('[data-playground-open]'));
+
+    if (!panel || !openBtn || !editor || !output) return;
+
+    if (!editor.value.trim()) {
+        editor.value = fundamentalsPlaygroundSnippets.default;
+    }
+    editor.dataset.defaultCode = editor.value;
+
+    const setStatus = (text) => {
+        if (status) status.textContent = text;
+    };
+
+    const openPanel = () => {
+        panel.classList.add('is-open');
+        panel.setAttribute('aria-hidden', 'false');
+        openBtn.setAttribute('aria-expanded', 'true');
+        if (backdrop) {
+            backdrop.classList.add('is-visible');
+            backdrop.setAttribute('aria-hidden', 'false');
+        }
+        editor.focus();
+    };
+
+    const closePanel = () => {
+        panel.classList.remove('is-open');
+        panel.setAttribute('aria-hidden', 'true');
+        openBtn.setAttribute('aria-expanded', 'false');
+        if (backdrop) {
+            backdrop.classList.remove('is-visible');
+            backdrop.setAttribute('aria-hidden', 'true');
+        }
+    };
+
+    const applySnippet = (snippetId) => {
+        const snippet = fundamentalsPlaygroundSnippets[snippetId];
+        if (!snippet) return;
+        editor.value = snippet;
+        openPanel();
+    };
+
+    openBtn.addEventListener('click', openPanel);
+    openButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const snippetId = button.dataset.playgroundOpen;
+            if (snippetId) {
+                applySnippet(snippetId);
+                return;
+            }
+            openPanel();
+        });
+    });
+    if (closeBtn) closeBtn.addEventListener('click', closePanel);
+    if (backdrop) backdrop.addEventListener('click', closePanel);
+
+    if (loadBtn) {
+        loadBtn.addEventListener('click', () => {
+            const topicId = activeFundamentalId || 'linear';
+            applySnippet(topicId);
+        });
+    }
+
+    snippetButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            applySnippet(button.dataset.fundamentalsSnippet);
+        });
+    });
+
+    if (runBtn) {
+        runBtn.addEventListener('click', () => {
+            runNotebookCode(editor.value, output, status);
+        });
+    }
+
+    if (resetCodeBtn) {
+        resetCodeBtn.addEventListener('click', () => {
+            editor.value = editor.dataset.defaultCode || fundamentalsPlaygroundSnippets.default;
+            editor.focus();
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            output.textContent = '';
+            output.classList.remove('has-error');
+            setStatus('Output cleared.');
+        });
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            resetNotebookKernel(status, [output]);
+        });
+    }
+
+    editor.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();
+            runNotebookCode(editor.value, output, status);
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && panel.classList.contains('is-open')) {
+            closePanel();
+        }
+    });
+}
+
 function setupNotebookLab() {
     const lab = document.querySelector('.notebook-section');
     if (!lab) return;
@@ -11050,6 +11282,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupChapterSwitcher();
     setupChapterNavigation();
     initFundamentals();
+    setupFundamentalsPlayground();
     setupVectorControls();
     setupVectorScenes();
     setupVectorModes();

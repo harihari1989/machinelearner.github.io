@@ -65,6 +65,7 @@
             <nav class="chapter-nav" aria-label="Foundations sections">
                 <a href="#ai-categories">What is AI?</a>
                 <a href="#fundamentals">Foundations</a>
+                <a href="#fundamentals-playground">Python playground</a>
                 <a href="#vectors">Vectors</a>
                 <a href="#matrices">Matrices</a>
                 <a href="#probability">Probability</a>
@@ -321,7 +322,68 @@
                         </div>
                     </div>
                 </div>
+                <div class="fundamentals-playground" id="fundamentals-playground">
+                    <div class="playground-card fundamentals-playground-card">
+                        <div class="playground-header">
+                            <span class="playground-badge">Python practice</span>
+                            <h3>Foundations playground</h3>
+                        </div>
+                        <p class="playground-subtitle">Open the slide-out panel to practice the math and see live output.</p>
+                        <div class="fundamentals-playground-actions">
+                            <button class="notebook-btn" type="button" id="fundamentalsPlaygroundToggle" aria-expanded="false" aria-controls="fundamentalsPlaygroundPanel">Open slide-out playground</button>
+                            <button class="notebook-btn secondary" type="button" id="fundamentalsPlaygroundLoadExample">Load example</button>
+                        </div>
+                        <p class="fundamentals-playground-note">Tip: Use print() to surface intermediate steps.</p>
+                    </div>
+                </div>
             </section>
+
+        <div class="python-drawer-backdrop" id="fundamentalsPlaygroundBackdrop" aria-hidden="true"></div>
+        <aside class="python-drawer" id="fundamentalsPlaygroundPanel" aria-hidden="true" aria-label="Fundamentals Python playground" role="dialog">
+            <div class="python-drawer__header">
+                <div class="python-drawer__title">
+                    <span class="playground-badge">Python playground</span>
+                    <h3>Practice the foundations live</h3>
+                    <p class="python-drawer__subtitle">Run short experiments on vectors, gradients, and probabilities.</p>
+                </div>
+                <div class="python-drawer__header-actions">
+                    <span class="python-status" id="fundamentalsPythonStatus">Idle</span>
+                    <button class="python-drawer__close" type="button" id="fundamentalsPlaygroundClose">Close</button>
+                </div>
+            </div>
+            <div class="python-drawer__body">
+                <div class="python-panel python-editor-panel">
+                    <div class="python-panel-header">
+                        <span class="python-panel-title">Editor</span>
+                        <div class="python-panel-actions">
+                            <button class="notebook-btn" type="button" id="fundamentalsPythonRun">Run code</button>
+                            <button class="notebook-btn secondary" type="button" id="fundamentalsPythonResetCode">Reset code</button>
+                        </div>
+                    </div>
+                    <textarea id="fundamentalsPythonEditor" class="python-editor" spellcheck="false" aria-label="Python code editor" placeholder="Write Python code here..."></textarea>
+                </div>
+                <div class="python-panel python-output-panel">
+                    <div class="python-panel-header">
+                        <span class="python-panel-title">Output</span>
+                        <div class="python-panel-actions">
+                            <button class="notebook-btn secondary" type="button" id="fundamentalsPythonClear">Clear output</button>
+                            <button class="notebook-btn secondary" type="button" id="fundamentalsPythonReset">Reset kernel</button>
+                        </div>
+                    </div>
+                    <div class="python-output" id="fundamentalsPythonOutput" aria-live="polite">Run the code to see output.</div>
+                </div>
+            </div>
+            <div class="python-drawer__footer">
+                <div class="python-snippets">
+                    <button class="toggle-btn" type="button" data-fundamentals-snippet="linear">Linear transform</button>
+                    <button class="toggle-btn" type="button" data-fundamentals-snippet="calculus">Chain rule</button>
+                    <button class="toggle-btn" type="button" data-fundamentals-snippet="optimization">Gradient step</button>
+                    <button class="toggle-btn" type="button" data-fundamentals-snippet="probability">Softmax</button>
+                    <button class="toggle-btn" type="button" data-fundamentals-snippet="matrix">Batch update</button>
+                </div>
+                <p class="python-hint">Tip: Press Ctrl+Enter (or Cmd+Enter) to run.</p>
+            </div>
+        </aside>
 
         <!-- Vectors Section -->
         <section id="vectors" class="example-section">
@@ -546,6 +608,20 @@
                     </div>
                 </div>
             </div>
+            <div class="fundamentals-playground" id="vectors-playground">
+                <div class="playground-card fundamentals-playground-card">
+                    <div class="playground-header">
+                        <span class="playground-badge">Python playground</span>
+                        <h3>Vector practice</h3>
+                    </div>
+                    <p class="playground-subtitle">Compute dot products, norms, and cosine similarity with live code.</p>
+                    <div class="fundamentals-playground-actions">
+                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="vector">Load vector example</button>
+                    </div>
+                    <p class="fundamentals-playground-note">Tip: Update x and w to match the visual slider values.</p>
+                </div>
+            </div>
         </section>
 
         <!-- Matrices Section -->
@@ -705,6 +781,20 @@
                             <button type="button" id="matrixDeepAnimateButton" onclick="animateMatrixDeepOperation()">Animate</button>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="fundamentals-playground" id="matrices-playground">
+                <div class="playground-card fundamentals-playground-card">
+                    <div class="playground-header">
+                        <span class="playground-badge">Python playground</span>
+                        <h3>Matrix practice</h3>
+                    </div>
+                    <p class="playground-subtitle">Multiply matrices and inspect batch gradients in code.</p>
+                    <div class="fundamentals-playground-actions">
+                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="matrix">Load matrix example</button>
+                    </div>
+                    <p class="fundamentals-playground-note">Tip: Change X and W to see how shapes affect gradients.</p>
                 </div>
             </div>
         </section>
@@ -1199,6 +1289,20 @@
                     </article>
                 </div>
             </div>
+            <div class="fundamentals-playground" id="probability-playground">
+                <div class="playground-card fundamentals-playground-card">
+                    <div class="playground-header">
+                        <span class="playground-badge">Python playground</span>
+                        <h3>Probability practice</h3>
+                    </div>
+                    <p class="playground-subtitle">Test softmax and cross-entropy with a tiny classifier.</p>
+                    <div class="fundamentals-playground-actions">
+                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="probability">Load probability example</button>
+                    </div>
+                    <p class="fundamentals-playground-note">Tip: Swap logits to see the loss change.</p>
+                </div>
+            </div>
         </section>
 
         <!-- Gradient Descent Section -->
@@ -1226,6 +1330,20 @@
                         <button onclick="runGradientDescent()">Run Gradient Descent</button>
                         <button onclick="resetGradientDescent()">Reset</button>
                     </div>
+                </div>
+            </div>
+            <div class="fundamentals-playground" id="optimization-playground">
+                <div class="playground-card fundamentals-playground-card">
+                    <div class="playground-header">
+                        <span class="playground-badge">Python playground</span>
+                        <h3>Optimization practice</h3>
+                    </div>
+                    <p class="playground-subtitle">Run a few gradient steps and watch the loss drop.</p>
+                    <div class="fundamentals-playground-actions">
+                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="optimization">Load gradient descent example</button>
+                    </div>
+                    <p class="fundamentals-playground-note">Tip: Tune the learning rate to see convergence speed.</p>
                 </div>
             </div>
         </section>
