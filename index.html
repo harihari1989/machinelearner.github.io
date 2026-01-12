@@ -220,28 +220,35 @@
                         <div class="concept-panel" id="concept-calculus" data-topic="calculus" role="tabpanel">
                             <h3>Calculus: how learning works</h3>
                             <p>Derivatives tell us how fast things change. If the loss is a hill, the derivative tells the slope.</p>
+                            <p>Let \(y = g(x)\) and \(L = f(y)\). A tiny nudge \(dx\) changes \(y\) by \(dy = g'(x)dx\), which changes the loss by \(dL = f'(y)dy\).</p>
                             <div class="math-formula">
                                 \[
-                                \frac{d}{dx}f(g(x)) = f'(g(x)) \cdot g'(x)
+                                y = g(x), \quad L = f(y)
+                                \]
+                                \[
+                                \frac{dL}{dx} = \frac{dL}{dy} \cdot \frac{dy}{dx} = f'(g(x)) \cdot g'(x)
                                 \]
                             </div>
                             <p>Backprop is the chain rule applied again and again through the whole network.</p>
                             <ul class="concept-bullets">
                                 <li>Local slope \(\times\) upstream slope = new slope.</li>
-                                <li>Think of it as water flowing through pipes.</li>
+                                <li>Each layer multiplies by its derivative and passes the signal back.</li>
                             </ul>
                             <div class="mini-mission">Mini mission: point to where the slope is steepest.</div>
                         </div>
                         <div class="concept-panel" id="concept-optimization" data-topic="optimization" role="tabpanel">
                             <h3>Optimization: gradient descent and learning rate</h3>
                             <p>Once we know the slope, we take a step downhill to reduce the loss.</p>
+                            <p>For a linear layer \( \mathbf{z} = W\mathbf{x} + \mathbf{b} \) with softmax + cross-entropy, the error at the logits is \( \hat{\mathbf{y}} - \mathbf{y} \).</p>
                             <div class="math-formula">
                                 \[
-                                \theta \leftarrow \theta - \eta \nabla_\theta L
+                                W \leftarrow W - \eta (\hat{\mathbf{y}} - \mathbf{y}) \mathbf{x}^T, \quad \mathbf{b} \leftarrow \mathbf{b} - \eta (\hat{\mathbf{y}} - \mathbf{y})
                                 \]
                             </div>
                             <ul>
                                 <li><strong>\(\eta\)</strong>: learning rate (step size)</li>
+                                <li><strong>\(\hat{\mathbf{y}} - \mathbf{y}\)</strong>: probability error signal from the loss</li>
+                                <li><strong>\(\mathbf{x}\)</strong>: input features that scale the step</li>
                                 <li>Too big &rarr; unstable or diverges</li>
                                 <li>Too small &rarr; slow progress</li>
                             </ul>
@@ -255,13 +262,19 @@
                                 \mathbf{z} = W\mathbf{x} + \mathbf{b}
                                 \]
                                 \[
-                                \hat{y}_i = \frac{e^{z_i}}{\sum_k e^{z_k}}
+                                \hat{\mathbf{y}} = \mathrm{softmax}(\mathbf{z}), \quad \hat{y}_i = \frac{e^{z_i}}{\sum_k e^{z_k}}
                                 \]
                                 \[
                                 L = -\sum_i y_i \log \hat{y}_i
                                 \]
                             </div>
-                            <p>Loss derivation: with \( \hat{\mathbf{y}} = \mathrm{softmax}(\mathbf{z}) \), the log-softmax derivative gives a simple gradient.</p>
+                            <ul class="concept-bullets">
+                                <li><strong>Scores \(\mathbf{z}\)</strong>: raw logits before normalization.</li>
+                                <li><strong>\(\hat{\mathbf{y}}\)</strong>: softmax outputs probabilities that sum to 1.</li>
+                                <li><strong>\(\mathbf{y}\)</strong>: the true label as a one-hot distribution.</li>
+                                <li><strong>Loss \(L\)</strong>: cross-entropy penalizes low probability on the true class; minimizing \(L\) pushes \(\hat{\mathbf{y}}\) toward \(\mathbf{y}\).</li>
+                            </ul>
+                            <p>Loss derivation: with \( \hat{\mathbf{y}} = \mathrm{softmax}(\mathbf{z}) \) and one-hot \( \mathbf{y} \), the log-softmax derivative gives a simple gradient.</p>
                             <div class="math-formula">
                                 \[
                                 \frac{\partial L}{\partial z_j} = \sum_i y_i (\hat{y}_j - \delta_{ij}) = \hat{y}_j - y_j
@@ -272,7 +285,12 @@
                         </div>
                         <div class="concept-panel" id="concept-matrix" data-topic="matrix" role="tabpanel">
                             <h3>Matrix calculus: the speed path</h3>
-                            <p>To train fast, we compute gradients for a whole batch at once.</p>
+                            <p>To train fast, we compute gradients for a whole batch at once. Think of matrices as a neat way to stack many examples and do one big calculation.</p>
+                            <ul class="concept-bullets">
+                                <li><strong>\(X\)</strong>: a batch of inputs (rows are examples).</li>
+                                <li><strong>\(W\)</strong>: weights (columns are feature-to-output recipes).</li>
+                                <li><strong>\(Y\)</strong>: outputs for the whole batch.</li>
+                            </ul>
                             <div class="math-formula">
                                 \[
                                 Y = XW
@@ -284,7 +302,13 @@
                                 \frac{\partial L}{\partial W} = X^T \frac{\partial L}{\partial Y}
                                 \]
                             </div>
-                            <p>Shapes are your superpower: match the dimensions and the math works out.</p>
+                            <p>Intuition: each gradient formula is "reverse flow" of the forward pass. We transpose the weight matrix to send signals back to the inputs, and we combine all examples with \(X^T\) to update the weights in one shot.</p>
+                            <ol class="concept-steps">
+                                <li>Forward pass: multiply the batch \(X\) by weights \(W\) to get outputs \(Y\).</li>
+                                <li>Backprop to inputs: push gradients through \(W^T\) to get \( \partial L / \partial X \).</li>
+                                <li>Backprop to weights: combine \(X^T\) with \( \partial L / \partial Y \) to get \( \partial L / \partial W \).</li>
+                            </ol>
+                            <p>Shapes are your superpower: if \(X\) is \(n \times d\) and \(W\) is \(d \times m\), then \(Y\) is \(n \times m\). The gradients match those same shapes.</p>
                             <div class="mini-mission">Mini mission: label the shapes of \(X\), \(W\), and \(Y\).</div>
                         </div>
                     </div>
@@ -314,6 +338,7 @@
                         <p>Think of vector A as a data point \(x\) and vector B as model weights \(w\). Use the buttons to see how scores and distances behave.</p>
                         <ul class="concept-bullets">
                             <li>Data point: the arrow from the origin to \(x\).</li>
+                            <li>Modulus (length): \( \lVert x \rVert = \sqrt{x_1^2 + x_2^2} \).</li>
                             <li>Dot product: the shadow of \(x\) on \(w\).</li>
                             <li>Cosine: angle-only similarity.</li>
                             <li>Distance: how far two points are apart.</li>
@@ -338,9 +363,40 @@
                                 <span class="metric-label">Angle</span>
                                 <span class="metric-value" id="vectorAngle">0°</span>
                             </div>
+                            <div class="metric" data-vector-metric="modulus">
+                                <span class="metric-label">Modulus ||x||</span>
+                                <span class="metric-value" id="vectorModulus">0</span>
+                            </div>
                             <div class="metric" data-vector-metric="distance">
                                 <span class="metric-label">Distance</span>
                                 <span class="metric-value" id="vectorDistance">0</span>
+                            </div>
+                        </div>
+                        <p class="example-note">Step-by-step with the current \(x\) and \(w\) values:</p>
+                        <div class="step-grid vector-step-grid" aria-live="polite">
+                            <div class="step-card">
+                                <h4>Sum</h4>
+                                <div class="math-formula math-mini" id="vectorSumStep"></div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Dot</h4>
+                                <div class="math-formula math-mini" id="vectorDotStep"></div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Modulus \(\lVert x \rVert\)</h4>
+                                <div class="math-formula math-mini" id="vectorNormStep"></div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Cosine</h4>
+                                <div class="math-formula math-mini" id="vectorCosineStep"></div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Angle</h4>
+                                <div class="math-formula math-mini" id="vectorAngleStep"></div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Distance</h4>
+                                <div class="math-formula math-mini" id="vectorDistanceStep"></div>
                             </div>
                         </div>
                     </div>
@@ -349,6 +405,7 @@
                         <div class="controls vector-controls">
                             <div class="toggle-group" role="group" aria-label="Vector operation">
                                 <button class="toggle-btn is-active" type="button" data-vector-op="data">Data point</button>
+                                <button class="toggle-btn" type="button" data-vector-op="modulus">Modulus</button>
                                 <button class="toggle-btn" type="button" data-vector-op="addition">Addition</button>
                                 <button class="toggle-btn" type="button" data-vector-op="dot">Dot product</button>
                                 <button class="toggle-btn" type="button" data-vector-op="cosine">Cosine</button>
@@ -385,7 +442,7 @@
                         <p>Step through projections, norms, subspaces, gradients, vector stats, regularization, and attention with visual intuition.</p>
                         <div class="math-formula">
                             \[
-                            \lVert x \rVert = \sqrt{x_1^2 + x_2^2}, \quad x \cdot w = \sum_i x_i w_i, \quad x = \sum_i \alpha_i b_i
+                            \lVert x \rVert = \sqrt{x_1^2 + x_2^2} \; (\text{modulus}), \quad x \cdot w = \sum_i x_i w_i, \quad x = \sum_i \alpha_i b_i
                             \]
                         </div>
                         <div class="scene-panel" id="vectorScenePanel" aria-live="polite">
@@ -434,7 +491,7 @@
                             <h4>Norms & normalization</h4>
                             <canvas class="card-canvas vector-card-canvas" id="vectorNormCanvas" data-vector-card="norm" width="240" height="130" aria-hidden="true"></canvas>
                             <ul>
-                                <li>Length: \( \lVert x \rVert_2 = \sqrt{\sum_i x_i^2} \).</li>
+                                <li>Modulus (length): \( \lVert x \rVert_2 = \sqrt{\sum_i x_i^2} \).</li>
                                 <li>Normalize to compare directions independent of scale.</li>
                             </ul>
                         </article>
@@ -494,7 +551,7 @@
         <!-- Matrices Section -->
         <section id="matrices" class="example-section">
             <h2>Matrices: transforms, determinants, inverses</h2>
-            <p class="section-intro">Matrices reshape space. Determinants measure area scaling, inverses undo transforms, and eigenvectors reveal stable directions.</p>
+            <p class="section-intro">Matrices reshape space. Determinants measure area scaling, inverses undo transforms, and covariance/precision describe spread along eigenvector axes.</p>
             <div class="matrix-mode-switcher" role="group" aria-label="Matrix depth mode">
                 <button class="toggle-btn is-active" type="button" data-matrix-mode="basic">Basic playground</button>
                 <button class="toggle-btn" type="button" data-matrix-mode="deep">Deep dive</button>
@@ -547,7 +604,7 @@
                 <div class="content-grid">
                     <div class="explanation">
                         <h3>Matrix deep dive: advanced operators</h3>
-                        <p>Explore determinants, inverses, identity, and eigenvectors with detailed formulas.</p>
+                        <p>Explore determinants, inverses, covariance/precision, identity, and eigenvectors with step-by-step formulas.</p>
                         <div class="math-formula" id="matrixDeepFormula">\[
                         \det(A) = ad - bc
                         \]</div>
@@ -557,6 +614,81 @@
                             <li>Precision matrices reweight directions in space.</li>
                             <li>Eigenvectors preserve direction under \(A\).</li>
                         </ul>
+                        <h4>Derivations: covariance, precision, eigen</h4>
+                        <div class="guide-stack matrix-derivations">
+                            <article class="guide-card">
+                                <h4>Determinant (2x2)</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}, \quad \det(A)=ad-bc
+                                    \]
+                                </div>
+                                <ol class="step-list">
+                                    <li>Expand by the first row: \(a\cdot d - b\cdot c\).</li>
+                                    <li>\(|\det(A)|\) is area scale; sign means flip.</li>
+                                    <li>\(\det(A)=0\) implies no inverse exists.</li>
+                                </ol>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Inverse (2x2)</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    A^{-1}=\frac{1}{\det(A)}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}
+                                    \]
+                                </div>
+                                <ol class="step-list">
+                                    <li>Require \(\det(A)\neq 0\).</li>
+                                    <li>Swap the diagonal, negate off-diagonals.</li>
+                                    <li>Divide by \(\det(A)\) so \(AA^{-1}=I\).</li>
+                                </ol>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Covariance matrix</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    \mu=\frac{1}{n}\sum_{i=1}^n x_i,\quad X_c = X-\mathbf{1}\mu^T
+                                    \]
+                                    \[
+                                    \Sigma=\frac{1}{n-1}X_c^T X_c
+                                    \]
+                                </div>
+                                <ol class="step-list">
+                                    <li>Center each feature: subtract the mean \(\mu\).</li>
+                                    <li>Accumulate outer products: \(x_c x_c^T\).</li>
+                                    <li>Average: \(\Sigma_{xy}=\frac{1}{n-1}\sum (x_i-\mu_x)(y_i-\mu_y)\).</li>
+                                </ol>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Precision matrix</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    \Lambda = \Sigma^{-1} = \frac{1}{\sigma_x^2 \sigma_y^2 - \sigma_{xy}^2}
+                                    \begin{bmatrix} \sigma_y^2 & -\sigma_{xy} \\ -\sigma_{xy} & \sigma_x^2 \end{bmatrix}
+                                    \]
+                                </div>
+                                <ol class="step-list">
+                                    <li>Compute \(\det(\Sigma)\).</li>
+                                    <li>Apply the 2x2 inverse formula.</li>
+                                    <li>In a Gaussian, \((x-\mu)^T\Lambda(x-\mu)\) is the Mahalanobis distance.</li>
+                                </ol>
+                            </article>
+                            <article class="guide-card">
+                                <h4>Eigenvalues &amp; eigenvectors</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    A\mathbf{v}=\lambda \mathbf{v},\quad \det(A-\lambda I)=0
+                                    \]
+                                    \[
+                                    \lambda=\frac{\operatorname{tr}A \pm \sqrt{(\operatorname{tr}A)^2-4\det(A)}}{2}
+                                    \]
+                                </div>
+                                <ol class="step-list">
+                                    <li>Solve the characteristic equation for \(\lambda\).</li>
+                                    <li>Plug into \((A-\lambda I)\mathbf{v}=0\) to get \(\mathbf{v}\).</li>
+                                    <li>For symmetric \(A\), eigenvectors are orthonormal axes.</li>
+                                </ol>
+                            </article>
+                        </div>
                         <div class="mini-mission">Mini mission: spot the operation that flips the grid.</div>
                     </div>
                     <div class="visualization">
@@ -618,7 +750,16 @@
                 </div>
             </div>
             <div class="probability-mode-panel" data-probability-depth="deep">
-                <div class="content-grid probability-review-grid">
+                <div class="probability-deep-nav" role="navigation" aria-label="Deep dive map">
+                    <span class="probability-deep-label">Deep dive map:</span>
+                    <a class="probability-deep-link" href="#probability-review">Events</a>
+                    <a class="probability-deep-link" href="#bayes-spam">Bayes</a>
+                    <a class="probability-deep-link" href="#nll-derivation">NLL</a>
+                    <a class="probability-deep-link" href="#loglikelihood-playground">Playground</a>
+                    <a class="probability-deep-link" href="#sample-space">Sample space</a>
+                    <a class="probability-deep-link" href="#hmm-filters">Filters</a>
+                </div>
+                <div class="content-grid probability-review-grid probability-canvas-panel" id="probability-review">
                     <div class="explanation">
                         <h3>Probability review: events &amp; notation</h3>
                         <ul class="concept-bullets">
@@ -652,7 +793,7 @@
                         <p class="helper-text">Venn diagram highlights the region tied to the formula.</p>
                     </div>
                 </div>
-                <div class="content-grid probability-spam-grid">
+                <div class="content-grid probability-spam-grid probability-canvas-panel" id="bayes-spam">
                     <div class="explanation">
                         <h3>Bayesian spam filter intuition</h3>
                         <p>Estimate the prior \(P(\text{spam})\) from training data, then combine it with word likelihoods.</p>
@@ -702,7 +843,227 @@
                         <p class="helper-text">Prior × likelihoods → posterior.</p>
                     </div>
                 </div>
-                <div class="content-grid probability-sample-grid">
+                <div class="content-grid probability-nll-grid probability-canvas-panel" id="nll-derivation">
+                    <div class="explanation">
+                        <h3>Why negative log likelihood becomes the loss</h3>
+                        <p>Training chooses parameters that make the observed labels most probable. This is maximum likelihood estimation.</p>
+                        <ol class="concept-steps">
+                            <li><strong>Model the probability of the correct label.</strong> For each example \( (x_i, y_i) \), the model returns \( p_\theta(y_i \mid x_i) \).</li>
+                            <li><strong>Likelihood of the dataset.</strong> Assuming samples are independent, \( L(\theta) = \prod_{i=1}^N p_\theta(y_i \mid x_i) \).</li>
+                            <li><strong>Log-likelihood simplifies the product.</strong> The log is monotonic, so maximizing \(L\) matches maximizing \( \log L = \sum_i \log p_\theta(y_i \mid x_i) \), and it avoids numerical underflow.</li>
+                            <li><strong>Negative log-likelihood is the minimization objective.</strong> We minimize \( \mathcal{L}(\theta) = -\log L(\theta) \). For one-hot classification, this is cross-entropy.</li>
+                        </ol>
+                        <div class="math-formula math-mini">
+                            \[
+                            \mathcal{L}(\theta) = -\frac{1}{N}\sum_{i=1}^N \log p_\theta(y_i \mid x_i)
+                            = -\frac{1}{N}\sum_{i=1}^N \sum_k y_{ik} \log \hat{y}_{ik}
+                            \]
+                        </div>
+                        <div class="step-grid nll-step-grid">
+                            <div class="step-card">
+                                <h4>Step 1: Multiply</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    L = 0.9 \times 0.6 \times 0.2 = 0.108
+                                    \]
+                                </div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Step 2: Log-sum</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    \begin{aligned}
+                                    \log L &= \log 0.9 + \log 0.6 + \log 0.2 \\
+                                    &= -0.105 - 0.511 - 1.609 \\
+                                    &= -2.225
+                                    \end{aligned}
+                                    \]
+                                </div>
+                            </div>
+                            <div class="step-card">
+                                <h4>Step 3: Negate</h4>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    \mathcal{L} = -\log L = 2.225
+                                    \]
+                                </div>
+                            </div>
+                        </div>
+                        <p class="example-note">Low loss means the model assigns high probability to the true labels; overconfident mistakes are penalized most.</p>
+                    </div>
+                    <div class="visualization nll-visual">
+                        <div class="nll-flow" aria-label="Likelihood to log-likelihood to negative log-likelihood flow">
+                            <div class="nll-card">
+                                <div class="nll-card-header">
+                                    <span class="nll-step">1</span>
+                                    <h4>Likelihood (product)</h4>
+                                </div>
+                                <div class="nll-eq-block">
+                                    <div class="nll-eq-row">
+                                        <span class="nll-chip nll-chip--p">0.9</span>
+                                        <span class="nll-operator">&times;</span>
+                                        <span class="nll-chip nll-chip--p">0.6</span>
+                                        <span class="nll-operator">&times;</span>
+                                        <span class="nll-chip nll-chip--p">0.2</span>
+                                        <span class="nll-operator">=</span>
+                                        <span class="nll-chip nll-chip--result">0.108</span>
+                                    </div>
+                                    <div class="nll-eq-label">Multiply probabilities across samples.</div>
+                                </div>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    L(\theta) = \prod_i p_\theta(y_i \mid x_i)
+                                    \]
+                                </div>
+                            </div>
+                            <div class="nll-connector">&rarr;</div>
+                            <div class="nll-card">
+                                <div class="nll-card-header">
+                                    <span class="nll-step">2</span>
+                                    <h4>Log-likelihood (sum)</h4>
+                                </div>
+                                <div class="nll-eq-block">
+                                    <div class="nll-eq-row">
+                                        <span class="nll-chip">\(\log 0.9\)</span>
+                                        <span class="nll-operator">+</span>
+                                        <span class="nll-chip">\(\log 0.6\)</span>
+                                        <span class="nll-operator">+</span>
+                                        <span class="nll-chip">\(\log 0.2\)</span>
+                                        <span class="nll-operator">=</span>
+                                        <span class="nll-chip nll-chip--result">\(-2.225\)</span>
+                                    </div>
+                                    <div class="nll-eq-row nll-eq-subrow">
+                                        <span class="nll-mini-chip">-0.105</span>
+                                        <span class="nll-operator">&minus;</span>
+                                        <span class="nll-mini-chip">0.511</span>
+                                        <span class="nll-operator">&minus;</span>
+                                        <span class="nll-mini-chip">1.609</span>
+                                    </div>
+                                    <div class="nll-eq-label">Log turns products into sums and keeps numbers stable.</div>
+                                </div>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    \log L(\theta) = \sum_i \log p_\theta(y_i \mid x_i)
+                                    \]
+                                </div>
+                            </div>
+                            <div class="nll-connector">&rarr;</div>
+                            <div class="nll-card">
+                                <div class="nll-card-header">
+                                    <span class="nll-step">3</span>
+                                    <h4>Negative log-likelihood (loss)</h4>
+                                </div>
+                                <div class="nll-eq-block">
+                                    <div class="nll-eq-row">
+                                        <span class="nll-chip">\(-\log L\)</span>
+                                        <span class="nll-operator">=</span>
+                                        <span class="nll-chip nll-chip--result">2.225</span>
+                                    </div>
+                                    <div class="nll-eq-label">Negate so minimization matches maximum likelihood.</div>
+                                </div>
+                                <div class="math-formula math-mini">
+                                    \[
+                                    \mathcal{L}(\theta) = -\sum_i \log p_\theta(y_i \mid x_i)
+                                    \]
+                                </div>
+                            </div>
+                        </div>
+                        <p class="helper-text">Product &rarr; log sum &rarr; negate so minimization equals maximum likelihood.</p>
+                    </div>
+                </div>
+                <div class="content-grid probability-playground-grid probability-canvas-panel" id="loglikelihood-playground">
+                    <div class="explanation">
+                        <div class="playground-header">
+                            <span class="playground-badge">Interactive</span>
+                            <h3>Log-likelihood playground: estimate \(p\)</h3>
+                        </div>
+                        <p class="section-intro">Use a Bernoulli model to estimate the probability of success. Step through the derivation, then tweak the data to see the curve move.</p>
+                        <div class="toggle-group ll-step-track" role="tablist" aria-label="Log-likelihood steps">
+                            <button class="toggle-btn is-active" type="button" data-ll-step="0">Data</button>
+                            <button class="toggle-btn" type="button" data-ll-step="1">Likelihood</button>
+                            <button class="toggle-btn" type="button" data-ll-step="2">Log</button>
+                            <button class="toggle-btn" type="button" data-ll-step="3">Estimate</button>
+                            <button class="toggle-btn" type="button" data-ll-step="4">NLL</button>
+                        </div>
+                        <div class="scene-panel" aria-live="polite">
+                            <div class="scene-header">
+                                <span class="scene-badge" id="llStepBadge">Step 1 of 5</span>
+                                <h4 id="llStepTitle">Define the data</h4>
+                            </div>
+                            <p id="llStepText"></p>
+                            <div class="math-formula math-mini" id="llStepFormula"></div>
+                        </div>
+                        <div class="controls ll-step-controls">
+                            <button type="button" id="llPrevStep">Previous step</button>
+                            <button type="button" id="llNextStep">Next step</button>
+                        </div>
+                        <p class="example-note">Follow the steps, then use the sliders to see how the estimate changes.</p>
+                    </div>
+                    <div class="visualization likelihood-visual">
+                        <div class="playground-card">
+                            <div class="playground-header">
+                                <span class="playground-badge">Playground</span>
+                                <h4>Likelihood explorer</h4>
+                            </div>
+                            <p class="playground-subtitle">Adjust trials and successes. The curve peaks at the most likely \(p\).</p>
+                            <div class="ll-token-row" id="llTokens" aria-label="Observed outcomes"></div>
+                            <canvas id="likelihoodCanvas" width="420" height="240"></canvas>
+                            <div class="ll-legend" aria-hidden="true">
+                                <span class="ll-legend-item"><span class="ll-dot ll-dot--curve"></span> log-likelihood</span>
+                                <span class="ll-legend-item"><span class="ll-dot ll-dot--mle"></span> \(\hat{p}\)</span>
+                                <span class="ll-legend-item"><span class="ll-dot ll-dot--guess"></span> guess \(p\)</span>
+                            </div>
+                            <div class="neural-readout likelihood-readout">
+                                <div class="readout-card">
+                                    <span class="readout-label">Observed data</span>
+                                    <span class="readout-value" id="llObserved">-</span>
+                                </div>
+                                <div class="readout-card">
+                                    <span class="readout-label">MLE \(\hat{p}\)</span>
+                                    <span class="readout-value" id="llPhat">-</span>
+                                </div>
+                                <div class="readout-card">
+                                    <span class="readout-label">Likelihood \(L(p)\)</span>
+                                    <span class="readout-value" id="llLikelihood">-</span>
+                                </div>
+                                <div class="readout-card">
+                                    <span class="readout-label">Log-likelihood</span>
+                                    <span class="readout-value" id="llLogLikelihood">-</span>
+                                </div>
+                                <div class="readout-card">
+                                    <span class="readout-label">NLL</span>
+                                    <span class="readout-value" id="llNll">-</span>
+                                </div>
+                            </div>
+                            <div class="controls likelihood-controls">
+                                <div class="toggle-group ll-preset-group" role="group" aria-label="Likelihood presets">
+                                    <button class="toggle-btn is-active" type="button" data-ll-preset="balanced">Balanced</button>
+                                    <button class="toggle-btn" type="button" data-ll-preset="rare">Rare event</button>
+                                    <button class="toggle-btn" type="button" data-ll-preset="skewed">Skewed</button>
+                                </div>
+                                <p class="example-note" id="llPresetNote"></p>
+                                <div class="slider-group">
+                                    <span class="slider-title">Trials (N)</span>
+                                    <label>N <span id="llTrialsVal">10</span></label>
+                                    <input type="range" id="llTrials" min="2" max="20" step="1" value="10">
+                                </div>
+                                <div class="slider-group">
+                                    <span class="slider-title">Successes (k)</span>
+                                    <label>k <span id="llSuccessesVal">5</span></label>
+                                    <input type="range" id="llSuccesses" min="0" max="10" step="1" value="5">
+                                </div>
+                                <div class="slider-group">
+                                    <span class="slider-title">Guess \(p\)</span>
+                                    <label>p <span id="llGuessVal">0.50</span></label>
+                                    <input type="range" id="llGuess" min="0.01" max="0.99" step="0.01" value="0.5">
+                                </div>
+                                <button type="button" id="llNextPreset">Next example</button>
+                            </div>
+                            <p class="helper-text">The peak of the curve is the best probability estimate.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-grid probability-sample-grid probability-canvas-panel" id="sample-space">
                     <div class="explanation">
                         <h3>Sample space simulator</h3>
                         <p>Uniform dots are outcomes. A is the left slice, B is the top slice, and the overlap shows \(A \cap B\).</p>
@@ -749,7 +1110,7 @@
                         <p class="helper-text">Counts update from simulated dots.</p>
                     </div>
                 </div>
-                <div class="content-grid probability-filter-grid">
+                <div class="content-grid probability-filter-grid probability-canvas-panel" id="hmm-filters">
                     <div class="explanation">
                         <h3>Hidden Markov Models &amp; filters</h3>
                         <h4>What is a Hidden Markov Model?</h4>

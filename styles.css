@@ -813,18 +813,27 @@ main {
 
 .probability-review-grid {
     margin-bottom: 2rem;
+    scroll-margin-top: 120px;
 }
 
 .probability-spam-grid {
     margin: 2rem 0;
+    scroll-margin-top: 120px;
+}
+
+.probability-nll-grid {
+    margin: 2rem 0;
+    scroll-margin-top: 120px;
 }
 
 .probability-sample-grid {
     margin: 2rem 0;
+    scroll-margin-top: 120px;
 }
 
 .probability-filter-grid {
     margin: 2rem 0;
+    scroll-margin-top: 120px;
 }
 
 .probability-filter-visuals .guide-card {
@@ -874,11 +883,408 @@ main {
     display: block;
 }
 
+.probability-canvas-panel {
+    background-color: var(--section-bg);
+    background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    border: 2px solid var(--section-border);
+    border-radius: 20px;
+    padding: 1.4rem;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .probability-canvas-panel {
+        padding: 1rem;
+    }
+}
+
+.probability-deep-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    background: var(--panel-bg);
+    border: 2px solid var(--section-border);
+    border-radius: 16px;
+    padding: 0.7rem 0.9rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--card-shadow);
+}
+
+.probability-deep-label {
+    font-weight: 700;
+    color: var(--ink-soft);
+}
+
+.probability-deep-link {
+    background: var(--nav-link-bg);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.probability-deep-link:hover {
+    border-color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
 .probability-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     width: 100%;
+}
+
+.probability-playground-grid {
+    margin: 2rem 0;
+    scroll-margin-top: 120px;
+}
+
+.playground-card {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(251, 113, 133, 0.12));
+    border: 2px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 1rem 1.1rem;
+    box-shadow: var(--section-shadow);
+    display: grid;
+    gap: 0.9rem;
+    width: 100%;
+}
+
+.playground-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+}
+
+.playground-card h4 {
+    font-family: var(--font-display);
+    color: var(--ink);
+    margin: 0;
+}
+
+.playground-badge {
+    background: var(--button-bg);
+    color: white;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.playground-subtitle {
+    color: var(--ink-soft);
+    font-weight: 600;
+}
+
+.ll-step-track {
+    margin: 0.9rem 0;
+}
+
+.controls.ll-step-controls {
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.visualization.likelihood-visual {
+    align-items: stretch;
+    width: 100%;
+}
+
+.ll-token-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--panel-bg);
+    border: 1px dashed var(--section-border);
+    border-radius: 12px;
+    min-height: 44px;
+}
+
+.ll-token {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: white;
+}
+
+.ll-token.is-success {
+    background: var(--accent-1);
+    box-shadow: 0 6px 10px rgba(56, 189, 248, 0.35);
+}
+
+.ll-token.is-failure {
+    background: var(--accent-2);
+    box-shadow: 0 6px 10px rgba(251, 113, 133, 0.3);
+}
+
+.ll-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+
+.ll-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+}
+
+.ll-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.ll-dot--curve {
+    background: var(--accent-1);
+}
+
+.ll-dot--mle {
+    background: var(--accent-4);
+}
+
+.ll-dot--guess {
+    background: var(--accent-3);
+}
+
+.likelihood-readout {
+    margin-top: 0.2rem;
+}
+
+.visualization.nll-visual {
+    align-items: stretch;
+    width: 100%;
+}
+
+.nll-flow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.6rem;
+    align-items: center;
+    width: 100%;
+}
+
+.nll-card {
+    background: var(--panel-bg);
+    border: 2px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 0.85rem;
+    box-shadow: var(--card-shadow);
+    display: grid;
+    gap: 0.5rem;
+}
+
+.nll-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nll-card h4 {
+    font-family: var(--font-display);
+    margin: 0;
+    color: var(--ink);
+    font-size: 1rem;
+}
+
+.nll-step {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-1);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.nll-prob-row,
+.nll-loss-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    align-items: end;
+    height: 80px;
+    padding: 0.5rem;
+    background: var(--canvas-bg);
+    border-radius: 12px;
+    border: 1px dashed var(--section-border);
+}
+
+.nll-bar-group {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: end;
+    justify-items: center;
+    height: 100%;
+    gap: 0.2rem;
+}
+
+.nll-prob-bar,
+.nll-loss-bar {
+    width: 100%;
+    min-height: 6px;
+    border-radius: 8px 8px 6px 6px;
+    background: var(--accent-1);
+    box-shadow: inset 0 -6px 10px rgba(15, 23, 42, 0.12);
+}
+
+.nll-bar-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+}
+
+.nll-bar--a {
+    background: var(--accent-1);
+}
+
+.nll-bar--b {
+    background: var(--accent-3);
+}
+
+.nll-bar--c {
+    background: var(--accent-2);
+}
+
+.nll-log-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.5rem;
+    background: var(--canvas-bg);
+    border-radius: 12px;
+    border: 1px dashed var(--section-border);
+}
+
+.nll-eq-block {
+    background: var(--canvas-bg);
+    border-radius: 12px;
+    border: 1px dashed var(--section-border);
+    padding: 0.6rem 0.7rem;
+    display: grid;
+    gap: 0.4rem;
+}
+
+.nll-eq-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.nll-eq-subrow {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+}
+
+.nll-eq-label {
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+}
+
+.nll-chip {
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.84rem;
+}
+
+.nll-chip .MathJax {
+    font-size: 0.84rem;
+}
+
+.nll-chip--p {
+    background: var(--accent-1);
+    color: white;
+}
+
+.nll-chip--result {
+    background: var(--accent-4);
+    color: white;
+}
+
+.nll-mini-chip {
+    background: var(--nav-link-bg);
+    color: var(--ink-soft);
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.78rem;
+}
+
+.nll-operator {
+    font-weight: 800;
+    color: var(--ink-soft);
+}
+
+.nll-log-chip {
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.84rem;
+}
+
+.nll-log-plus {
+    color: var(--ink-soft);
+    font-weight: 800;
+}
+
+.nll-caption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+}
+
+.nll-connector {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent-1);
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .nll-flow {
+        grid-template-columns: 1fr;
+    }
+
+    .nll-connector {
+        transform: rotate(90deg);
+    }
 }
 
 .probability-card {
@@ -1268,6 +1674,10 @@ main {
     display: grid;
     gap: 0.9rem;
     margin: 1rem 0 1.5rem;
+}
+
+.matrix-derivations {
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
 .guide-card {
@@ -1776,6 +2186,11 @@ main {
     margin: 1rem 0 1.2rem;
 }
 
+.vector-step-grid .math-formula,
+.nll-step-grid .math-formula {
+    margin: 0.6rem 0 0;
+}
+
 .step-card {
     background: var(--panel-bg);
     border: 2px solid var(--panel-border);
@@ -1900,6 +2315,16 @@ main {
 
 .concept-bullets {
     list-style: disc;
+}
+
+.concept-steps {
+    list-style: decimal;
+    margin-left: 1.2rem;
+    color: var(--ink);
+}
+
+.concept-steps li {
+    margin-bottom: 0.35rem;
 }
 
 .mini-mission {

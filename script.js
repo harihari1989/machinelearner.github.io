@@ -136,6 +136,24 @@ function drawVectorPlayground(ctx, canvas, theme) {
         return;
     }
 
+    if (vectorState.operation === 'modulus') {
+        drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
+        drawPoint(ctx, aEndX, aEndY, theme.primary, 5);
+        const normA = Math.hypot(ax, ay);
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = theme.success;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(originX, originY, normA * unit, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = theme.ink;
+        ctx.font = 'bold 12px Nunito, Arial';
+        ctx.fillText('||x||', originX + normA * unit + 6, originY - 6);
+        return;
+    }
+
     if (vectorState.operation === 'addition') {
         drawVector(ctx, originX, originY, ax * unit, -ay * unit, theme.primary, 'x');
         drawVector(ctx, originX, originY, bx * unit, -by * unit, theme.secondary, 'w');
@@ -256,6 +274,10 @@ const vectorOperationConfig = {
         formula: 'x = [x_1, x_2],\\; w = [w_1, w_2]',
         metrics: []
     },
+    modulus: {
+        formula: '\\lVert x \\rVert = \\sqrt{x_1^2 + x_2^2}',
+        metrics: ['modulus']
+    },
     addition: {
         formula: 'x + w = [x_1 + w_1,\\; x_2 + w_2]',
         metrics: ['sum']
@@ -279,6 +301,11 @@ function formatNumber(value, digits = 2) {
     return Number(value).toFixed(digits);
 }
 
+function formatStepNumber(value, digits = 2) {
+    if (!Number.isFinite(value)) return '0';
+    return Number(value.toFixed(digits)).toString();
+}
+
 function updateVectorMetrics() {
     const ax = vectorState.ax;
     const ay = vectorState.ay;
@@ -298,13 +325,110 @@ function updateVectorMetrics() {
     const dotEl = document.getElementById('vectorDot');
     const cosineEl = document.getElementById('vectorCosine');
     const angleEl = document.getElementById('vectorAngle');
+    const modulusEl = document.getElementById('vectorModulus');
     const distanceEl = document.getElementById('vectorDistance');
 
     if (sumEl) sumEl.textContent = `[${formatNumber(ax + bx)}, ${formatNumber(ay + by)}]`;
     if (dotEl) dotEl.textContent = formatNumber(dot);
     if (cosineEl) cosineEl.textContent = formatNumber(cosine);
     if (angleEl) angleEl.textContent = `${formatNumber(angleDeg, 1)}°`;
+    if (modulusEl) modulusEl.textContent = formatNumber(normA);
     if (distanceEl) distanceEl.textContent = formatNumber(distance);
+}
+
+function updateVectorStepExamples() {
+    const sumStepEl = document.getElementById('vectorSumStep');
+    const dotStepEl = document.getElementById('vectorDotStep');
+    const normStepEl = document.getElementById('vectorNormStep');
+    const cosineStepEl = document.getElementById('vectorCosineStep');
+    const angleStepEl = document.getElementById('vectorAngleStep');
+    const distanceStepEl = document.getElementById('vectorDistanceStep');
+
+    const stepEls = [sumStepEl, dotStepEl, normStepEl, cosineStepEl, angleStepEl, distanceStepEl].filter(Boolean);
+    if (!stepEls.length) return;
+
+    const ax = vectorState.ax;
+    const ay = vectorState.ay;
+    const bx = vectorState.bx;
+    const by = vectorState.by;
+
+    const dot = ax * bx + ay * by;
+    const normA = Math.hypot(ax, ay);
+    const normB = Math.hypot(bx, by);
+    const cosine = normA && normB ? dot / (normA * normB) : 0;
+    const clampedCosine = Math.max(-1, Math.min(1, cosine));
+    const angleRad = normA && normB ? Math.acos(clampedCosine) : 0;
+    const angleDeg = angleRad * (180 / Math.PI);
+    const distance = Math.hypot(ax - bx, ay - by);
+
+    const axStr = formatStepNumber(ax);
+    const ayStr = formatStepNumber(ay);
+    const bxStr = formatStepNumber(bx);
+    const byStr = formatStepNumber(by);
+    const sumXStr = formatStepNumber(ax + bx);
+    const sumYStr = formatStepNumber(ay + by);
+    const dotStr = formatStepNumber(dot);
+    const normAStr = formatStepNumber(normA);
+    const normBStr = formatStepNumber(normB);
+    const cosineStr = formatStepNumber(clampedCosine);
+    const angleStr = formatStepNumber(angleDeg, 1);
+    const distanceStr = formatStepNumber(distance);
+    const normASquaredStr = formatStepNumber(ax * ax + ay * ay);
+    const diffXStr = formatStepNumber(ax - bx);
+    const diffYStr = formatStepNumber(ay - by);
+
+    if (sumStepEl) {
+        sumStepEl.innerHTML = `\\[
+        \\begin{aligned}
+        x + w &= [${axStr} + ${bxStr}, ${ayStr} + ${byStr}] \\\\
+        &= [${sumXStr}, ${sumYStr}]
+        \\end{aligned}
+        \\]`;
+    }
+    if (dotStepEl) {
+        dotStepEl.innerHTML = `\\[
+        \\begin{aligned}
+        x \\cdot w &= (${axStr})(${bxStr}) + (${ayStr})(${byStr}) \\\\
+        &= ${dotStr}
+        \\end{aligned}
+        \\]`;
+    }
+    if (normStepEl) {
+        normStepEl.innerHTML = `\\[
+        \\begin{aligned}
+        \\lVert x \\rVert &= \\sqrt{(${axStr})^2 + (${ayStr})^2} \\\\
+        &= \\sqrt{${normASquaredStr}} = ${normAStr}
+        \\end{aligned}
+        \\]`;
+    }
+    if (cosineStepEl) {
+        cosineStepEl.innerHTML = `\\[
+        \\begin{aligned}
+        \\cos\\theta &= \\frac{x \\cdot w}{\\lVert x \\rVert \\lVert w \\rVert} \\\\
+        &= \\frac{${dotStr}}{${normAStr} \\cdot ${normBStr}} = ${cosineStr}
+        \\end{aligned}
+        \\]`;
+    }
+    if (angleStepEl) {
+        angleStepEl.innerHTML = `\\[
+        \\begin{aligned}
+        \\theta &= \\cos^{-1}(${cosineStr}) \\\\
+        &= ${angleStr}^{\\circ}
+        \\end{aligned}
+        \\]`;
+    }
+    if (distanceStepEl) {
+        distanceStepEl.innerHTML = `\\[
+        \\begin{aligned}
+        \\lVert x - w \\rVert &= \\sqrt{(${axStr} - ${bxStr})^2 + (${ayStr} - ${byStr})^2} \\\\
+        &= \\sqrt{(${diffXStr})^2 + (${diffYStr})^2} = ${distanceStr}
+        \\end{aligned}
+        \\]`;
+    }
+
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise(stepEls);
+    }
 }
 
 function updateVectorOperationUI() {
@@ -338,6 +462,7 @@ function updateVectorOperationUI() {
 function updateVectorPlayground() {
     initVectorCanvas();
     updateVectorMetrics();
+    updateVectorStepExamples();
     updateVectorOperationUI();
 }
 
@@ -430,7 +555,7 @@ const matrixOperationConfig = {
         animate: false
     },
     covariance: {
-        formula: '\\Sigma^{-1} = (1/\\det \\Sigma)\\,\\text{adj}(\\Sigma)',
+        formula: '\\begin{aligned} \\Sigma &= \\frac{1}{n-1}X_c^T X_c \\\\ X_c &= X - \\mathbf{1}\\mu^T \\end{aligned}',
         note: 'Step 1: center data. Step 2: covariance ellipse shows spread. Step 3: precision (inverse) reweights directions.',
         animate: false
     },
@@ -445,7 +570,7 @@ const matrixOperationConfig = {
         animate: false
     },
     eigen: {
-        formula: 'A\\mathbf{v} = \\lambda \\mathbf{v}',
+        formula: 'A\\mathbf{v} = \\lambda \\mathbf{v},\\; \\det(A-\\lambda I)=0',
         note: 'Eigenvectors keep direction; eigenvalues scale them.',
         animate: false
     }
@@ -1389,6 +1514,69 @@ const probabilitySampleState = {
     samples: []
 };
 
+const likelihoodPresets = [
+    {
+        id: 'balanced',
+        label: 'Balanced',
+        n: 10,
+        k: 5,
+        note: 'Balanced data: the curve peaks around 0.5.'
+    },
+    {
+        id: 'rare',
+        label: 'Rare event',
+        n: 12,
+        k: 2,
+        note: 'Rare successes pull the estimate toward 0.'
+    },
+    {
+        id: 'skewed',
+        label: 'Skewed',
+        n: 12,
+        k: 9,
+        note: 'Many successes push the estimate higher.'
+    }
+];
+
+const likelihoodPlaygroundState = {
+    n: likelihoodPresets[0].n,
+    k: likelihoodPresets[0].k,
+    pGuess: likelihoodPresets[0].k / likelihoodPresets[0].n,
+    presetId: likelihoodPresets[0].id
+};
+
+const likelihoodSteps = [
+    {
+        title: 'Define the data',
+        text: 'Each outcome y_i is 1 (success) or 0 (failure).',
+        formula: '\\[ y_i \\sim \\text{Bernoulli}(p), \\quad P(y_i=1)=p, \\; P(y_i=0)=1-p \\]'
+    },
+    {
+        title: 'Write the likelihood',
+        text: 'Multiply the probability of every outcome. With k successes in N trials:',
+        formula: '\\[ L(p)=\\prod_{i=1}^N p^{y_i}(1-p)^{1-y_i} = p^k(1-p)^{N-k} \\]'
+    },
+    {
+        title: 'Take the log',
+        text: 'Log turns the product into a sum and stabilizes computation.',
+        formula: '\\[ \\log L(p)=k\\log p+(N-k)\\log(1-p) \\]'
+    },
+    {
+        title: 'Estimate p (MLE)',
+        text: 'Differentiate and set to zero to find the peak of the curve.',
+        formula: '\\[ \\frac{d}{dp}\\log L(p)=\\frac{k}{p}-\\frac{N-k}{1-p}=0 \\Rightarrow \\hat{p}=\\frac{k}{N} \\]'
+    },
+    {
+        title: 'Convert to loss',
+        text: 'Minimizing negative log-likelihood equals maximizing likelihood.',
+        formula: '\\[ \\mathcal{L}(p)=-\\log L(p) \\]'
+    }
+];
+
+const likelihoodStepState = {
+    step: 0
+};
+
 const mlLifecycleSteps = {
     training: [
         {
@@ -1949,6 +2137,15 @@ function formatProbabilityValue(value) {
     if (value === 0) return '0';
     if (value < 0.001) return value.toExponential(2);
     return value.toFixed(3);
+}
+
+function formatLogValue(value) {
+    if (!Number.isFinite(value)) return '-';
+    return value.toFixed(3);
+}
+
+function clampProbability(value) {
+    return Math.min(0.99, Math.max(0.01, value));
 }
 
 function drawProbabilityVennCanvas() {
@@ -2556,6 +2753,332 @@ function setupSampleSpace() {
     }
 
     updateSampleSpaceUI();
+}
+
+function getLikelihoodPreset(presetId) {
+    return likelihoodPresets.find(preset => preset.id === presetId);
+}
+
+function updateLikelihoodPresetButtons(activeId) {
+    document.querySelectorAll('[data-ll-preset]').forEach(button => {
+        const isActive = button.dataset.llPreset === activeId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+function setLikelihoodPreset(presetId) {
+    const preset = getLikelihoodPreset(presetId) || likelihoodPresets[0];
+    likelihoodPlaygroundState.presetId = preset.id;
+    likelihoodPlaygroundState.n = preset.n;
+    likelihoodPlaygroundState.k = preset.k;
+    likelihoodPlaygroundState.pGuess = clampProbability(preset.k / preset.n);
+    updateLikelihoodPlaygroundUI();
+}
+
+function computeLogLikelihood(n, k, p) {
+    const safeN = Math.max(1, n);
+    const safeK = Math.min(Math.max(0, k), safeN);
+    const safeP = clampProbability(p);
+    return safeK * Math.log(safeP) + (safeN - safeK) * Math.log(1 - safeP);
+}
+
+function computeLikelihood(n, k, p) {
+    return Math.exp(computeLogLikelihood(n, k, p));
+}
+
+function updateLikelihoodTokens() {
+    const tokenRow = document.getElementById('llTokens');
+    if (!tokenRow) return;
+
+    tokenRow.innerHTML = '';
+    const total = likelihoodPlaygroundState.n;
+    const successes = likelihoodPlaygroundState.k;
+    const failures = total - successes;
+
+    tokenRow.setAttribute('aria-label', `${successes} successes, ${failures} failures`);
+
+    for (let i = 0; i < total; i += 1) {
+        const token = document.createElement('span');
+        token.className = `ll-token ${i < successes ? 'is-success' : 'is-failure'}`;
+        token.textContent = i < successes ? '1' : '0';
+        tokenRow.appendChild(token);
+    }
+}
+
+function drawLikelihoodCanvas() {
+    const canvas = document.getElementById('likelihoodCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const theme = getThemeColors();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const { n, k, pGuess } = likelihoodPlaygroundState;
+    const padding = { left: 44, right: 20, top: 20, bottom: 36 };
+    const width = canvas.width - padding.left - padding.right;
+    const height = canvas.height - padding.top - padding.bottom;
+    if (width <= 0 || height <= 0) return;
+
+    const samples = [];
+    for (let i = 1; i < 100; i += 1) {
+        const p = i / 100;
+        samples.push({ p, logL: computeLogLikelihood(n, k, p) });
+    }
+
+    const logValues = samples.map(sample => sample.logL);
+    let minLog = Math.min(...logValues);
+    let maxLog = Math.max(...logValues);
+    const paddingLog = (maxLog - minLog) * 0.08 || 1;
+    minLog -= paddingLog;
+    maxLog += paddingLog;
+
+    const mapX = p => padding.left + p * width;
+    const mapY = logL => padding.top + (maxLog - logL) / (maxLog - minLog) * height;
+
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, padding.top);
+    ctx.lineTo(padding.left, padding.top + height);
+    ctx.lineTo(padding.left + width, padding.top + height);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = theme.grid;
+    [0, 0.5, 1].forEach(tick => {
+        const x = padding.left + tick * width;
+        ctx.beginPath();
+        ctx.moveTo(x, padding.top);
+        ctx.lineTo(x, padding.top + height);
+        ctx.stroke();
+    });
+    ctx.restore();
+
+    ctx.strokeStyle = theme.primary;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    samples.forEach((sample, index) => {
+        const x = mapX(sample.p);
+        const y = mapY(sample.logL);
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    const pHat = n ? k / n : 0;
+    const pHatClamped = clampProbability(pHat);
+    const pHatX = mapX(pHatClamped);
+    const pHatY = mapY(computeLogLikelihood(n, k, pHatClamped));
+
+    ctx.save();
+    ctx.strokeStyle = theme.warning;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(pHatX, padding.top);
+    ctx.lineTo(pHatX, padding.top + height);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = theme.warning;
+    ctx.beginPath();
+    ctx.arc(pHatX, pHatY, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    const guessX = mapX(pGuess);
+    const guessY = mapY(computeLogLikelihood(n, k, pGuess));
+    ctx.save();
+    ctx.strokeStyle = theme.success;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(guessX, padding.top);
+    ctx.lineTo(guessX, padding.top + height);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = theme.success;
+    ctx.beginPath();
+    ctx.arc(guessX, guessY, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'center';
+    [0, 0.5, 1].forEach(tick => {
+        const x = padding.left + tick * width;
+        ctx.fillText(tick.toFixed(1).replace('.0', ''), x, padding.top + height + 18);
+    });
+
+    ctx.save();
+    ctx.fillStyle = theme.inkSoft;
+    ctx.font = 'bold 11px Nunito, Arial';
+    ctx.textAlign = 'center';
+    ctx.translate(14, padding.top + height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('log L(p)', 0, 0);
+    ctx.restore();
+
+    ctx.fillStyle = theme.warning;
+    ctx.textAlign = 'left';
+    ctx.fillText('p_hat', pHatX + 6, padding.top + 12);
+
+    ctx.fillStyle = theme.success;
+    ctx.fillText('p guess', guessX + 6, padding.top + 26);
+}
+
+function updateLikelihoodPlaygroundUI() {
+    likelihoodPlaygroundState.pGuess = clampProbability(likelihoodPlaygroundState.pGuess);
+    const trialsInput = document.getElementById('llTrials');
+    const successesInput = document.getElementById('llSuccesses');
+    const guessInput = document.getElementById('llGuess');
+
+    if (trialsInput) trialsInput.value = likelihoodPlaygroundState.n;
+    if (successesInput) {
+        successesInput.max = likelihoodPlaygroundState.n;
+        successesInput.value = likelihoodPlaygroundState.k;
+    }
+    if (guessInput) guessInput.value = likelihoodPlaygroundState.pGuess;
+
+    const trialsVal = document.getElementById('llTrialsVal');
+    const successesVal = document.getElementById('llSuccessesVal');
+    const guessVal = document.getElementById('llGuessVal');
+    if (trialsVal) trialsVal.textContent = likelihoodPlaygroundState.n.toString();
+    if (successesVal) successesVal.textContent = likelihoodPlaygroundState.k.toString();
+    if (guessVal) guessVal.textContent = likelihoodPlaygroundState.pGuess.toFixed(2);
+
+    const observedEl = document.getElementById('llObserved');
+    const pHatEl = document.getElementById('llPhat');
+    const likelihoodEl = document.getElementById('llLikelihood');
+    const logLikelihoodEl = document.getElementById('llLogLikelihood');
+    const nllEl = document.getElementById('llNll');
+
+    const pHat = likelihoodPlaygroundState.n
+        ? likelihoodPlaygroundState.k / likelihoodPlaygroundState.n
+        : 0;
+    const logL = computeLogLikelihood(likelihoodPlaygroundState.n, likelihoodPlaygroundState.k, likelihoodPlaygroundState.pGuess);
+    const likelihood = computeLikelihood(likelihoodPlaygroundState.n, likelihoodPlaygroundState.k, likelihoodPlaygroundState.pGuess);
+    const nll = -logL;
+
+    if (observedEl) observedEl.textContent = `${likelihoodPlaygroundState.k} / ${likelihoodPlaygroundState.n}`;
+    if (pHatEl) pHatEl.textContent = pHat.toFixed(2);
+    if (likelihoodEl) likelihoodEl.textContent = formatProbabilityValue(likelihood);
+    if (logLikelihoodEl) logLikelihoodEl.textContent = formatLogValue(logL);
+    if (nllEl) nllEl.textContent = formatLogValue(nll);
+
+    const preset = getLikelihoodPreset(likelihoodPlaygroundState.presetId);
+    updateLikelihoodPresetButtons(preset ? preset.id : null);
+    const noteEl = document.getElementById('llPresetNote');
+    if (noteEl) {
+        noteEl.textContent = preset ? preset.note : 'Custom data: adjust the sliders.';
+    }
+
+    updateLikelihoodTokens();
+    drawLikelihoodCanvas();
+}
+
+function setupLikelihoodPlayground() {
+    const trialsInput = document.getElementById('llTrials');
+    const successesInput = document.getElementById('llSuccesses');
+    const guessInput = document.getElementById('llGuess');
+    const nextPresetBtn = document.getElementById('llNextPreset');
+    const presetButtons = document.querySelectorAll('[data-ll-preset]');
+
+    if (!trialsInput && !successesInput && !guessInput && !presetButtons.length) return;
+
+    if (trialsInput) {
+        trialsInput.addEventListener('input', event => {
+            likelihoodPlaygroundState.n = Math.max(1, parseInt(event.target.value, 10));
+            if (likelihoodPlaygroundState.k > likelihoodPlaygroundState.n) {
+                likelihoodPlaygroundState.k = likelihoodPlaygroundState.n;
+            }
+            likelihoodPlaygroundState.presetId = null;
+            updateLikelihoodPlaygroundUI();
+        });
+    }
+    if (successesInput) {
+        successesInput.addEventListener('input', event => {
+            likelihoodPlaygroundState.k = Math.max(0, parseInt(event.target.value, 10));
+            likelihoodPlaygroundState.presetId = null;
+            updateLikelihoodPlaygroundUI();
+        });
+    }
+    if (guessInput) {
+        guessInput.addEventListener('input', event => {
+            likelihoodPlaygroundState.pGuess = clampProbability(parseFloat(event.target.value));
+            updateLikelihoodPlaygroundUI();
+        });
+    }
+
+    presetButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setLikelihoodPreset(button.dataset.llPreset);
+        });
+    });
+
+    if (nextPresetBtn) {
+        nextPresetBtn.addEventListener('click', () => {
+            const currentIndex = likelihoodPresets.findIndex(preset => preset.id === likelihoodPlaygroundState.presetId);
+            const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % likelihoodPresets.length : 0;
+            setLikelihoodPreset(likelihoodPresets[nextIndex].id);
+        });
+    }
+
+    setLikelihoodPreset(likelihoodPlaygroundState.presetId);
+}
+
+function setLikelihoodStep(step) {
+    const total = likelihoodSteps.length;
+    likelihoodStepState.step = ((step % total) + total) % total;
+    const stepInfo = likelihoodSteps[likelihoodStepState.step];
+
+    const buttons = document.querySelectorAll('[data-ll-step]');
+    buttons.forEach(button => {
+        const isActive = parseInt(button.dataset.llStep, 10) === likelihoodStepState.step;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    const badgeEl = document.getElementById('llStepBadge');
+    const titleEl = document.getElementById('llStepTitle');
+    const textEl = document.getElementById('llStepText');
+    const formulaEl = document.getElementById('llStepFormula');
+
+    if (badgeEl) {
+        badgeEl.textContent = `Step ${likelihoodStepState.step + 1} of ${total}`;
+    }
+    if (titleEl) titleEl.textContent = stepInfo.title;
+    if (textEl) textEl.textContent = stepInfo.text;
+    if (formulaEl) {
+        formulaEl.innerHTML = stepInfo.formula;
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([formulaEl]);
+        }
+    }
+}
+
+function setupLikelihoodStepper() {
+    const stepButtons = document.querySelectorAll('[data-ll-step]');
+    const prevBtn = document.getElementById('llPrevStep');
+    const nextBtn = document.getElementById('llNextStep');
+    if (!stepButtons.length && !prevBtn && !nextBtn) return;
+
+    stepButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setLikelihoodStep(parseInt(button.dataset.llStep, 10));
+        });
+    });
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => setLikelihoodStep(likelihoodStepState.step - 1));
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => setLikelihoodStep(likelihoodStepState.step + 1));
+    }
+
+    setLikelihoodStep(likelihoodStepState.step);
 }
 
 function getMlLifecycleSteps() {
@@ -3238,6 +3761,7 @@ function setProbabilityDepth(mode) {
     drawProbabilityCanvas();
     drawProbabilityVennCanvas();
     drawSpamFilterCanvas();
+    drawLikelihoodCanvas();
     drawSampleSpaceCanvas();
     drawHmmCanvas();
     drawKalmanCanvas();
@@ -6830,6 +7354,23 @@ function drawChainRuleMini(ctx, rect, theme, accent) {
     ctx.fillText("f'", x2 + boxW + gap / 2, y - 2);
 }
 
+function drawChainFlowMini(ctx, rect, theme, accent) {
+    const boxW = Math.min(40, rect.width * 0.26);
+    const boxH = Math.min(26, rect.height * 0.4);
+    const gap = (rect.width - boxW * 3) / 4;
+    const y = rect.y + rect.height / 2 - boxH / 2;
+    const x1 = rect.x + gap;
+    const x2 = x1 + boxW + gap;
+    const x3 = x2 + boxW + gap;
+
+    drawMiniNode(ctx, x1, y, boxW, boxH, 'x', theme);
+    drawMiniNode(ctx, x2, y, boxW, boxH, 'y', theme, { stroke: accent });
+    drawMiniNode(ctx, x3, y, boxW, boxH, 'L', theme, { stroke: theme.secondary });
+
+    drawArrow(ctx, x1 + boxW, y + boxH / 2, x2, y + boxH / 2, accent);
+    drawArrow(ctx, x2 + boxW, y + boxH / 2, x3, y + boxH / 2, accent);
+}
+
 function drawGradientStepMini(ctx, rect, theme) {
     const left = rect.x + 8;
     const right = rect.x + rect.width - 8;
@@ -7074,7 +7615,7 @@ function drawNormScene(ctx, canvas) {
 
     ctx.fillStyle = theme.ink;
     ctx.font = 'bold 12px Nunito, Arial';
-    ctx.fillText('length = 5', origin.x + 10, origin.y - 5 * scale - 12);
+    ctx.fillText('||x|| = 5', origin.x + 10, origin.y - 5 * scale - 12);
 }
 
 function drawCosineScene(ctx, canvas) {
@@ -7539,10 +8080,10 @@ const vectorScenes = [
     },
     {
         title: 'Scene 2: Norms and normalization',
-        visual: 'Length is distance from the origin. Normalization keeps direction but fixes scale.',
-        example: 'If \\(x = [3, 4]\\), then \\(\\lVert x \\rVert = 5\\) and \\(\\hat{x} = [0.6, 0.8]\\).',
+        visual: 'Modulus (length) is the distance from the origin. Normalization keeps direction but fixes scale.',
+        example: 'If \\(x = [3, 4]\\), then modulus \\(\\lVert x \\rVert = 5\\) and \\(\\hat{x} = [0.6, 0.8]\\).',
         intuition: 'Cosine similarity compares directions after normalization.',
-        math: '\\(\\lVert x \\rVert_2 = \\sqrt{x_1^2 + x_2^2}\\), \\(\\hat{x} = x / \\lVert x \\rVert\\)',
+        math: '\\(\\lVert x \\rVert_2 = \\sqrt{x_1^2 + x_2^2}\\) (modulus), \\(\\hat{x} = x / \\lVert x \\rVert\\)',
         draw: drawNormScene
     },
     {
@@ -7664,7 +8205,12 @@ function drawCalculusScene(ctx, canvas) {
     const theme = getThemeColors();
     drawFormulaCards(ctx, canvas, [
         {
-            title: "d/dx f(g(x)) = f'(g(x)) g'(x)",
+            title: 'y = g(x) -> L = f(y)',
+            colorKey: 'secondary',
+            draw: drawChainFlowMini
+        },
+        {
+            title: 'dL/dx = dL/dy * dy/dx',
             colorKey: 'secondary',
             draw: drawChainRuleMini
         }
@@ -7675,7 +8221,7 @@ function drawOptimizationScene(ctx, canvas) {
     const theme = getThemeColors();
     drawFormulaCards(ctx, canvas, [
         {
-            title: 'theta = theta - eta grad L',
+            title: 'W = W - eta (yhat - y) x^T',
             colorKey: 'success',
             draw: drawGradientStepMini
         }
@@ -7737,17 +8283,17 @@ function drawMatrixCalcScene(ctx, canvas) {
     const theme = getThemeColors();
     drawFormulaCards(ctx, canvas, [
         {
-            title: 'Y = XW',
+            title: '1) Y = XW',
             colorKey: 'primary',
             draw: drawMatrixForwardMini
         },
         {
-            title: 'dL/dX = dL/dY W^T',
+            title: '2) dL/dX = dL/dY W^T',
             colorKey: 'secondary',
             draw: drawGradXMini
         },
         {
-            title: 'dL/dW = X^T dL/dY',
+            title: '3) dL/dW = X^T dL/dY',
             colorKey: 'success',
             draw: drawGradWMini
         }
@@ -7823,6 +8369,7 @@ function refreshAllVisuals() {
     drawProbabilityCardVisuals();
     drawProbabilityVennCanvas();
     drawSpamFilterCanvas();
+    drawLikelihoodCanvas();
     drawSampleSpaceCanvas();
     drawHmmCanvas();
     drawKalmanCanvas();
@@ -10514,6 +11061,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setupProbabilityDepth();
     setupProbabilityVenn();
     setupSpamFilter();
+    setupLikelihoodStepper();
+    setupLikelihoodPlayground();
     setupSampleSpace();
     setupMlLifecycleStepper();
     setupMlAlgorithmStepper();
