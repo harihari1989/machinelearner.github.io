@@ -717,15 +717,45 @@ function drawMatrixTransformComparison(ctx, canvas, matrix, theme, options = {})
     const scale = options.scale || 22;
     const size = options.size || 4;
     const vector = options.vector || { x: 1.6, y: 1 };
+    const axisOptions = options.showTicks
+        ? {
+            showTicks: true,
+            tickStep: options.tickStep || 1,
+            tickColor: theme.inkSoft,
+            labelColor: theme.inkSoft
+        }
+        : null;
 
+    if (options.showPanels) {
+        const panelPadding = options.panelPadding ?? 10;
+        const panelWidth = size * scale * 2 + panelPadding * 2;
+        const panelHeight = size * scale * 2 + panelPadding * 2;
+        [leftOrigin, rightOrigin].forEach(origin => {
+            const panelX = origin.x - panelWidth / 2;
+            const panelY = origin.y - panelHeight / 2;
+            drawRoundedRect(ctx, panelX, panelY, panelWidth, panelHeight, 14);
+            ctx.fillStyle = theme.panel;
+            ctx.strokeStyle = theme.panelBorder;
+            ctx.lineWidth = 1.5;
+            ctx.fill();
+            ctx.stroke();
+        });
+    }
+
+    ctx.save();
+    ctx.globalAlpha = options.leftGridAlpha ?? 1;
     drawGrid(ctx, leftOrigin, scale, size, [
         [1, 0],
         [0, 1]
     ], theme.grid);
-    drawAxes(ctx, leftOrigin, scale, size, theme.axis);
+    ctx.restore();
+    drawAxes(ctx, leftOrigin, scale, size, theme.axis, axisOptions || undefined);
 
+    ctx.save();
+    ctx.globalAlpha = options.rightGridAlpha ?? 1;
     drawGrid(ctx, rightOrigin, scale, size, matrix, theme.primary);
-    drawAxes(ctx, rightOrigin, scale, size, theme.axis);
+    ctx.restore();
+    drawAxes(ctx, rightOrigin, scale, size, theme.axis, axisOptions || undefined);
 
     const leftStart = mapToCanvas({ x: 0, y: 0 }, leftOrigin, scale);
     const leftEnd = mapToCanvas(vector, leftOrigin, scale);
@@ -779,9 +809,16 @@ function drawMatrixScalingVisualization(ctx, canvas, theme, state) {
     ];
 
     drawMatrixTransformComparison(ctx, canvas, matrix, theme, {
+        scale: 20,
         fillSquare: true,
         labelLeft: 'Before',
-        labelRight: 'Scaled grid'
+        labelRight: 'Scaled grid',
+        showTicks: true,
+        tickStep: 1,
+        showPanels: true,
+        leftGridAlpha: 0.55,
+        rightGridAlpha: 0.9,
+        panelPadding: 10
     });
 
     drawMatrixBox(ctx, 18, 24, formatMatrix(matrix, 2), 'Scale A', theme);
@@ -1372,8 +1409,14 @@ function updateMatrixTransformControls() {
     const showControls = showScale || showShear;
 
     controls.hidden = !showControls;
-    if (scaleGroup) scaleGroup.hidden = !showScale;
-    if (shearGroup) shearGroup.hidden = !showShear;
+    if (scaleGroup) {
+        scaleGroup.hidden = !showScale;
+        scaleGroup.style.display = showScale ? 'grid' : 'none';
+    }
+    if (shearGroup) {
+        shearGroup.hidden = !showShear;
+        shearGroup.style.display = showShear ? 'grid' : 'none';
+    }
     if (hint) hint.hidden = !showControls;
 
     updateMatrixTransformLabels();
@@ -2195,11 +2238,10 @@ function drawProbabilityVennCanvas() {
         ctx.save();
         ctx.fillStyle = color;
         ctx.globalAlpha = alpha;
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-        ctx.globalCompositeOperation = 'destination-out';
         ctx.beginPath();
-        ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.rect(rect.x, rect.y, rect.w, rect.h);
+        ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2, true);
+        ctx.fill('evenodd');
         ctx.restore();
     };
 
@@ -7003,7 +7045,7 @@ function drawPoint(ctx, x, y, color, radius = 5) {
     ctx.fill();
 }
 
-function drawAxes(ctx, origin, scale, size, color) {
+function drawAxes(ctx, origin, scale, size, color, options = {}) {
     const left = mapToCanvas({ x: -size, y: 0 }, origin, scale);
     const right = mapToCanvas({ x: size, y: 0 }, origin, scale);
     const bottom = mapToCanvas({ x: 0, y: -size }, origin, scale);
@@ -7017,6 +7059,46 @@ function drawAxes(ctx, origin, scale, size, color) {
     ctx.textAlign = 'left';
     ctx.fillText('x', right.x - 12, right.y - 14);
     ctx.fillText('y', top.x + 6, top.y + 8);
+
+    if (!options.showTicks) return;
+
+    const tickStep = options.tickStep || 1;
+    const tickSize = options.tickSize || 4;
+    const tickColor = options.tickColor || color;
+    const labelColor = options.labelColor || tickColor;
+
+    ctx.save();
+    ctx.strokeStyle = tickColor;
+    ctx.fillStyle = labelColor;
+    ctx.font = options.tickFont || 'bold 10px Nunito, Arial';
+
+    for (let i = -size; i <= size; i += tickStep) {
+        if (i === 0 || Math.abs(i) >= size) continue;
+        const tick = mapToCanvas({ x: i, y: 0 }, origin, scale);
+        ctx.beginPath();
+        ctx.moveTo(tick.x, tick.y - tickSize);
+        ctx.lineTo(tick.x, tick.y + tickSize);
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(i.toString(), tick.x, tick.y + tickSize + 4);
+    }
+
+    for (let i = -size; i <= size; i += tickStep) {
+        if (i === 0 || Math.abs(i) >= size) continue;
+        const tick = mapToCanvas({ x: 0, y: i }, origin, scale);
+        ctx.beginPath();
+        ctx.moveTo(tick.x - tickSize, tick.y);
+        ctx.lineTo(tick.x + tickSize, tick.y);
+        ctx.stroke();
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(i.toString(), tick.x - tickSize - 4, tick.y + 1);
+    }
+
+    ctx.restore();
 }
 
 function drawDashedLine(ctx, x1, y1, x2, y2, color) {
@@ -11011,6 +11093,61 @@ const fundamentalsPlaygroundSnippets = {
         'print("||w||:", round(norm_w, 3))',
         'print("cosine:", round(cosine, 3))'
     ].join('\n'),
+    vector_projection: [
+        '# Vector projection of x onto w',
+        'import math',
+        '',
+        'x = [3.0, 1.0]',
+        'w = [1.0, 2.0]',
+        '',
+        'dot = sum(a * b for a, b in zip(x, w))',
+        'w_norm_sq = sum(v * v for v in w)',
+        'scale = dot / w_norm_sq',
+        'proj = [scale * v for v in w]',
+        '',
+        'print("proj:", [round(v, 3) for v in proj])'
+    ].join('\n'),
+    vector_distance: [
+        '# Vector distance: L2 and L1',
+        'x = [1.0, -2.0, 0.5]',
+        'y = [-1.0, 0.0, 2.5]',
+        '',
+        'diff = [a - b for a, b in zip(x, y)]',
+        'l2 = sum(d * d for d in diff) ** 0.5',
+        'l1 = sum(abs(d) for d in diff)',
+        '',
+        'print("diff:", [round(d, 2) for d in diff])',
+        'print("L2:", round(l2, 3))',
+        'print("L1:", round(l1, 3))'
+    ].join('\n'),
+    vector_unit: [
+        '# Unit vector and scaling',
+        'import math',
+        '',
+        'v = [3.0, 4.0]',
+        'norm = math.sqrt(sum(x * x for x in v))',
+        'unit = [x / norm for x in v]',
+        'scaled = [2.5 * x for x in unit]',
+        '',
+        'print("unit:", [round(x, 3) for x in unit])',
+        'print("scaled:", [round(x, 3) for x in scaled])'
+    ].join('\n'),
+    vector_basis: [
+        '# Basis change (2D)',
+        'basis = [',
+        '    [1.0, 1.0],',
+        '    [1.0, -1.0]',
+        ']',
+        'coords = [2.0, -1.0]',
+        '',
+        'x = [',
+        '    basis[0][0] * coords[0] + basis[0][1] * coords[1],',
+        '    basis[1][0] * coords[0] + basis[1][1] * coords[1]',
+        ']',
+        '',
+        'print("coords:", coords)',
+        'print("x:", [round(v, 3) for v in x])'
+    ].join('\n'),
     linear: [
         '# Linear algebra: matrix * vector',
         'W = [[1.2, -0.4],',
@@ -11051,6 +11188,57 @@ const fundamentalsPlaygroundSnippets = {
         '    w = w - lr * grad',
         '    print(f"step {step}: w={w:.3f} loss={loss(w):.3f}")'
     ].join('\n'),
+    opt_lr: [
+        '# Learning rate sweep',
+        'def step(w, lr):',
+        '    grad = 2 * (w - 3)',
+        '    return w - lr * grad',
+        '',
+        'w0 = -4.0',
+        'for lr in [0.05, 0.2, 0.8]:',
+        '    w = w0',
+        '    for _ in range(3):',
+        '        w = step(w, lr)',
+        '    print("lr:", lr, "w:", round(w, 3))'
+    ].join('\n'),
+    opt_momentum: [
+        '# Momentum update',
+        'w = -2.0',
+        'v = 0.0',
+        'lr = 0.2',
+        'beta = 0.8',
+        '',
+        'for step in range(5):',
+        '    grad = 2 * (w - 3)',
+        '    v = beta * v + grad',
+        '    w = w - lr * v',
+        '    print(f"step {step}: w={w:.3f}")'
+    ].join('\n'),
+    opt_two_d: [
+        '# 2D gradient descent',
+        'x, y = 2.0, -1.5',
+        'lr = 0.2',
+        '',
+        'for step in range(5):',
+        '    gx = 2 * x',
+        '    gy = 4 * y',
+        '    x -= lr * gx',
+        '    y -= lr * gy',
+        '    print(f"step {step}: x={x:.3f} y={y:.3f}")'
+    ].join('\n'),
+    opt_gradcheck: [
+        '# Gradient check (finite difference)',
+        'def f(w):',
+        '    return (w - 1.5) ** 2 + 0.5',
+        '',
+        'w = 0.7',
+        'eps = 1e-4',
+        'grad_num = (f(w + eps) - f(w - eps)) / (2 * eps)',
+        'grad_ana = 2 * (w - 1.5)',
+        '',
+        'print("grad_num:", round(grad_num, 5))',
+        'print("grad_ana:", round(grad_ana, 5))'
+    ].join('\n'),
     probability: [
         '# Softmax and cross-entropy',
         'import math',
@@ -11064,6 +11252,52 @@ const fundamentalsPlaygroundSnippets = {
         '',
         'print("probs:", [round(p, 3) for p in probs])',
         'print("loss:", round(loss, 4))'
+    ].join('\n'),
+    prob_bernoulli: [
+        '# Bernoulli simulation',
+        'import random',
+        '',
+        'p = 0.65',
+        'trials = 20',
+        'samples = [1 if random.random() < p else 0 for _ in range(trials)]',
+        'mean = sum(samples) / trials',
+        '',
+        'print("samples:", samples)',
+        'print("mean:", round(mean, 3))'
+    ].join('\n'),
+    prob_binomial: [
+        '# Binomial pmf',
+        'def comb(n, k):',
+        '    k = min(k, n - k)',
+        '    num = 1',
+        '    den = 1',
+        '    for i in range(1, k + 1):',
+        '        num *= n - (k - i)',
+        '        den *= i',
+        '    return num // den',
+        '',
+        'n = 6',
+        'p = 0.4',
+        'pmf = [comb(n, k) * p ** k * (1 - p) ** (n - k) for k in range(n + 1)]',
+        '',
+        'print("pmf:", [round(v, 3) for v in pmf])'
+    ].join('\n'),
+    prob_bayes: [
+        '# Bayes update',
+        'prior = 0.3',
+        'likelihood = 0.7',
+        'false_pos = 0.1',
+        '',
+        'posterior = (likelihood * prior) / (likelihood * prior + false_pos * (1 - prior))',
+        'print("posterior:", round(posterior, 3))'
+    ].join('\n'),
+    prob_expectation: [
+        '# Expectation of discrete variable',
+        'values = [0, 1, 2, 3]',
+        'probs = [0.1, 0.2, 0.3, 0.4]',
+        'expectation = sum(v * p for v, p in zip(values, probs))',
+        '',
+        'print("E[X]:", round(expectation, 3))'
     ].join('\n'),
     matrix: [
         '# Batch gradient for a linear model',
@@ -11082,7 +11316,102 @@ const fundamentalsPlaygroundSnippets = {
         'grad_w1 = sum(row[1] * err for row, err in zip(X, errors))',
         '',
         'print("grad:", [round(grad_w0, 3), round(grad_w1, 3)])'
+    ].join('\n'),
+    matrix_vector: [
+        '# Matrix * vector',
+        'A = [',
+        '    [1.0, -2.0],',
+        '    [0.5, 3.0]',
+        ']',
+        'x = [2.0, -1.0]',
+        '',
+        'y = [',
+        '    A[0][0] * x[0] + A[0][1] * x[1],',
+        '    A[1][0] * x[0] + A[1][1] * x[1]',
+        ']',
+        '',
+        'print("y:", [round(v, 3) for v in y])'
+    ].join('\n'),
+    matrix_multiply: [
+        '# Matrix multiply (2x2)',
+        'A = [',
+        '    [1, 2],',
+        '    [3, 4]',
+        ']',
+        'B = [',
+        '    [2, 0],',
+        '    [1, 2]',
+        ']',
+        '',
+        'C = [',
+        '    [A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]],',
+        '    [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]',
+        ']',
+        '',
+        'print("C:", C)'
+    ].join('\n'),
+    matrix_det: [
+        '# Determinant (2x2)',
+        'A = [',
+        '    [1.2, 0.4],',
+        '    [0.3, 0.9]',
+        ']',
+        'det = A[0][0] * A[1][1] - A[0][1] * A[1][0]',
+        '',
+        'print("det:", round(det, 3))'
+    ].join('\n'),
+    matrix_inverse: [
+        '# Inverse (2x2)',
+        'A = [',
+        '    [1, 2],',
+        '    [3, 5]',
+        ']',
+        'det = A[0][0] * A[1][1] - A[0][1] * A[1][0]',
+        'inv = [',
+        '    [A[1][1] / det, -A[0][1] / det],',
+        '    [-A[1][0] / det, A[0][0] / det]',
+        ']',
+        '',
+        'print("inv:", [[round(v, 3) for v in row] for row in inv])'
     ].join('\n')
+};
+
+const playgroundSnippetGroups = {
+    foundations: [
+        { id: 'linear', label: 'Linear transform' },
+        { id: 'calculus', label: 'Chain rule' },
+        { id: 'optimization', label: 'Gradient step' },
+        { id: 'probability', label: 'Softmax' },
+        { id: 'matrix', label: 'Batch update' }
+    ],
+    vector: [
+        { id: 'vector', label: 'Dot + cosine' },
+        { id: 'vector_projection', label: 'Projection' },
+        { id: 'vector_distance', label: 'Distance' },
+        { id: 'vector_unit', label: 'Unit + scale' },
+        { id: 'vector_basis', label: 'Basis change' }
+    ],
+    matrix: [
+        { id: 'matrix_vector', label: 'Matrix * vector' },
+        { id: 'matrix_multiply', label: 'Matrix multiply' },
+        { id: 'matrix_det', label: 'Determinant' },
+        { id: 'matrix_inverse', label: 'Inverse' },
+        { id: 'matrix', label: 'Batch gradient' }
+    ],
+    probability: [
+        { id: 'prob_bernoulli', label: 'Bernoulli sim' },
+        { id: 'prob_binomial', label: 'Binomial pmf' },
+        { id: 'probability', label: 'Logits to probs' },
+        { id: 'prob_bayes', label: 'Bayes update' },
+        { id: 'prob_expectation', label: 'Expectation' }
+    ],
+    optimization: [
+        { id: 'optimization', label: 'GD step' },
+        { id: 'opt_lr', label: 'Learning rate' },
+        { id: 'opt_momentum', label: 'Momentum' },
+        { id: 'opt_two_d', label: '2D descent' },
+        { id: 'opt_gradcheck', label: 'Grad check' }
+    ]
 };
 
 function setupFundamentalsPlayground() {
@@ -11103,10 +11432,28 @@ function setupFundamentalsPlayground() {
 
     if (!panel || !openBtn || !editor || !output) return;
 
+    const snippetGroupButtons = Array.from(panel.querySelectorAll('.python-snippets [data-fundamentals-snippet]'));
+    const setPlaygroundSnippetGroup = (contextId) => {
+        const group = playgroundSnippetGroups[contextId] || playgroundSnippetGroups.foundations;
+
+        if (!snippetGroupButtons.length) return;
+        snippetGroupButtons.forEach((button, index) => {
+            const item = group[index];
+            if (!item) {
+                button.hidden = true;
+                return;
+            }
+            button.hidden = false;
+            button.textContent = item.label;
+            button.dataset.fundamentalsSnippet = item.id;
+        });
+    };
+
     if (!editor.value.trim()) {
         editor.value = fundamentalsPlaygroundSnippets.default;
     }
     editor.dataset.defaultCode = editor.value;
+    setPlaygroundSnippetGroup('foundations');
 
     const setStatus = (text) => {
         if (status) status.textContent = text;
@@ -11137,13 +11484,22 @@ function setupFundamentalsPlayground() {
         const snippet = fundamentalsPlaygroundSnippets[snippetId];
         if (!snippet) return;
         editor.value = snippet;
+        editor.dataset.defaultCode = snippet;
         openPanel();
     };
 
-    openBtn.addEventListener('click', openPanel);
+    openBtn.addEventListener('click', () => {
+        setPlaygroundSnippetGroup('foundations');
+        const topicId = activeFundamentalId || 'linear';
+        applySnippet(topicId);
+    });
     openButtons.forEach(button => {
         button.addEventListener('click', () => {
             const snippetId = button.dataset.playgroundOpen;
+            const contextId = button.dataset.playgroundContext || snippetId;
+            if (contextId) {
+                setPlaygroundSnippetGroup(contextId);
+            }
             if (snippetId) {
                 applySnippet(snippetId);
                 return;
@@ -11156,6 +11512,7 @@ function setupFundamentalsPlayground() {
 
     if (loadBtn) {
         loadBtn.addEventListener('click', () => {
+            setPlaygroundSnippetGroup('foundations');
             const topicId = activeFundamentalId || 'linear';
             applySnippet(topicId);
         });
@@ -11163,6 +11520,10 @@ function setupFundamentalsPlayground() {
 
     snippetButtons.forEach(button => {
         button.addEventListener('click', () => {
+            const contextId = button.dataset.playgroundContext;
+            if (contextId) {
+                setPlaygroundSnippetGroup(contextId);
+            }
             applySnippet(button.dataset.fundamentalsSnippet);
         });
     });
@@ -11274,6 +11635,195 @@ function setupNotebookLab() {
     }
 }
 
+function setupOnnxDemo() {
+    const runBtn = document.getElementById('onnxDemoRun');
+    const resetBtn = document.getElementById('onnxDemoReset');
+    const outputEl = document.getElementById('onnxDemoOutput');
+    const statusEl = document.getElementById('onnxDemoStatus');
+    const canvas = document.getElementById('onnxInputCanvas');
+    const urlInput = document.getElementById('onnxModelUrl');
+    const patternButtons = Array.from(document.querySelectorAll('[data-onnx-pattern]'));
+
+    if (!runBtn || !outputEl || !canvas || !urlInput) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const size = 28;
+    const scale = canvas.width / size;
+    let session = null;
+    let sessionUrl = '';
+    let currentPattern = 'center';
+    let currentData = null;
+
+    const setStatus = (text) => {
+        if (statusEl) statusEl.textContent = text;
+    };
+
+    const setOutput = (text, isError = false) => {
+        outputEl.classList.toggle('has-error', isError);
+        let textEl = outputEl.querySelector('.cell-output-text');
+        if (!textEl) {
+            textEl = document.createElement('p');
+            textEl.className = 'cell-output-text';
+            outputEl.innerHTML = '';
+            outputEl.appendChild(textEl);
+        }
+        textEl.textContent = text;
+    };
+
+    const buildPattern = (name) => {
+        const data = new Float32Array(size * size);
+        if (name === 'center') {
+            for (let r = 12; r <= 15; r += 1) {
+                for (let c = 12; c <= 15; c += 1) {
+                    data[r * size + c] = 1;
+                }
+            }
+        } else if (name === 'diagonal') {
+            for (let i = 0; i < size; i += 1) {
+                data[i * size + i] = 1;
+                if (i + 1 < size) data[i * size + i + 1] = 0.6;
+            }
+        } else if (name === 'box') {
+            for (let i = 7; i <= 20; i += 1) {
+                data[7 * size + i] = 1;
+                data[20 * size + i] = 1;
+                data[i * size + 7] = 1;
+                data[i * size + 20] = 1;
+            }
+        } else if (name === 'noise') {
+            for (let i = 0; i < data.length; i += 1) {
+                data[i] = Math.random();
+            }
+        }
+        return data;
+    };
+
+    const renderPattern = (data) => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let r = 0; r < size; r += 1) {
+            for (let c = 0; c < size; c += 1) {
+                const value = data[r * size + c];
+                const shade = Math.max(30, Math.round(255 - value * 220));
+                ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
+                ctx.fillRect(c * scale, r * scale, scale, scale);
+            }
+        }
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.08)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= size; i += 1) {
+            const pos = i * scale;
+            ctx.beginPath();
+            ctx.moveTo(pos, 0);
+            ctx.lineTo(pos, canvas.height);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, pos);
+            ctx.lineTo(canvas.width, pos);
+            ctx.stroke();
+        }
+    };
+
+    const setPattern = (name) => {
+        currentPattern = name;
+        currentData = buildPattern(name);
+        renderPattern(currentData);
+        patternButtons.forEach(button => {
+            button.classList.toggle('is-active', button.dataset.onnxPattern === name);
+            button.setAttribute('aria-pressed', button.dataset.onnxPattern === name ? 'true' : 'false');
+        });
+    };
+
+    const ensureOrtEnv = () => {
+        if (!window.ort || !window.ort.env || !window.ort.env.wasm) return;
+        window.ort.env.wasm.numThreads = 1;
+        if (!window.ort.env.wasm.wasmPaths) {
+            window.ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/';
+        }
+    };
+
+    const runInference = async () => {
+        if (!window.ort) {
+            setOutput('ONNX Runtime Web is not loaded. Check your network connection.', true);
+            setStatus('Missing runtime.');
+            return;
+        }
+
+        runBtn.disabled = true;
+        if (resetBtn) resetBtn.disabled = true;
+        setStatus('Loading model...');
+        setOutput('Loading model...');
+
+        try {
+            ensureOrtEnv();
+            const modelUrl = urlInput.value.trim();
+            if (!modelUrl) {
+                throw new Error('Model URL is empty.');
+            }
+            if (!session || sessionUrl !== modelUrl) {
+                session = await window.ort.InferenceSession.create(modelUrl, { executionProviders: ['wasm'] });
+                sessionUrl = modelUrl;
+            }
+
+            if (!currentData) {
+                currentData = buildPattern(currentPattern);
+            }
+
+            const inputName = session.inputNames[0];
+            const inputTensor = new window.ort.Tensor('float32', currentData, [1, 1, size, size]);
+            const results = await session.run({ [inputName]: inputTensor });
+            const outputName = session.outputNames[0];
+            const rawScores = results[outputName].data;
+
+            const scores = Array.from(rawScores);
+            const maxScore = Math.max(...scores);
+            const expScores = scores.map(value => Math.exp(value - maxScore));
+            const expSum = expScores.reduce((acc, value) => acc + value, 0) || 1;
+            const probs = expScores.map(value => value / expSum);
+
+            const ranked = probs
+                .map((value, index) => ({ index, value }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 3)
+                .map(item => `${item.index} (${(item.value * 100).toFixed(1)}%)`);
+
+            setOutput(`Top predictions: ${ranked.join(', ')}`);
+            setStatus('Done.');
+        } catch (err) {
+            setOutput(`Error: ${err?.message || err}`, true);
+            setStatus('Error.');
+        } finally {
+            runBtn.disabled = false;
+            if (resetBtn) resetBtn.disabled = false;
+        }
+    };
+
+    patternButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setPattern(button.dataset.onnxPattern);
+            setOutput('Output will appear here.');
+            setStatus('Ready.');
+        });
+    });
+
+    if (resetBtn) {
+        const defaultUrl = urlInput.value;
+        resetBtn.addEventListener('click', () => {
+            urlInput.value = defaultUrl;
+            setPattern('center');
+            setOutput('Output will appear here.');
+            setStatus('Reset.');
+        });
+    }
+
+    runBtn.addEventListener('click', runInference);
+    setPattern(currentPattern);
+    setStatus('Ready.');
+}
+
 // ============================================
 // Initialize all canvases on page load
 // ============================================
@@ -11316,6 +11866,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupTd();
     setupControl();
     setupNotebookLab();
+    setupOnnxDemo();
     setupHolidayParade();
     setupVisualizationMeta();
     refreshAllVisuals();

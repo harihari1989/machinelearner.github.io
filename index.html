@@ -15,6 +15,7 @@
             svg: { fontCache: 'global' }
         };
     </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body data-theme="light">
@@ -202,6 +203,7 @@
                         <div class="concept-panel is-active" id="concept-linear" data-topic="linear" role="tabpanel">
                             <h3>Linear algebra: what the network is</h3>
                             <p>Think of a matrix as a magic machine that bends space. Each layer takes a vector and transforms it.</p>
+                            <p>Matrices are necessary for deep learning because every layer is a matrix multiply that bundles thousands of weights, so we can compute many neuron activations and whole batches in one fast step.</p>
                             <div class="math-formula">
                                 \[
                                 \mathbf{h} = W\mathbf{x} + \mathbf{b}
@@ -616,8 +618,8 @@
                     </div>
                     <p class="playground-subtitle">Compute dot products, norms, and cosine similarity with live code.</p>
                     <div class="fundamentals-playground-actions">
-                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
-                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="vector">Load vector example</button>
+                        <button class="notebook-btn" type="button" data-playground-open="vector" data-playground-context="vector">Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="vector" data-playground-context="vector">Load vector example</button>
                     </div>
                     <p class="fundamentals-playground-note">Tip: Update x and w to match the visual slider values.</p>
                 </div>
@@ -665,7 +667,6 @@
                                     <input type="range" id="matrixScaleY" min="0.3" max="2.5" step="0.05" value="0.7">
                                 </div>
                                 <div class="slider-group" data-matrix-control="shear" hidden>
-                                    <span class="slider-title">Shear amount</span>
                                     <label>k (x-shear) <span id="matrixShearVal">0.80</span></label>
                                     <input type="range" id="matrixShear" min="-1.2" max="1.2" step="0.05" value="0.8">
                                 </div>
@@ -791,8 +792,8 @@
                     </div>
                     <p class="playground-subtitle">Multiply matrices and inspect batch gradients in code.</p>
                     <div class="fundamentals-playground-actions">
-                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
-                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="matrix">Load matrix example</button>
+                        <button class="notebook-btn" type="button" data-playground-open="matrix" data-playground-context="matrix">Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="matrix" data-playground-context="matrix">Load matrix example</button>
                     </div>
                     <p class="fundamentals-playground-note">Tip: Change X and W to see how shapes affect gradients.</p>
                 </div>
@@ -838,17 +839,6 @@
                         <p class="figure-note">Graph. Bars show probability mass per outcome; the curve shows probability density; Bayes view compares prior, likelihood, and posterior.</p>
                     </div>
                 </div>
-            </div>
-            <div class="probability-mode-panel" data-probability-depth="deep">
-                <div class="probability-deep-nav" role="navigation" aria-label="Deep dive map">
-                    <span class="probability-deep-label">Deep dive map:</span>
-                    <a class="probability-deep-link" href="#probability-review">Events</a>
-                    <a class="probability-deep-link" href="#bayes-spam">Bayes</a>
-                    <a class="probability-deep-link" href="#nll-derivation">NLL</a>
-                    <a class="probability-deep-link" href="#loglikelihood-playground">Playground</a>
-                    <a class="probability-deep-link" href="#sample-space">Sample space</a>
-                    <a class="probability-deep-link" href="#hmm-filters">Filters</a>
-                </div>
                 <div class="content-grid probability-review-grid probability-canvas-panel" id="probability-review">
                     <div class="explanation">
                         <h3>Probability review: events &amp; notation</h3>
@@ -882,6 +872,16 @@
                         <canvas id="probabilityVennCanvas" width="420" height="320"></canvas>
                         <p class="helper-text">Venn diagram highlights the region tied to the formula.</p>
                     </div>
+                </div>
+            </div>
+            <div class="probability-mode-panel" data-probability-depth="deep">
+                <div class="probability-deep-nav" role="navigation" aria-label="Deep dive map">
+                    <span class="probability-deep-label">Deep dive map:</span>
+                    <a class="probability-deep-link" href="#bayes-spam">Bayes</a>
+                    <a class="probability-deep-link" href="#nll-derivation">NLL</a>
+                    <a class="probability-deep-link" href="#loglikelihood-playground">Playground</a>
+                    <a class="probability-deep-link" href="#sample-space">Sample space</a>
+                    <a class="probability-deep-link" href="#hmm-filters">Filters</a>
                 </div>
                 <div class="content-grid probability-spam-grid probability-canvas-panel" id="bayes-spam">
                     <div class="explanation">
@@ -1297,8 +1297,8 @@
                     </div>
                     <p class="playground-subtitle">Test softmax and cross-entropy with a tiny classifier.</p>
                     <div class="fundamentals-playground-actions">
-                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
-                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="probability">Load probability example</button>
+                        <button class="notebook-btn" type="button" data-playground-open="probability" data-playground-context="probability">Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="probability" data-playground-context="probability">Load probability example</button>
                     </div>
                     <p class="fundamentals-playground-note">Tip: Swap logits to see the loss change.</p>
                 </div>
@@ -1340,8 +1340,8 @@
                     </div>
                     <p class="playground-subtitle">Run a few gradient steps and watch the loss drop.</p>
                     <div class="fundamentals-playground-actions">
-                        <button class="notebook-btn" type="button" data-playground-open>Open Python playground</button>
-                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="optimization">Load gradient descent example</button>
+                        <button class="notebook-btn" type="button" data-playground-open="optimization" data-playground-context="optimization">Open Python playground</button>
+                        <button class="notebook-btn secondary" type="button" data-fundamentals-snippet="optimization" data-playground-context="optimization">Load gradient descent example</button>
                     </div>
                     <p class="fundamentals-playground-note">Tip: Tune the learning rate to see convergence speed.</p>
                 </div>
@@ -4805,6 +4805,8 @@ actions(state) -&gt; action list
                 <a href="#notebook-calculus">Calculus + Optimization</a>
                 <a href="#notebook-probability">Probability + Activations</a>
                 <a href="#notebook-matrix">Matrix Calculus</a>
+                <a href="#notebook-pytorch-fundamentals">PyTorch Fundamentals</a>
+                <a href="#notebook-pytorch-tutorials">ONNX/JS Inference</a>
             </nav>
 
             <section id="ipython-notebook" class="example-section notebook-section">
@@ -4825,7 +4827,7 @@ actions(state) -&gt; action list
                 <div class="notebook-workspace">
                     <article class="notebook-cell markdown-cell">
                         <h4>Notebook goal</h4>
-                        <p>Cover the Foundations math with a practical hands-on workshop: linear algebra, calculus, optimization, probability, activations, and matrix calculus.</p>
+                        <p>Cover the Foundations math with a practical hands-on workshop: linear algebra, calculus, optimization, probability, activations, matrix calculus, plus PyTorch fundamentals and tutorials.</p>
                     </article>
 
                     <div class="notebook-group" id="notebook-python">
@@ -5120,6 +5122,197 @@ print("grad =", [round(g, 4) for g in grad])</textarea>
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
                             <div class="cell-output" aria-live="polite"></div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="notebook-pytorch-fundamentals">
+                        <h3>Section 6: PyTorch fundamentals</h3>
+                        <p class="section-intro">Tensors, autograd, modules, and optimizers. These cells print install guidance if PyTorch is unavailable.</p>
+
+                        <article class="notebook-cell markdown-cell">
+                            <h4>Install PyTorch for this lab</h4>
+                            <p>This web lab runs in the browser and cannot install PyTorch. To run the PyTorch cells, open the notebook in local Jupyter or Colab and run the install cell below. For GPU builds, use the command from the PyTorch get-started page.</p>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [12]</span>
+                                <span class="cell-title">Install PyTorch (local or Colab)</span>
+                            </div>
+                            <textarea class="cell-editor" rows="12" spellcheck="false">try:
+    import sys
+    if sys.platform == "emscripten":
+        print("PyTorch cannot be installed in the browser lab.")
+        print("Run this in local Jupyter or Colab:")
+        print("python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu")
+    else:
+        import subprocess
+        cmd = [
+            sys.executable, "-m", "pip", "install",
+            "torch", "torchvision", "torchaudio",
+            "--index-url", "https://download.pytorch.org/whl/cpu"
+        ]
+        subprocess.check_call(cmd)
+        print("PyTorch installed.")
+except Exception as err:
+    print("Install failed:", err)</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [13]</span>
+                                <span class="cell-title">Setup + device</span>
+                            </div>
+                            <textarea class="cell-editor" rows="8" spellcheck="false">try:
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print("torch version =", torch.__version__)
+    print("device =", device)
+except Exception:
+    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [14]</span>
+                                <span class="cell-title">Tensors + matrix multiply</span>
+                            </div>
+                            <textarea class="cell-editor" rows="11" spellcheck="false">try:
+    import torch
+    a = torch.tensor([2.0, -1.0, 3.0])
+    b = torch.tensor([0.5, 1.5, -2.0])
+    dot = torch.dot(a, b)
+
+    M = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+    v = torch.tensor([1.0, -1.0])
+    mv = M @ v
+
+    print("dot =", round(dot.item(), 3))
+    print("M @ v =", mv.tolist())
+except Exception:
+    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [15]</span>
+                                <span class="cell-title">Autograd basics</span>
+                            </div>
+                            <textarea class="cell-editor" rows="8" spellcheck="false">try:
+    import torch
+    x = torch.tensor(1.5, requires_grad=True)
+    y = x ** 2 + 3 * x
+    y.backward()
+    print("dy/dx =", round(x.grad.item(), 3))
+except Exception:
+    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [16]</span>
+                                <span class="cell-title">Linear layer forward pass</span>
+                            </div>
+                            <textarea class="cell-editor" rows="10" spellcheck="false">try:
+    import torch
+    torch.manual_seed(0)
+    layer = torch.nn.Linear(2, 1)
+    x = torch.tensor([[1.0, -2.0], [0.5, 1.5]])
+    y = layer(x)
+    print("y =", y.detach().squeeze().tolist())
+except Exception:
+    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+
+                        <article class="notebook-cell code-cell">
+                            <div class="cell-top">
+                                <span class="cell-label">In [17]</span>
+                                <span class="cell-title">Loss + optimizer step</span>
+                            </div>
+                            <textarea class="cell-editor" rows="14" spellcheck="false">try:
+    import torch
+    torch.manual_seed(0)
+    model = torch.nn.Linear(1, 1)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+    loss_fn = torch.nn.MSELoss()
+
+    x = torch.tensor([[0.0], [1.0], [2.0]])
+    y = torch.tensor([[1.0], [3.0], [5.0]])
+
+    for step in range(5):
+        optimizer.zero_grad()
+        preds = model(x)
+        loss = loss_fn(preds, y)
+        loss.backward()
+        optimizer.step()
+        print("step", step, "loss", round(loss.item(), 4))
+except Exception:
+    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <div class="cell-actions">
+                                <button class="notebook-btn cell-run" type="button">Run cell</button>
+                            </div>
+                            <div class="cell-output" aria-live="polite"></div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="notebook-pytorch-tutorials">
+                        <h3>Section 7: In-browser inference (ONNX Runtime Web)</h3>
+                        <p class="section-intro">Run a small ONNX model directly in the browser using JavaScript.</p>
+
+                        <article class="notebook-cell markdown-cell">
+                            <h4>What this demo does</h4>
+                            <p>Loads a tiny MNIST classifier and runs inference on simple 28x28 input patterns. No Python kernel required.</p>
+                            <p class="example-note">If the model URL fails, use another ONNX model that accepts a 1x1x28x28 float tensor.</p>
+                        </article>
+
+                        <article class="notebook-cell onnx-demo-cell" id="onnxDemoCell">
+                            <div class="cell-top">
+                                <span class="cell-label">JS</span>
+                                <span class="cell-title">MNIST inference demo</span>
+                            </div>
+                            <div class="onnx-demo">
+                                <div class="onnx-demo-controls">
+                                    <label class="onnx-demo-label" for="onnxModelUrl">Model URL</label>
+                                    <input class="onnx-demo-input" type="text" id="onnxModelUrl" value="https://cdn.jsdelivr.net/gh/onnx/models/vision/classification/mnist/model/mnist-8.onnx">
+                                    <div class="toggle-group onnx-patterns" role="group" aria-label="Input pattern">
+                                        <button class="toggle-btn is-active" type="button" data-onnx-pattern="center">Center dot</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="diagonal">Diagonal</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="box">Box</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="noise">Noise</button>
+                                    </div>
+                                    <div class="onnx-demo-actions">
+                                        <button class="notebook-btn" type="button" id="onnxDemoRun">Run inference</button>
+                                        <button class="notebook-btn secondary" type="button" id="onnxDemoReset">Reset</button>
+                                    </div>
+                                </div>
+                                <div class="onnx-demo-visuals">
+                                    <canvas id="onnxInputCanvas" class="onnx-input-canvas" width="140" height="140" aria-label="Input canvas"></canvas>
+                                    <div class="cell-output" id="onnxDemoOutput" aria-live="polite">
+                                        <p class="cell-output-text">Output will appear here.</p>
+                                    </div>
+                                </div>
+                                <p class="helper-text onnx-demo-status" id="onnxDemoStatus">Idle</p>
+                            </div>
                         </article>
                     </div>
                 </div>

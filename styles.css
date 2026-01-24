@@ -3508,6 +3508,63 @@ body[data-theme="holiday"] .snow-layer {
     box-shadow: none;
 }
 
+.onnx-demo {
+    display: grid;
+    gap: 1rem;
+}
+
+.onnx-demo-controls {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.onnx-demo-label {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.onnx-demo-input {
+    width: 100%;
+    border: 2px solid var(--section-border);
+    border-radius: 12px;
+    padding: 0.6rem 0.8rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    background: #f8fafc;
+}
+
+.onnx-demo-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.onnx-demo-visuals {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.onnx-input-canvas {
+    border: 2px solid var(--section-border);
+    border-radius: 12px;
+    background: #f8fafc;
+    box-shadow: var(--card-shadow);
+    width: 140px;
+    height: 140px;
+}
+
+.onnx-demo-status {
+    text-align: left;
+}
+
+@media (max-width: 900px) {
+    .onnx-demo-visuals {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 980px) {
     .notebook-section {
         padding: 2.2rem 1.2rem;
