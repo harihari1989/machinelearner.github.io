@@ -39,6 +39,7 @@
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning">Reinforcement Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="notebook">Notebook Lab</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="terminal-tui">Terminal TUI Lab</button>
     </div>
 
     <div class="holiday-parade" aria-hidden="true">
@@ -5314,6 +5315,88 @@ except Exception:
                                 <p class="helper-text onnx-demo-status" id="onnxDemoStatus">Idle</p>
                             </div>
                         </article>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="chapter" data-chapter="terminal-tui">
+            <nav class="chapter-nav" aria-label="Terminal TUI sections">
+                <a href="#MachineLearnerTUI">#MachineLearnerTUI</a>
+                <a href="#terminal-tui-lab">Terminal Lab</a>
+                <a href="#terminal-python-crash-course">Python Crash Course</a>
+                <a href="#terminal-fun-commands">Fun Commands</a>
+            </nav>
+
+            <section id="terminal-tui-lab" class="example-section notebook-section terminal-tui-section">
+                <span id="MachineLearnerTUI" class="terminal-shortcut-anchor" aria-hidden="true"></span>
+                <h2>Terminal TUI Lab: Interactive Learning in Browser</h2>
+                <p class="section-intro">Learn AI/ML through a playful command-line interface with animated visuals, missions, and checkpoint quizzes.</p>
+                <p class="helper-text">Shortcut: open this lab directly with <code>#MachineLearnerTUI</code>.</p>
+
+                <div class="notebook-workspace">
+                    <div class="notebook-group terminal-lab-group">
+                        <h3>Interactive Concept Terminal</h3>
+                        <p class="section-intro">Type commands like <code>help</code>, <code>quest start</code>, <code>topics</code>, <code>open linear-algebra</code>, <code>animate gradient</code>, and <code>python start</code>.</p>
+
+                        <article class="notebook-cell terminal-lab-cell">
+                            <div class="terminal-stage" id="terminalStage">
+                                <div class="terminal-shell" id="conceptTerminal" role="application" aria-label="Interactive concept terminal">
+                                    <div class="terminal-topbar">
+                                        <span class="terminal-dot"></span>
+                                        <span class="terminal-dot"></span>
+                                        <span class="terminal-dot"></span>
+                                        <span class="terminal-title">machinelearner://concept-tui</span>
+                                    </div>
+                                    <div class="terminal-screen" id="terminalScreen" aria-live="polite"></div>
+                                    <form class="terminal-input-row" id="terminalInputForm" autocomplete="off">
+                                        <span class="terminal-prompt">ml@browser:~$</span>
+                                        <input class="terminal-input" id="terminalInput" type="text" spellcheck="false" aria-label="Terminal command input" placeholder="Type help and press Enter">
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="terminal-shortcuts" role="group" aria-label="Terminal command shortcuts">
+                                <button class="terminal-chip" type="button" data-terminal-command="help">help</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="dashboard">dashboard</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="topics">topics</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="topics algorithms">topics algorithms</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="topics distributed">topics distributed</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="explore transformers">explore transformers</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="step">step</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="graph attention">graph attention</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="art">art</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="art animate">art animate</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="animate gradient">animate gradient</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="open transformers">open transformers</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="quiz">quiz</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="quest start">quest start</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="quest hint">quest hint</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="quest status">quest status</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="python start">python start</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="python repl">python repl</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="python next">python next</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="python quiz">python quiz</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="status">status</button>
+                                <button class="terminal-chip" type="button" data-terminal-command="reset">reset</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="notebook-group" id="terminal-python-crash-course">
+                        <h3>Python Crash Course Track</h3>
+                        <p class="section-intro">Inside the terminal, run <code>python</code> to list lessons. Then use <code>python open &lt;id&gt;</code>, <code>python next</code>, and <code>python quiz</code>.</p>
+                        <ol class="step-list">
+                            <li>Variables and data types</li>
+                            <li>Conditionals and loops</li>
+                            <li>Functions and scope</li>
+                            <li>Lists, dictionaries, and comprehensions</li>
+                            <li>Modules, debugging, and practical patterns</li>
+                        </ol>
+                    </div>
+
+                    <div class="notebook-group" id="terminal-fun-commands">
+                        <h3>Fun Commands</h3>
+                        <p class="section-intro">Try <code>animate attention</code>, <code>animate rl</code>, <code>mission</code>, and <code>xp</code> to gamify your learning run.</p>
                     </div>
                 </div>
             </section>

@@ -3559,6 +3559,292 @@ body[data-theme="holiday"] .snow-layer {
     text-align: left;
 }
 
+.terminal-lab-group {
+    scroll-margin-top: 6rem;
+}
+
+.terminal-shortcut-anchor {
+    display: block;
+    position: relative;
+    top: -76px;
+    visibility: hidden;
+}
+
+.terminal-tui-section {
+    position: relative;
+}
+
+.terminal-tui-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 8% 12%, rgba(56, 189, 248, 0.14), transparent 34%),
+        radial-gradient(circle at 92% 18%, rgba(16, 185, 129, 0.12), transparent 30%),
+        radial-gradient(circle at 72% 80%, rgba(245, 158, 11, 0.1), transparent 33%);
+    animation: terminal-bg-float 10s ease-in-out infinite;
+}
+
+.terminal-tui-section .notebook-workspace {
+    position: relative;
+    z-index: 1;
+}
+
+.terminal-lab-cell {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.terminal-stage {
+    position: relative;
+    isolation: isolate;
+}
+
+.matrix-rain-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    pointer-events: none;
+    opacity: 0.36;
+    z-index: 0;
+    filter: saturate(1.15) contrast(1.05);
+}
+
+.terminal-shell {
+    position: relative;
+    z-index: 1;
+    border: 2px solid #1f2937;
+    border-radius: 14px;
+    background: linear-gradient(125deg, rgba(10, 19, 40, 0.84) 0%, rgba(3, 21, 37, 0.84) 34%, rgba(4, 18, 28, 0.8) 68%, rgba(15, 23, 42, 0.86) 100%);
+    background-size: 240% 240%;
+    color: #d1fae5;
+    box-shadow: 0 16px 28px rgba(2, 6, 23, 0.35);
+    overflow: hidden;
+    animation: terminal-shell-pan 14s ease infinite;
+}
+
+.terminal-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(148, 163, 184, 0.08) 0,
+        rgba(148, 163, 184, 0.08) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    opacity: 0.22;
+    mix-blend-mode: screen;
+}
+
+.terminal-shell > * {
+    position: relative;
+    z-index: 1;
+}
+
+.terminal-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.78);
+}
+
+.terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #64748b;
+}
+
+.terminal-dot:nth-child(1) {
+    background: #f87171;
+}
+
+.terminal-dot:nth-child(2) {
+    background: #facc15;
+}
+
+.terminal-dot:nth-child(3) {
+    background: #4ade80;
+}
+
+.terminal-title {
+    margin-left: 0.5rem;
+    font-family: "Courier New", monospace;
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+.terminal-screen {
+    max-height: 420px;
+    min-height: 300px;
+    overflow: auto;
+    padding: 0.9rem;
+    font-family: "Courier New", monospace;
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+
+.terminal-line {
+    margin: 0.08rem 0;
+    white-space: pre-wrap;
+    animation: terminal-line-enter 240ms ease-out;
+}
+
+.terminal-line.is-system {
+    color: #7dd3fc;
+}
+
+.terminal-line.is-command {
+    color: #86efac;
+}
+
+.terminal-line.is-error {
+    color: #fca5a5;
+}
+
+.terminal-line.is-success {
+    color: #c4b5fd;
+}
+
+.terminal-line.is-muted {
+    color: #94a3b8;
+}
+
+.terminal-block {
+    margin: 0.35rem 0 0.45rem;
+    white-space: pre;
+    color: #bfdbfe;
+    font-family: "Courier New", monospace;
+    font-size: 0.83rem;
+    line-height: 1.36;
+    animation: terminal-line-enter 280ms ease-out;
+}
+
+.terminal-block.terminal-animation {
+    border: 1px solid rgba(125, 211, 252, 0.4);
+    border-radius: 10px;
+    padding: 0.5rem 0.6rem;
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.terminal-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.3);
+    padding: 0.7rem 0.9rem 0.8rem;
+    background: rgba(15, 23, 42, 0.82);
+}
+
+.terminal-input-row::after {
+    content: "▋";
+    color: #4ade80;
+    font-family: "Courier New", monospace;
+    animation: terminal-cursor-blink 1s steps(1) infinite;
+}
+
+.terminal-prompt {
+    font-family: "Courier New", monospace;
+    font-size: 0.85rem;
+    color: #f59e0b;
+    white-space: nowrap;
+}
+
+.terminal-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #e2e8f0;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.terminal-input:focus {
+    outline: none;
+}
+
+.terminal-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.terminal-chip {
+    border: 1px solid var(--section-border);
+    border-radius: 999px;
+    background: var(--helper-bg);
+    color: var(--ink);
+    padding: 0.35rem 0.72rem;
+    font-size: 0.79rem;
+    font-family: "Courier New", monospace;
+    cursor: pointer;
+    transition: transform 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.terminal-chip:hover {
+    border-color: var(--accent-1);
+    color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
+.terminal-chip:focus-visible {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 2px;
+}
+
+@keyframes terminal-line-enter {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes terminal-shell-pan {
+    0% {
+        background-position: 0% 40%;
+    }
+    50% {
+        background-position: 100% 60%;
+    }
+    100% {
+        background-position: 0% 40%;
+    }
+}
+
+@keyframes terminal-bg-float {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    50% {
+        transform: translate3d(0, 8px, 0);
+    }
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes terminal-cursor-blink {
+    0%, 49% {
+        opacity: 1;
+    }
+    50%, 100% {
+        opacity: 0;
+    }
+}
+
 @media (max-width: 900px) {
     .onnx-demo-visuals {
         grid-template-columns: 1fr;
@@ -3572,5 +3858,15 @@ body[data-theme="holiday"] .snow-layer {
 
     .cell-editor {
         min-height: 150px;
+    }
+
+    .terminal-screen {
+        min-height: 250px;
+        max-height: 360px;
+    }
+
+    .terminal-input-row {
+        flex-wrap: wrap;
+        align-items: flex-start;
     }
 }

@@ -9060,6 +9060,9 @@ function setupChapterSwitcher() {
         const chapter = target?.closest('.chapter');
         if (chapter) {
             setActiveChapter(chapter.dataset.chapter);
+            setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }, 0);
             return;
         }
     }
@@ -11635,6 +11638,3453 @@ function setupNotebookLab() {
     }
 }
 
+function setupConceptTerminalLab() {
+    const terminal = document.getElementById('conceptTerminal');
+    const screen = document.getElementById('terminalScreen');
+    const inputForm = document.getElementById('terminalInputForm');
+    const input = document.getElementById('terminalInput');
+    const stage = document.getElementById('terminalStage');
+    const rainCanvas = document.getElementById('matrixRainCanvas');
+    const shortcutButtons = Array.from(document.querySelectorAll('[data-terminal-command]'));
+
+    if (!terminal || !screen || !inputForm || !input) return;
+
+    const topics = [
+        {
+            id: 'foundations',
+            aliases: ['roadmap', 'math-foundations'],
+            title: 'Foundations Roadmap',
+            chapter: 'Foundations',
+            summary: 'AI systems stack linear algebra, calculus, optimization, probability, and matrix calculus.',
+            buildsOn: 'Signals become vectors, then losses become gradients.',
+            formula: 'theta <- theta - eta * grad(L)',
+            mathDepth: 5,
+            intuitionDepth: 9,
+            bullets: [
+                'Represent the world with vectors and matrices.',
+                'Measure error with a loss function.',
+                'Update parameters with gradient-based optimization.'
+            ],
+            visual: [
+                'input x -> linear map -> activation -> prediction',
+                'prediction + target -> loss L -> gradient -> update',
+                'repeat over data until error stabilizes'
+            ],
+            quiz: {
+                question: 'Why is optimization needed after defining a model?',
+                keywords: ['loss', 'error', 'update', 'parameters'],
+                hint: 'Focus on how weights improve.'
+            }
+        },
+        {
+            id: 'linear-algebra',
+            aliases: ['linear', 'vectors', 'matrices'],
+            title: 'Linear Algebra',
+            chapter: 'Foundations',
+            summary: 'Vectors encode features; matrices transform those features between representation spaces.',
+            buildsOn: 'Coordinates and geometric transformations.',
+            formula: 'h = W x + b',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Dot product measures alignment and computes weighted sums.',
+                'Matrix multiplication composes transformations.',
+                'Batch operations let one expression process many examples.'
+            ],
+            visual: [
+                '[x1 x2 x3]^T  --W-->  [h1 h2 ... hk]^T',
+                'rows(W) = output neurons, cols(W) = input features',
+                'same rule, repeated per layer'
+            ],
+            quiz: {
+                question: 'What does each row of W represent in h = W x + b?',
+                keywords: ['neuron', 'output', 'weights', 'features'],
+                hint: 'Think one output unit at a time.'
+            }
+        },
+        {
+            id: 'calculus',
+            aliases: ['derivatives', 'chain-rule'],
+            title: 'Calculus + Chain Rule',
+            chapter: 'Foundations',
+            summary: 'Derivatives quantify sensitivity; the chain rule links local slopes through deep compositions.',
+            buildsOn: 'Slope as local rate of change.',
+            formula: 'dL/dx = (dL/dy) * (dy/dx)',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'A derivative says how much output changes for a small input change.',
+                'Backprop multiplies local derivatives layer by layer.',
+                'Large gradients can destabilize training; tiny ones can stall it.'
+            ],
+            visual: [
+                'x -> y = g(x) -> L = f(y)',
+                'upstream gradient: dL/dy',
+                'local slope: dy/dx  => combine to get dL/dx'
+            ],
+            quiz: {
+                question: 'In backprop, why multiply upstream gradient by local derivative?',
+                keywords: ['chain', 'rule', 'compose', 'local'],
+                hint: 'The network is a composition of functions.'
+            }
+        },
+        {
+            id: 'optimization',
+            aliases: ['gradient-descent', 'learning-rate'],
+            title: 'Optimization',
+            chapter: 'Foundations',
+            summary: 'Optimization tunes parameters to reduce loss over data.',
+            buildsOn: 'Gradient direction points steepest increase.',
+            formula: 'w <- w - eta * dL/dw',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Move opposite the gradient to descend the loss surface.',
+                'Learning rate controls step size and stability.',
+                'Momentum/Adam smooth noisy updates.'
+            ],
+            visual: [
+                'high loss',
+                '   \\',
+                '    \\__ step by step downhill __ minimum'
+            ],
+            quiz: {
+                question: 'What usually happens if the learning rate is too high?',
+                keywords: ['oscillate', 'diverge', 'unstable', 'overshoot'],
+                hint: 'The updates move too far each step.'
+            }
+        },
+        {
+            id: 'probability',
+            aliases: ['softmax', 'cross-entropy', 'likelihood'],
+            title: 'Probability + Losses',
+            chapter: 'Foundations',
+            summary: 'Probabilistic outputs express confidence; losses compare predicted distributions to truth.',
+            buildsOn: 'Scores become probabilities through normalization.',
+            formula: 'p_i = exp(z_i) / sum_j exp(z_j)',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'Softmax converts logits into a normalized distribution.',
+                'Cross-entropy penalizes confident wrong predictions.',
+                'Likelihood links model assumptions with observed data.'
+            ],
+            visual: [
+                'logits: [2.1, 0.4, -1.2]',
+                'softmax -> [0.81, 0.16, 0.03]',
+                'target class probability drives loss'
+            ],
+            quiz: {
+                question: 'Why use cross-entropy with softmax in classification?',
+                keywords: ['probability', 'distribution', 'target', 'penalize'],
+                hint: 'It compares predicted and true distributions.'
+            }
+        },
+        {
+            id: 'matrix-calculus',
+            aliases: ['batch-gradients', 'jacobian', 'hessian'],
+            title: 'Matrix Calculus',
+            chapter: 'Foundations',
+            summary: 'Matrix calculus makes gradient computation vectorized and efficient for full batches.',
+            buildsOn: 'Shapes and transposes must align in derivatives.',
+            formula: 'dL/dW = X^T (Yhat - Y)',
+            mathDepth: 8,
+            intuitionDepth: 6,
+            bullets: [
+                'Jacobians map small input changes to output changes.',
+                'Hessians capture curvature and conditioning.',
+                'Vectorization replaces loops with linear algebra kernels.'
+            ],
+            visual: [
+                'batch X: (n x d)',
+                'weights W: (d x k)',
+                'gradient dL/dW: (d x k)'
+            ],
+            quiz: {
+                question: 'Why is shape tracking critical in matrix calculus?',
+                keywords: ['dimension', 'shape', 'valid', 'multiply'],
+                hint: 'Most bugs are dimension mismatches.'
+            }
+        },
+        {
+            id: 'ml-lifecycle',
+            aliases: ['pipeline', 'workflow'],
+            title: 'ML Lifecycle',
+            chapter: 'Machine Learning',
+            summary: 'ML is a loop: define objective, collect data, train, evaluate, deploy, monitor, improve.',
+            buildsOn: 'Model quality depends as much on data and evaluation as on architecture.',
+            formula: 'data -> train -> eval -> deploy -> monitor -> retrain',
+            mathDepth: 4,
+            intuitionDepth: 9,
+            bullets: [
+                'Data quality and labels often dominate model outcomes.',
+                'Offline metrics do not guarantee production success.',
+                'Monitoring catches drift and regression.'
+            ],
+            visual: [
+                '[Problem] -> [Data] -> [Model] -> [Eval]',
+                '      ^                           |',
+                '      +------[Feedback loop]-----+'
+            ],
+            quiz: {
+                question: 'Which stage catches distribution drift after launch?',
+                keywords: ['monitor', 'monitoring', 'production', 'drift'],
+                hint: 'It happens after deployment.'
+            }
+        },
+        {
+            id: 'supervised-learning',
+            aliases: ['classification', 'regression'],
+            title: 'Supervised Learning',
+            chapter: 'Machine Learning',
+            summary: 'Learn a mapping from labeled examples so predictions generalize to unseen inputs.',
+            buildsOn: 'Train/validation/test split separates fitting from evaluation.',
+            formula: 'min_theta E_(x,y)[L(f_theta(x), y)]',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Regression predicts continuous values.',
+                'Classification predicts discrete classes.',
+                'Generalization matters more than training-set performance.'
+            ],
+            visual: [
+                'train: fit parameters',
+                'valid: tune hyperparameters',
+                'test : estimate final generalization'
+            ],
+            quiz: {
+                question: 'Why keep a validation set separate from training data?',
+                keywords: ['tune', 'hyperparameter', 'overfit', 'selection'],
+                hint: 'It prevents selecting settings on the training metric alone.'
+            }
+        },
+        {
+            id: 'unsupervised-learning',
+            aliases: ['clustering', 'dimensionality-reduction', 'pca'],
+            title: 'Unsupervised Learning',
+            chapter: 'Machine Learning',
+            summary: 'Find structure in unlabeled data through grouping, compression, and latent factors.',
+            buildsOn: 'Similarity metrics define neighborhood structure.',
+            formula: 'x -> z (latent representation)',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'Clustering groups similar points.',
+                'PCA projects data into maximal-variance directions.',
+                'Embeddings turn sparse signals into dense geometry.'
+            ],
+            visual: [
+                'high-dimensional cloud',
+                '   -> compress -> latent plane',
+                '   -> clusters emerge'
+            ],
+            quiz: {
+                question: 'What is the main output of PCA?',
+                keywords: ['components', 'variance', 'projection', 'directions'],
+                hint: 'It finds orthogonal directions of maximum variance.'
+            }
+        },
+        {
+            id: 'neural-networks',
+            aliases: ['mlp', 'deep-learning', 'backprop'],
+            title: 'Neural Networks',
+            chapter: 'Neural Networks',
+            summary: 'Deep networks stack nonlinear layers to model complex functions.',
+            buildsOn: 'Depth gives compositional feature hierarchy.',
+            formula: 'a^(l+1) = sigma(W^(l) a^(l) + b^(l))',
+            mathDepth: 7,
+            intuitionDepth: 8,
+            bullets: [
+                'Forward pass computes predictions.',
+                'Backward pass computes gradients.',
+                'Regularization controls overfitting.'
+            ],
+            visual: [
+                'input -> hidden1 -> hidden2 -> output',
+                '         ^ grad <- grad <- grad',
+                'learn by repeating forward/backward passes'
+            ],
+            quiz: {
+                question: 'What role does nonlinearity play between layers?',
+                keywords: ['nonlinear', 'expressive', 'linear', 'composition'],
+                hint: 'Without it, stacked layers collapse to a single linear map.'
+            }
+        },
+        {
+            id: 'cnn',
+            aliases: ['convolution', 'vision'],
+            title: 'Convolutional Networks',
+            chapter: 'Neural Networks',
+            summary: 'CNNs share local filters across space to detect patterns like edges and textures efficiently.',
+            buildsOn: 'Translation-aware feature extraction.',
+            formula: 'feature = conv(input, kernel)',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Filters slide over pixels and reuse parameters.',
+                'Pooling reduces spatial size and adds invariance.',
+                'Deeper layers capture higher-level visual motifs.'
+            ],
+            visual: [
+                '[image] --conv--> [feature maps] --pool--> [compact features]',
+                'shared kernels lower parameter count',
+                'local receptive fields detect local structure'
+            ],
+            quiz: {
+                question: 'Why is weight sharing useful in CNNs?',
+                keywords: ['fewer', 'parameters', 'translation', 'reuse'],
+                hint: 'The same pattern can appear anywhere in an image.'
+            }
+        },
+        {
+            id: 'sequence-models',
+            aliases: ['rnn', 'lstm', 'gru'],
+            title: 'RNN and LSTM',
+            chapter: 'Neural Networks',
+            summary: 'Sequence models carry state across time steps to model ordered data like text and signals.',
+            buildsOn: 'Hidden state summarizes past context.',
+            formula: 'h_t = f(x_t, h_(t-1))',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'RNNs process tokens one step at a time.',
+                'LSTMs add gates to preserve long-range information.',
+                'Vanishing gradients make long dependencies difficult.'
+            ],
+            visual: [
+                'x1 -> [cell] -> h1',
+                'x2 -> [cell] -> h2',
+                'x3 -> [cell] -> h3   (shared params over time)'
+            ],
+            quiz: {
+                question: 'What problem do LSTM gates primarily address?',
+                keywords: ['long', 'memory', 'vanishing', 'dependencies'],
+                hint: 'Standard RNNs forget too quickly.'
+            }
+        },
+        {
+            id: 'transformers',
+            aliases: ['attention', 'self-attention'],
+            title: 'Transformers',
+            chapter: 'Large Language Models',
+            summary: 'Transformers model token relationships with attention, enabling parallel sequence processing.',
+            buildsOn: 'Each token attends to relevant tokens.',
+            formula: 'Attention(Q,K,V) = softmax(QK^T / sqrt(d_k)) V',
+            mathDepth: 8,
+            intuitionDepth: 8,
+            bullets: [
+                'Self-attention computes context-dependent token mixing.',
+                'Multi-head attention learns complementary relations.',
+                'Positional encodings inject token order.'
+            ],
+            visual: [
+                'tokens -> embeddings + positions',
+                '      -> attention blocks -> feed-forward',
+                '      -> next-token distribution'
+            ],
+            quiz: {
+                question: 'What is the practical benefit of multi-head attention?',
+                keywords: ['different', 'relations', 'subspaces', 'parallel'],
+                hint: 'Each head can focus on a different pattern.'
+            }
+        },
+        {
+            id: 'prompting',
+            aliases: ['prompt-engineering', 'instruction-design'],
+            title: 'Prompt Engineering',
+            chapter: 'Large Language Models',
+            summary: 'Prompt design reduces ambiguity and steers model behavior toward measurable outcomes.',
+            buildsOn: 'Specify role, context, constraints, and output format.',
+            formula: 'quality ~= clarity + context + constraints',
+            mathDepth: 3,
+            intuitionDepth: 9,
+            bullets: [
+                'Define objective and acceptance criteria clearly.',
+                'Use examples for pattern anchoring.',
+                'Iterate prompts with real evaluation inputs.'
+            ],
+            visual: [
+                'vague prompt -> unstable outputs',
+                'structured prompt -> consistent outputs',
+                'eval loop closes quality gap'
+            ],
+            quiz: {
+                question: 'What usually improves consistency most in prompts?',
+                keywords: ['constraints', 'format', 'examples', 'specific'],
+                hint: 'Ambiguity is the enemy.'
+            }
+        },
+        {
+            id: 'rag',
+            aliases: ['retrieval', 'retrieval-augmented-generation'],
+            title: 'RAG',
+            chapter: 'Large Language Models',
+            summary: 'RAG retrieves external context at query time to ground generation in relevant documents.',
+            buildsOn: 'Embed -> search -> rerank -> inject context.',
+            formula: 'answer = LLM(query + retrieved_context)',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Chunking quality controls retrieval recall.',
+                'Embedding similarity finds candidate passages.',
+                'Grounded prompts reduce hallucination risk.'
+            ],
+            visual: [
+                'question -> embed -> vector search',
+                'top-k chunks -> prompt context',
+                'model response cites retrieved evidence'
+            ],
+            quiz: {
+                question: 'Why does retrieval help reduce hallucinations?',
+                keywords: ['context', 'ground', 'evidence', 'documents'],
+                hint: 'The model is conditioned on relevant facts.'
+            }
+        },
+        {
+            id: 'agents',
+            aliases: ['tool-use', 'agentic-workflows'],
+            title: 'AI Agents',
+            chapter: 'Large Language Models',
+            summary: 'Agents combine reasoning, tools, memory, and control flow to execute multi-step tasks.',
+            buildsOn: 'Planner + tool calls + verification loop.',
+            formula: 'observe -> plan -> act(tool) -> reflect -> repeat',
+            mathDepth: 4,
+            intuitionDepth: 8,
+            bullets: [
+                'Tool integration expands capability beyond pure text generation.',
+                'State tracking keeps multi-step tasks coherent.',
+                'Evals and guardrails are required for reliability.'
+            ],
+            visual: [
+                '[goal] -> planner',
+                'planner -> tool call -> observation',
+                'observation -> planner (loop until done)'
+            ],
+            quiz: {
+                question: 'What makes an agent different from a single LLM call?',
+                keywords: ['loop', 'tools', 'state', 'multi-step'],
+                hint: 'Think iterative execution, not one-shot completion.'
+            }
+        },
+        {
+            id: 'reinforcement-learning',
+            aliases: ['rl', 'mdp'],
+            title: 'Reinforcement Learning',
+            chapter: 'Reinforcement Learning',
+            summary: 'An agent learns by interacting with an environment to maximize long-term reward.',
+            buildsOn: 'States, actions, rewards, and delayed consequences.',
+            formula: 'G_t = sum_k gamma^k r_(t+k+1)',
+            mathDepth: 7,
+            intuitionDepth: 8,
+            bullets: [
+                'Policy selects actions from states.',
+                'Value function estimates expected return.',
+                'Exploration balances learning vs exploiting known rewards.'
+            ],
+            visual: [
+                'state s_t --policy--> action a_t',
+                'environment -> reward r_t+1, next state s_t+1',
+                'update value/policy from trajectories'
+            ],
+            quiz: {
+                question: 'Why is discount factor gamma used in return?',
+                keywords: ['future', 'tradeoff', 'stability', 'long-term'],
+                hint: 'It weights immediate vs distant rewards.'
+            }
+        },
+        {
+            id: 'bandits-and-control',
+            aliases: ['bandits', 'q-learning', 'td-learning'],
+            title: 'Bandits, TD, and Control',
+            chapter: 'Reinforcement Learning',
+            summary: 'Bandits handle action selection without state transitions; TD/Q-learning solve sequential control.',
+            buildsOn: 'Bootstrap updates learn from estimates of future value.',
+            formula: 'Q(s,a) <- Q(s,a) + alpha [r + gamma max_a\' Q(s\',a\') - Q(s,a)]',
+            mathDepth: 8,
+            intuitionDepth: 7,
+            bullets: [
+                'Bandits focus on exploration-exploitation in one-step rewards.',
+                'TD updates learn online from partial returns.',
+                'Q-learning finds greedy control policies off-policy.'
+            ],
+            visual: [
+                'bandit: choose arm -> observe reward -> update estimate',
+                'control: state -> action -> next state + reward',
+                'bootstrap target uses current value estimates'
+            ],
+            quiz: {
+                question: 'What does the max term represent in Q-learning?',
+                keywords: ['best', 'future', 'action', 'value'],
+                hint: 'It is the estimated best possible future value at next state.'
+            }
+        }
+    ];
+
+    const algorithmTopics = [
+        {
+            id: 'algorithmic-complexity',
+            aliases: ['big-o', 'complexity', 'asymptotics'],
+            title: 'Algorithmic Complexity',
+            chapter: 'Algorithms',
+            summary: 'Complexity analysis compares growth rates of runtime and memory as input scales.',
+            buildsOn: 'Asymptotic notation ignores constants and lower-order terms.',
+            formula: 'T(n) in O(f(n))',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Big-O gives upper bound, Omega lower bound, Theta tight bound.',
+                'Logarithmic and linear-time algorithms scale very differently.',
+                'Space complexity matters for large datasets.'
+            ],
+            visual: [
+                'n ->   10   100   1000',
+                'n^2 -> 100  10k   1M',
+                'nlogn grows slower than n^2'
+            ],
+            quiz: {
+                question: 'Why can O(n log n) beat O(n^2) dramatically for large n?',
+                keywords: ['growth', 'scale', 'faster', 'large'],
+                hint: 'Compare how terms grow with n.'
+            }
+        },
+        {
+            id: 'divide-and-conquer',
+            aliases: ['recursion', 'master-theorem'],
+            title: 'Divide and Conquer',
+            chapter: 'Algorithms',
+            summary: 'Break a problem into smaller subproblems, solve recursively, and combine results.',
+            buildsOn: 'Recurrence relations model recursive cost.',
+            formula: 'T(n) = aT(n/b) + f(n)',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'Merge sort and quicksort are classic divide-and-conquer examples.',
+                'Balanced splitting often leads to efficient runtimes.',
+                'Combine step quality determines overall performance.'
+            ],
+            visual: [
+                'problem n',
+                ' -> n/2 + n/2',
+                ' -> base cases -> combine'
+            ],
+            quiz: {
+                question: 'What does the combine step do in divide-and-conquer?',
+                keywords: ['merge', 'combine', 'subproblem', 'results'],
+                hint: 'After recursion, you must integrate results.'
+            }
+        },
+        {
+            id: 'sorting-algorithms',
+            aliases: ['sorting', 'quicksort', 'mergesort', 'heapsort'],
+            title: 'Sorting Algorithms',
+            chapter: 'Algorithms',
+            summary: 'Sorting organizes data and is foundational for searching, joins, and scheduling.',
+            buildsOn: 'Comparison sort lower bound is Omega(n log n).',
+            formula: 'best-known comparison sorts: O(n log n)',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Merge sort is stable and predictable.',
+                'Quicksort is fast in practice with good pivoting.',
+                'Heapsort guarantees O(n log n) with constant extra space.'
+            ],
+            visual: [
+                '[7,2,5,1] -> partition/merge -> [1,2,5,7]',
+                'comparison count drives cost',
+                'stability matters for multi-key sorts'
+            ],
+            quiz: {
+                question: 'Why is stability useful in sorting?',
+                keywords: ['relative', 'order', 'equal', 'keys'],
+                hint: 'Think records with repeated keys.'
+            }
+        },
+        {
+            id: 'searching-and-binary-search',
+            aliases: ['binary-search', 'search'],
+            title: 'Searching and Binary Search',
+            chapter: 'Algorithms',
+            summary: 'Binary search cuts the search range in half on sorted data.',
+            buildsOn: 'Sorted order enables logarithmic elimination.',
+            formula: 'O(log n)',
+            mathDepth: 5,
+            intuitionDepth: 9,
+            bullets: [
+                'Check midpoint then discard half the range.',
+                'Boundary conditions are common bug sources.',
+                'Works for monotonic predicates beyond arrays.'
+            ],
+            visual: [
+                'lo .... mid .... hi',
+                'target < a[mid] -> move hi',
+                'target > a[mid] -> move lo'
+            ],
+            quiz: {
+                question: 'What prerequisite must hold for binary search to work?',
+                keywords: ['sorted', 'ordered', 'monotonic'],
+                hint: 'The data property is critical.'
+            }
+        },
+        {
+            id: 'hashing-and-hash-tables',
+            aliases: ['hashing', 'hash-table', 'maps'],
+            title: 'Hashing and Hash Tables',
+            chapter: 'Algorithms',
+            summary: 'Hash tables map keys to buckets for near-constant expected lookups.',
+            buildsOn: 'Good hash functions spread keys uniformly.',
+            formula: 'expected O(1) insert/lookup',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Collisions are handled with chaining or open addressing.',
+                'Load factor influences performance.',
+                'Resizing avoids bucket overload.'
+            ],
+            visual: [
+                'key -> hash(key) -> bucket index',
+                'bucket -> entries',
+                'rehash when load factor rises'
+            ],
+            quiz: {
+                question: 'Why does high load factor hurt hash table performance?',
+                keywords: ['collision', 'bucket', 'chains', 'probe'],
+                hint: 'More keys compete for same slots.'
+            }
+        },
+        {
+            id: 'heaps-and-priority-queues',
+            aliases: ['heap', 'priority-queue'],
+            title: 'Heaps and Priority Queues',
+            chapter: 'Algorithms',
+            summary: 'Heaps maintain quick access to min or max elements.',
+            buildsOn: 'Heap property organizes parent-child values.',
+            formula: 'insert/extract: O(log n), peek: O(1)',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Binary heap stored compactly in arrays.',
+                'Essential for Dijkstra and scheduling.',
+                'Sift-up/sift-down maintain invariants.'
+            ],
+            visual: [
+                'array index i',
+                'parent=(i-1)/2, children=2i+1,2i+2',
+                'root is min or max'
+            ],
+            quiz: {
+                question: 'Why use a heap for repeated min extraction?',
+                keywords: ['log', 'efficient', 'extract', 'priority'],
+                hint: 'Compare with linear scanning each time.'
+            }
+        },
+        {
+            id: 'trees-and-balanced-indexes',
+            aliases: ['trees', 'avl', 'red-black', 'b-tree'],
+            title: 'Trees and Balanced Indexes',
+            chapter: 'Algorithms',
+            summary: 'Balanced trees provide ordered operations with logarithmic complexity.',
+            buildsOn: 'Height balance keeps path lengths short.',
+            formula: 'search/insert/delete O(log n)',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'BST order supports range queries.',
+                'Rotations rebalance trees.',
+                'B-trees optimize disk/page locality.'
+            ],
+            visual: [
+                'left < node < right',
+                'rebalancing rotations preserve order',
+                'shallow tree => fast operations'
+            ],
+            quiz: {
+                question: 'What does balancing prevent in BSTs?',
+                keywords: ['degenerate', 'linked-list', 'height', 'worst'],
+                hint: 'Think worst-case insertion order.'
+            }
+        },
+        {
+            id: 'union-find-disjoint-set',
+            aliases: ['union-find', 'disjoint-set', 'dsu'],
+            title: 'Union-Find (Disjoint Set)',
+            chapter: 'Algorithms',
+            summary: 'Union-Find tracks connected components efficiently with path compression.',
+            buildsOn: 'Parent pointers represent component roots.',
+            formula: 'amortized near O(alpha(n))',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'find returns representative root.',
+                'union merges two components.',
+                'Used in Kruskal and connectivity queries.'
+            ],
+            visual: [
+                'find(x) -> root',
+                'union(a,b) -> merge roots',
+                'path compression flattens chains'
+            ],
+            quiz: {
+                question: 'Why is path compression effective?',
+                keywords: ['flatten', 'shorter', 'future', 'find'],
+                hint: 'It reduces future traversal depth.'
+            }
+        },
+        {
+            id: 'graph-traversal',
+            aliases: ['bfs', 'dfs', 'graph-search'],
+            title: 'Graph Traversal (BFS/DFS)',
+            chapter: 'Algorithms',
+            summary: 'BFS and DFS explore graph structure for reachability, levels, and components.',
+            buildsOn: 'Graphs model pairwise relationships.',
+            formula: 'O(V + E)',
+            mathDepth: 5,
+            intuitionDepth: 9,
+            bullets: [
+                'BFS explores level-by-level using queues.',
+                'DFS explores deeply using stack/recursion.',
+                'Traversal order supports many derived algorithms.'
+            ],
+            visual: [
+                'BFS: queue frontier expands rings',
+                'DFS: dive then backtrack',
+                'visited set prevents cycles'
+            ],
+            quiz: {
+                question: 'Which traversal naturally gives shortest path in unweighted graphs?',
+                keywords: ['bfs', 'level', 'shortest'],
+                hint: 'Think first time a node is reached.'
+            }
+        },
+        {
+            id: 'shortest-paths',
+            aliases: ['dijkstra', 'bellman-ford', 'floyd-warshall'],
+            title: 'Shortest Paths',
+            chapter: 'Algorithms',
+            summary: 'Shortest-path algorithms compute minimum-cost routes in weighted graphs.',
+            buildsOn: 'Edge weights define path cost.',
+            formula: 'dist[v] = min(dist[v], dist[u] + w(u,v))',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'Dijkstra assumes non-negative weights.',
+                'Bellman-Ford handles negative edges.',
+                'All-pairs methods compute global distances.'
+            ],
+            visual: [
+                'relax edges repeatedly',
+                'priority queue picks nearest frontier',
+                'distances converge to optimum'
+            ],
+            quiz: {
+                question: 'Why does Dijkstra fail with negative-weight edges?',
+                keywords: ['negative', 'greedy', 'assumption', 'relax'],
+                hint: 'Greedy settled nodes may later improve.'
+            }
+        },
+        {
+            id: 'minimum-spanning-tree',
+            aliases: ['mst', 'kruskal', 'prim'],
+            title: 'Minimum Spanning Trees',
+            chapter: 'Algorithms',
+            summary: 'MST connects all vertices with minimum total edge weight and no cycles.',
+            buildsOn: 'Cut and cycle properties justify greedy choices.',
+            formula: 'argmin sum edge weights over spanning trees',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'Kruskal sorts edges and unions components.',
+                'Prim grows one tree frontier.',
+                'Useful for network design and clustering.'
+            ],
+            visual: [
+                'sort edges low->high',
+                'pick edge if it does not create cycle',
+                'stop when V-1 edges selected'
+            ],
+            quiz: {
+                question: 'What role does Union-Find play in Kruskal?',
+                keywords: ['cycle', 'component', 'check', 'merge'],
+                hint: 'It quickly detects cycle creation.'
+            }
+        },
+        {
+            id: 'dynamic-programming',
+            aliases: ['dp', 'memoization', 'tabulation'],
+            title: 'Dynamic Programming',
+            chapter: 'Algorithms',
+            summary: 'DP solves overlapping subproblems and reuses cached optimal substructure.',
+            buildsOn: 'State design and transition equations.',
+            formula: 'dp[state] = best over transitions',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'Memoization caches recursive calls.',
+                'Tabulation fills states bottom-up.',
+                'State compression can reduce memory.'
+            ],
+            visual: [
+                'define state',
+                'write recurrence',
+                'set base cases -> fill table'
+            ],
+            quiz: {
+                question: 'What two properties typically make DP applicable?',
+                keywords: ['overlapping', 'optimal', 'substructure'],
+                hint: 'Think repeated subproblems + optimal composition.'
+            }
+        },
+        {
+            id: 'greedy-algorithms',
+            aliases: ['greedy', 'interval-scheduling'],
+            title: 'Greedy Algorithms',
+            chapter: 'Algorithms',
+            summary: 'Greedy methods choose locally optimal actions hoping for global optimum.',
+            buildsOn: 'Exchange arguments prove correctness.',
+            formula: 'choose best local option each step',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Very fast when structure permits.',
+                'Not every problem has greedy-choice property.',
+                'Proofs are essential, not intuition alone.'
+            ],
+            visual: [
+                'candidate set -> choose best local',
+                'commit and continue',
+                'verify global optimality by proof'
+            ],
+            quiz: {
+                question: 'What must be shown to trust a greedy solution?',
+                keywords: ['proof', 'optimal', 'exchange', 'property'],
+                hint: 'Local choice must imply global optimum.'
+            }
+        },
+        {
+            id: 'backtracking-and-branch-bound',
+            aliases: ['backtracking', 'branch-and-bound'],
+            title: 'Backtracking and Branch & Bound',
+            chapter: 'Algorithms',
+            summary: 'Systematically search possibilities with pruning based on constraints or bounds.',
+            buildsOn: 'Decision trees represent candidate solutions.',
+            formula: 'search tree + prune invalid/unpromising branches',
+            mathDepth: 6,
+            intuitionDepth: 8,
+            bullets: [
+                'Backtracking prunes on constraint violations.',
+                'Branch-and-bound prunes on objective bounds.',
+                'Useful for combinatorial optimization.'
+            ],
+            visual: [
+                'root -> choices -> deeper choices',
+                'invalid branch => cut',
+                'best-so-far bound => cut more branches'
+            ],
+            quiz: {
+                question: 'Why is pruning critical in backtracking?',
+                keywords: ['reduce', 'search', 'state-space', 'efficiency'],
+                hint: 'The raw search tree can be exponential.'
+            }
+        },
+        {
+            id: 'string-matching-and-indexing',
+            aliases: ['kmp', 'rabin-karp', 'trie', 'suffix-array'],
+            title: 'String Matching and Indexing',
+            chapter: 'Algorithms',
+            summary: 'Efficient text algorithms speed search, parsing, and indexing tasks.',
+            buildsOn: 'Preprocessing pattern/text reduces repeated work.',
+            formula: 'preprocess + linear scan',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'KMP avoids rechecking matched prefixes.',
+                'Tries support prefix lookup.',
+                'Suffix structures accelerate substring queries.'
+            ],
+            visual: [
+                'pattern automaton guides scan',
+                'trie edges by character',
+                'suffix index enables fast lookup'
+            ],
+            quiz: {
+                question: 'What does a trie optimize in text workloads?',
+                keywords: ['prefix', 'lookup', 'dictionary', 'search'],
+                hint: 'Think shared prefixes across words.'
+            }
+        },
+        {
+            id: 'randomized-and-approximation-algorithms',
+            aliases: ['randomized', 'approximation'],
+            title: 'Randomized and Approximation Algorithms',
+            chapter: 'Algorithms',
+            summary: 'Randomization and approximation make hard problems tractable in practice.',
+            buildsOn: 'Trade exactness for speed or probabilistic guarantees.',
+            formula: 'P(success) or approximation ratio',
+            mathDepth: 7,
+            intuitionDepth: 6,
+            bullets: [
+                'Randomized quicksort has strong expected performance.',
+                'Approximation algorithms bound distance from optimal.',
+                'Useful for NP-hard optimization tasks.'
+            ],
+            visual: [
+                'exact optimum often expensive',
+                'approx solution: faster + bounded quality',
+                'randomization avoids worst-case structures'
+            ],
+            quiz: {
+                question: 'Why accept approximation in NP-hard problems?',
+                keywords: ['tradeoff', 'time', 'quality', 'tractable'],
+                hint: 'Exact methods may be too slow at scale.'
+            }
+        }
+    ];
+
+    const distributedSystemsTopics = [
+        {
+            id: 'distributed-systems-basics',
+            aliases: ['distributed-basics', 'nodes-networks-failures'],
+            title: 'Distributed Systems Basics',
+            chapter: 'Distributed Systems',
+            summary: 'Distributed systems coordinate multiple machines under latency, failures, and partial information.',
+            buildsOn: 'No global clock and unreliable networks.',
+            formula: 'latency + faults + coordination complexity',
+            mathDepth: 4,
+            intuitionDepth: 9,
+            bullets: [
+                'Nodes fail independently.',
+                'Network delay and packet loss are normal.',
+                'State coordination is the central challenge.'
+            ],
+            visual: [
+                'node A <--> node B <--> node C',
+                'messages can delay, drop, reorder',
+                'design assumes failures by default'
+            ],
+            quiz: {
+                question: 'Why is distributed coordination harder than single-node programming?',
+                keywords: ['latency', 'failure', 'network', 'partial'],
+                hint: 'State is split across unreliable links.'
+            }
+        },
+        {
+            id: 'cap-and-pacelc',
+            aliases: ['cap', 'pacelc'],
+            title: 'CAP and PACELC',
+            chapter: 'Distributed Systems',
+            summary: 'CAP and PACELC describe consistency/availability tradeoffs under partitions and normal operation.',
+            buildsOn: 'Partitions are unavoidable in large systems.',
+            formula: 'CAP: C vs A under P',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Under partition, choose consistency or availability.',
+                'PACELC extends tradeoff to normal latency vs consistency.',
+                'System design chooses defaults per workload.'
+            ],
+            visual: [
+                'Partition? yes -> choose C or A',
+                'Else -> choose latency or consistency',
+                'tradeoffs depend on product needs'
+            ],
+            quiz: {
+                question: 'What does PACELC add beyond CAP?',
+                keywords: ['latency', 'else', 'normal', 'operation'],
+                hint: 'It covers the no-partition case.'
+            }
+        },
+        {
+            id: 'time-lamport-vector-clocks',
+            aliases: ['lamport-clock', 'vector-clock', 'time-ordering'],
+            title: 'Time, Lamport Clocks, and Vector Clocks',
+            chapter: 'Distributed Systems',
+            summary: 'Logical clocks reason about event ordering without synchronized physical clocks.',
+            buildsOn: 'Happens-before relation.',
+            formula: 'a -> b implies clock(a) < clock(b)',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'Lamport clocks provide partial ordering hints.',
+                'Vector clocks detect concurrency/conflicts.',
+                'Useful for conflict resolution in replicated systems.'
+            ],
+            visual: [
+                'process A: e1 --- e2',
+                'process B: f1 --- f2',
+                'messages induce happens-before edges'
+            ],
+            quiz: {
+                question: 'What extra information do vector clocks provide over Lamport clocks?',
+                keywords: ['concurrent', 'causal', 'conflict', 'compare'],
+                hint: 'They can distinguish concurrency.'
+            }
+        },
+        {
+            id: 'replication-strategies',
+            aliases: ['replication', 'leader-follower', 'multi-leader'],
+            title: 'Replication Strategies',
+            chapter: 'Distributed Systems',
+            summary: 'Replication improves availability and read throughput while introducing consistency challenges.',
+            buildsOn: 'Data copied across replicas.',
+            formula: 'write -> replicate -> converge',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Leader-follower centralizes writes.',
+                'Multi-leader enables regional writes but may conflict.',
+                'Leaderless designs use quorum logic.'
+            ],
+            visual: [
+                'client -> leader -> followers',
+                'read from replicas',
+                'replication lag impacts freshness'
+            ],
+            quiz: {
+                question: 'What is replication lag and why does it matter?',
+                keywords: ['stale', 'delay', 'replica', 'consistency'],
+                hint: 'Followers may be behind latest writes.'
+            }
+        },
+        {
+            id: 'partitioning-and-sharding',
+            aliases: ['sharding', 'partitioning'],
+            title: 'Partitioning and Sharding',
+            chapter: 'Distributed Systems',
+            summary: 'Partitioning spreads data and load across nodes for horizontal scale.',
+            buildsOn: 'Key space can be split by range or hash.',
+            formula: 'key -> partition -> replica set',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Range sharding helps scans, hash sharding balances load.',
+                'Rebalancing is needed when cluster topology changes.',
+                'Hot partitions can dominate latency.'
+            ],
+            visual: [
+                'partition 0: keys 0-999',
+                'partition 1: keys 1000-1999',
+                'route by key to correct shard'
+            ],
+            quiz: {
+                question: 'What creates a hot shard?',
+                keywords: ['skew', 'traffic', 'uneven', 'key'],
+                hint: 'Some keys receive disproportionate load.'
+            }
+        },
+        {
+            id: 'consensus-raft-paxos',
+            aliases: ['consensus', 'raft', 'paxos'],
+            title: 'Consensus (Raft/Paxos)',
+            chapter: 'Distributed Systems',
+            summary: 'Consensus lets nodes agree on a sequence of decisions despite failures.',
+            buildsOn: 'Majority quorums and leader terms.',
+            formula: 'commit if replicated to majority',
+            mathDepth: 8,
+            intuitionDepth: 6,
+            bullets: [
+                'Raft emphasizes understandable leader-based flow.',
+                'Paxos offers equivalent safety guarantees with different mechanics.',
+                'Consensus underpins metadata and coordination services.'
+            ],
+            visual: [
+                'client cmd -> leader append',
+                'replicate log to followers',
+                'majority ack => committed'
+            ],
+            quiz: {
+                question: 'Why is majority quorum central to consensus safety?',
+                keywords: ['overlap', 'majority', 'safety', 'committed'],
+                hint: 'Majorities intersect across terms.'
+            }
+        },
+        {
+            id: 'leader-election',
+            aliases: ['election', 'leader'],
+            title: 'Leader Election',
+            chapter: 'Distributed Systems',
+            summary: 'Leader election chooses a coordinator for ordered writes and failover handling.',
+            buildsOn: 'Timeouts and terms/epochs.',
+            formula: 'candidate wins with majority votes',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'Election timeouts reduce split vote collisions.',
+                'Terms prevent stale leaders from serving writes.',
+                'Fast failover balances safety and availability.'
+            ],
+            visual: [
+                'no heartbeat -> election',
+                'vote requests -> majority',
+                'new leader starts term'
+            ],
+            quiz: {
+                question: 'Why use randomized election timeouts?',
+                keywords: ['split-vote', 'collision', 'stagger', 'timeout'],
+                hint: 'It reduces simultaneous candidacy.'
+            }
+        },
+        {
+            id: 'quorums-and-consistency-levels',
+            aliases: ['quorum', 'consistency-levels'],
+            title: 'Quorums and Consistency Levels',
+            chapter: 'Distributed Systems',
+            summary: 'Read/write quorums tune latency and consistency by selecting replica acknowledgments.',
+            buildsOn: 'N replicas, W write acks, R read acks.',
+            formula: 'if R + W > N, reads intersect writes',
+            mathDepth: 7,
+            intuitionDepth: 7,
+            bullets: [
+                'Strong reads often require quorum overlap.',
+                'Lower consistency levels reduce latency.',
+                'Tunable per operation in some databases.'
+            ],
+            visual: [
+                'N=3, W=2, R=2 -> overlap guaranteed',
+                'N=3, W=1, R=1 -> faster, weaker',
+                'choose by product requirement'
+            ],
+            quiz: {
+                question: 'What does R+W>N guarantee?',
+                keywords: ['overlap', 'latest', 'intersection', 'read'],
+                hint: 'Read touches at least one up-to-date write replica.'
+            }
+        },
+        {
+            id: 'transactions-2pc-and-saga',
+            aliases: ['2pc', 'transactions', 'saga'],
+            title: 'Transactions, 2PC, and Sagas',
+            chapter: 'Distributed Systems',
+            summary: 'Distributed transactions coordinate atomic updates, often trading latency and availability.',
+            buildsOn: 'Commit protocols coordinate participants.',
+            formula: 'prepare -> commit/abort',
+            mathDepth: 7,
+            intuitionDepth: 6,
+            bullets: [
+                '2PC provides atomic commit but can block on coordinator failure.',
+                'Sagas split workflow into compensatable steps.',
+                'Choice depends on consistency needs and failure model.'
+            ],
+            visual: [
+                '2PC: PREPARE all -> COMMIT all',
+                'Saga: step1 -> step2 -> step3',
+                'failure -> compensate previous steps'
+            ],
+            quiz: {
+                question: 'Why might teams prefer sagas over 2PC?',
+                keywords: ['availability', 'decoupled', 'compensation', 'latency'],
+                hint: 'Sagas reduce coupling/blocking at cost of complexity.'
+            }
+        },
+        {
+            id: 'isolation-levels-and-anomalies',
+            aliases: ['isolation', 'serializable', 'snapshot'],
+            title: 'Isolation Levels and Anomalies',
+            chapter: 'Distributed Systems',
+            summary: 'Isolation levels trade performance against anomalies like dirty reads and write skew.',
+            buildsOn: 'Concurrent transactions can interfere.',
+            formula: 'Serializable => equivalent to some serial order',
+            mathDepth: 7,
+            intuitionDepth: 6,
+            bullets: [
+                'Read committed and repeatable read allow different anomalies.',
+                'Snapshot isolation avoids some but not all anomalies.',
+                'Serializable is strongest but costlier.'
+            ],
+            visual: [
+                'Tx A reads X, Tx B writes X',
+                'ordering + locks/versioning define behavior',
+                'anomaly avoidance costs coordination'
+            ],
+            quiz: {
+                question: 'What is the goal of serializable isolation?',
+                keywords: ['serial', 'equivalent', 'correctness', 'order'],
+                hint: 'Concurrent execution should match a serial schedule.'
+            }
+        },
+        {
+            id: 'messaging-delivery-semantics',
+            aliases: ['at-least-once', 'exactly-once', 'idempotency'],
+            title: 'Messaging Delivery Semantics',
+            chapter: 'Distributed Systems',
+            summary: 'Message systems define delivery guarantees with tradeoffs in complexity and latency.',
+            buildsOn: 'Retries can duplicate messages.',
+            formula: 'at-most-once | at-least-once | effectively-once',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'At-least-once requires idempotent consumers.',
+                'Exactly-once usually means coordinated state + deduplication.',
+                'Failures happen between processing and acknowledgement.'
+            ],
+            visual: [
+                'produce -> broker -> consume',
+                'failure before ack => retry duplicate',
+                'idempotency key avoids double effects'
+            ],
+            quiz: {
+                question: 'Why is idempotency critical with retries?',
+                keywords: ['duplicate', 'safe', 'repeat', 'effects'],
+                hint: 'The same message may be processed more than once.'
+            }
+        },
+        {
+            id: 'stream-processing',
+            aliases: ['streaming', 'event-time', 'watermarks'],
+            title: 'Stream Processing and Event Time',
+            chapter: 'Distributed Systems',
+            summary: 'Streaming systems compute incrementally on ordered events with late/out-of-order handling.',
+            buildsOn: 'Processing time differs from event time.',
+            formula: 'window(event_time) + watermark',
+            mathDepth: 6,
+            intuitionDepth: 7,
+            bullets: [
+                'Windowing groups events for aggregate computation.',
+                'Watermarks decide when results are final enough.',
+                'Late events require update/retraction policies.'
+            ],
+            visual: [
+                'event stream -> window -> aggregate',
+                'watermark advances completeness',
+                'late events may revise output'
+            ],
+            quiz: {
+                question: 'Why are watermarks needed in stream processing?',
+                keywords: ['late', 'out-of-order', 'event-time', 'finalize'],
+                hint: 'They estimate completeness of event-time data.'
+            }
+        },
+        {
+            id: 'crdt-and-eventual-consistency',
+            aliases: ['crdt', 'eventual-consistency'],
+            title: 'CRDTs and Eventual Consistency',
+            chapter: 'Distributed Systems',
+            summary: 'CRDTs allow conflict-free merges so replicas converge without central coordination.',
+            buildsOn: 'Commutative/associative merge rules.',
+            formula: 'merge(a,b) deterministic and monotonic',
+            mathDepth: 7,
+            intuitionDepth: 6,
+            bullets: [
+                'Useful for offline-first and multi-region collaborative data.',
+                'Designing correct merge semantics is the hard part.',
+                'Convergence does not imply immediate consistency.'
+            ],
+            visual: [
+                'replica A updates',
+                'replica B updates',
+                'exchange + merge => same final state'
+            ],
+            quiz: {
+                question: 'What property must CRDT merge functions satisfy?',
+                keywords: ['deterministic', 'converge', 'commutative', 'associative'],
+                hint: 'Replicas must reach same state regardless of order.'
+            }
+        },
+        {
+            id: 'caching-and-invalidation',
+            aliases: ['cache', 'invalidations'],
+            title: 'Caching and Invalidation',
+            chapter: 'Distributed Systems',
+            summary: 'Caching reduces latency but introduces staleness and invalidation complexity.',
+            buildsOn: 'Cached copies diverge from source of truth over time.',
+            formula: 'freshness vs latency',
+            mathDepth: 4,
+            intuitionDepth: 9,
+            bullets: [
+                'TTL-based invalidation is simple but approximate.',
+                'Write-through and write-back have different durability tradeoffs.',
+                'Hot keys and stampedes need protection.'
+            ],
+            visual: [
+                'request -> cache hit? return',
+                'miss -> source -> fill cache',
+                'invalidate/update on writes'
+            ],
+            quiz: {
+                question: 'Why is cache invalidation considered difficult?',
+                keywords: ['stale', 'synchronization', 'timing', 'consistency'],
+                hint: 'Keeping copies fresh under writes is tricky.'
+            }
+        },
+        {
+            id: 'failure-detection-and-recovery',
+            aliases: ['failure-detection', 'recovery'],
+            title: 'Failure Detection and Recovery',
+            chapter: 'Distributed Systems',
+            summary: 'Systems detect failures probabilistically and recover through retries, failover, and repair.',
+            buildsOn: 'Timeouts cannot perfectly distinguish slow from failed nodes.',
+            formula: 'suspect != proven failed',
+            mathDepth: 5,
+            intuitionDepth: 8,
+            bullets: [
+                'Heartbeats and gossip spread liveness information.',
+                'Automatic failover needs split-brain protection.',
+                'Repair/reconciliation heals divergent replicas.'
+            ],
+            visual: [
+                'heartbeat missed -> suspect',
+                'quorum/consensus confirms role change',
+                'recovery replays logs or snapshots'
+            ],
+            quiz: {
+                question: 'Why are false failure suspicions unavoidable?',
+                keywords: ['timeout', 'network', 'slow', 'uncertain'],
+                hint: 'Network delays can mimic failure.'
+            }
+        },
+        {
+            id: 'observability-and-sre',
+            aliases: ['observability', 'sre', 'monitoring'],
+            title: 'Observability and SRE Foundations',
+            chapter: 'Distributed Systems',
+            summary: 'Metrics, logs, traces, and SLOs help teams detect, diagnose, and prevent outages.',
+            buildsOn: 'Complex systems need multi-signal telemetry.',
+            formula: 'SLO + error budget -> reliability decisions',
+            mathDepth: 4,
+            intuitionDepth: 9,
+            bullets: [
+                'High-cardinality tracing identifies cross-service latency.',
+                'SLOs align reliability with user impact.',
+                'Runbooks and incident reviews drive learning.'
+            ],
+            visual: [
+                'metrics: what',
+                'logs: why',
+                'traces: where latency happened'
+            ],
+            quiz: {
+                question: 'What does an error budget represent?',
+                keywords: ['allowed', 'downtime', 'slo', 'reliability'],
+                hint: 'It is the tolerated unreliability window.'
+            }
+        },
+        {
+            id: 'ddia-core-principles',
+            aliases: ['ddia', 'designing-data-intensive-applications'],
+            title: 'DDIA Core Principles',
+            chapter: 'Distributed Systems',
+            summary: 'DDIA emphasizes reliability, scalability, and maintainability as primary architecture goals.',
+            buildsOn: 'Data models, storage engines, and distributed tradeoffs are deeply linked.',
+            formula: 'reliability + scalability + maintainability',
+            mathDepth: 4,
+            intuitionDepth: 9,
+            bullets: [
+                'Choose data models based on access patterns.',
+                'Understand consistency and replication semantics explicitly.',
+                'Design for operability and failure from day one.'
+            ],
+            visual: [
+                'workload -> data model -> storage/index',
+                'replication/partitioning -> consistency tradeoffs',
+                'operations + evolution keep system healthy'
+            ],
+            quiz: {
+                question: 'Which three qualities are central in DDIA architecture framing?',
+                keywords: ['reliability', 'scalability', 'maintainability'],
+                hint: 'They are the core quality pillars.'
+            }
+        }
+    ];
+
+    topics.push(...algorithmTopics, ...distributedSystemsTopics);
+
+    const pythonLessons = [
+        {
+            id: 'python-basics',
+            title: 'Variables and Types',
+            goal: 'Store values and understand core Python data types.',
+            concepts: [
+                'Variables bind names to objects.',
+                'Core types: int, float, str, bool.',
+                'Use type() and f-strings for debugging.'
+            ],
+            code: [
+                'name = "Ava"',
+                'age = 14',
+                'height = 1.61',
+                'is_student = True',
+                'print(f"{name} | age={age} | student={is_student}")',
+                'print(type(height))'
+            ],
+            quiz: {
+                question: 'Why does Python not require declaring variable types upfront?',
+                keywords: ['dynamic', 'runtime', 'inferred', 'duck'],
+                hint: 'Think dynamic typing.'
+            }
+        },
+        {
+            id: 'conditionals',
+            title: 'Conditionals and Logic',
+            goal: 'Control decisions with if/elif/else and boolean logic.',
+            concepts: [
+                'if/elif/else chooses a branch.',
+                'Comparison operators return booleans.',
+                'and/or/not combine conditions.'
+            ],
+            code: [
+                'score = 82',
+                'if score >= 90:',
+                '    grade = "A"',
+                'elif score >= 80:',
+                '    grade = "B"',
+                'else:',
+                '    grade = "C"',
+                'print("grade:", grade)'
+            ],
+            quiz: {
+                question: 'When does the elif branch execute?',
+                keywords: ['if false', 'elif true', 'first false', 'condition'],
+                hint: 'It depends on earlier branch checks.'
+            }
+        },
+        {
+            id: 'loops',
+            title: 'Loops and Iteration',
+            goal: 'Repeat work with for and while loops.',
+            concepts: [
+                'for loops iterate over collections.',
+                'range(start, stop, step) generates integer sequences.',
+                'break exits early; continue skips one step.'
+            ],
+            code: [
+                'total = 0',
+                'for n in range(1, 6):',
+                '    total += n',
+                'print("sum 1..5 =", total)',
+                '',
+                'count = 3',
+                'while count > 0:',
+                '    print("count", count)',
+                '    count -= 1'
+            ],
+            quiz: {
+                question: 'What is the main difference between for and while loops?',
+                keywords: ['iterable', 'condition', 'known', 'unknown'],
+                hint: 'One loops over items, the other over a condition.'
+            }
+        },
+        {
+            id: 'functions',
+            title: 'Functions and Scope',
+            goal: 'Write reusable logic with parameters and return values.',
+            concepts: [
+                'def defines reusable behavior.',
+                'return sends results back to caller.',
+                'Local variables live inside the function scope.'
+            ],
+            code: [
+                'def area(width, height):',
+                '    return width * height',
+                '',
+                'a = area(4, 3)',
+                'print("area =", a)',
+                '',
+                'def greet(name="friend"):',
+                '    print(f"Hello, {name}")',
+                'greet("Kai")'
+            ],
+            quiz: {
+                question: 'Why are functions important in larger programs?',
+                keywords: ['reuse', 'modular', 'test', 'readable'],
+                hint: 'Think maintainability and reuse.'
+            }
+        },
+        {
+            id: 'lists-dicts',
+            title: 'Lists, Dicts, and Comprehensions',
+            goal: 'Organize data and transform it compactly.',
+            concepts: [
+                'Lists keep ordered items.',
+                'Dictionaries map keys to values.',
+                'Comprehensions build collections in one expression.'
+            ],
+            code: [
+                'temps = [22, 25, 19, 27]',
+                'warm = [t for t in temps if t >= 24]',
+                'print("warm days:", warm)',
+                '',
+                'profile = {"name": "Mina", "level": "beginner"}',
+                'profile["level"] = "intermediate"',
+                'print(profile)'
+            ],
+            quiz: {
+                question: 'When should you use a dictionary instead of a list?',
+                keywords: ['key', 'lookup', 'mapping', 'named'],
+                hint: 'Use dicts for key-based access.'
+            }
+        },
+        {
+            id: 'modules-debugging',
+            title: 'Modules, Errors, and Debugging',
+            goal: 'Use imports and debug code confidently.',
+            concepts: [
+                'import pulls functions from modules.',
+                'Tracebacks show where failures happen.',
+                'Small print checks speed up debugging.'
+            ],
+            code: [
+                'import math',
+                '',
+                'def safe_divide(a, b):',
+                '    if b == 0:',
+                '        return "cannot divide by zero"',
+                '    return a / b',
+                '',
+                'print(math.sqrt(49))',
+                'print(safe_divide(12, 0))'
+            ],
+            quiz: {
+                question: 'What does a traceback help you identify?',
+                keywords: ['error', 'line', 'stack', 'where'],
+                hint: 'It points to where the exception occurred.'
+            }
+        }
+    ];
+
+    const questChallenges = [
+        {
+            id: 'py-even-squares',
+            title: 'Python Quest: Even Squares',
+            track: 'Python',
+            xp: 20,
+            prompt: 'Return squares of only even numbers from nums.',
+            variables: 'nums: list[int]',
+            example: '[n * n for n in nums if n % 2 == 0]',
+            hints: [
+                'Filter even numbers with n % 2 == 0.',
+                'Square each kept value with n * n.',
+                'A list comprehension is the shortest expression.'
+            ],
+            tests: [
+                { ctx: { nums: [1, 2, 3, 4, 5] }, expect: [4, 16] },
+                { ctx: { nums: [2, 8, 9] }, expect: [4, 64] }
+            ],
+            sourceTitle: 'Python Tutorial: Data Structures',
+            sourceUrl: 'https://docs.python.org/3/tutorial/datastructures.html'
+        },
+        {
+            id: 'py-word-count',
+            title: 'Python Quest: Word Counter',
+            track: 'Python',
+            xp: 20,
+            prompt: 'Build a frequency map for words in text.',
+            variables: 'text: str',
+            example: '{w: text.split().count(w) for w in set(text.split())}',
+            hints: [
+                'Split using text.split().',
+                'Iterate through unique words with set(...).',
+                'count(word) gives frequency.'
+            ],
+            tests: [
+                { ctx: { text: 'to be or not to be' }, expect: { to: 2, be: 2, or: 1, not: 1 } },
+                { ctx: { text: 'a a b' }, expect: { a: 2, b: 1 } }
+            ],
+            sourceTitle: 'Python Built-in Types',
+            sourceUrl: 'https://docs.python.org/3/library/stdtypes.html#dict'
+        },
+        {
+            id: 'ml-gradient-step',
+            title: 'ML Quest: Gradient Update',
+            track: 'Machine Learning',
+            xp: 25,
+            prompt: 'Compute one gradient-descent update for squared error.',
+            variables: 'w, x, y, lr: floats',
+            example: 'w - lr * (2 * ((w * x) - y) * x)',
+            hints: [
+                'Prediction is y_hat = w * x.',
+                'Gradient is 2 * (y_hat - y) * x.',
+                'Updated weight is w - lr * grad.'
+            ],
+            tests: [
+                { ctx: { w: 0.0, x: 2.0, y: 10.0, lr: 0.1 }, expect: 4.0, tol: 1e-9 },
+                { ctx: { w: 4.0, x: 2.0, y: 10.0, lr: 0.1 }, expect: 4.8, tol: 1e-9 }
+            ],
+            sourceTitle: 'Gradient Descent Fundamentals',
+            sourceUrl: 'https://www.deeplearningbook.org/'
+        },
+        {
+            id: 'ml-sigmoid',
+            title: 'ML Quest: Sigmoid Probability',
+            track: 'Machine Learning',
+            xp: 25,
+            prompt: 'Compute sigmoid probability from z.',
+            variables: 'z: float',
+            example: '1 / (1 + math.exp(-z))',
+            hints: [
+                'Sigmoid formula is 1/(1+exp(-z)).',
+                'Use math.exp for exponent.',
+                'At z=0 output should be 0.5.'
+            ],
+            tests: [
+                { ctx: { z: 0.0 }, expect: 0.5, tol: 1e-9 },
+                { ctx: { z: 2.0 }, expect: 0.8807970779778823, tol: 1e-9 }
+            ],
+            sourceTitle: 'Scikit-learn Logistic Regression',
+            sourceUrl: 'https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression'
+        },
+        {
+            id: 'tr-scaled-dot',
+            title: 'Transformer Quest: Scaled Dot-Product',
+            track: 'Transformer',
+            xp: 30,
+            prompt: 'Compute scaled dot-product attention score from q and k.',
+            variables: 'q, k: equal-length list[float]',
+            example: 'sum(qi * ki for qi, ki in zip(q, k)) / math.sqrt(len(k))',
+            hints: [
+                'Compute dot product first.',
+                'Scale by sqrt(len(k)).',
+                'Use zip(q, k) for paired multiply.'
+            ],
+            tests: [
+                { ctx: { q: [1.0, 0.0, 1.0], k: [1.0, 1.0, 0.0] }, expect: 0.5773502691896258, tol: 1e-9 },
+                { ctx: { q: [2.0, 1.0], k: [3.0, 4.0] }, expect: 7.071067811865475, tol: 1e-9 }
+            ],
+            sourceTitle: 'Attention Is All You Need (arXiv:1706.03762)',
+            sourceUrl: 'https://arxiv.org/abs/1706.03762'
+        },
+        {
+            id: 'tr-pytorch-shapes',
+            title: 'Internet Quest: PyTorch Transformer Shapes',
+            track: 'Transformer',
+            xp: 35,
+            prompt: 'Return the (src_shape, tgt_shape) pair from official nn.Transformer example.',
+            variables: 'none',
+            example: '((10, 32, 512), (20, 32, 512))',
+            hints: [
+                'src shape starts with 10 tokens.',
+                'tgt shape starts with 20 tokens.',
+                'Batch is 32 and model dim is 512 in both.'
+            ],
+            tests: [
+                { ctx: {}, expect: [[10, 32, 512], [20, 32, 512]] }
+            ],
+            sourceTitle: 'PyTorch: torch.nn.Transformer docs',
+            sourceUrl: 'https://docs.pytorch.org/docs/stable/generated/torch.nn.Transformer.html'
+        },
+        {
+            id: 'tr-hf-pipeline',
+            title: 'Internet Quest: Hugging Face Pipeline Config',
+            track: 'Transformer',
+            xp: 35,
+            prompt: 'Return (task, model) from the text-generation pipeline tutorial example.',
+            variables: 'none',
+            example: '("text-generation", "google/gemma-2-2b")',
+            hints: [
+                'Task is text-generation.',
+                'Model starts with google/...',
+                'Exact model is google/gemma-2-2b.'
+            ],
+            tests: [
+                { ctx: {}, expect: ['text-generation', 'google/gemma-2-2b'] }
+            ],
+            sourceTitle: 'Hugging Face Transformers Pipeline Tutorial',
+            sourceUrl: 'https://huggingface.co/docs/transformers/en/pipeline_tutorial'
+        }
+    ];
+
+    const animationFrames = {
+        gradient: [
+            'Loss hill simulation\n\n      *\n     / \\\n    /   \\\n   /  o  \\\n  /       \\\n /_________\\',
+            'Loss hill simulation\n\n      *\n     / \\\n    / o \\\n   /     \\\n  /       \\\n /_________\\',
+            'Loss hill simulation\n\n      *\n     /o\\\n    /   \\\n   /     \\\n  /       \\\n /_________\\',
+            'Loss hill simulation\n\n      *\n     / \\\n    /   \\\n   /     \\\n  /  o    \\\n /_________\\',
+            'Loss hill simulation\n\n      *\n     / \\\n    /   \\\n   /     \\\n  /     o \\\n /_________\\\n\nminimum reached'
+        ],
+        attention: [
+            'Attention weights\n\nToken A -> [0.7 to C]\nToken B -> [0.2 to C]\nToken C -> [0.1 to C]',
+            'Attention weights\n\nToken A -> [0.3 to C]\nToken B -> [0.5 to C]\nToken C -> [0.2 to C]',
+            'Attention weights\n\nToken A -> [0.1 to C]\nToken B -> [0.2 to C]\nToken C -> [0.7 to C]'
+        ],
+        rl: [
+            'Gridworld agent\n\nS . .\n# # .\n. . G\n\npolicy: exploring...',
+            'Gridworld agent\n\nS > .\n# # .\n. . G\n\npolicy: epsilon-greedy',
+            'Gridworld agent\n\nS > v\n# # v\n. . G\n\npolicy: value improving',
+            'Gridworld agent\n\nS > v\n# # v\n. . G*\n\npolicy: goal reached'
+        ],
+        python: [
+            'Python execution flow\n\nsource -> parser -> bytecode -> VM -> output',
+            'Python execution flow\n\nsource -> parser -> bytecode -> VM -> output\n                        ^\n                  dynamic runtime',
+            'Python execution flow\n\nsource -> parser -> bytecode -> VM -> output\n                 modules + objects + exceptions'
+        ]
+    };
+
+    const tuiGraphics = {
+        network: [
+            '+-------------------+    +-------------------+    +-------------------+',
+            '| Input Layer       |--->| Hidden Layer      |--->| Output Layer      |',
+            '| x1 x2 x3 x4       |    | h1 h2 h3 h4 h5    |    | y1 y2 y3          |',
+            '+-------------------+    +-------------------+    +-------------------+'
+        ],
+        matrix: [
+            'W (3x3) * x (3x1) = h (3x1)',
+            '',
+            '|w11 w12 w13|   |x1|   |h1|',
+            '|w21 w22 w23| * |x2| = |h2|',
+            '|w31 w32 w33|   |x3|   |h3|'
+        ],
+        attention: [
+            'Query/Key Score Grid',
+            '',
+            '      K1   K2   K3',
+            'Q1   0.8  0.1  0.1',
+            'Q2   0.2  0.7  0.1',
+            'Q3   0.1  0.2  0.7',
+            '',
+            'softmax rows -> weighted value mix'
+        ],
+        gradient: [
+            'Loss Surface Slice',
+            '',
+            'high                 *',
+            '                   / |',
+            '                 /   |  <- gradient',
+            '               o     |',
+            '            minimum (move opposite gradient)'
+        ],
+        rl: [
+            'Gridworld Policy Sketch',
+            '',
+            '+---+---+---+---+',
+            '| S | > | > | v |',
+            '+---+---+---+---+',
+            '| ^ | # | # | v |',
+            '+---+---+---+---+',
+            '| ^ | < | < | G |',
+            '+---+---+---+---+'
+        ]
+    };
+
+    const explainFlows = {
+        'linear-algebra': {
+            title: 'Linear Algebra Interactive Walk',
+            steps: [
+                {
+                    title: 'Step 1: Represent data as vectors',
+                    text: 'Features become coordinates in vector space so models can compute on them.',
+                    art: ['x = [size, rooms, age]^T', 'space -> numeric representation']
+                },
+                {
+                    title: 'Step 2: Transform with matrices',
+                    text: 'A weight matrix rotates/stretches the vector to produce hidden features.',
+                    art: ['h = W x + b', 'rows(W) map to output features']
+                },
+                {
+                    title: 'Step 3: Compose transformations',
+                    text: 'Layered matrix operations build complex representations.',
+                    art: ['x -> W1 -> h1 -> W2 -> h2 -> ...']
+                }
+            ]
+        },
+        transformers: {
+            title: 'Transformer Interactive Walk',
+            steps: [
+                {
+                    title: 'Step 1: Token + position',
+                    text: 'Each token embedding is combined with position info before attention.',
+                    art: ['token_emb + pos_emb -> model_input']
+                },
+                {
+                    title: 'Step 2: Self-attention mixing',
+                    text: 'Tokens exchange information weighted by similarity scores.',
+                    art: ['Attention(Q,K,V) = softmax(QK^T/sqrt(d))V', '[context-aware token vectors]']
+                },
+                {
+                    title: 'Step 3: Feed-forward refinement',
+                    text: 'Per-token MLP transforms each contextual representation.',
+                    art: ['token_i -> Linear -> GELU -> Linear -> token_i*']
+                },
+                {
+                    title: 'Step 4: Repeat stack',
+                    text: 'Stacked blocks progressively improve representations for prediction.',
+                    art: ['block x N -> logits -> next-token distribution']
+                }
+            ]
+        },
+        'reinforcement-learning': {
+            title: 'Reinforcement Learning Interactive Walk',
+            steps: [
+                {
+                    title: 'Step 1: Observe state',
+                    text: 'Agent reads current state and selects an action via policy.',
+                    art: ['s_t --policy--> a_t']
+                },
+                {
+                    title: 'Step 2: Transition and reward',
+                    text: 'Environment returns next state and scalar reward.',
+                    art: ['(s_t, a_t) -> r_(t+1), s_(t+1)']
+                },
+                {
+                    title: 'Step 3: Update value/policy',
+                    text: 'Agent updates estimates to increase long-term reward.',
+                    art: ['TD target: r + gamma * V(s\')']
+                }
+            ]
+        },
+        'gradient-descent': {
+            title: 'Gradient Descent Interactive Walk',
+            steps: [
+                {
+                    title: 'Step 1: Compute loss',
+                    text: 'Measure prediction error with a differentiable objective.',
+                    art: ['L(y_hat, y)']
+                },
+                {
+                    title: 'Step 2: Backprop gradients',
+                    text: 'Use chain rule to compute parameter derivatives.',
+                    art: ['dL/dtheta']
+                },
+                {
+                    title: 'Step 3: Update parameters',
+                    text: 'Move opposite gradient direction to reduce loss.',
+                    art: ['theta <- theta - eta * dL/dtheta']
+                }
+            ]
+        },
+        'python-basics': {
+            title: 'Python Basics Interactive Walk',
+            steps: [
+                {
+                    title: 'Step 1: Variables',
+                    text: 'Create named values and inspect types dynamically.',
+                    art: ['name = "Ava"', 'age = 14', 'type(age) -> int']
+                },
+                {
+                    title: 'Step 2: Control flow',
+                    text: 'Use if/elif/else and loops to run conditional logic.',
+                    art: ['if score >= 80: print("B+")', 'for i in range(3): ...']
+                },
+                {
+                    title: 'Step 3: Functions',
+                    text: 'Wrap reusable logic with parameters and return values.',
+                    art: ['def area(w, h):', '    return w * h']
+                }
+            ]
+        }
+    };
+
+    const state = {
+        currentIndex: 0,
+        visited: new Set(),
+        pythonIndex: 0,
+        visitedPython: new Set(),
+        history: [],
+        historyCursor: 0,
+        activeQuiz: null,
+        activeQuizScope: '',
+        exploration: null,
+        topicView: [],
+        pythonRepl: {
+            active: false,
+            initialized: false
+        },
+        questIndex: 0,
+        questCompleted: new Set(),
+        questHintsUsed: {},
+        questStreak: 0,
+        questBadges: new Set(),
+        introDone: false,
+        introTimer: null,
+        xp: 0,
+        animationTimer: null,
+        animationBlock: null
+    };
+
+    const machineLearnerFrames = [
+        [
+            ' __  __    _    ____ _   _ ___ _   _ _____',
+            '|  \\/  |  / \\  / ___| | | |_ _| \\ | | ____|',
+            '| |\\/| | / _ \\| |   | |_| || ||  \\| |  _|',
+            '| |  | |/ ___ \\ |___|  _  || || |\\  | |___',
+            '|_|  |_/_/   \\_\\____|_| |_|___|_| \\_|_____|',
+            '',
+            ' _     _____    _    ____  _   _ _____ ____',
+            '| |   | ____|  / \\  |  _ \\| \\ | | ____|  _ \\',
+            '| |   |  _|   / _ \\ | |_) |  \\| |  _| | |_) |',
+            '| |___| |___ / ___ \\|  _ <| |\\  | |___|  _ <',
+            '|_____|_____/_/   \\_\\_| \\_\\_| \\_|_____|_| \\_\\',
+            '',
+            'FOLLOW THE WHITE RABBIT'
+        ].join('\n'),
+        [
+            ' __  __    _    ____ _   _ ___ _   _ _____',
+            '|  \\/  |  / \\  / ___| | | |_ _| \\ | | ____|',
+            '| |\\/| | / _ \\| |   | |_| || ||  \\| |  _|',
+            '| |  | |/ ___ \\ |___|  _  || || |\\  | |___',
+            '|_|  |_/_/   \\_\\____|_| |_|___|_| \\_|_____|',
+            '',
+            ' _     _____    _    ____  _   _ _____ ____',
+            '| |   | ____|  / \\  |  _ \\| \\ | | ____|  _ \\',
+            '| |   |  _|   / _ \\ | |_) |  \\| |  _| | |_) |',
+            '| |___| |___ / ___ \\|  _ <| |\\  | |___|  _ <',
+            '|_____|_____/_/   \\_\\_| \\_\\_| \\_|_____|_| \\_\\',
+            '',
+            '... algorithms.github.io ...'
+        ].join('\n'),
+        [
+            ' __  __    _    ____ _   _ ___ _   _ _____',
+            '|  \\/  |  / \\  / ___| | | |_ _| \\ | | ____|',
+            '| |\\/| | / _ \\| |   | |_| || ||  \\| |  _|',
+            '| |  | |/ ___ \\ |___|  _  || || |\\  | |___',
+            '|_|  |_/_/   \\_\\____|_| |_|___|_| \\_|_____|',
+            '',
+            ' _     _____    _    ____  _   _ _____ ____',
+            '| |   | ____|  / \\  |  _ \\| \\ | | ____|  _ \\',
+            '| |   |  _|   / _ \\ | |_) |  \\| |  _| | |_) |',
+            '| |___| |___ / ___ \\|  _ <| |\\  | |___|  _ <',
+            '|_____|_____/_/   \\_\\_| \\_\\_| \\_|_____|_| \\_\\',
+            '',
+            ':: DDIA LEARNING APP ::'
+        ].join('\n')
+    ];
+
+    animationFrames.machine = machineLearnerFrames;
+    animationFrames.banner = machineLearnerFrames;
+    animationFrames.rabbit = [
+        'FOLLOW THE WHITE RABBIT\n\n[  rabbit  ]----> [  algorithms  ]----> [  insight  ]',
+        'FOLLOW THE WHITE RABBIT\n\n[ rabbit ] => [ algorithms.github.io ] => [ deep dive ]',
+        'FOLLOW THE WHITE RABBIT\n\n[ rabbit ] >>> [ ddia learning app ] >>> [ distributed systems ]'
+    ];
+    animationFrames.algorithms = [
+        'algorithms.github.io\n\nBFS -> DFS -> Dijkstra -> DP -> Greedy',
+        'algorithms.github.io\n\nSort -> Search -> Graph -> Dynamic Programming',
+        'algorithms.github.io\n\nComplexity first. Correctness always.'
+    ];
+    animationFrames.ddia = [
+        'DDIA LEARNING APP\n\nreplication -> partitioning -> consistency',
+        'DDIA LEARNING APP\n\nlogs -> consensus -> transactions',
+        'DDIA LEARNING APP\n\nreliability + scalability + maintainability'
+    ];
+    animationFrames.binary = [
+        [
+            'MACHINE LEARNER :: BINARY VISUAL',
+            '',
+            '01001101 01000001 01000011 01001000 01001001 01001110 01000101',
+            '00100000',
+            '01001100 01000101 01000001 01010010 01001110 01000101 01010010',
+            '',
+            '[ 0 1 0 1 ]  [ 1 0 1 0 ]  [ 0 0 1 1 ]'
+        ].join('\n'),
+        [
+            'MACHINE LEARNER :: BINARY VISUAL',
+            '',
+            '01001101 01000001 01000011 01001000 01001001 01001110 01000101',
+            '00100000',
+            '01001100 01000101 01000001 01010010 01001110 01000101 01010010',
+            '',
+            '[ 1 0 1 0 ]  [ 0 1 0 1 ]  [ 1 1 0 0 ]'
+        ].join('\n'),
+        [
+            'MACHINE LEARNER :: BINARY VISUAL',
+            '',
+            '01001101 01000001 01000011 01001000 01001001 01001110 01000101',
+            '00100000',
+            '01001100 01000101 01000001 01010010 01001110 01000101 01010010',
+            '',
+            '0 1 0 1 0 1 0 1   1 0 1 0 1 0 1 0'
+        ].join('\n')
+    ];
+
+    const rainThemeConfig = {
+        rabbit: {
+            color: 'rgba(74, 222, 128, 0.9)',
+            glow: 'rgba(134, 239, 172, 0.9)',
+            charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/[]{}()',
+            phrases: ['FOLLOW THE WHITE RABBIT', 'WAKE UP NEO', 'THERE IS NO SPOON']
+        },
+        algorithms: {
+            color: 'rgba(56, 189, 248, 0.9)',
+            glow: 'rgba(125, 211, 252, 0.95)',
+            charset: 'BFSDFSGRAPHDPHEAPSORT0123456789',
+            phrases: ['algorithms.github.io', 'BFS DFS DIJKSTRA', 'BIG-O MATTERS']
+        },
+        ddia: {
+            color: 'rgba(250, 204, 21, 0.92)',
+            glow: 'rgba(253, 224, 71, 0.95)',
+            charset: 'RAFTPAXOSREPLICAQUORUM0123456789',
+            phrases: ['DDIA LEARNING APP', 'RELIABILITY SCALABILITY', 'CONSENSUS REPLICATION']
+        },
+        binary: {
+            color: 'rgba(34, 197, 94, 0.9)',
+            glow: 'rgba(134, 239, 172, 0.95)',
+            charset: '01010101010101010101',
+            phrases: [
+                '01001101 01000001 01000011 01001000 01001001 01001110 01000101',
+                '01001100 01000101 01000001 01010010 01001110 01000101 01010010',
+                'MACHINE LEARNER'
+            ]
+        }
+    };
+
+    const rain = {
+        enabled: false,
+        theme: 'rabbit',
+        frameId: null,
+        cols: [],
+        phraseDrops: [],
+        width: 0,
+        height: 0,
+        font: 14
+    };
+
+    state.topicView = topics;
+
+    const normalize = (value) => value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    const clampScore = (value) => Math.max(0, Math.min(10, Math.round(value)));
+
+    const scrollToBottom = () => {
+        screen.scrollTop = screen.scrollHeight;
+    };
+
+    const printLine = (text, tone = '') => {
+        const line = document.createElement('div');
+        line.className = `terminal-line${tone ? ` is-${tone}` : ''}`;
+        line.textContent = text;
+        screen.appendChild(line);
+        scrollToBottom();
+    };
+
+    const printBlock = (text, extraClass = '') => {
+        const block = document.createElement('pre');
+        block.className = `terminal-block${extraClass ? ` ${extraClass}` : ''}`;
+        block.textContent = text;
+        screen.appendChild(block);
+        scrollToBottom();
+        return block;
+    };
+
+    const printDivider = () => {
+        printLine('------------------------------------------------------------------', 'muted');
+    };
+
+    const stopAnimation = () => {
+        if (state.animationTimer) {
+            clearInterval(state.animationTimer);
+            state.animationTimer = null;
+        }
+        state.animationBlock = null;
+    };
+
+    const getRainContext = () => {
+        if (!rainCanvas) return null;
+        return rainCanvas.getContext('2d');
+    };
+
+    const resizeRain = () => {
+        if (!rainCanvas || !stage) return;
+        const ctx = getRainContext();
+        if (!ctx) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = stage.getBoundingClientRect();
+        rain.width = Math.max(320, Math.floor(rect.width));
+        rain.height = Math.max(360, Math.floor(rect.height));
+
+        rainCanvas.width = Math.floor(rain.width * dpr);
+        rainCanvas.height = Math.floor(rain.height * dpr);
+        rainCanvas.style.width = `${rain.width}px`;
+        rainCanvas.style.height = `${rain.height}px`;
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        rain.font = Math.max(12, Math.floor(rain.width / 46));
+        const colCount = Math.max(10, Math.floor(rain.width / rain.font));
+        rain.cols = Array.from({ length: colCount }, () => Math.random() * (rain.height / rain.font));
+        rain.phraseDrops = [];
+    };
+
+    const stopRain = () => {
+        rain.enabled = false;
+        if (rain.frameId) {
+            cancelAnimationFrame(rain.frameId);
+            rain.frameId = null;
+        }
+    };
+
+    const drawRain = () => {
+        if (!rain.enabled || !rainCanvas) {
+            stopRain();
+            return;
+        }
+
+        const theme = rainThemeConfig[rain.theme] || rainThemeConfig.rabbit;
+        const ctx = getRainContext();
+        if (!ctx) return;
+
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.14)';
+        ctx.fillRect(0, 0, rain.width, rain.height);
+        ctx.font = `${rain.font}px "Courier New", monospace`;
+
+        for (let i = 0; i < rain.cols.length; i += 1) {
+            const x = i * rain.font;
+            const y = rain.cols[i] * rain.font;
+            const chars = theme.charset;
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            const alpha = 0.35 + Math.random() * 0.6;
+            ctx.fillStyle = theme.color.replace(/0\.9[0-9]?/g, alpha.toFixed(2));
+            ctx.fillText(char, x, y);
+
+            if (y > rain.height && Math.random() > 0.97) {
+                rain.cols[i] = 0;
+            } else {
+                rain.cols[i] += 1;
+            }
+        }
+
+        if (Math.random() < 0.035) {
+            const phrase = theme.phrases[Math.floor(Math.random() * theme.phrases.length)];
+            const x = Math.max(8, Math.random() * (rain.width - phrase.length * 8));
+            rain.phraseDrops.push({
+                text: phrase,
+                x,
+                y: -10,
+                speed: 1.1 + Math.random() * 1.7
+            });
+        }
+
+        rain.phraseDrops = rain.phraseDrops.filter(drop => drop.y < rain.height + 30);
+        rain.phraseDrops.forEach(drop => {
+            drop.y += drop.speed;
+            ctx.fillStyle = theme.glow;
+            ctx.font = `bold ${Math.max(11, rain.font - 2)}px "Courier New", monospace`;
+            ctx.fillText(drop.text, drop.x, drop.y);
+        });
+
+        rain.frameId = requestAnimationFrame(drawRain);
+    };
+
+    const startRain = () => {
+        rain.enabled = false;
+    };
+
+    const setRainTheme = () => {
+        printLine('Matrix rain has been removed for accessibility.', 'system');
+    };
+
+    const printRainStatus = () => {
+        printDivider();
+        printLine('Matrix rain status: disabled for accessibility.', 'system');
+    };
+
+    const runRainCommand = () => {
+        printLine('Matrix rain has been removed for accessibility.', 'system');
+    };
+
+    const runArtCommand = (args) => {
+        const [subRaw, ...rest] = args;
+        const sub = (subRaw || '').toLowerCase();
+        if (!sub || sub === 'show' || sub === 'static') {
+            printMachineLearnerAscii();
+            return;
+        }
+        if (sub === 'animate' || sub === 'anim') {
+            const target = rest[0] || 'machine';
+            playAnimation(target);
+            return;
+        }
+        if (sub === 'theme') {
+            printLine('Rain themes are disabled. Playing ASCII animation only.', 'muted');
+            playAnimation(rest[0] || 'machine');
+            return;
+        }
+        printLine('Unknown art command. Use `art`, `art animate`, or `art theme <name>`.', 'error');
+    };
+
+    const celebrate = (label = 'Checkpoint cleared') => {
+        printBlock([
+            '        *       *',
+            '   *         *       *',
+            `          ${label}`,
+            '   *        LEVEL UP      *',
+            '        *       *'
+        ].join('\n'));
+    };
+
+    const scoreBar = (value) => {
+        const score = clampScore(value);
+        return `[${'#'.repeat(score)}${'.'.repeat(10 - score)}] ${score}/10`;
+    };
+
+    const resolveTopic = (rawToken) => {
+        if (!rawToken) return null;
+        const token = rawToken.trim();
+        if (!token) return null;
+        if (/^\d+$/.test(token)) {
+            const idx = Number(token) - 1;
+            if (Array.isArray(state.topicView) && state.topicView.length) {
+                return state.topicView[idx] || null;
+            }
+            return topics[idx] || null;
+        }
+
+        const normalized = normalize(token);
+        return topics.find(topic => {
+            if (topic.id === normalized) return true;
+            if (normalize(topic.title) === normalized) return true;
+            return Array.isArray(topic.aliases) && topic.aliases.some(alias => normalize(alias) === normalized);
+        }) || null;
+    };
+
+    const resolvePythonLesson = (rawToken) => {
+        if (!rawToken) return null;
+        const token = rawToken.trim();
+        if (!token) return null;
+        if (/^\d+$/.test(token)) {
+            const idx = Number(token) - 1;
+            return pythonLessons[idx] || null;
+        }
+
+        const normalized = normalize(token);
+        return pythonLessons.find(lesson => {
+            if (lesson.id === normalized) return true;
+            return normalize(lesson.title) === normalized;
+        }) || null;
+    };
+
+    const resolveQuest = (rawToken) => {
+        if (!rawToken) return null;
+        const token = rawToken.trim();
+        if (!token) return null;
+        if (/^\d+$/.test(token)) {
+            return questChallenges[Number(token) - 1] || null;
+        }
+        const normalized = normalize(token);
+        return questChallenges.find(challenge => {
+            if (challenge.id === normalized) return true;
+            return normalize(challenge.title) === normalized;
+        }) || null;
+    };
+
+    const formatValue = (value) => {
+        try {
+            return JSON.stringify(value);
+        } catch (err) {
+            return String(value);
+        }
+    };
+
+    const printQuestList = () => {
+        printDivider();
+        printLine('Gamified quest board (browser terminal)', 'system');
+        questChallenges.forEach((challenge, index) => {
+            const done = state.questCompleted.has(challenge.id) ? 'yes' : 'no';
+            const active = index === state.questIndex ? '*' : ' ';
+            printLine(`${active}${String(index + 1).padStart(2, '0')}  ${challenge.id.padEnd(24, ' ')} ${challenge.track.padEnd(16, ' ')} xp:${String(challenge.xp).padEnd(3, ' ')} done:${done}`);
+        });
+        printLine('Run `quest open <id|number>` and submit with `quest submit <python-expression>`.', 'muted');
+    };
+
+    const showQuest = (challenge) => {
+        if (!challenge) return;
+        state.questIndex = questChallenges.indexOf(challenge);
+        printDivider();
+        printLine(`Quest ${state.questIndex + 1}: ${challenge.title} [${challenge.id}]`, 'system');
+        printLine(`Track      : ${challenge.track}`);
+        printLine(`Reward XP  : ${challenge.xp}`);
+        printLine(`Prompt     : ${challenge.prompt}`);
+        printLine(`Variables  : ${challenge.variables}`);
+        printLine(`Expression : ${challenge.example}`, 'muted');
+        printLine(`Source     : ${challenge.sourceTitle}`);
+        printLine(`URL        : ${challenge.sourceUrl}`, 'muted');
+        printLine('Use `quest hint` or `quest submit <python-expression>`.', 'muted');
+    };
+
+    const printQuestStatus = () => {
+        const completed = state.questCompleted.size;
+        const total = questChallenges.length;
+        const transformerTotal = questChallenges.filter(ch => ch.track === 'Transformer').length;
+        const transformerDone = questChallenges.filter(ch => ch.track === 'Transformer' && state.questCompleted.has(ch.id)).length;
+        printDivider();
+        printLine('Quest status', 'system');
+        printLine(`Completed   : ${completed}/${total}`);
+        printLine(`Streak      : ${state.questStreak}`);
+        printLine(`Transformer : ${transformerDone}/${transformerTotal}`);
+        printLine(`Badges      : ${state.questBadges.size ? Array.from(state.questBadges).join(', ') : 'none yet'}`);
+    };
+
+    const unlockQuestBadges = () => {
+        const unlocked = [];
+        const addBadge = (name, condition) => {
+            if (!condition || state.questBadges.has(name)) return;
+            state.questBadges.add(name);
+            unlocked.push(name);
+        };
+
+        addBadge('Boot Sequence', state.questCompleted.size >= 1);
+        addBadge('Hot Streak x3', state.questStreak >= 3);
+        const transformerIds = questChallenges.filter(ch => ch.track === 'Transformer').map(ch => ch.id);
+        addBadge('Transformer Pilot', transformerIds.every(id => state.questCompleted.has(id)));
+        addBadge('Quest Master', state.questCompleted.size === questChallenges.length);
+        return unlocked;
+    };
+
+    const showQuestHint = () => {
+        const challenge = questChallenges[state.questIndex];
+        if (!challenge) {
+            printLine('No active quest. Run `quest start` or `quest open <id>`.', 'error');
+            return;
+        }
+        const used = Number(state.questHintsUsed[challenge.id] || 0);
+        if (used >= challenge.hints.length) {
+            printLine('No more hints for this quest.', 'muted');
+            return;
+        }
+        state.questHintsUsed[challenge.id] = used + 1;
+        printLine(`Hint ${used + 1}: ${challenge.hints[used]}`, 'system');
+    };
+
+    const evaluateQuestExpression = async (expression, challenge) => {
+        const pyodide = await ensureNotebookPyodide();
+        pyodide.globals.set('quest_expr', expression);
+        pyodide.globals.set('quest_tests_json', JSON.stringify(challenge.tests || []));
+        const resultJson = await pyodide.runPythonAsync(`
+import json, math
+tests = json.loads(quest_tests_json)
+safe_builtins = {
+    "len": len, "sum": sum, "min": min, "max": max, "abs": abs,
+    "round": round, "sorted": sorted, "list": list, "dict": dict,
+    "set": set, "tuple": tuple, "range": range, "zip": zip,
+    "enumerate": enumerate, "float": float, "int": int, "str": str
+}
+
+def _norm(value):
+    if isinstance(value, tuple):
+        return [_norm(v) for v in value]
+    if isinstance(value, list):
+        return [_norm(v) for v in value]
+    if isinstance(value, dict):
+        return {str(k): _norm(v) for k, v in sorted(value.items(), key=lambda item: str(item[0]))}
+    return value
+
+results = []
+for idx, test in enumerate(tests):
+    ctx = test.get("ctx", {})
+    expected = test.get("expect")
+    tol = test.get("tol")
+    try:
+        value = eval(quest_expr, {"__builtins__": safe_builtins, "math": math}, dict(ctx))
+        if isinstance(tol, (int, float)) and isinstance(value, (int, float)) and isinstance(expected, (int, float)):
+            ok = abs(value - expected) <= tol
+        else:
+            ok = _norm(value) == _norm(expected)
+        results.append({
+            "index": idx,
+            "ok": ok,
+            "got": _norm(value),
+            "expected": _norm(expected)
+        })
+    except Exception as exc:
+        results.append({
+            "index": idx,
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}"
+        })
+
+json.dumps(results)
+        `);
+        return JSON.parse(resultJson || '[]');
+    };
+
+    const submitQuestExpression = async (expression) => {
+        const challenge = questChallenges[state.questIndex];
+        if (!challenge) {
+            printLine('No active quest. Run `quest start` first.', 'error');
+            return;
+        }
+        const expr = expression.trim();
+        if (!expr) {
+            printLine('Provide a Python expression after `quest submit`.', 'error');
+            return;
+        }
+
+        printLine('Evaluating quest expression...', 'muted');
+        try {
+            const results = await evaluateQuestExpression(expr, challenge);
+            const failed = results.find(item => !item.ok);
+            if (failed) {
+                state.questStreak = 0;
+                if (failed.error) {
+                    printLine(`Quest failed on test ${failed.index + 1}: ${failed.error}`, 'error');
+                } else {
+                    printLine(`Quest failed on test ${failed.index + 1}`, 'error');
+                    printLine(`expected: ${formatValue(failed.expected)}`, 'muted');
+                    printLine(`got     : ${formatValue(failed.got)}`, 'muted');
+                }
+                return;
+            }
+
+            const alreadyDone = state.questCompleted.has(challenge.id);
+            if (alreadyDone) {
+                printLine('Quest already completed. Result still correct.', 'success');
+                return;
+            }
+
+            const hintsUsed = Number(state.questHintsUsed[challenge.id] || 0);
+            const hintPenalty = hintsUsed * 2;
+            const gained = Math.max(5, challenge.xp - hintPenalty);
+            state.questCompleted.add(challenge.id);
+            state.questStreak += 1;
+            state.xp += gained;
+            printLine(`Quest passed: ${challenge.title}`, 'success');
+            printLine(`XP gained: ${gained} (base ${challenge.xp}, hints penalty ${hintPenalty})`, 'success');
+            celebrate(`+${gained} XP`);
+            const unlocked = unlockQuestBadges();
+            unlocked.forEach(badge => {
+                printLine(`Badge unlocked: ${badge}`, 'system');
+            });
+        } catch (err) {
+            state.questStreak = 0;
+            printLine(`Quest evaluation error: ${err?.message || err}`, 'error');
+        }
+    };
+
+    const runQuestCommand = async (args) => {
+        const [subRaw, ...rest] = args;
+        const sub = (subRaw || 'list').toLowerCase();
+        const payload = rest.join(' ');
+
+        if (sub === 'list' || sub === 'ls') {
+            printQuestList();
+            return;
+        }
+        if (sub === 'start') {
+            showQuest(questChallenges[0]);
+            return;
+        }
+        if (sub === 'open' || sub === 'show') {
+            const challenge = resolveQuest(payload);
+            if (!challenge) {
+                printLine('Quest not found. Run `quest` to list quest ids.', 'error');
+                return;
+            }
+            showQuest(challenge);
+            return;
+        }
+        if (sub === 'next') {
+            const nextIndex = (state.questIndex + 1) % questChallenges.length;
+            showQuest(questChallenges[nextIndex]);
+            return;
+        }
+        if (sub === 'prev') {
+            const prevIndex = (state.questIndex - 1 + questChallenges.length) % questChallenges.length;
+            showQuest(questChallenges[prevIndex]);
+            return;
+        }
+        if (sub === 'hint') {
+            showQuestHint();
+            return;
+        }
+        if (sub === 'status') {
+            printQuestStatus();
+            return;
+        }
+        if (sub === 'source' || sub === 'sources') {
+            const challenge = questChallenges[state.questIndex];
+            if (!challenge) {
+                printLine('No active quest. Run `quest open <id>` first.', 'error');
+                return;
+            }
+            printLine(`Source: ${challenge.sourceTitle}`, 'system');
+            printLine(challenge.sourceUrl, 'muted');
+            return;
+        }
+        if (sub === 'submit' || sub === 'answer' || sub === 'check') {
+            await submitQuestExpression(payload);
+            return;
+        }
+
+        printLine('Unknown quest command. Use: quest list|open|next|prev|hint|submit|status', 'error');
+    };
+
+    const printHelp = () => {
+        printDivider();
+        printLine('Available commands', 'system');
+        printLine('help                     Show command list');
+        printLine('dashboard | tui          Open full TUI dashboard');
+        printLine('art | banner             Show MACHINE LEARNER ASCII art');
+        printLine('shortcut                 Open URL shortcut #MachineLearnerTUI');
+        printLine('rabbit                   White-rabbit ASCII animation');
+        printLine('algorithms               Algorithms concept catalog');
+        printLine('ddia                     Distributed systems concept catalog');
+        printLine('topics [scope|query]     List/filter concepts (algorithms/distributed/...)');
+        printLine('catalog [scope]          Alias for filtered topic list');
+        printLine('open <id|number>         Open one concept card');
+        printLine('next / prev              Move through the concept sequence');
+        printLine('explore <concept>        Start interactive explanation flow');
+        printLine('step / back / endexplore Walk the active explanation flow');
+        printLine('graph <name>             Print TUI graphic (network/matrix/...)');
+        printLine('map                      Show concept roadmap');
+        printLine('quest ...                Gamified Python/ML/Transformer quests');
+        printLine('quest submit <expr>      Submit Python expression to active quest');
+        printLine('quest status             Show quest progress + badges');
+        printLine('pyrepl                   Interactive Python REPL mode');
+        printLine('quiz                     Ask checkpoint question for active topic');
+        printLine('answer <text>            Submit quiz response');
+        printLine('animate <name>           Play an ASCII animation (gradient|attention|rl|python)');
+        printLine('mission                  Get a random mini challenge');
+        printLine('python ...               Python crash course command group');
+        printLine('python run <code>        Execute one Python snippet');
+        printLine('xp                       Show earned XP');
+        printLine('status                   Show progress stats');
+        printLine('clear                    Clear terminal output');
+        printLine('reset                    Reset terminal state');
+        printLine('python help              Show Python command options', 'muted');
+    };
+
+    const printBanner = () => {
+        printBlock([
+            '+--------------------------------------------------------------+',
+            '|                INTERACTIVE MACHINELEARNER TUI               |',
+            '|      command-driven explanations, graphics, and quizzes      |',
+            '+--------------------------------------------------------------+'
+        ].join('\n'));
+        printMachineLearnerAscii();
+        printLine('Type `help` to see commands. Type `topics` to start exploring.', 'system');
+        printLine('Try `dashboard`, `quest start`, `explore transformers`, and `art animate`.', 'system');
+    };
+
+    const startGuidedLearningSequence = () => {
+        printDivider();
+        printLine('Guided sequence started: Python basics -> Machine Learning algorithms.', 'system');
+        showPythonLesson(pythonLessons[0], { markVisited: false });
+
+        const mlAlgorithms = topics.filter(topic =>
+            topic.chapter === 'Machine Learning' ||
+            (topic.chapter === 'Algorithms' && /learning|regression|classification|optimization/.test(topic.summary.toLowerCase() + topic.title.toLowerCase()))
+        );
+        if (mlAlgorithms.length) {
+            state.topicView = mlAlgorithms;
+            printDivider();
+            printLine('Machine learning algorithm concepts', 'system');
+            mlAlgorithms.slice(0, 8).forEach((topic, index) => {
+                printLine(`${String(index + 1).padStart(2, '0')}  ${topic.id}  [${topic.chapter}]`);
+            });
+            const firstMlTopic = mlAlgorithms[0];
+            if (firstMlTopic) {
+                showTopic(firstMlTopic, { markVisited: false });
+            }
+        } else {
+            printLine('No ML algorithm list found; use `topics machine-learning` manually.', 'error');
+        }
+
+        printLine('Next steps: `quest start` for gamified exercises, `python repl` to run code, and `open supervised-learning` for theory.', 'muted');
+    };
+
+    const startIntroSequence = () => {
+        if (state.introDone) {
+            return;
+        }
+        state.introDone = true;
+        if (state.introTimer) {
+            clearTimeout(state.introTimer);
+            state.introTimer = null;
+        }
+        printDivider();
+        printLine('Visual rain effects are disabled for accessibility.', 'system');
+        startGuidedLearningSequence();
+    };
+
+    const showTopic = (topic, options = {}) => {
+        if (!topic) return;
+
+        const markVisited = options.markVisited !== false;
+        state.currentIndex = topics.indexOf(topic);
+        if (markVisited) state.visited.add(topic.id);
+        state.activeQuiz = null;
+        state.activeQuizScope = '';
+        state.exploration = null;
+
+        printDivider();
+        printLine(`${state.currentIndex + 1}. ${topic.title} [${topic.id}]`, 'system');
+        printLine(`Track       : ${topic.chapter}`);
+        printLine(`Summary     : ${topic.summary}`);
+        printLine(`Builds on   : ${topic.buildsOn}`);
+        printLine(`Math depth  : ${scoreBar(topic.mathDepth)}`);
+        printLine(`Intuition   : ${scoreBar(topic.intuitionDepth)}`);
+        printLine('Key ideas   :', 'success');
+        topic.bullets.forEach((bullet, index) => {
+            printLine(`  ${index + 1}. ${bullet}`);
+        });
+        printLine(`Formula     : ${topic.formula}`, 'muted');
+        if (Array.isArray(topic.visual) && topic.visual.length) {
+            printBlock(topic.visual.join('\n'));
+        }
+        printLine('Try: quiz  |  next  |  prev  |  open <id>  |  animate gradient', 'muted');
+    };
+
+    const filterTopics = (scopeRaw = '') => {
+        const scope = normalize(scopeRaw || '');
+        if (!scope) return topics;
+
+        const chapterAliases = {
+            foundations: 'Foundations',
+            ml: 'Machine Learning',
+            'machine-learning': 'Machine Learning',
+            neural: 'Neural Networks',
+            'neural-networks': 'Neural Networks',
+            llm: 'Large Language Models',
+            'large-language-models': 'Large Language Models',
+            rl: 'Reinforcement Learning',
+            'reinforcement-learning': 'Reinforcement Learning',
+            algorithms: 'Algorithms',
+            algorithm: 'Algorithms',
+            distributed: 'Distributed Systems',
+            'distributed-systems': 'Distributed Systems',
+            ddia: 'Distributed Systems'
+        };
+
+        const chapter = chapterAliases[scope];
+        if (chapter) {
+            return topics.filter(topic => topic.chapter === chapter);
+        }
+
+        return topics.filter(topic => {
+            const haystack = `${topic.id} ${topic.title} ${topic.chapter} ${topic.summary}`.toLowerCase();
+            return haystack.includes(scopeRaw.toLowerCase());
+        });
+    };
+
+    const printTopics = (scope = '') => {
+        const filtered = filterTopics(scope);
+        state.topicView = filtered;
+        printDivider();
+        if (scope) {
+            printLine(`Concept index (${scope})`, 'system');
+        } else {
+            printLine('Concept index', 'system');
+        }
+
+        if (!filtered.length) {
+            printLine('No matching topics. Try `topics algorithms` or `topics distributed`.', 'error');
+            return;
+        }
+
+        filtered.forEach((topic, index) => {
+            const seen = state.visited.has(topic.id) ? 'yes' : 'no';
+            const number = String(index + 1).padStart(2, '0');
+            const id = topic.id.padEnd(24, ' ');
+            const chapter = topic.chapter.padEnd(22, ' ');
+            printLine(`${number}  ${id} ${chapter} seen:${seen}`);
+        });
+        printLine(`Showing ${filtered.length}/${topics.length} topics`, 'muted');
+    };
+
+    const printMap = () => {
+        printDivider();
+        printLine('Roadmap', 'system');
+        printBlock([
+            '[Foundations] -> [Machine Learning] -> [Neural Nets] -> [LLM] -> [RL]',
+            '      |                |                 |             |        |',
+            '      +-- matrix        +-- supervised    +-- cnn/rnn   +-- rag  +-- control',
+            '      +-- calc          +-- lifecycle     +-- backprop  +-- agents',
+            '',
+            '[Algorithms] -> [Distributed Systems]',
+            '      |                |',
+            '      +-- complexity    +-- replication',
+            '      +-- sorting       +-- consensus',
+            '      +-- graphs/dp     +-- transactions',
+            '      +-- string/index  +-- stream + observability + DDIA'
+        ].join('\n'));
+        printLine('Use `topics algorithms`, `topics distributed`, or `open <id>` to jump.', 'muted');
+    };
+
+    const resolveFlowKey = (rawToken = '') => {
+        const token = normalize(rawToken || '');
+        const aliasMap = {
+            linear: 'linear-algebra',
+            matrix: 'linear-algebra',
+            matrices: 'linear-algebra',
+            transformer: 'transformers',
+            attention: 'transformers',
+            rl: 'reinforcement-learning',
+            qlearning: 'reinforcement-learning',
+            gradient: 'gradient-descent',
+            optimization: 'gradient-descent',
+            python: 'python-basics',
+            algorithms: 'algorithmic-complexity',
+            algorithm: 'algorithmic-complexity',
+            distributed: 'distributed-systems-basics',
+            ddia: 'ddia-core-principles',
+            consensus: 'consensus-raft-paxos'
+        };
+
+        if (token && explainFlows[token]) return token;
+        if (token && aliasMap[token] && explainFlows[aliasMap[token]]) return aliasMap[token];
+
+        const activeTopic = topics[state.currentIndex]?.id;
+        if (activeTopic && explainFlows[activeTopic]) return activeTopic;
+
+        return 'gradient-descent';
+    };
+
+    const printMachineLearnerAscii = () => {
+        printDivider();
+        printLine('MACHINE LEARNER', 'system');
+        printBlock(machineLearnerFrames[0]);
+        printLine('Run `art animate` or `animate machine` for dynamic ASCII mode.', 'muted');
+        printLine('Shortcut URL hash: #MachineLearnerTUI', 'muted');
+    };
+
+    const printDashboard = () => {
+        const activeTopic = topics[state.currentIndex]?.id || 'none';
+        const activePython = pythonLessons[state.pythonIndex]?.id || 'none';
+        const activeQuest = questChallenges[state.questIndex]?.id || 'none';
+        const lines = [
+            '+----------------------------------------------------------------+',
+            '|                     MACHINELEARNER TUI DASHBOARD              |',
+            '+----------------------------------------------------------------+',
+            `| Active topic   : ${activeTopic.padEnd(46, ' ')}|`,
+            `| Python lesson  : ${activePython.padEnd(46, ' ')}|`,
+            `| Active quest   : ${activeQuest.padEnd(46, ' ')}|`,
+            `| Topic progress : ${(state.visited.size + '/' + topics.length).padEnd(46, ' ')}|`,
+            `| Python progress: ${(state.visitedPython.size + '/' + pythonLessons.length).padEnd(46, ' ')}|`,
+            `| Quest progress : ${(state.questCompleted.size + '/' + questChallenges.length).padEnd(46, ' ')}|`,
+            `| Quest streak   : ${String(state.questStreak).padEnd(46, ' ')}|`,
+            `| XP             : ${String(state.xp).padEnd(46, ' ')}|`,
+            `| Visual effects : ${'rain disabled'.padEnd(46, ' ')}|`,
+            `| Python REPL    : ${(state.pythonRepl.active ? 'active' : 'inactive').padEnd(46, ' ')}|`,
+            `| Exploration    : ${(state.exploration ? state.exploration.key : 'none').padEnd(46, ' ')}|`,
+            '+----------------------------------------------------------------+'
+        ];
+
+        printDivider();
+        printLine('TUI dashboard', 'system');
+        printBlock(lines.join('\n'));
+        printLine('Try: quest start | quest hint | explore transformers | graph attention', 'muted');
+    };
+
+    const printTuiGraphic = (rawName) => {
+        const token = normalize(rawName || 'network');
+        const aliases = {
+            nn: 'network',
+            neural: 'network',
+            matmul: 'matrix',
+            vectors: 'matrix',
+            attn: 'attention',
+            gd: 'gradient',
+            policy: 'rl'
+        };
+        const key = tuiGraphics[token] ? token : aliases[token];
+        if (!key || !tuiGraphics[key]) {
+            printLine('Unknown graphic. Try: network, matrix, attention, gradient, rl', 'error');
+            return;
+        }
+        printDivider();
+        printLine(`TUI graphic: ${key}`, 'system');
+        printBlock(tuiGraphics[key].join('\n'), 'terminal-animation');
+    };
+
+    const showExploreStep = () => {
+        if (!state.exploration) {
+            printLine('No active exploration. Use `explore <concept>`.', 'error');
+            return;
+        }
+
+        const flow = state.exploration.flow || explainFlows[state.exploration.key];
+        if (!flow) {
+            printLine('Exploration flow is unavailable.', 'error');
+            state.exploration = null;
+            return;
+        }
+        const stepCount = flow.steps.length;
+        const index = Math.max(0, Math.min(stepCount - 1, state.exploration.step));
+        state.exploration.step = index;
+        const step = flow.steps[index];
+
+        printDivider();
+        printLine(`${flow.title} (${index + 1}/${stepCount})`, 'system');
+        printLine(step.title, 'success');
+        printLine(step.text);
+        if (Array.isArray(step.art) && step.art.length) {
+            printBlock(step.art.join('\n'), 'terminal-animation');
+        }
+        printLine('Commands: step | back | endexplore', 'muted');
+    };
+
+    const buildTopicFlow = (topic) => {
+        if (!topic) return null;
+        const keyIdeas = Array.isArray(topic.bullets) ? topic.bullets.slice(0, 3) : [];
+        const visualHints = Array.isArray(topic.visual) ? topic.visual.slice(0, 3) : [];
+
+        return {
+            title: `${topic.title} Interactive Walk`,
+            steps: [
+                {
+                    title: 'Step 1: What this concept solves',
+                    text: topic.summary,
+                    art: visualHints.length ? visualHints : ['No visual hints available yet.']
+                },
+                {
+                    title: 'Step 2: Key mechanics',
+                    text: topic.buildsOn,
+                    art: keyIdeas.length ? keyIdeas : ['Key ideas will appear here once configured.']
+                },
+                {
+                    title: 'Step 3: Math/operational core',
+                    text: `Core relation: ${topic.formula}`,
+                    art: [
+                        `Formula: ${topic.formula}`,
+                        `Depth: math ${topic.mathDepth}/10 | intuition ${topic.intuitionDepth}/10`
+                    ]
+                }
+            ]
+        };
+    };
+
+    const startExplore = (rawName) => {
+        const key = resolveFlowKey(rawName);
+        if (explainFlows[key]) {
+            state.exploration = { key, step: 0 };
+            showExploreStep();
+            return;
+        }
+
+        const resolvedTopic = resolveTopic(rawName) || topics[state.currentIndex];
+        const builtFlow = buildTopicFlow(resolvedTopic);
+        if (!builtFlow) {
+            printLine('Could not resolve exploration flow. Try `explore transformers`.', 'error');
+            return;
+        }
+
+        state.exploration = { key: resolvedTopic.id, step: 0, flow: builtFlow };
+        showExploreStep();
+    };
+
+    const moveExplore = (delta) => {
+        if (!state.exploration) {
+            printLine('No active exploration. Use `explore <concept>` first.', 'error');
+            return;
+        }
+
+        const flow = state.exploration.flow || explainFlows[state.exploration.key];
+        if (!flow) {
+            state.exploration = null;
+            printLine('Exploration ended because the flow is missing.', 'error');
+            return;
+        }
+
+        const next = state.exploration.step + delta;
+        if (next < 0) {
+            printLine('Already at the first step.', 'muted');
+            return;
+        }
+        if (next >= flow.steps.length) {
+            printLine('You reached the final step. Use `endexplore` to exit.', 'success');
+            return;
+        }
+        state.exploration.step = next;
+        showExploreStep();
+    };
+
+    const endExplore = () => {
+        if (!state.exploration) {
+            printLine('No active exploration session.', 'muted');
+            return;
+        }
+        const ended = state.exploration.key;
+        state.exploration = null;
+        printLine(`Ended exploration: ${ended}`, 'system');
+    };
+
+    const openMachineLearnerShortcut = () => {
+        const target = document.getElementById('MachineLearnerTUI');
+        if (!target) {
+            printLine('Shortcut anchor #MachineLearnerTUI is missing in the page.', 'error');
+            return;
+        }
+
+        setActiveChapter('terminal-tui');
+        refreshAllVisuals();
+        target.scrollIntoView({ behavior: 'smooth' });
+        if (history.replaceState) {
+            history.replaceState(null, '', '#MachineLearnerTUI');
+        } else {
+            window.location.hash = 'MachineLearnerTUI';
+        }
+        printLine('Opened #MachineLearnerTUI.', 'success');
+    };
+
+    const printPythonHelp = () => {
+        printDivider();
+        printLine('Python crash course commands', 'system');
+        printLine('python                   List lessons');
+        printLine('python start             Open first lesson');
+        printLine('python open <id|number>  Open one lesson');
+        printLine('python next / prev       Move lesson sequence');
+        printLine('python quiz              Run checkpoint for current lesson');
+        printLine('python answer <text>     Submit lesson answer');
+        printLine('python repl              Start interactive Python REPL');
+        printLine('python run <code>        Run one Python snippet');
+        printLine('pyrepl                   REPL shortcut command');
+    };
+
+    const initPythonReplGlobals = async () => {
+        const pyodide = await ensureNotebookPyodide();
+        if (!state.pythonRepl.initialized) {
+            await pyodide.runPythonAsync('tui_globals = {}');
+            state.pythonRepl.initialized = true;
+        }
+        return pyodide;
+    };
+
+    const runPythonSnippetInTerminal = async (code) => {
+        const snippet = code.trim();
+        if (!snippet) {
+            printLine('Provide Python code to run.', 'error');
+            return;
+        }
+
+        try {
+            printLine('Running Python...', 'muted');
+            const pyodide = await initPythonReplGlobals();
+            pyodide.globals.set('tui_code', snippet);
+            const resultJson = await pyodide.runPythonAsync(`
+import sys, io, traceback, json
+_stdout = io.StringIO()
+_stderr = io.StringIO()
+sys.stdout = _stdout
+sys.stderr = _stderr
+try:
+    try:
+        _compiled = compile(tui_code, "<tui>", "eval")
+        _value = eval(_compiled, tui_globals)
+        if _value is not None:
+            print(repr(_value))
+    except SyntaxError:
+        exec(tui_code, tui_globals)
+except Exception:
+    traceback.print_exc()
+finally:
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+json.dumps({"stdout": _stdout.getvalue(), "stderr": _stderr.getvalue()})
+            `);
+            const result = JSON.parse(resultJson || '{}');
+            if (result.stderr && result.stderr.trim()) {
+                printBlock(result.stderr.trim(), 'terminal-animation');
+                return;
+            }
+            if (result.stdout && result.stdout.trim()) {
+                printBlock(result.stdout.trim(), 'terminal-animation');
+                return;
+            }
+            printLine('Python executed with no output.', 'muted');
+        } catch (err) {
+            printLine(`Python error: ${err?.message || err}`, 'error');
+        }
+    };
+
+    const startPythonRepl = () => {
+        state.pythonRepl.active = true;
+        printDivider();
+        printLine('Python REPL mode enabled.', 'system');
+        printLine('Type Python code directly. Use `.exit` to return to normal commands.', 'muted');
+        printLine('Use `.reset` to clear REPL globals.', 'muted');
+    };
+
+    const stopPythonRepl = () => {
+        state.pythonRepl.active = false;
+        printLine('Python REPL mode disabled.', 'system');
+    };
+
+    const resetPythonRepl = async () => {
+        try {
+            const pyodide = await ensureNotebookPyodide();
+            await pyodide.runPythonAsync('tui_globals = {}');
+            state.pythonRepl.initialized = true;
+            printLine('Python REPL globals reset.', 'success');
+        } catch (err) {
+            printLine(`Failed to reset REPL: ${err?.message || err}`, 'error');
+        }
+    };
+
+    const printPythonLessons = () => {
+        printDivider();
+        printLine('Python crash course index', 'system');
+        pythonLessons.forEach((lesson, index) => {
+            const number = String(index + 1).padStart(2, '0');
+            const seen = state.visitedPython.has(lesson.id) ? 'yes' : 'no';
+            printLine(`${number}  ${lesson.id.padEnd(22, ' ')} seen:${seen}`);
+        });
+    };
+
+    const showPythonLesson = (lesson, options = {}) => {
+        if (!lesson) return;
+        const markVisited = options.markVisited !== false;
+        state.pythonIndex = pythonLessons.indexOf(lesson);
+        if (markVisited) state.visitedPython.add(lesson.id);
+        state.activeQuiz = null;
+        state.activeQuizScope = '';
+        state.exploration = null;
+
+        printDivider();
+        printLine(`Python lesson ${state.pythonIndex + 1}: ${lesson.title} [${lesson.id}]`, 'system');
+        printLine(`Goal        : ${lesson.goal}`);
+        printLine('Core ideas  :', 'success');
+        lesson.concepts.forEach((concept, index) => {
+            printLine(`  ${index + 1}. ${concept}`);
+        });
+        printLine('Example code:', 'muted');
+        printBlock(lesson.code.join('\n'));
+        printLine('Try: python quiz  |  python next  |  python open <id>', 'muted');
+    };
+
+    const runPythonCommand = async (args) => {
+        const [subRaw, ...rest] = args;
+        const sub = (subRaw || '').toLowerCase();
+        const payload = rest.join(' ');
+
+        if (!sub || sub === 'list') {
+            printPythonLessons();
+            return;
+        }
+        if (sub === 'help') {
+            printPythonHelp();
+            return;
+        }
+        if (sub === 'start') {
+            showPythonLesson(pythonLessons[0]);
+            return;
+        }
+        if (sub === 'open' || sub === 'show') {
+            const lesson = resolvePythonLesson(payload);
+            if (!lesson) {
+                printLine('Python lesson not found. Use `python` to list IDs.', 'error');
+                return;
+            }
+            showPythonLesson(lesson);
+            return;
+        }
+        if (sub === 'next') {
+            const nextIndex = (state.pythonIndex + 1) % pythonLessons.length;
+            showPythonLesson(pythonLessons[nextIndex]);
+            return;
+        }
+        if (sub === 'prev') {
+            const prevIndex = (state.pythonIndex - 1 + pythonLessons.length) % pythonLessons.length;
+            showPythonLesson(pythonLessons[prevIndex]);
+            return;
+        }
+        if (sub === 'quiz') {
+            const lesson = pythonLessons[state.pythonIndex];
+            if (!lesson?.quiz) {
+                printLine('No quiz is defined for this lesson.', 'error');
+                return;
+            }
+            state.activeQuiz = lesson.quiz;
+            state.activeQuizScope = `python:${lesson.id}`;
+            printDivider();
+            printLine(`Python quiz: ${lesson.title}`, 'system');
+            printLine(lesson.quiz.question);
+            printLine('Reply with: python answer <your response> or answer <your response>', 'muted');
+            return;
+        }
+        if (sub === 'answer') {
+            submitAnswer(payload);
+            return;
+        }
+        if (sub === 'repl') {
+            startPythonRepl();
+            return;
+        }
+        if (sub === 'run') {
+            await runPythonSnippetInTerminal(payload);
+            return;
+        }
+
+        printLine(`Unknown python subcommand: ${sub}. Use \`python help\`.`, 'error');
+    };
+
+    const playAnimation = (nameRaw) => {
+        const normalized = normalize(nameRaw || 'gradient');
+        const aliases = {
+            art: 'machine',
+            banner: 'machine',
+            'machine-learner': 'machine',
+            machine: 'machine',
+            'white-rabbit': 'rabbit',
+            'follow-the-white-rabbit': 'rabbit',
+            algorithm: 'algorithms',
+            distributed: 'ddia',
+            'distributed-systems': 'ddia'
+        };
+        const key = animationFrames[normalized] ? normalized : (aliases[normalized] || normalized);
+        const frames = animationFrames[key];
+        if (!frames || !frames.length) {
+            printLine('Animation not found. Try: machine, rabbit, algorithms, ddia, gradient, attention, rl, python', 'error');
+            return;
+        }
+
+        stopAnimation();
+        printDivider();
+        printLine(`Animation: ${key}`, 'system');
+        const block = printBlock(frames[0], 'terminal-animation');
+        state.animationBlock = block;
+        let frame = 0;
+        let cycles = 0;
+        const maxCycles = 2;
+
+        state.animationTimer = setInterval(() => {
+            if (!state.animationBlock) {
+                stopAnimation();
+                return;
+            }
+            frame = (frame + 1) % frames.length;
+            if (frame === 0) {
+                cycles += 1;
+                if (cycles >= maxCycles) {
+                    stopAnimation();
+                    printLine('Animation complete.', 'success');
+                    return;
+                }
+            }
+            state.animationBlock.textContent = frames[frame];
+            scrollToBottom();
+        }, 360);
+    };
+
+    const startMission = () => {
+        const missions = [
+            'Mission: explain `h = Wx + b` in one sentence, then run `answer ...`.',
+            'Mission: run `open transformers` and identify where positional info enters.',
+            'Mission: run `python open functions` and write why return values matter.',
+            'Mission: run `quest start`, solve one quest with `quest submit <expr>`, then check `quest status`.',
+            'Mission: run `animate rl` and describe exploration vs exploitation.',
+            'Mission: run `quiz`, answer it, then check `xp`.'
+        ];
+        const selected = missions[Math.floor(Math.random() * missions.length)];
+        printDivider();
+        printLine(selected, 'system');
+    };
+
+    const printStatus = () => {
+        const activeTopic = topics[state.currentIndex];
+        const activeLesson = pythonLessons[state.pythonIndex];
+        const total = topics.length;
+        const seen = state.visited.size;
+        const completion = total ? Math.round((seen / total) * 100) : 0;
+        const pythonTotal = pythonLessons.length;
+        const pythonSeen = state.visitedPython.size;
+        const pythonCompletion = pythonTotal ? Math.round((pythonSeen / pythonTotal) * 100) : 0;
+        const questTotal = questChallenges.length;
+        const questDone = state.questCompleted.size;
+        const questCompletion = questTotal ? Math.round((questDone / questTotal) * 100) : 0;
+        printDivider();
+        printLine('Session status', 'system');
+        printLine(`Active topic : ${activeTopic ? activeTopic.id : 'none'}`);
+        printLine(`Visited      : ${seen}/${total} (${completion}%)`);
+        printLine(`Python lesson: ${activeLesson ? activeLesson.id : 'none'}`);
+        printLine(`Python done  : ${pythonSeen}/${pythonTotal} (${pythonCompletion}%)`);
+        printLine(`Quest done   : ${questDone}/${questTotal} (${questCompletion}%)`);
+        printLine(`Quest streak : ${state.questStreak}`);
+        printLine(`XP           : ${state.xp}`);
+        printLine('Visuals      : rain disabled');
+        printLine(`Python REPL  : ${state.pythonRepl.active ? 'active' : 'inactive'}`);
+        printLine(`Explore flow : ${state.exploration ? `${state.exploration.key} [step ${state.exploration.step + 1}]` : 'none'}`);
+        printLine(`History size : ${state.history.length} commands`);
+        printLine(`Animation    : ${state.animationTimer ? 'running' : 'idle'}`);
+    };
+
+    const startQuiz = () => {
+        const topic = topics[state.currentIndex];
+        if (!topic || !topic.quiz) {
+            printLine('No quiz is defined for this topic.', 'error');
+            return;
+        }
+        state.activeQuiz = topic.quiz;
+        state.activeQuizScope = `topic:${topic.id}`;
+        printDivider();
+        printLine(`Quiz: ${topic.title}`, 'system');
+        printLine(topic.quiz.question);
+        printLine('Reply with: answer <your response>', 'muted');
+    };
+
+    const submitAnswer = (answerText) => {
+        if (!state.activeQuiz) {
+            printLine('No active quiz. Run `quiz` first.', 'error');
+            return;
+        }
+        const cleaned = answerText.trim().toLowerCase();
+        if (!cleaned) {
+            printLine('Provide an answer text after `answer`.', 'error');
+            return;
+        }
+
+        const quiz = state.activeQuiz;
+        const hits = quiz.keywords.filter(keyword => cleaned.includes(keyword.toLowerCase())).length;
+        const required = Math.max(1, Math.ceil(quiz.keywords.length / 2));
+        if (hits >= required) {
+            printLine('Checkpoint passed. Your answer captures the core idea.', 'success');
+            state.xp += 10;
+            celebrate('+10 XP');
+            state.activeQuiz = null;
+            state.activeQuizScope = '';
+            return;
+        }
+
+        printLine(`Not quite yet. Hint: ${quiz.hint}`, 'error');
+        printLine('Try again with: answer <your response>', 'muted');
+    };
+
+    const resetSession = () => {
+        stopAnimation();
+        if (state.introTimer) {
+            clearTimeout(state.introTimer);
+            state.introTimer = null;
+        }
+        state.currentIndex = 0;
+        state.visited.clear();
+        state.pythonIndex = 0;
+        state.visitedPython.clear();
+        state.history = [];
+        state.historyCursor = 0;
+        state.activeQuiz = null;
+        state.activeQuizScope = '';
+        state.exploration = null;
+        state.pythonRepl.active = false;
+        state.questIndex = 0;
+        state.questCompleted.clear();
+        state.questHintsUsed = {};
+        state.questStreak = 0;
+        state.questBadges.clear();
+        state.topicView = topics;
+        state.xp = 0;
+        screen.innerHTML = '';
+        printBanner();
+        printHelp();
+        startGuidedLearningSequence();
+    };
+
+    const runCommand = async (rawCommand) => {
+        const command = rawCommand.trim();
+        if (!command) return;
+
+        printLine(`ml@browser:~$ ${command}`, 'command');
+
+        if (state.pythonRepl.active) {
+            if (command === '.exit') {
+                stopPythonRepl();
+                return;
+            }
+            if (command === '.reset') {
+                await resetPythonRepl();
+                return;
+            }
+            if (command === '.help') {
+                printLine('REPL commands: .help | .reset | .exit', 'system');
+                return;
+            }
+            await runPythonSnippetInTerminal(command);
+            return;
+        }
+
+        const [verbRaw, ...rest] = command.split(/\s+/);
+        const verb = verbRaw.toLowerCase();
+        const payload = rest.join(' ');
+
+        if (verb === 'help') {
+            printHelp();
+            return;
+        }
+        if (verb === 'dashboard' || verb === 'tui') {
+            printDashboard();
+            return;
+        }
+        if (verb === 'art' || verb === 'banner') {
+            runArtCommand(rest);
+            return;
+        }
+        if (verb === 'shortcut') {
+            openMachineLearnerShortcut();
+            return;
+        }
+        if (verb === 'rabbit') {
+            playAnimation('rabbit');
+            return;
+        }
+        if (verb === 'algorithms') {
+            printTopics('algorithms');
+            return;
+        }
+        if (verb === 'ddia') {
+            printTopics('distributed');
+            return;
+        }
+        if (verb === 'rain' || verb === 'matrix') {
+            runRainCommand(rest);
+            return;
+        }
+        if (verb === 'pyrepl') {
+            startPythonRepl();
+            return;
+        }
+        if (verb === 'python' || verb === 'py') {
+            await runPythonCommand(rest);
+            return;
+        }
+        if (verb === 'quest' || verb === 'quests') {
+            await runQuestCommand(rest);
+            return;
+        }
+        if (verb === 'catalog') {
+            printTopics(payload || 'algorithms');
+            return;
+        }
+        if (verb === 'topics' || verb === 'ls') {
+            printTopics(payload);
+            return;
+        }
+        if (verb === 'open' || verb === 'show') {
+            const topic = resolveTopic(payload);
+            if (!topic) {
+                printLine('Topic not found. Use `topics` to list valid IDs.', 'error');
+                return;
+            }
+            showTopic(topic);
+            return;
+        }
+        if (verb === 'next') {
+            const nextIndex = (state.currentIndex + 1) % topics.length;
+            showTopic(topics[nextIndex]);
+            return;
+        }
+        if (verb === 'prev') {
+            const prevIndex = (state.currentIndex - 1 + topics.length) % topics.length;
+            showTopic(topics[prevIndex]);
+            return;
+        }
+        if (verb === 'map') {
+            printMap();
+            return;
+        }
+        if (verb === 'explore') {
+            startExplore(payload);
+            return;
+        }
+        if (verb === 'step' || verb === 'forward') {
+            moveExplore(1);
+            return;
+        }
+        if (verb === 'back' || verb === 'prevstep') {
+            moveExplore(-1);
+            return;
+        }
+        if (verb === 'endexplore' || verb === 'stopexplore') {
+            endExplore();
+            return;
+        }
+        if (verb === 'graph') {
+            printTuiGraphic(payload || 'network');
+            return;
+        }
+        if (verb === 'animate') {
+            const animationName = payload || 'gradient';
+            if (animationName.toLowerCase() === 'stop') {
+                stopAnimation();
+                printLine('Animation stopped.', 'system');
+                return;
+            }
+            playAnimation(animationName);
+            return;
+        }
+        if (verb === 'mission') {
+            startMission();
+            return;
+        }
+        if (verb === 'quiz') {
+            startQuiz();
+            return;
+        }
+        if (verb === 'answer') {
+            submitAnswer(payload);
+            return;
+        }
+        if (verb === 'xp') {
+            printLine(`XP total: ${state.xp}`, 'system');
+            return;
+        }
+        if (verb === 'status') {
+            printStatus();
+            return;
+        }
+        if (verb === 'clear') {
+            stopAnimation();
+            screen.innerHTML = '';
+            return;
+        }
+        if (verb === 'reset') {
+            resetSession();
+            return;
+        }
+
+        printLine(`Unknown command: ${verb}. Run \`help\` for available commands.`, 'error');
+    };
+
+    const pushHistory = (command) => {
+        const value = command.trim();
+        if (!value) return;
+        state.history.push(value);
+        if (state.history.length > 200) {
+            state.history.shift();
+        }
+        state.historyCursor = state.history.length;
+    };
+
+    inputForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const command = input.value;
+        if (!command.trim()) return;
+        pushHistory(command);
+        runCommand(command).catch(err => {
+            printLine(`Command error: ${err?.message || err}`, 'error');
+        });
+        input.value = '';
+        input.focus();
+    });
+
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowUp') {
+            if (!state.history.length) return;
+            event.preventDefault();
+            state.historyCursor = Math.max(0, state.historyCursor - 1);
+            input.value = state.history[state.historyCursor] || '';
+            return;
+        }
+
+        if (event.key === 'ArrowDown') {
+            if (!state.history.length) return;
+            event.preventDefault();
+            state.historyCursor = Math.min(state.history.length, state.historyCursor + 1);
+            if (state.historyCursor === state.history.length) {
+                input.value = '';
+            } else {
+                input.value = state.history[state.historyCursor] || '';
+            }
+        }
+    });
+
+    terminal.addEventListener('click', () => {
+        input.focus();
+    });
+
+    shortcutButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const command = button.dataset.terminalCommand;
+            if (!command) return;
+            pushHistory(command);
+            runCommand(command).catch(err => {
+                printLine(`Command error: ${err?.message || err}`, 'error');
+            });
+            input.focus();
+        });
+    });
+
+    printBanner();
+    printHelp();
+    startIntroSequence();
+    input.focus();
+}
+
 function setupOnnxDemo() {
     const runBtn = document.getElementById('onnxDemoRun');
     const resetBtn = document.getElementById('onnxDemoReset');
@@ -11866,6 +15316,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupTd();
     setupControl();
     setupNotebookLab();
+    setupConceptTerminalLab();
     setupOnnxDemo();
     setupHolidayParade();
     setupVisualizationMeta();
