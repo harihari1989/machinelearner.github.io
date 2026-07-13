@@ -949,6 +949,12 @@
             manimVideo.replaceChildren();
             manimVideo.poster = manimCatalog.assetBase + "/" + slug + ".jpg";
             manimVideo.setAttribute("aria-label", asset.title + " — ManimGL animation for " + lecture.title);
+            const markCurrentAssetReady = function() {
+                if (token !== state.mediaToken || state.mediaAsset !== slug || manimVideo.readyState < 2) return;
+                mediaStage.classList.add("is-manim-ready");
+                setMediaMode("manim");
+            };
+            manimVideo.addEventListener("loadeddata", markCurrentAssetReady, { once: true });
             let failures = 0;
             [["webm", "video/webm"], ["mp4", "video/mp4"]].forEach(function(format) {
                 const source = document.createElement("source");
@@ -967,6 +973,11 @@
         }
 
         function loadManimCatalog() {
+            if (window.MathManimCatalog) {
+                state.manimCatalog = window.MathManimCatalog;
+                updateManimMedia();
+                return;
+            }
             fetch("manim/scene-manifest.json", { cache: "no-cache" })
                 .then(function(response) { if (!response.ok) throw new Error("Manifest unavailable"); return response.json(); })
                 .then(function(manimCatalog) {
@@ -1298,11 +1309,6 @@
         });
         manimVideo.addEventListener("play", setVideoButton);
         manimVideo.addEventListener("pause", setVideoButton);
-        manimVideo.addEventListener("loadeddata", function() {
-            if (!state.mediaAsset) return;
-            mediaStage.classList.add("is-manim-ready");
-            setMediaMode("manim");
-        });
         document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
             restartScene();
         });

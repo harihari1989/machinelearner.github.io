@@ -6,6 +6,7 @@ VENV="${MANIM_VENV:-${ROOT}/.venv-manim}"
 PYTHON_BIN="${MANIM_PYTHON:-python3.11}"
 MANIM_BIN="${VENV}/bin/manimgl"
 MANIFEST="${ROOT}/manim/scene-manifest.json"
+BROWSER_MANIFEST="${ROOT}/manim/scene-manifest.js"
 SCENES="${ROOT}/manim/lecture_scenes.py"
 CONFIG="${ROOT}/manim/custom_config.yml"
 RAW_DIR="${ROOT}/.manim-build/raw"
@@ -29,6 +30,30 @@ fi
 "${VENV}/bin/python" -m pip install --quiet -r "${ROOT}/manim/requirements.txt"
 
 mkdir -p "${RAW_DIR}" "${WEB_DIR}"
+
+"${PYTHON_BIN}" - "${MANIFEST}" "${BROWSER_MANIFEST}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest_path, browser_manifest_path = sys.argv[1:]
+with open(manifest_path, encoding="utf-8") as handle:
+    manifest = json.load(handle)
+
+prefix = "window.MathManimCatalog = "
+browser_path = Path(browser_manifest_path)
+try:
+    browser_source = browser_path.read_text(encoding="utf-8")
+    browser_manifest = json.loads(browser_source.removeprefix(prefix).removesuffix(";\n"))
+except (FileNotFoundError, json.JSONDecodeError):
+    browser_manifest = None
+
+if browser_manifest != manifest:
+    with open(browser_path, "w", encoding="utf-8") as handle:
+        handle.write(prefix)
+        json.dump(manifest, handle, indent=2, ensure_ascii=False)
+        handle.write(";\n")
+PY
 
 mapfile_compat() {
     local line

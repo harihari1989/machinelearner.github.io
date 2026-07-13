@@ -17,7 +17,7 @@ The chapter also includes a searchable coverage atlas for all 45 lectures in the
 The lecture carousel can play original white-theme scenes rendered with [3Blue1Brown's ManimGL engine](https://github.com/3b1b/manim). Because ManimGL is a Python/OpenGL renderer rather than a browser runtime, the repository pins the upstream engine, renders deterministic MP4/WebM assets, and delivers them through an HTML5 video layer. Every one of the 40 visualization keys maps to one of 19 focused Manim scenes; the existing JavaScript canvas remains available as an interactive and reduced-bandwidth fallback.
 
 - Scene source: `manim/lecture_scenes.py`
-- Lecture-to-scene mapping: `manim/scene-manifest.json`
+- Lecture-to-scene mapping: `manim/scene-manifest.json` with a browser-ready mirror at `manim/scene-manifest.js`
 - Reproducible renderer: `scripts/render-manim-lectures.sh`
 - Optional GitHub Actions artifact build: `.github/workflows/render-manim-lectures.yml`
 
