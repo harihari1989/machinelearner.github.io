@@ -1652,6 +1652,13 @@
                                 <div class="lecture-stage-meta"><span id="lectureSceneLabel">Visual intuition</span><span class="live-dot" id="lectureMediaStatus">loading ManimGL</span></div>
                                 <div class="lecture-media-actions">
                                     <a href="https://github.com/3b1b/manim" target="_blank" rel="noopener noreferrer">ManimGL ↗</a>
+                                    <label class="lecture-speed-label" for="lecturePlaybackRate">Pace
+                                        <select id="lecturePlaybackRate" aria-label="Manim animation playback pace">
+                                            <option value="0.55">Slow · 0.55×</option>
+                                            <option value="0.7" selected>Study · 0.70×</option>
+                                            <option value="1">Normal · 1×</option>
+                                        </select>
+                                    </label>
                                     <button id="lectureMediaToggle" type="button" aria-pressed="false">Manim render</button>
                                 </div>
                             </div>
@@ -1660,6 +1667,11 @@
                                 <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Interactive JavaScript visualization for the selected lecture"></canvas>
                                 <span class="lecture-manim-badge" id="lectureManimBadge">MANIMGL · BROWSER VIDEO</span>
                                 <button class="lecture-video-play" id="lectureVideoPlay" type="button" aria-pressed="false" aria-label="Pause the Manim lecture animation">Pause</button>
+                            </div>
+                            <div class="lecture-concept-rail" id="lectureConceptRail" aria-label="Concepts synchronized with the animation">
+                                <div class="lecture-concept-rail-heading"><span>Animated concept path</span><span id="lectureConceptProgress">1 of 6</span></div>
+                                <div class="lecture-concept-track" id="lectureConceptTrack"></div>
+                                <strong id="lectureCurrentConcept">Follow the highlighted concept as the animation develops.</strong>
                             </div>
                             <div class="lecture-scene-caption"><span id="lectureSceneCaption">The animation responds to the selected lecture.</span><span id="lectureMediaHint">Rendered with 3b1b/manim, played in your browser.</span></div>
                         </div>
@@ -5677,6 +5689,7 @@ except Exception:
     <script src="script.js"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
+    <script src="math-lecture-derivations.js"></script>
     <script src="manim/scene-manifest.js"></script>
     <script src="math-deep-dive.js"></script>
 </body>
