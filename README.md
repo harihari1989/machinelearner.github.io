@@ -10,6 +10,6 @@ The Math Deep Dive chapter is an animated, interactive course connecting calculu
 - phase portraits integrated with Euler or Runge–Kutta 4; and
 - a trainable 2–3–1 neural network with forward, loss-surface, backpropagation, and XOR-training views.
 
-The chapter also includes a searchable coverage atlas for all 45 lectures in the four source playlists—12 calculus, 16 linear algebra, 8 differential equations, and 9 neural/deep-learning lectures. Each lecture maps to a visual scene, its central equation, a detailed concept checklist, and a machine-learning connection.
+The chapter also includes a searchable coverage atlas for all 45 lectures in the four source playlists—12 calculus, 16 linear algebra, 8 differential equations, and 9 neural/deep-learning lectures. Each lecture maps to a visual scene, its central equation, a detailed concept checklist, and a machine-learning connection. A six-slide guided carousel turns every lecture into an intuition → concepts → mechanism → formula → visual experiment → ML transfer sequence, with keyboard, swipe, replay, and optional auto-play controls.
 
 Serve the repository as a static site, then open index.html through that local server.

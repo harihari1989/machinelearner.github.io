@@ -793,6 +793,7 @@
     // ---------------------------------------------------------------------
     function setupLectureExplorer() {
         const catalog = window.MathLectureCatalog;
+        const guides = window.MathLectureGuides || {};
         const canvas = $("#lectureConceptCanvas");
         if (!catalog || !canvas) return;
         const ctx = canvas.getContext("2d");
@@ -812,7 +813,17 @@
         const mlBridge = $("#lectureMlBridge");
         const watchLink = $("#lectureWatchLink");
         const library = $("#lecture-library");
-        const state = { course: "calculus", lectureIndex: 0, frame: null };
+        const carousel = $("#lectureCarousel");
+        const carouselViewport = $(".lecture-carousel-viewport", carousel);
+        const carouselTrack = $("#lectureCarouselTrack");
+        const carouselTitle = $("#lectureCarouselTitle");
+        const slideCounter = $("#lectureSlideCounter");
+        const slideDots = $("#lectureSlideDots");
+        const slidePrev = $("#lectureSlidePrev");
+        const slideNext = $("#lectureSlideNext");
+        const autoplay = $("#lectureAutoplay");
+        const slideNames = ["Mental picture", "Core ideas", "Mechanism", "Read the formula", "Visual experiment", "ML connection"];
+        const state = { course: "calculus", lectureIndex: 0, frame: null, slideIndex: 0, slideCount: slideNames.length, autoplay: null, pointerStart: null, sceneStart: performance.now() };
         const lectureFactorial = function(n) { let result = 1; for (let i = 2; i <= n; i += 1) result *= i; return result; };
 
         const sceneCopy = {
@@ -857,6 +868,103 @@
             memory: "Feature detectors open nonlinear gates and write associated directions into the residual stream.",
             diffusion: "Noise is removed in many conditioned steps until coherent structure emerges."
         };
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, function(character) {
+                return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character];
+            });
+        }
+
+        function sourceUrl(course, lecture) {
+            return "https://www.youtube.com/watch?v=" + lecture.video + "&list=" + new URL(course.playlist).searchParams.get("list");
+        }
+
+        function focusList(items, startIndex) {
+            return '<ul class="lecture-slide-focus-list">' + items.map(function(item, itemIndex) {
+                return "<li><span>" + String(startIndex + itemIndex).padStart(2, "0") + "</span>" + escapeHtml(item) + "</li>";
+            }).join("") + "</ul>";
+        }
+
+        function stopAutoplay() {
+            if (state.autoplay) window.clearInterval(state.autoplay);
+            state.autoplay = null;
+            autoplay.setAttribute("aria-pressed", "false");
+            autoplay.textContent = reducedMotion ? "Auto-play off" : "Auto-play";
+        }
+
+        function restartScene() {
+            state.sceneStart = performance.now();
+            cancelAnimationFrame(state.frame);
+            drawScene(performance.now());
+        }
+
+        function showSlide(nextIndex, userInitiated) {
+            if (userInitiated) stopAutoplay();
+            state.slideIndex = (nextIndex + state.slideCount) % state.slideCount;
+            carouselTrack.style.transform = "translateX(-" + (state.slideIndex * 100) + "%)";
+            $$(".lecture-carousel-slide", carouselTrack).forEach(function(slide, slideIndex) {
+                const hidden = slideIndex !== state.slideIndex;
+                slide.setAttribute("aria-hidden", hidden ? "true" : "false");
+                slide.inert = hidden;
+            });
+            $$(".lecture-slide-dot", slideDots).forEach(function(dot, dotIndex) {
+                dot.setAttribute("aria-current", dotIndex === state.slideIndex ? "true" : "false");
+            });
+            const activeSlide = $$(".lecture-carousel-slide", carouselTrack)[state.slideIndex];
+            carouselTitle.textContent = activeSlide?.dataset.slideTitle || slideNames[state.slideIndex];
+            slideCounter.textContent = (state.slideIndex + 1) + " / " + state.slideCount;
+            if (state.slideIndex === 4) restartScene();
+        }
+
+        function buildCarousel(course, lecture, lectureIndex) {
+            stopAutoplay();
+            const guide = guides[lecture.scene] || {
+                formula: "Read every symbol as a relationship between quantities, then ask which quantities are inputs, outputs, and rates of change.",
+                observe: sceneCopy[lecture.scene] || lecture.summary,
+                check: "Can you explain what changes, what remains invariant, and how the formula predicts the animation?"
+            };
+            const split = Math.ceil(lecture.concepts.length / 2);
+            const firstConcepts = lecture.concepts.slice(0, split);
+            const laterConcepts = lecture.concepts.slice(split);
+            const url = sourceUrl(course, lecture);
+            const sceneDescription = sceneCopy[lecture.scene] || lecture.summary;
+            const slides = [
+                {
+                    title: "Build the mental picture",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Course<b>' + escapeHtml(course.label) + '</b></span><span>Source chapter<b>' + String(lectureIndex + 1).padStart(2, "0") + ' · ' + escapeHtml(lecture.duration) + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + '</b></span><span>Animated scene<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span></div></div>'
+                },
+                {
+                    title: "Establish the core ideas",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">02</span><span class="lecture-slide-kicker">Foundation</span><h4>Name the mathematical objects</h4><p>Build the vocabulary before compressing the idea into notation. These are the first dependencies the lecture establishes.</p>' + focusList(firstConcepts, 1) + '</div><div class="lecture-slide-visual"><strong>Connect the ideas</strong><p class="lecture-slide-callout">Start with <b>' + escapeHtml(firstConcepts[0]) + '</b>. Then ask how each following idea changes or measures the object introduced before it.</p></div>'
+                },
+                {
+                    title: "Trace the mechanism",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">03</span><span class="lecture-slide-kicker">Cause and effect</span><h4>Follow what the operation does</h4><p>Move from definitions to the chain of consequences. These checkpoints complete the lecture’s conceptual argument.</p>' + focusList(laterConcepts, split + 1) + '</div><div class="lecture-slide-visual"><strong>Reason in sequence</strong><p class="lecture-slide-callout">Use the animation as a causal diagram: identify the input, predict the local change, and then explain the visible output. End by connecting the mechanism to <b>' + escapeHtml(laterConcepts[laterConcepts.length - 1]) + '</b>.</p></div>'
+                },
+                {
+                    title: "Read the formula",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">04</span><span class="lecture-slide-kicker">Notation with meaning</span><h4>Translate symbols into motion</h4><div class="lecture-slide-formula">' + escapeHtml(lecture.math) + '</div><p>' + escapeHtml(guide.formula) + '</p></div><div class="lecture-slide-visual"><strong>Three-pass reading</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Name every quantity and its units or dimensions.</li><li><span>2</span>Read the equality as a claim about a process, not just a rearrangement.</li><li><span>3</span>Test an edge case: zero, alignment, tiny change, or very long time.</li></ul></div>'
+                },
+                {
+                    title: "Run the visual experiment",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">05</span><span class="lecture-slide-kicker">Observe and predict</span><h4>Use motion as a proof sketch</h4><p>' + escapeHtml(guide.observe) + '</p><div class="lecture-slide-actions"><button class="lecture-replay" type="button" data-carousel-replay>Replay animation</button><span class="lecture-carousel-hint">The canvas above resets to the start.</span></div></div><div class="lecture-slide-visual"><strong>Prediction loop</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Pause mentally before the next change.</li><li><span>2</span>Predict the direction and relative size.</li><li><span>3</span>Use the formula to explain any surprise.</li></ul><p class="lecture-slide-callout">' + escapeHtml(sceneDescription) + '</p></div>'
+                },
+                {
+                    title: "Transfer the idea to ML",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">06</span><span class="lecture-slide-kicker">From mathematics to models</span><h4>Find the machine-learning role</h4><p>' + escapeHtml(lecture.ml) + '</p><div class="lecture-slide-actions"><a class="lecture-slide-source" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">Watch this source lecture ↗</a></div></div><div class="lecture-slide-visual"><div class="lecture-slide-question"><strong>Check your understanding</strong>' + escapeHtml(guide.check) + '</div><div class="lecture-slide-mini-meta"><span>Explain it visually<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span><span>Explain it symbolically<b>Use the displayed formula</b></span></div></div>'
+                }
+            ];
+
+            carouselTrack.innerHTML = slides.map(function(slide, slideIndex) {
+                return '<article class="lecture-carousel-slide" role="group" aria-roledescription="slide" aria-label="Slide ' + (slideIndex + 1) + ' of ' + slides.length + '" data-slide-title="' + escapeHtml(slide.title) + '"><div class="lecture-slide-layout">' + slide.body + "</div></article>";
+            }).join("");
+            slideDots.innerHTML = slides.map(function(slide, slideIndex) {
+                return '<button class="lecture-slide-dot" type="button" aria-label="Show slide ' + (slideIndex + 1) + ': ' + escapeHtml(slide.title) + '" data-slide-index="' + slideIndex + '"></button>';
+            }).join("");
+            state.slideCount = slides.length;
+            showSlide(0, false);
+            if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([carouselTrack]).catch(function() {});
+        }
 
         function drawBackdrop() {
             clearCanvas(ctx, canvas);
@@ -979,13 +1087,37 @@
             const reverse = lecture.scene === "backprop", px = lerp(reverse ? 900 : 120, reverse ? 120 : 900, pulse); ctx.fillStyle = reverse ? palette.coral : palette.gold; ctx.beginPath(); ctx.arc(px, 250, 7, 0, Math.PI * 2); ctx.fill();
         }
 
+        function drawCarouselOverlay(course) {
+            const label = String(state.slideIndex + 1).padStart(2, "0") + " / " + String(state.slideCount).padStart(2, "0") + "  " + slideNames[state.slideIndex];
+            ctx.save();
+            ctx.fillStyle = "rgba(255,255,255,.92)";
+            ctx.strokeStyle = colorMixForCanvas(course.color, .46);
+            ctx.lineWidth = 1.5;
+            roundedRect(ctx, 715, 452, 260, 30, 15);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = palette.text;
+            ctx.font = "800 11px Nunito, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(label, 845, 471);
+            ctx.textAlign = "start";
+            ctx.restore();
+        }
+
+        function colorMixForCanvas(hex, alpha) {
+            const value = hex.replace("#", "");
+            const numeric = Number.parseInt(value.length === 3 ? value.split("").map(function(character) { return character + character; }).join("") : value, 16);
+            return "rgba(" + ((numeric >> 16) & 255) + "," + ((numeric >> 8) & 255) + "," + (numeric & 255) + "," + alpha + ")";
+        }
+
         function drawScene(time) {
             const course = catalog[state.course], lecture = course.lectures[state.lectureIndex];
+            const sceneTime = Math.max(0, time - state.sceneStart);
             drawBackdrop();
-            if (state.course === "calculus") drawCalculus(lecture, time, course.color);
-            if (state.course === "linear") drawLinear(lecture, time, course.color);
-            if (state.course === "ode") drawOde(lecture, time, course.color);
-            if (state.course === "neural") drawNeural(lecture, time, course.color);
+            if (state.course === "calculus") drawCalculus(lecture, sceneTime, course.color);
+            if (state.course === "linear") drawLinear(lecture, sceneTime, course.color);
+            if (state.course === "ode") drawOde(lecture, sceneTime, course.color);
+            if (state.course === "neural") drawNeural(lecture, sceneTime, course.color);
+            drawCarouselOverlay(course);
             if (library.closest(".chapter")?.classList.contains("is-active") && !reducedMotion) state.frame = requestAnimationFrame(drawScene);
         }
 
@@ -1010,10 +1142,10 @@
             number.textContent = course.label.toUpperCase() + " · " + String(lectureIndex + 1).padStart(2, "0");
             title.textContent = lecture.title; duration.textContent = lecture.duration; summary.textContent = lecture.summary; mlBridge.textContent = lecture.ml;
             sceneLabel.textContent = lecture.scene.replaceAll("-", " "); sceneCaption.textContent = sceneCopy[lecture.scene] || lecture.summary;
-            watchLink.href = "https://www.youtube.com/watch?v=" + lecture.video + "&list=" + new URL(course.playlist).searchParams.get("list");
+            watchLink.href = sourceUrl(course, lecture);
             concepts.innerHTML = "";
             lecture.concepts.forEach(function(concept) { const item = document.createElement("li"), check = document.createElement("span"); check.textContent = "✓"; item.append(check, document.createTextNode(concept)); concepts.appendChild(item); });
-            setMath(equation, lecture.math); renderIndex(); cancelAnimationFrame(state.frame); drawScene(performance.now());
+            setMath(equation, lecture.math); buildCarousel(course, lecture, lectureIndex); renderIndex(); restartScene();
         }
 
         function selectCourse(courseKey) {
@@ -1025,10 +1157,42 @@
 
         courseButtons.forEach(function(button) { button.addEventListener("click", function() { selectCourse(button.dataset.lectureCourse); }); });
         search.addEventListener("input", renderIndex);
-        document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
-            cancelAnimationFrame(state.frame);
-            state.frame = requestAnimationFrame(drawScene);
+        slidePrev.addEventListener("click", function() { showSlide(state.slideIndex - 1, true); });
+        slideNext.addEventListener("click", function() { showSlide(state.slideIndex + 1, true); });
+        slideDots.addEventListener("click", function(event) {
+            const dot = event.target.closest("[data-slide-index]");
+            if (dot) showSlide(Number(dot.dataset.slideIndex), true);
         });
+        autoplay.addEventListener("click", function() {
+            if (reducedMotion) return;
+            if (state.autoplay) { stopAutoplay(); return; }
+            autoplay.setAttribute("aria-pressed", "true");
+            autoplay.textContent = "Pause slides";
+            state.autoplay = window.setInterval(function() { showSlide(state.slideIndex + 1, false); }, 6500);
+        });
+        carousel.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowLeft") { event.preventDefault(); showSlide(state.slideIndex - 1, true); }
+            if (event.key === "ArrowRight") { event.preventDefault(); showSlide(state.slideIndex + 1, true); }
+            if (event.key === "Home") { event.preventDefault(); showSlide(0, true); }
+            if (event.key === "End") { event.preventDefault(); showSlide(state.slideCount - 1, true); }
+        });
+        carouselViewport.addEventListener("pointerdown", function(event) { state.pointerStart = event.clientX; });
+        carouselViewport.addEventListener("pointerup", function(event) {
+            if (state.pointerStart === null) return;
+            const distance = event.clientX - state.pointerStart; state.pointerStart = null;
+            if (Math.abs(distance) > 48) showSlide(state.slideIndex + (distance < 0 ? 1 : -1), true);
+        });
+        carouselViewport.addEventListener("pointercancel", function() { state.pointerStart = null; });
+        carouselTrack.addEventListener("click", function(event) {
+            if (event.target.closest("[data-carousel-replay]")) restartScene();
+        });
+        document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
+            restartScene();
+        });
+        if (reducedMotion) {
+            autoplay.disabled = true;
+            autoplay.title = "Auto-play is disabled by your reduced-motion preference.";
+        }
         selectCourse("calculus");
     }
 

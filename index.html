@@ -1652,6 +1652,26 @@
                             <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Animated visual for the selected lecture"></canvas>
                             <div class="lecture-scene-caption" id="lectureSceneCaption">The animation responds to the selected lecture.</div>
                         </div>
+                        <section class="lecture-carousel" id="lectureCarousel" aria-label="Guided lecture slides" aria-roledescription="carousel" tabindex="0">
+                            <div class="lecture-carousel-heading">
+                                <div>
+                                    <span class="lecture-carousel-kicker">GUIDED DEEP DIVE</span>
+                                    <strong id="lectureCarouselTitle">Build the mental picture</strong>
+                                </div>
+                                <div class="lecture-carousel-status">
+                                    <span id="lectureSlideCounter" aria-live="polite">1 / 6</span>
+                                    <button class="lecture-autoplay" id="lectureAutoplay" type="button" aria-pressed="false">Auto-play</button>
+                                </div>
+                            </div>
+                            <div class="lecture-carousel-viewport">
+                                <div class="lecture-carousel-track" id="lectureCarouselTrack"></div>
+                            </div>
+                            <div class="lecture-carousel-controls">
+                                <button class="lecture-slide-nav" id="lectureSlidePrev" type="button" aria-label="Show previous lecture slide">← Previous</button>
+                                <div class="lecture-slide-dots" id="lectureSlideDots" aria-label="Choose a lecture slide"></div>
+                                <button class="lecture-slide-nav" id="lectureSlideNext" type="button" aria-label="Show next lecture slide">Next →</button>
+                            </div>
+                        </section>
                         <article class="lecture-notes">
                             <div class="lecture-title-row">
                                 <div><span class="lecture-number" id="lectureNumber">CALCULUS · 01</span><h3 id="lectureTitle">The essence of calculus</h3></div>
@@ -5645,6 +5665,7 @@ except Exception:
 
     <script src="script.js"></script>
     <script src="math-course-data.js"></script>
+    <script src="math-lecture-guides.js"></script>
     <script src="math-deep-dive.js"></script>
 </body>
 </html>
