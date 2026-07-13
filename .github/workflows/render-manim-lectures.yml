@@ -1,0 +1,43 @@
+name: Render Manim lecture assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      scene:
+        description: Optional asset slug; leave blank to render all scenes
+        required: false
+        type: string
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native renderer dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libpango1.0-dev libcairo2-dev pkg-config xvfb libgl1-mesa-dri libegl1-mesa fonts-liberation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: manim/requirements.txt
+      - name: Render browser videos
+        env:
+          MANIM_FONT: Liberation Sans
+        run: |
+          if [ -n "${{ inputs.scene }}" ]; then
+            xvfb-run -a scripts/render-manim-lectures.sh "${{ inputs.scene }}"
+          else
+            xvfb-run -a scripts/render-manim-lectures.sh
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manim-browser-lectures
+          path: |
+            assets/manim/*.mp4
+            assets/manim/*.webm
+            assets/manim/*.jpg
+          if-no-files-found: error
+          retention-days: 14

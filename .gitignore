@@ -1,0 +1,5 @@
+.DS_Store
+.manim-build/
+.manim-cache/
+.venv-manim/
+manim/__pycache__/
