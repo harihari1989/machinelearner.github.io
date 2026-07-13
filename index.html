@@ -1622,7 +1622,7 @@
                     <div>
                         <span class="math-eyebrow">COMPLETE PLAYLIST COVERAGE · 12H 32M</span>
                         <h2>Every lecture, mapped concept by concept</h2>
-                        <p>Select any chapter to open its intuition, mathematical core, detailed concept checklist, ML connection, and an animated visual scene. All 45 videos in the four supplied playlists are represented.</p>
+                        <p>Select any chapter to open its intuition, mathematical core, detailed concept checklist, ML connection, and a matching ManimGL lecture scene rendered directly in the browser. All 45 videos in the four supplied playlists are represented, with an interactive JavaScript canvas available for experimentation.</p>
                     </div>
                     <div class="coverage-orb" aria-label="45 of 45 source lectures covered">
                         <strong>45</strong>
@@ -1648,9 +1648,20 @@
 
                     <div class="lecture-detail-panel">
                         <div class="lecture-scene-shell">
-                            <div class="math-stage-topline"><span id="lectureSceneLabel">Visual intuition</span><span class="live-dot">animated</span></div>
-                            <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Animated visual for the selected lecture"></canvas>
-                            <div class="lecture-scene-caption" id="lectureSceneCaption">The animation responds to the selected lecture.</div>
+                            <div class="math-stage-topline lecture-media-topline">
+                                <div class="lecture-stage-meta"><span id="lectureSceneLabel">Visual intuition</span><span class="live-dot" id="lectureMediaStatus">loading ManimGL</span></div>
+                                <div class="lecture-media-actions">
+                                    <a href="https://github.com/3b1b/manim" target="_blank" rel="noopener noreferrer">ManimGL ↗</a>
+                                    <button id="lectureMediaToggle" type="button" aria-pressed="false">Manim render</button>
+                                </div>
+                            </div>
+                            <div class="lecture-media-stage" id="lectureMediaStage">
+                                <video id="lectureManimVideo" class="lecture-manim-video" muted loop playsinline preload="auto" aria-label="ManimGL animation for the selected lecture"></video>
+                                <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Interactive JavaScript visualization for the selected lecture"></canvas>
+                                <span class="lecture-manim-badge" id="lectureManimBadge">MANIMGL · BROWSER VIDEO</span>
+                                <button class="lecture-video-play" id="lectureVideoPlay" type="button" aria-pressed="false" aria-label="Pause the Manim lecture animation">Pause</button>
+                            </div>
+                            <div class="lecture-scene-caption"><span id="lectureSceneCaption">The animation responds to the selected lecture.</span><span id="lectureMediaHint">Rendered with 3b1b/manim, played in your browser.</span></div>
                         </div>
                         <section class="lecture-carousel" id="lectureCarousel" aria-label="Guided lecture slides" aria-roledescription="carousel" tabindex="0">
                             <div class="lecture-carousel-heading">
@@ -5666,6 +5677,7 @@ except Exception:
     <script src="script.js"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
+    <script src="manim/scene-manifest.js"></script>
     <script src="math-deep-dive.js"></script>
 </body>
 </html>

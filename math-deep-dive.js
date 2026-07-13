@@ -813,6 +813,12 @@
         const mlBridge = $("#lectureMlBridge");
         const watchLink = $("#lectureWatchLink");
         const library = $("#lecture-library");
+        const mediaStage = $("#lectureMediaStage");
+        const manimVideo = $("#lectureManimVideo");
+        const mediaToggle = $("#lectureMediaToggle");
+        const mediaStatus = $("#lectureMediaStatus");
+        const mediaHint = $("#lectureMediaHint");
+        const videoPlay = $("#lectureVideoPlay");
         const carousel = $("#lectureCarousel");
         const carouselViewport = $(".lecture-carousel-viewport", carousel);
         const carouselTrack = $("#lectureCarouselTrack");
@@ -823,7 +829,7 @@
         const slideNext = $("#lectureSlideNext");
         const autoplay = $("#lectureAutoplay");
         const slideNames = ["Mental picture", "Core ideas", "Mechanism", "Read the formula", "Visual experiment", "ML connection"];
-        const state = { course: "calculus", lectureIndex: 0, frame: null, slideIndex: 0, slideCount: slideNames.length, autoplay: null, pointerStart: null, sceneStart: performance.now() };
+        const state = { course: "calculus", lectureIndex: 0, frame: null, slideIndex: 0, slideCount: slideNames.length, autoplay: null, pointerStart: null, sceneStart: performance.now(), manimCatalog: null, mediaMode: "canvas", mediaAsset: null, mediaToken: 0 };
         const lectureFactorial = function(n) { let result = 1; for (let i = 2; i <= n; i += 1) result *= i; return result; };
 
         const sceneCopy = {
@@ -879,6 +885,108 @@
             return "https://www.youtube.com/watch?v=" + lecture.video + "&list=" + new URL(course.playlist).searchParams.get("list");
         }
 
+        function setVideoButton() {
+            const paused = manimVideo.paused;
+            videoPlay.textContent = paused ? "Play" : "Pause";
+            videoPlay.setAttribute("aria-pressed", paused ? "true" : "false");
+            videoPlay.setAttribute("aria-label", (paused ? "Play" : "Pause") + " the Manim lecture animation");
+        }
+
+        function playManim(userInitiated) {
+            const chapterActive = library.closest(".chapter")?.classList.contains("is-active");
+            if ((reducedMotion && !userInitiated) || (!chapterActive && !userInitiated) || state.mediaMode !== "manim") { setVideoButton(); return; }
+            const playRequest = manimVideo.play();
+            if (playRequest?.catch) playRequest.catch(function() { setVideoButton(); });
+        }
+
+        function setMediaMode(mode) {
+            const manimReady = mediaStage.classList.contains("is-manim-ready");
+            state.mediaMode = mode === "manim" && manimReady ? "manim" : "canvas";
+            const showingManim = state.mediaMode === "manim";
+            mediaStage.classList.toggle("is-manim-mode", showingManim);
+            mediaToggle.setAttribute("aria-pressed", showingManim ? "true" : "false");
+            mediaToggle.textContent = showingManim ? "Interactive canvas" : "Manim render";
+            if (showingManim) {
+                cancelAnimationFrame(state.frame);
+                mediaStatus.textContent = "ManimGL browser render";
+                mediaHint.textContent = "Rendered with 3b1b/manim, played in your browser.";
+                playManim(false);
+            } else {
+                manimVideo.pause();
+                mediaStatus.textContent = manimReady ? "interactive JavaScript" : "JavaScript fallback";
+                mediaHint.textContent = manimReady ? "Switch back to the Manim render at any time." : "The browser canvas remains fully animated.";
+                state.sceneStart = performance.now();
+                cancelAnimationFrame(state.frame);
+                drawScene(performance.now());
+            }
+            setVideoButton();
+        }
+
+        function fallbackToCanvas(message) {
+            mediaStage.classList.remove("is-manim-ready", "is-manim-mode");
+            state.mediaAsset = null;
+            setMediaMode("canvas");
+            mediaStatus.textContent = "JavaScript fallback";
+            mediaHint.textContent = message || "The Manim render is unavailable; the interactive canvas is active.";
+        }
+
+        function updateManimMedia() {
+            const course = catalog[state.course], lecture = course.lectures[state.lectureIndex];
+            const manimCatalog = state.manimCatalog;
+            if (!manimCatalog) return;
+            const slug = manimCatalog.scenes?.[lecture.scene];
+            const asset = slug ? manimCatalog.assets?.[slug] : null;
+            if (!slug || !asset) { fallbackToCanvas("No Manim scene is mapped for this lecture; the interactive canvas is active."); return; }
+
+            state.mediaToken += 1;
+            const token = state.mediaToken;
+            state.mediaAsset = slug;
+            state.mediaMode = "canvas";
+            mediaStage.classList.remove("is-manim-ready", "is-manim-mode");
+            mediaToggle.setAttribute("aria-pressed", "false");
+            mediaToggle.textContent = "Manim render";
+            manimVideo.pause();
+            manimVideo.replaceChildren();
+            manimVideo.poster = manimCatalog.assetBase + "/" + slug + ".jpg";
+            manimVideo.setAttribute("aria-label", asset.title + " — ManimGL animation for " + lecture.title);
+            const markCurrentAssetReady = function() {
+                if (token !== state.mediaToken || state.mediaAsset !== slug || manimVideo.readyState < 2) return;
+                mediaStage.classList.add("is-manim-ready");
+                setMediaMode("manim");
+            };
+            manimVideo.addEventListener("loadeddata", markCurrentAssetReady, { once: true });
+            let failures = 0;
+            [["webm", "video/webm"], ["mp4", "video/mp4"]].forEach(function(format) {
+                const source = document.createElement("source");
+                source.src = manimCatalog.assetBase + "/" + slug + "." + format[0];
+                source.type = format[1];
+                source.addEventListener("error", function() {
+                    if (token !== state.mediaToken) return;
+                    failures += 1;
+                    if (failures === 2) fallbackToCanvas("This Manim asset has not been rendered yet; the interactive canvas is active.");
+                });
+                manimVideo.appendChild(source);
+            });
+            mediaStatus.textContent = "loading ManimGL";
+            mediaHint.textContent = "Loading the matching Manim lecture scene…";
+            manimVideo.load();
+        }
+
+        function loadManimCatalog() {
+            if (window.MathManimCatalog) {
+                state.manimCatalog = window.MathManimCatalog;
+                updateManimMedia();
+                return;
+            }
+            fetch("manim/scene-manifest.json", { cache: "no-cache" })
+                .then(function(response) { if (!response.ok) throw new Error("Manifest unavailable"); return response.json(); })
+                .then(function(manimCatalog) {
+                    state.manimCatalog = manimCatalog;
+                    updateManimMedia();
+                })
+                .catch(function() { fallbackToCanvas("Manim metadata is unavailable; the interactive canvas is active."); });
+        }
+
         function focusList(items, startIndex) {
             return '<ul class="lecture-slide-focus-list">' + items.map(function(item, itemIndex) {
                 return "<li><span>" + String(startIndex + itemIndex).padStart(2, "0") + "</span>" + escapeHtml(item) + "</li>";
@@ -893,6 +1001,11 @@
         }
 
         function restartScene() {
+            if (state.mediaMode === "manim" && mediaStage.classList.contains("is-manim-ready")) {
+                manimVideo.currentTime = 0;
+                playManim(true);
+                return;
+            }
             state.sceneStart = performance.now();
             cancelAnimationFrame(state.frame);
             drawScene(performance.now());
@@ -947,7 +1060,7 @@
                 },
                 {
                     title: "Run the visual experiment",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">05</span><span class="lecture-slide-kicker">Observe and predict</span><h4>Use motion as a proof sketch</h4><p>' + escapeHtml(guide.observe) + '</p><div class="lecture-slide-actions"><button class="lecture-replay" type="button" data-carousel-replay>Replay animation</button><span class="lecture-carousel-hint">The canvas above resets to the start.</span></div></div><div class="lecture-slide-visual"><strong>Prediction loop</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Pause mentally before the next change.</li><li><span>2</span>Predict the direction and relative size.</li><li><span>3</span>Use the formula to explain any surprise.</li></ul><p class="lecture-slide-callout">' + escapeHtml(sceneDescription) + '</p></div>'
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">05</span><span class="lecture-slide-kicker">Observe and predict</span><h4>Use motion as a proof sketch</h4><p>' + escapeHtml(guide.observe) + '</p><div class="lecture-slide-actions"><button class="lecture-replay" type="button" data-carousel-replay>Replay animation</button><span class="lecture-carousel-hint">The active Manim or canvas scene resets above.</span></div></div><div class="lecture-slide-visual"><strong>Prediction loop</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Pause mentally before the next change.</li><li><span>2</span>Predict the direction and relative size.</li><li><span>3</span>Use the formula to explain any surprise.</li></ul><p class="lecture-slide-callout">' + escapeHtml(sceneDescription) + '</p></div>'
                 },
                 {
                     title: "Transfer the idea to ML",
@@ -1118,7 +1231,7 @@
             if (state.course === "ode") drawOde(lecture, sceneTime, course.color);
             if (state.course === "neural") drawNeural(lecture, sceneTime, course.color);
             drawCarouselOverlay(course);
-            if (library.closest(".chapter")?.classList.contains("is-active") && !reducedMotion) state.frame = requestAnimationFrame(drawScene);
+            if (library.closest(".chapter")?.classList.contains("is-active") && state.mediaMode !== "manim" && !reducedMotion) state.frame = requestAnimationFrame(drawScene);
         }
 
         function renderIndex() {
@@ -1145,7 +1258,7 @@
             watchLink.href = sourceUrl(course, lecture);
             concepts.innerHTML = "";
             lecture.concepts.forEach(function(concept) { const item = document.createElement("li"), check = document.createElement("span"); check.textContent = "✓"; item.append(check, document.createTextNode(concept)); concepts.appendChild(item); });
-            setMath(equation, lecture.math); buildCarousel(course, lecture, lectureIndex); renderIndex(); restartScene();
+            setMath(equation, lecture.math); buildCarousel(course, lecture, lectureIndex); updateManimMedia(); renderIndex(); restartScene();
         }
 
         function selectCourse(courseKey) {
@@ -1186,14 +1299,28 @@
         carouselTrack.addEventListener("click", function(event) {
             if (event.target.closest("[data-carousel-replay]")) restartScene();
         });
+        mediaToggle.addEventListener("click", function() { setMediaMode(state.mediaMode === "manim" ? "canvas" : "manim"); });
+        videoPlay.addEventListener("click", function() {
+            if (manimVideo.paused) playManim(true); else manimVideo.pause();
+            setVideoButton();
+        });
+        manimVideo.addEventListener("click", function() {
+            if (manimVideo.paused) playManim(true); else manimVideo.pause();
+        });
+        manimVideo.addEventListener("play", setVideoButton);
+        manimVideo.addEventListener("pause", setVideoButton);
         document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
             restartScene();
+        });
+        $$(".chapter-btn").filter(function(button) { return button.dataset.chapter !== "math-deep-dive"; }).forEach(function(button) {
+            button.addEventListener("click", function() { manimVideo.pause(); });
         });
         if (reducedMotion) {
             autoplay.disabled = true;
             autoplay.title = "Auto-play is disabled by your reduced-motion preference.";
         }
         selectCourse("calculus");
+        loadManimCatalog();
     }
 
     function initializeMathDeepDive() {

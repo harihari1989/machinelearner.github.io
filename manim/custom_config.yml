@@ -1,0 +1,22 @@
+directories:
+  base: ""
+  cache: ".manim-cache"
+  subdirs:
+    output: ".manim-build/raw"
+    raster_images: "assets"
+    vector_images: "assets"
+    three_d_models: "assets"
+    sounds: "assets"
+    data: "manim"
+    downloads: ".manim-cache/downloads"
+    latex_cache: ".manim-cache/latex"
+camera:
+  resolution: (854, 480)
+  background_color: "#F8FBFF"
+  fps: 24
+file_writer:
+  ffmpeg_bin: "ffmpeg"
+  video_codec: "libx264"
+  pixel_format: "yuv420p"
+text:
+  font: "Helvetica"

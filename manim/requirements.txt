@@ -1,0 +1,5 @@
+# 3Blue1Brown's ManimGL, pinned for reproducible lecture renders.
+git+https://github.com/3b1b/manim.git@e61ad5c3f9c9ac96cba7a46dffc665c0ec13beea
+# Imported by the current ManimGL surface module but omitted from its package metadata.
+trimesh
+pywavefront

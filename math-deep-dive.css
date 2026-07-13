@@ -797,8 +797,69 @@
 
 .lecture-detail-panel { min-width: 0; overflow: hidden; }
 .lecture-scene-shell { background: #081523; border-bottom: 1px solid rgba(158, 178, 201, .14); }
-.lecture-concept-canvas { aspect-ratio: 2 / 1; max-height: 500px; }
-.lecture-scene-caption { border-top: 1px solid rgba(158, 178, 201, .12); color: var(--math-muted); font-size: .72rem; min-height: 38px; padding: .55rem .9rem; }
+.lecture-media-topline { gap: .75rem; }
+.lecture-stage-meta,
+.lecture-media-actions { align-items: center; display: flex; gap: .65rem; }
+.lecture-stage-meta .live-dot { white-space: nowrap; }
+.lecture-media-actions a { color: var(--course-color, var(--math-cyan)); font-size: .66rem; font-weight: 900; text-decoration: none; }
+.lecture-media-actions button,
+.lecture-video-play {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    color: #334155;
+    cursor: pointer;
+    font: 800 .64rem var(--font-body);
+    min-height: 30px;
+    padding: .35rem .65rem;
+}
+.lecture-media-actions button:hover,
+.lecture-video-play:hover { border-color: var(--course-color, var(--math-cyan)); color: #0f172a; }
+.lecture-media-actions button:focus-visible,
+.lecture-video-play:focus-visible { outline: 3px solid color-mix(in srgb, var(--course-color, var(--math-cyan)) 25%, transparent); outline-offset: 2px; }
+
+.lecture-media-stage {
+    aspect-ratio: 2 / 1;
+    background: #f8fbff;
+    max-height: 500px;
+    overflow: hidden;
+    position: relative;
+}
+
+.lecture-concept-canvas,
+.lecture-manim-video {
+    height: 100%;
+    inset: 0;
+    position: absolute;
+    transition: opacity .35s ease;
+    width: 100%;
+}
+
+.lecture-concept-canvas { aspect-ratio: auto; max-height: none; opacity: 1; }
+.lecture-manim-video { background: #f8fbff; object-fit: contain; opacity: 0; pointer-events: none; }
+.lecture-media-stage.is-manim-ready.is-manim-mode .lecture-manim-video { opacity: 1; pointer-events: auto; }
+.lecture-media-stage.is-manim-ready.is-manim-mode .lecture-concept-canvas { opacity: 0; pointer-events: none; }
+
+.lecture-manim-badge {
+    background: rgba(255, 255, 255, .92);
+    border: 1px solid color-mix(in srgb, var(--course-color, var(--math-cyan)) 36%, #dce5ef);
+    border-radius: 999px;
+    bottom: .65rem;
+    color: #475569;
+    display: none;
+    font-size: .58rem;
+    font-weight: 900;
+    left: .65rem;
+    letter-spacing: .09em;
+    padding: .32rem .5rem;
+    position: absolute;
+}
+
+.lecture-video-play { display: none; position: absolute; right: .65rem; top: .65rem; }
+.lecture-media-stage.is-manim-ready.is-manim-mode .lecture-manim-badge,
+.lecture-media-stage.is-manim-ready.is-manim-mode .lecture-video-play { display: block; }
+.lecture-scene-caption { align-items: center; border-top: 1px solid rgba(158, 178, 201, .12); color: var(--math-muted); display: flex; font-size: .72rem; gap: .75rem; justify-content: space-between; min-height: 38px; padding: .55rem .9rem; }
+.lecture-scene-caption > span:last-child { color: #64748b; flex: 0 0 auto; font-size: .61rem; }
 
 .lecture-carousel {
     background: #fff;
@@ -1320,6 +1381,10 @@ body[data-theme="adult"] .math-deep-dive-chapter .example-section {
     .lecture-slide-dots { grid-column: 1 / -1; grid-row: 1; }
     .lecture-slide-nav { width: 100%; }
     .lecture-slide-mini-meta { grid-template-columns: 1fr; }
+    .lecture-media-topline { align-items: start; flex-direction: column; }
+    .lecture-media-actions { justify-content: space-between; width: 100%; }
+    .lecture-scene-caption { align-items: start; flex-direction: column; }
+    .lecture-scene-caption > span:last-child { flex: 1 1 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
