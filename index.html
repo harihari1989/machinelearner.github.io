@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artificial Intelligence Math Foundations</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="math-deep-dive.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         window.MathJax = {
@@ -34,6 +35,7 @@
 
     <div class="chapter-switcher" role="tablist" aria-label="Learning chapters">
         <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations">Foundations</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="math-deep-dive">Math Deep Dive</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml">Machine Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
@@ -1382,6 +1384,321 @@
             </div>
         </section>
 
+        </section>
+
+        <section class="chapter math-deep-dive-chapter" data-chapter="math-deep-dive">
+            <nav class="chapter-nav math-dive-nav" aria-label="Mathematics deep dive sections">
+                <a href="#math-atlas">Atlas</a>
+                <a href="#deep-calculus">Calculus</a>
+                <a href="#deep-linear-algebra">Linear algebra</a>
+                <a href="#deep-differential-equations">Differential equations</a>
+                <a href="#deep-neural-networks">Neural networks</a>
+                <a href="#lecture-library">45-lecture atlas</a>
+                <a href="#math-synthesis">Synthesis</a>
+            </nav>
+
+            <section id="math-atlas" class="example-section math-atlas-section">
+                <div class="math-atlas-hero">
+                    <div class="math-atlas-copy">
+                        <span class="math-eyebrow">An animated course in four connected ideas</span>
+                        <h2>See the mathematics that makes learning possible</h2>
+                        <p class="math-atlas-lead">A neural network is not a bag of tricks. It is geometry transformed by linear algebra, sensitivity measured by calculus, state evolved like a differential equation, and parameters refined by a learning algorithm.</p>
+                        <div class="math-atlas-actions">
+                            <a class="math-dive-primary" href="#deep-calculus">Begin with change</a>
+                            <button class="math-dive-secondary" id="mathTourToggle" type="button" aria-pressed="false">Play guided tour</button>
+                        </div>
+                    </div>
+                    <div class="math-atlas-orbit" id="mathAtlasOrbit" aria-label="Animated map connecting the four mathematical subjects">
+                        <div class="atlas-core">
+                            <span>Learning</span>
+                            <strong>minimize \(L(\theta)\)</strong>
+                        </div>
+                        <button class="atlas-node atlas-calculus" type="button" data-math-target="deep-calculus"><span>01</span>Calculus</button>
+                        <button class="atlas-node atlas-linear" type="button" data-math-target="deep-linear-algebra"><span>02</span>Linear algebra</button>
+                        <button class="atlas-node atlas-ode" type="button" data-math-target="deep-differential-equations"><span>03</span>Differential equations</button>
+                        <button class="atlas-node atlas-network" type="button" data-math-target="deep-neural-networks"><span>04</span>Neural networks</button>
+                        <span class="atlas-ring atlas-ring-one" aria-hidden="true"></span>
+                        <span class="atlas-ring atlas-ring-two" aria-hidden="true"></span>
+                    </div>
+                </div>
+                <div class="math-path-grid">
+                    <article><span class="path-index">01</span><h3>Measure change</h3><p>Derivatives turn tiny input nudges into precise output sensitivity.</p><code>dx → df</code></article>
+                    <article><span class="path-index">02</span><h3>Transform space</h3><p>Matrices move every vector by moving the basis vectors.</p><code>x → Wx + b</code></article>
+                    <article><span class="path-index">03</span><h3>Evolve a state</h3><p>A derivative field tells a system how to move at every instant.</p><code>dz/dt = f(z,t)</code></article>
+                    <article><span class="path-index">04</span><h3>Learn parameters</h3><p>Backprop combines local sensitivities into a useful global update.</p><code>θ ← θ − η∇L</code></article>
+                </div>
+            </section>
+
+            <section id="deep-calculus" class="example-section math-lab-section" data-math-lab="calculus">
+                <div class="math-lab-heading">
+                    <div><span class="math-chapter-number">01 · CHANGE</span><h2>Calculus: from a nudge to a gradient</h2></div>
+                    <p>Calculus asks one reusable question: <em>if I change this, how much does that change?</em> Move from secant slope to derivative, accumulate area, compose sensitivities, and approximate a function locally.</p>
+                </div>
+                <div class="math-concept-rail" role="tablist" aria-label="Calculus lesson">
+                    <button class="math-mode-btn is-active" type="button" role="tab" aria-selected="true" data-calc-mode="derivative">Derivative</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-calc-mode="integral">Integral</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-calc-mode="chain">Chain rule</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-calc-mode="taylor">Taylor lens</button>
+                </div>
+                <div class="math-lab-grid">
+                    <div class="math-stage-card">
+                        <div class="math-stage-topline"><span id="calcStageLabel">Secant → tangent</span><span class="live-dot">live</span></div>
+                        <canvas id="calculusDeepCanvas" class="math-deep-canvas" width="900" height="540" aria-label="Interactive calculus visualization"></canvas>
+                        <div class="math-canvas-controls">
+                            <label>Function<select id="calcFunction"><option value="quadratic">f(x) = x²</option><option value="sine">f(x) = sin(x)</option><option value="sigmoid">f(x) = sigmoid(x)</option><option value="exponential">f(x) = eˣ</option></select></label>
+                            <label>Position x <input id="calcX" type="range" min="-2.5" max="2.5" step="0.05" value="1"></label>
+                            <label id="calcResolutionLabel">Δx <input id="calcDx" type="range" min="0.02" max="1.5" step="0.02" value="1"></label>
+                            <button class="math-play-btn" id="calcAnimate" type="button">Animate Δx → 0</button>
+                        </div>
+                    </div>
+                    <aside class="math-insight-panel">
+                        <span class="insight-kicker">CURRENT LENS</span>
+                        <h3 id="calcInsightTitle">A derivative is local sensitivity</h3>
+                        <p id="calcInsightText">The secant slope compares two finite points. As Δx shrinks, it converges to the tangent slope: the best local linear prediction.</p>
+                        <div class="math-live-equation" id="calcEquation">\(\displaystyle f'(x)=\lim_{\Delta x\to0}\frac{f(x+\Delta x)-f(x)}{\Delta x}\)</div>
+                        <dl class="math-metrics">
+                            <div><dt id="calcMetricALabel">Secant slope</dt><dd id="calcMetricA">—</dd></div>
+                            <div><dt id="calcMetricBLabel">True derivative</dt><dd id="calcMetricB">—</dd></div>
+                            <div><dt id="calcMetricCLabel">Approximation error</dt><dd id="calcMetricC">—</dd></div>
+                        </dl>
+                        <div class="ml-bridge"><strong>ML bridge</strong><p id="calcBridge">A gradient is a list of these sensitivities—one derivative for every parameter.</p></div>
+                    </aside>
+                </div>
+                <details class="derivation-drawer">
+                    <summary>Open the derivation: why gradients point uphill</summary>
+                    <div class="derivation-grid">
+                        <div><h4>1. Linearize nearby</h4><p>For a tiny vector nudge \(\Delta\mathbf{x}\),</p><div class="math-formula math-mini">\[f(\mathbf{x}+\Delta\mathbf{x})\approx f(\mathbf{x})+\nabla f(\mathbf{x})^T\Delta\mathbf{x}.\]</div></div>
+                        <div><h4>2. Ask for the largest rise</h4><p>With \(\lVert\Delta\mathbf{x}\rVert=\varepsilon\), Cauchy–Schwarz bounds the change by \(\varepsilon\lVert\nabla f\rVert\).</p></div>
+                        <div><h4>3. Align the nudge</h4><p>The bound becomes equality when \(\Delta\mathbf{x}\) points with the gradient. Therefore \(-\nabla f\) is steepest descent.</p></div>
+                    </div>
+                </details>
+            </section>
+
+            <section id="deep-linear-algebra" class="example-section math-lab-section" data-math-lab="linear">
+                <div class="math-lab-heading">
+                    <div><span class="math-chapter-number">02 · SPACE</span><h2>Linear algebra: matrices as moving geometry</h2></div>
+                    <p>Forget “boxes of numbers” for a moment. A matrix is a function that preserves lines and the origin; its columns tell you where the basis vectors land.</p>
+                </div>
+                <div class="math-concept-rail" role="group" aria-label="Matrix transformation preset">
+                    <button class="math-mode-btn is-active" type="button" data-matrix-preset="identity">Identity</button>
+                    <button class="math-mode-btn" type="button" data-matrix-preset="rotate">Rotate</button>
+                    <button class="math-mode-btn" type="button" data-matrix-preset="shear">Shear</button>
+                    <button class="math-mode-btn" type="button" data-matrix-preset="squash">Near singular</button>
+                    <button class="math-mode-btn" type="button" data-matrix-preset="eigen">Eigen directions</button>
+                </div>
+                <div class="math-lab-grid">
+                    <div class="math-stage-card">
+                        <div class="math-stage-topline"><span>Watch every point move together</span><span class="live-dot">live</span></div>
+                        <canvas id="linearDeepCanvas" class="math-deep-canvas" width="900" height="540" aria-label="Animated linear transformation grid"></canvas>
+                        <div class="matrix-entry-grid" aria-label="Matrix entries">
+                            <span>A =</span>
+                            <label><span>a</span><input id="matrixA" type="number" min="-2" max="2" step="0.1" value="1"></label>
+                            <label><span>b</span><input id="matrixB" type="number" min="-2" max="2" step="0.1" value="0"></label>
+                            <label><span>c</span><input id="matrixC" type="number" min="-2" max="2" step="0.1" value="0"></label>
+                            <label><span>d</span><input id="matrixD" type="number" min="-2" max="2" step="0.1" value="1"></label>
+                            <button class="math-play-btn" id="matrixReplay" type="button">Replay transform</button>
+                        </div>
+                    </div>
+                    <aside class="math-insight-panel">
+                        <span class="insight-kicker">GEOMETRIC READING</span>
+                        <h3>Columns are transformed basis vectors</h3>
+                        <div class="math-live-equation">\[A\mathbf{x}=x_1\begin{bmatrix}a\\c\end{bmatrix}+x_2\begin{bmatrix}b\\d\end{bmatrix}\]</div>
+                        <dl class="math-metrics">
+                            <div><dt>det(A): area scale</dt><dd id="matrixDet">1.00</dd></div>
+                            <div><dt>Orientation</dt><dd id="matrixOrientation">preserved</dd></div>
+                            <div><dt>Rank signal</dt><dd id="matrixRank">full plane</dd></div>
+                        </dl>
+                        <div class="math-legend"><span><i class="legend-i"></i>\(A\hat\imath\)</span><span><i class="legend-j"></i>\(A\hat\jmath\)</span><span><i class="legend-vector"></i>\(A\mathbf{x}\)</span></div>
+                        <div class="ml-bridge"><strong>ML bridge</strong><p>A dense layer \(W\mathbf{x}+\mathbf{b}\) first remixes coordinates, then translates them. Nonlinear activations let stacked layers bend instead of merely re-label space.</p></div>
+                    </aside>
+                </div>
+                <details class="derivation-drawer">
+                    <summary>Open the derivation: determinant, eigenvectors, and feature space</summary>
+                    <div class="derivation-grid">
+                        <div><h4>Determinant</h4><p>\(\det A=ad-bc\) is signed area scaling. Zero means a dimension collapsed, so information was lost.</p></div>
+                        <div><h4>Eigenvector</h4><p>\(A\mathbf{v}=\lambda\mathbf{v}\): the direction survives the transformation; only its length and possibly orientation change.</p></div>
+                        <div><h4>Why ML cares</h4><p>Singular values expose amplification and compression; eigenvectors describe persistent modes; low-rank maps become efficient feature bottlenecks.</p></div>
+                    </div>
+                </details>
+            </section>
+
+            <section id="deep-differential-equations" class="example-section math-lab-section" data-math-lab="ode">
+                <div class="math-lab-heading">
+                    <div><span class="math-chapter-number">03 · TIME</span><h2>Differential equations: rules that become motion</h2></div>
+                    <p>An equation like \(d\mathbf{z}/dt=f(\mathbf{z},t)\) does not directly give a trajectory. It gives a velocity arrow at every state; a solver follows those arrows.</p>
+                </div>
+                <div class="math-concept-rail" role="group" aria-label="Differential equation system">
+                    <button class="math-mode-btn is-active" type="button" data-ode-system="sink">Stable sink</button>
+                    <button class="math-mode-btn" type="button" data-ode-system="saddle">Saddle</button>
+                    <button class="math-mode-btn" type="button" data-ode-system="oscillator">Oscillator</button>
+                    <button class="math-mode-btn" type="button" data-ode-system="nonlinear">Nonlinear flow</button>
+                </div>
+                <div class="math-lab-grid">
+                    <div class="math-stage-card">
+                        <div class="math-stage-topline"><span>Phase portrait + numerical solution</span><span class="live-dot">simulating</span></div>
+                        <canvas id="odeDeepCanvas" class="math-deep-canvas math-drag-canvas" width="900" height="540" aria-label="Differential equation vector field. Click or drag to seed a trajectory."></canvas>
+                        <div class="math-canvas-controls">
+                            <label>Solver<select id="odeSolver"><option value="euler">Euler</option><option value="rk4" selected>Runge–Kutta 4</option></select></label>
+                            <label>Step Δt <input id="odeDt" type="range" min="0.005" max="0.12" step="0.005" value="0.025"></label>
+                            <button class="math-play-btn" id="odePause" type="button" aria-pressed="false">Pause</button>
+                            <button class="math-dive-secondary" id="odeReset" type="button">Reset trails</button>
+                        </div>
+                        <p class="math-stage-hint">Click anywhere in the field to launch a new state. Drag to paint several initial conditions.</p>
+                    </div>
+                    <aside class="math-insight-panel">
+                        <span class="insight-kicker">STATE EVOLUTION</span>
+                        <h3 id="odeTitle">Stable systems forget perturbations</h3>
+                        <p id="odeDescription">Every arrow points toward the fixed point. Nearby trajectories contract, so small errors fade over time.</p>
+                        <div class="math-live-equation" id="odeEquation">\(\dot{x}=-x,\quad \dot{y}=-y\)</div>
+                        <dl class="math-metrics">
+                            <div><dt>Simulated time</dt><dd id="odeTime">0.00</dd></div>
+                            <div><dt>Active trajectories</dt><dd id="odeParticles">0</dd></div>
+                            <div><dt>Local behavior</dt><dd id="odeBehavior">contracting</dd></div>
+                        </dl>
+                        <div class="ml-bridge"><strong>ML bridge</strong><p>A residual layer \(\mathbf{z}_{k+1}=\mathbf{z}_k+h f_\theta(\mathbf{z}_k)\) is an Euler step. Very deep residual networks can be read as learned flows through feature space.</p></div>
+                    </aside>
+                </div>
+                <details class="derivation-drawer">
+                    <summary>Open the derivation: from a derivative field to a solver</summary>
+                    <div class="derivation-grid">
+                        <div><h4>Euler: trust the local arrow</h4><div class="math-formula math-mini">\[\mathbf{z}_{n+1}=\mathbf{z}_n+h f(\mathbf{z}_n,t_n)\]</div><p>First-order global error: \(O(h)\). Fast, intuitive, and inaccurate for large steps.</p></div>
+                        <div><h4>RK4: sample four slopes</h4><p>Blend slopes at the start, two midpoints, and the end. Global error is \(O(h^4)\), usually far smaller at the same step size.</p></div>
+                        <div><h4>Stability matters</h4><p>A good continuous system can look unstable under a poor discretization. Optimizers have the same issue: learning rate is a numerical step size.</p></div>
+                    </div>
+                </details>
+            </section>
+
+            <section id="deep-neural-networks" class="example-section math-lab-section" data-math-lab="network">
+                <div class="math-lab-heading">
+                    <div><span class="math-chapter-number">04 · LEARNING</span><h2>Neural networks: forward meaning, backward credit</h2></div>
+                    <p>A neuron forms a weighted sum and applies a nonlinearity. A network composes many such functions. Backpropagation then assigns credit by multiplying local derivatives backward.</p>
+                </div>
+                <div class="math-concept-rail" role="group" aria-label="Neural network animation">
+                    <button class="math-mode-btn is-active" type="button" data-network-view="forward">Forward pass</button>
+                    <button class="math-mode-btn" type="button" data-network-view="loss">Loss surface</button>
+                    <button class="math-mode-btn" type="button" data-network-view="backprop">Backpropagate</button>
+                    <button class="math-mode-btn" type="button" data-network-view="train">Train XOR</button>
+                </div>
+                <div class="math-lab-grid">
+                    <div class="math-stage-card network-stage-card">
+                        <div class="math-stage-topline"><span id="networkStageLabel">Signal flows left → right</span><span class="live-dot">computing</span></div>
+                        <canvas id="networkDeepCanvas" class="math-deep-canvas" width="900" height="540" aria-label="Animated neural network forward and backward pass"></canvas>
+                        <div class="math-canvas-controls network-controls">
+                            <label>x₁ <input id="networkX1" type="range" min="0" max="1" step="1" value="0"><output id="networkX1Value">0</output></label>
+                            <label>x₂ <input id="networkX2" type="range" min="0" max="1" step="1" value="1"><output id="networkX2Value">1</output></label>
+                            <label>Target y <input id="networkTarget" type="range" min="0" max="1" step="1" value="1"><output id="networkTargetValue">1</output></label>
+                            <label>η <input id="networkLr" type="range" min="0.05" max="1.5" step="0.05" value="0.8"><output id="networkLrValue">0.80</output></label>
+                            <button class="math-play-btn" id="networkAction" type="button">Run forward pass</button>
+                        </div>
+                    </div>
+                    <aside class="math-insight-panel">
+                        <span class="insight-kicker">COMPUTATION GRAPH</span>
+                        <h3 id="networkTitle">Prediction is function composition</h3>
+                        <p id="networkDescription">Each edge scales a signal. Each neuron adds incoming evidence, shifts it with a bias, then gates it through sigmoid.</p>
+                        <div class="math-live-equation" id="networkEquation">\(\mathbf{h}=\sigma(W_1\mathbf{x}+\mathbf{b}_1),\quad \hat y=\sigma(W_2\mathbf{h}+b_2)\)</div>
+                        <dl class="math-metrics">
+                            <div><dt>Prediction ŷ</dt><dd id="networkPrediction">—</dd></div>
+                            <div><dt>Binary cross-entropy</dt><dd id="networkLoss">—</dd></div>
+                            <div><dt>Training epoch</dt><dd id="networkEpoch">0</dd></div>
+                        </dl>
+                        <div class="ml-bridge"><strong>Credit assignment</strong><p id="networkBridge">For the output weight \(w\), \(\partial L/\partial w=(\hat y-y)h\). Error is larger when the prediction is wrong and the source neuron is active.</p></div>
+                    </aside>
+                </div>
+                <details class="derivation-drawer" open>
+                    <summary>The complete backprop chain, one scalar at a time</summary>
+                    <div class="backprop-chain" aria-label="Backpropagation chain rule">
+                        <span>loss \(L\)</span><i>× ∂L/∂ŷ</i><span>output ŷ</span><i>× ∂ŷ/∂z</i><span>logit \(z\)</span><i>× ∂z/∂w</i><span>weight \(w\)</span>
+                    </div>
+                    <div class="derivation-grid">
+                        <div><h4>Forward</h4><p>Cache every activation because the backward derivatives depend on those local values.</p></div>
+                        <div><h4>Backward</h4><p>Vector–Jacobian products move one error signal backward without materializing enormous Jacobian matrices.</p></div>
+                        <div><h4>Update</h4><p>Subtract a learning-rate-scaled gradient. One step changes the function; many examples make the change generalize.</p></div>
+                    </div>
+                </details>
+            </section>
+
+            <section id="lecture-library" class="example-section lecture-library-section">
+                <div class="lecture-library-heading">
+                    <div>
+                        <span class="math-eyebrow">COMPLETE PLAYLIST COVERAGE · 12H 32M</span>
+                        <h2>Every lecture, mapped concept by concept</h2>
+                        <p>Select any chapter to open its intuition, mathematical core, detailed concept checklist, ML connection, and an animated visual scene. All 45 videos in the four supplied playlists are represented.</p>
+                    </div>
+                    <div class="coverage-orb" aria-label="45 of 45 source lectures covered">
+                        <strong>45</strong>
+                        <span>of 45 lectures</span>
+                        <i>covered</i>
+                    </div>
+                </div>
+
+                <div class="lecture-playlist-tabs" id="lecturePlaylistTabs" role="tablist" aria-label="Source playlist">
+                    <button class="lecture-playlist-tab is-active" type="button" role="tab" aria-selected="true" data-lecture-course="calculus"><span>12</span>Calculus</button>
+                    <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="linear"><span>16</span>Linear algebra</button>
+                    <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="ode"><span>8</span>Differential equations</button>
+                    <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="neural"><span>9</span>Neural networks</button>
+                </div>
+
+                <div class="lecture-explorer">
+                    <aside class="lecture-index-panel">
+                        <label class="lecture-search-label" for="lectureSearch">Search this playlist</label>
+                        <input class="lecture-search" id="lectureSearch" type="search" placeholder="Try “eigen”, “limit”, or “attention”" autocomplete="off">
+                        <div class="lecture-index-meta"><span id="lectureCourseCount">12 lectures</span><a id="lecturePlaylistLink" href="#" target="_blank" rel="noopener noreferrer">Open playlist ↗</a></div>
+                        <div class="lecture-index" id="lectureIndex" role="listbox" aria-label="Lecture chapters"></div>
+                    </aside>
+
+                    <div class="lecture-detail-panel">
+                        <div class="lecture-scene-shell">
+                            <div class="math-stage-topline"><span id="lectureSceneLabel">Visual intuition</span><span class="live-dot">animated</span></div>
+                            <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Animated visual for the selected lecture"></canvas>
+                            <div class="lecture-scene-caption" id="lectureSceneCaption">The animation responds to the selected lecture.</div>
+                        </div>
+                        <article class="lecture-notes">
+                            <div class="lecture-title-row">
+                                <div><span class="lecture-number" id="lectureNumber">CALCULUS · 01</span><h3 id="lectureTitle">The essence of calculus</h3></div>
+                                <span class="lecture-duration" id="lectureDuration">17:05</span>
+                            </div>
+                            <p class="lecture-summary" id="lectureSummary"></p>
+                            <div class="lecture-equation" id="lectureEquation"></div>
+                            <div class="lecture-notes-grid">
+                                <div>
+                                    <h4>Concept coverage</h4>
+                                    <ul class="lecture-concepts" id="lectureConcepts"></ul>
+                                </div>
+                                <div>
+                                    <h4>Why machine learning cares</h4>
+                                    <p class="lecture-ml-bridge" id="lectureMlBridge"></p>
+                                    <a class="lecture-watch-link" id="lectureWatchLink" href="#" target="_blank" rel="noopener noreferrer">Watch source lecture ↗</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="math-synthesis" class="example-section math-synthesis-section">
+                <span class="math-eyebrow">PUT THE FOUR LENSES TOGETHER</span>
+                <h2>One training step, read four ways</h2>
+                <div class="synthesis-flow">
+                    <article><span>Linear algebra</span><strong>Represent</strong><p>\(W\mathbf{x}+\mathbf{b}\) moves the example through feature spaces.</p></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>Calculus</span><strong>Measure</strong><p>\(\nabla_\theta L\) measures how every parameter affects error.</p></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>Differential equations</span><strong>Evolve</strong><p>Layers and optimizer steps discretize continuous-looking flows.</p></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>Neural networks</span><strong>Learn</strong><p>Backprop reuses the chain rule to compute the update efficiently.</p></article>
+                </div>
+                <div class="math-checkpoint">
+                    <div><h3>The compact mental model</h3><p>Data is a point. A layer transforms the point. A loss measures the result. A gradient tells how to change the transformation. Training repeats that flow.</p></div>
+                    <div class="math-formula">\[\mathbf{x}\xrightarrow{\;f_\theta\;}\hat{\mathbf{y}}\xrightarrow{\;L\;}\text{error}\xrightarrow{\;\nabla_\theta\;}\theta-\eta\nabla_\theta L\]</div>
+                </div>
+                <div class="math-source-strip">
+                    <span>Continue with the visual source courses:</span>
+                    <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr" target="_blank" rel="noopener noreferrer">Essence of Calculus ↗</a>
+                    <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab" target="_blank" rel="noopener noreferrer">Essence of Linear Algebra ↗</a>
+                    <a href="https://www.youtube.com/watch?v=p_di4Zn4wz4&amp;list=PLZHQObOWTQDNPOjrT6KVlfJuKtYTftqH6" target="_blank" rel="noopener noreferrer">Differential Equations ↗</a>
+                    <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi" target="_blank" rel="noopener noreferrer">Neural Networks ↗</a>
+                </div>
+            </section>
         </section>
 
         <section class="chapter" data-chapter="ml">
@@ -5327,5 +5644,7 @@ except Exception:
     </footer>
 
     <script src="script.js"></script>
+    <script src="math-course-data.js"></script>
+    <script src="math-deep-dive.js"></script>
 </body>
 </html>
