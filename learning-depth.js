@@ -219,6 +219,12 @@ print(f"recall={recall:.3f}")`
         const output = document.getElementById('pythonCourseOutput');
         const status = document.getElementById('pythonCourseStatus');
         if (!select || !editor || !runButton || !output) return;
+        let sandboxSession = null;
+
+        function destroySandbox() {
+            sandboxSession?.destroy('Python concept session reset.');
+            sandboxSession = null;
+        }
 
         function loadSelectedExample() {
             editor.value = pythonExamples[select.value] || pythonExamples.core;
@@ -226,17 +232,14 @@ print(f"recall={recall:.3f}")`
             if (status) status.textContent = 'Ready';
         }
 
-        async function getRuntime() {
-            if (window.__machineLearnerPyodidePromise) {
-                return window.__machineLearnerPyodidePromise;
+        function getSession() {
+            if (typeof window.createMachineLearnerPythonSession !== 'function') {
+                throw new Error('The isolated Python session could not be created. Reload the page and try again.');
             }
-            if (typeof window.loadPyodide !== 'function') {
-                throw new Error('The browser Python runtime is still loading. Wait a moment and run again.');
+            if (!sandboxSession) {
+                sandboxSession = window.createMachineLearnerPythonSession('python-course');
             }
-            window.__machineLearnerPyodidePromise = window.loadPyodide({
-                indexURL: 'https://cdn.jsdelivr.net/pyodide/v314.0.2/full/'
-            });
-            return window.__machineLearnerPyodidePromise;
+            return sandboxSession;
         }
 
         async function runCode() {
@@ -244,20 +247,20 @@ print(f"recall={recall:.3f}")`
             if (resetButton) resetButton.disabled = true;
             if (status) status.textContent = 'Loading Python…';
             output.textContent = '';
-            const lines = [];
 
             try {
-                const pyodide = await getRuntime();
-                pyodide.setStdout({ batched: text => lines.push(text) });
-                pyodide.setStderr({ batched: text => lines.push(text) });
+                const session = getSession();
+                const packages = /(?:import|from)\s+numpy\b/.test(editor.value) ? ['numpy'] : [];
+                if (packages.length && status) status.textContent = 'Loading bundled NumPy…';
                 if (status) status.textContent = 'Running…';
-                await pyodide.loadPackagesFromImports(editor.value);
-                const result = await pyodide.runPythonAsync(editor.value);
-                if (result !== undefined && result !== null && lines.length === 0) {
-                    lines.push(String(result));
+                const result = await session.run(editor.value, { packages, reset: true });
+                if (result.stderr) {
+                    output.textContent = result.stderr;
+                    if (status) status.textContent = 'Needs attention';
+                } else {
+                    output.textContent = result.stdout || result.result || 'Code completed without printed output.';
+                    if (status) status.textContent = 'Complete';
                 }
-                output.textContent = lines.join('\n') || 'Code completed without printed output.';
-                if (status) status.textContent = 'Complete';
             } catch (error) {
                 output.textContent = String(error && error.message ? error.message : error);
                 if (status) status.textContent = 'Needs attention';
@@ -267,9 +270,16 @@ print(f"recall={recall:.3f}")`
             }
         }
 
-        select.addEventListener('change', loadSelectedExample);
+        select.addEventListener('change', () => {
+            destroySandbox();
+            loadSelectedExample();
+        });
         runButton.addEventListener('click', runCode);
-        if (resetButton) resetButton.addEventListener('click', loadSelectedExample);
+        if (resetButton) resetButton.addEventListener('click', () => {
+            destroySandbox();
+            loadSelectedExample();
+        });
+        window.addEventListener('pagehide', destroySandbox, { once: true });
         loadSelectedExample();
     }
 

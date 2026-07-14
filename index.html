@@ -18,7 +18,7 @@
             svg: { fontCache: 'global' }
         };
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    <script defer src="assets/vendor/onnxruntime-web/ort.wasm.min.js?v=1.27.0"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body data-theme="light">
@@ -5601,7 +5601,7 @@ except KeyError:
             <section id="python-course-lab" class="example-section python-course-lab">
                 <span class="depth-kicker">Run it in the browser</span>
                 <h2>Python concept lab</h2>
-                <p class="section-intro">Predict the result, run the example, then change one line. The NumPy examples load their package only when needed.</p>
+                <p class="section-intro">Predict the result, run the example, then change one line. Every run starts with a fresh Python namespace inside a dedicated browser worker with no page-DOM or external-network bridge; Python, NumPy, and their runtime files are bundled with the lesson.</p>
                 <div class="python-course-lab__grid">
                     <div class="python-course-editor">
                         <label for="pythonCourseExample">Example</label>
@@ -5643,7 +5643,7 @@ except KeyError:
 
             <section id="ipython-notebook" class="example-section notebook-section">
                 <h2>Jupyter-Style Math Notebook</h2>
-                <p class="section-intro">Work through the foundations topics in order. Each cell runs in a shared kernel for a practical hands-on workshop.</p>
+                <p class="section-intro">Work through the foundations topics in order. Notebook cells share only this notebook's private Python namespace inside a dedicated browser worker with no page-DOM or external-network bridge. Reset destroys that worker and the next run starts a clean sandbox.</p>
                 <div class="notebook-toolbar">
                     <div class="toolbar-left">
                         <span class="notebook-chip">Python kernel</span>
@@ -5808,20 +5808,21 @@ for step in range(6):
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [7]</span>
-                                <span class="cell-title">Plot a curve</span>
+                                <span class="cell-title">Plot a curve from Python values</span>
                             </div>
-                            <textarea class="cell-editor" rows="12" spellcheck="false">import matplotlib.pyplot as plt
-
-xs = [x / 10 for x in range(-30, 31)]
+                            <textarea class="cell-editor" rows="13" spellcheck="false">xs = [x / 10 for x in range(-30, 31)]
 ys = [x ** 2 - 2 * x + 1 for x in xs]
 
-plt.figure(figsize=(5, 3))
-plt.plot(xs, ys, label="f(x)=x^2-2x+1")
-plt.axhline(0, color="gray", linewidth=0.8)
-plt.scatter([1], [0], color="tomato", label="minimum")
-plt.title("Quadratic curve")
-plt.legend()
-plt.tight_layout()</textarea>
+_lesson_plot = {
+    "title": "Quadratic curve",
+    "x": xs,
+    "series": [
+        {"label": "f(x)=x²−2x+1", "y": ys}
+    ],
+    "points": [
+        {"x": 1, "y": 0, "label": "minimum"}
+    ]
+}</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -5888,23 +5889,24 @@ print("tanh =", [round(tanh(x), 3) for x in xs])</textarea>
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [10]</span>
-                                <span class="cell-title">Plot activation curves</span>
+                                <span class="cell-title">Plot activation curves from Python values</span>
                             </div>
-                            <textarea class="cell-editor" rows="13" spellcheck="false">import math
-import matplotlib.pyplot as plt
+                            <textarea class="cell-editor" rows="16" spellcheck="false">import math
 
 xs = [x / 10 for x in range(-50, 51)]
 sig = [1 / (1 + math.exp(-x)) for x in xs]
 rel = [x if x > 0 else 0 for x in xs]
 th = [math.tanh(x) for x in xs]
 
-plt.figure(figsize=(5, 3))
-plt.plot(xs, sig, label="sigmoid")
-plt.plot(xs, rel, label="relu")
-plt.plot(xs, th, label="tanh")
-plt.title("Activation curves")
-plt.legend()
-plt.tight_layout()</textarea>
+_lesson_plot = {
+    "title": "Activation curves",
+    "x": xs,
+    "series": [
+        {"label": "sigmoid", "y": sig},
+        {"label": "ReLU", "y": rel},
+        {"label": "tanh", "y": th}
+    ]
+}</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -6113,8 +6115,8 @@ except Exception:
 
                         <article class="notebook-cell markdown-cell">
                             <h4>What this demo does</h4>
-                            <p>Loads a tiny MNIST classifier and runs inference on simple 28x28 input patterns. No Python kernel required.</p>
-                            <p class="example-note">The validated MNIST model is bundled with this lesson and loaded as bytes before the runtime session is created. That keeps the demo working without retired CDN paths, redirects, or cross-origin model requests.</p>
+                            <p>Choose a handwritten-style digit, inspect its 28×28 pixels, and ask the model to classify it. No Python kernel is required.</p>
+                            <p class="example-note">The model, ONNX runtime, WebAssembly backend, Python runtime, and NumPy are bundled with this lesson. Notebook plots are rendered from Python-computed values by a local SVG helper, so the notebook and MNIST demo no longer depend on CDN modules or cross-origin model requests.</p>
                         </article>
 
                         <article class="notebook-cell onnx-demo-cell" id="onnxDemoCell">
@@ -6126,11 +6128,17 @@ except Exception:
                                 <div class="onnx-demo-controls">
                                     <label class="onnx-demo-label" for="onnxModelUrl">Model source (advanced)</label>
                                     <input class="onnx-demo-input" type="text" id="onnxModelUrl" value="assets/models/mnist-8.onnx" spellcheck="false">
-                                    <div class="toggle-group onnx-patterns" role="group" aria-label="Input pattern">
-                                        <button class="toggle-btn is-active" type="button" data-onnx-pattern="center">Center dot</button>
-                                        <button class="toggle-btn" type="button" data-onnx-pattern="diagonal">Diagonal</button>
-                                        <button class="toggle-btn" type="button" data-onnx-pattern="box">Box</button>
-                                        <button class="toggle-btn" type="button" data-onnx-pattern="noise">Noise</button>
+                                    <div class="toggle-group onnx-patterns" role="group" aria-label="Choose a digit">
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="0">0</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="1">1</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="2">2</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="3">3</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="4">4</button>
+                                        <button class="toggle-btn is-active" type="button" data-onnx-pattern="5">5</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="6">6</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="7">7</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="8">8</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="9">9</button>
                                     </div>
                                     <div class="onnx-demo-actions">
                                         <button class="notebook-btn" type="button" id="onnxDemoRun">Run inference</button>
@@ -6158,15 +6166,15 @@ except Exception:
         <p>All visualizations are interactive - click buttons to see animations!</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="python-sandbox-client.js?v=20260713-local-runtimes-4"></script>
+    <script src="script.js?v=20260713-local-runtimes-4"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
     <script src="math-foundation-course-data.js"></script>
     <script src="manim/scene-manifest.js"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/pyodide.js" defer></script>
     <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
-    <script src="learning-depth.js"></script>
+    <script src="learning-depth.js?v=20260713-local-runtimes-4"></script>
 </body>
 </html>
