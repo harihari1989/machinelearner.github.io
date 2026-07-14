@@ -10911,38 +10911,125 @@ function drawControlCharts() {
 }
 
 const notebookCompilerState = {
-    pyodidePromise: null
+    session: null
 };
 
-function loadPyodideScript() {
-    if (window.loadPyodide) return Promise.resolve();
-
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
-        script.async = true;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load the Python runtime.'));
-        document.head.appendChild(script);
-    });
+function ensureNotebookSession(statusEl) {
+    if (!notebookCompilerState.session) {
+        if (statusEl) statusEl.textContent = 'Starting isolated Python session...';
+        notebookCompilerState.session = window.createMachineLearnerPythonSession('notebook');
+    }
+    return notebookCompilerState.session;
 }
 
-async function ensureNotebookPyodide(statusEl) {
-    if (!notebookCompilerState.pyodidePromise) {
-        if (statusEl) statusEl.textContent = 'Loading Python runtime...';
-        notebookCompilerState.pyodidePromise = (async () => {
-            await loadPyodideScript();
-            const pyodide = await window.loadPyodide({
-                indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/'
-            });
-            await pyodide.runPythonAsync('notebook_globals = {}');
-            return pyodide;
-        })().catch(err => {
-            notebookCompilerState.pyodidePromise = null;
-            throw err;
-        });
+function buildNotebookPlot(spec) {
+    if (!spec || !Array.isArray(spec.x) || !Array.isArray(spec.series)) return null;
+
+    const xValues = spec.x.map(Number);
+    const series = spec.series
+        .map(item => ({
+            label: String(item?.label || 'series'),
+            values: Array.isArray(item?.y) ? item.y.map(Number) : []
+        }))
+        .filter(item => item.values.length === xValues.length);
+    const validX = xValues.filter(Number.isFinite);
+    const validY = series.flatMap(item => item.values).filter(Number.isFinite);
+    if (!validX.length || !validY.length || !series.length) return null;
+
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const width = 640;
+    const height = 360;
+    const margin = { top: 62, right: 28, bottom: 48, left: 58 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', String(spec.title || 'Python plot'));
+    svg.style.width = '100%';
+    svg.style.height = 'auto';
+    svg.style.color = 'var(--ink)';
+
+    const append = (tag, attributes = {}, text = '') => {
+        const element = document.createElementNS(svgNs, tag);
+        Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
+        if (text) element.textContent = text;
+        svg.appendChild(element);
+        return element;
+    };
+
+    append('title', {}, String(spec.title || 'Python plot'));
+    append('desc', {}, 'A plot generated from numeric values computed in the isolated Python session.');
+
+    let minX = Math.min(...validX);
+    let maxX = Math.max(...validX);
+    let minY = Math.min(...validY, 0);
+    let maxY = Math.max(...validY, 0);
+    if (minX === maxX) {
+        minX -= 1;
+        maxX += 1;
     }
-    return notebookCompilerState.pyodidePromise;
+    if (minY === maxY) {
+        minY -= 1;
+        maxY += 1;
+    }
+    const yPadding = (maxY - minY) * 0.08;
+    minY -= yPadding;
+    maxY += yPadding;
+
+    const mapX = value => margin.left + ((value - minX) / (maxX - minX)) * plotWidth;
+    const mapY = value => margin.top + plotHeight - ((value - minY) / (maxY - minY)) * plotHeight;
+    const formatTick = value => Math.abs(value) >= 100 ? value.toFixed(0) : Number(value.toFixed(2)).toString();
+
+    append('text', {
+        x: margin.left,
+        y: 24,
+        fill: 'var(--ink)',
+        'font-size': 17,
+        'font-weight': 700
+    }, String(spec.title || 'Python plot'));
+
+    for (let index = 0; index <= 5; index += 1) {
+        const ratio = index / 5;
+        const x = margin.left + ratio * plotWidth;
+        const y = margin.top + ratio * plotHeight;
+        const xValue = minX + ratio * (maxX - minX);
+        const yValue = maxY - ratio * (maxY - minY);
+        append('line', { x1: x, y1: margin.top, x2: x, y2: margin.top + plotHeight, stroke: 'var(--grid)', 'stroke-width': 1 });
+        append('line', { x1: margin.left, y1: y, x2: margin.left + plotWidth, y2: y, stroke: 'var(--grid)', 'stroke-width': 1 });
+        append('text', { x, y: margin.top + plotHeight + 22, fill: 'var(--ink-soft)', 'font-size': 11, 'text-anchor': 'middle' }, formatTick(xValue));
+        append('text', { x: margin.left - 10, y: y + 4, fill: 'var(--ink-soft)', 'font-size': 11, 'text-anchor': 'end' }, formatTick(yValue));
+    }
+
+    append('line', { x1: margin.left, y1: margin.top + plotHeight, x2: margin.left + plotWidth, y2: margin.top + plotHeight, stroke: 'var(--axis)', 'stroke-width': 1.5 });
+    append('line', { x1: margin.left, y1: margin.top, x2: margin.left, y2: margin.top + plotHeight, stroke: 'var(--axis)', 'stroke-width': 1.5 });
+
+    const colors = ['var(--accent-1)', 'var(--accent-2)', 'var(--accent-3)', 'var(--accent-4)'];
+    series.forEach((item, seriesIndex) => {
+        const color = colors[seriesIndex % colors.length];
+        const commands = [];
+        item.values.forEach((value, pointIndex) => {
+            const xValue = xValues[pointIndex];
+            if (!Number.isFinite(xValue) || !Number.isFinite(value)) return;
+            commands.push(`${commands.length ? 'L' : 'M'} ${mapX(xValue).toFixed(2)} ${mapY(value).toFixed(2)}`);
+        });
+        append('path', { d: commands.join(' '), fill: 'none', stroke: color, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+        const legendX = margin.left + seriesIndex * 150;
+        append('line', { x1: legendX, y1: 45, x2: legendX + 22, y2: 45, stroke: color, 'stroke-width': 3 });
+        append('text', { x: legendX + 28, y: 49, fill: 'var(--ink-soft)', 'font-size': 11 }, item.label);
+    });
+
+    (Array.isArray(spec.points) ? spec.points : []).forEach(point => {
+        const x = Number(point?.x);
+        const y = Number(point?.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+        append('circle', { cx: mapX(x), cy: mapY(y), r: 4.5, fill: 'var(--accent-2)', stroke: 'var(--panel-bg)', 'stroke-width': 2 });
+        if (point.label) {
+            append('text', { x: mapX(x) + 8, y: mapY(y) - 8, fill: 'var(--ink)', 'font-size': 11 }, String(point.label));
+        }
+    });
+
+    return svg;
 }
 
 async function runNotebookCode(code, outputEl, statusEl) {
@@ -10959,42 +11046,13 @@ async function runNotebookCode(code, outputEl, statusEl) {
     outputEl.classList.remove('has-error');
     if (statusEl) statusEl.textContent = 'Loading Python runtime...';
 
-    let pyodide;
+    let session;
     try {
-        pyodide = await ensureNotebookPyodide(statusEl);
-        const wantsPlot = /matplotlib|plt\./.test(code);
-        if (wantsPlot && pyodide.loadPackage) {
-            if (statusEl) statusEl.textContent = 'Loading matplotlib...';
-            await pyodide.loadPackage('matplotlib');
-        }
+        session = ensureNotebookSession(statusEl);
+        const wantsPlot = /_lesson_plot\s*=/.test(code);
+        if (wantsPlot && statusEl) statusEl.textContent = 'Preparing local plot...';
         if (statusEl) statusEl.textContent = 'Running...';
-        pyodide.globals.set('code', code);
-        const resultJson = await pyodide.runPythonAsync(`
-import sys, io, traceback, json
-_stdout = io.StringIO()
-_stderr = io.StringIO()
-_svg = ""
-sys.stdout = _stdout
-sys.stderr = _stderr
-try:
-    exec(code, notebook_globals)
-    try:
-        import matplotlib.pyplot as plt
-        if plt.get_fignums():
-            _buf = io.StringIO()
-            plt.savefig(_buf, format="svg")
-            _svg = _buf.getvalue()
-            plt.close("all")
-    except Exception:
-        pass
-except Exception:
-    traceback.print_exc()
-finally:
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
-json.dumps({"stdout": _stdout.getvalue(), "stderr": _stderr.getvalue(), "svg": _svg})
-        `);
-        const result = JSON.parse(resultJson);
+        const result = await session.run(code);
         if (result.stderr) {
             outputEl.textContent = result.stderr;
             outputEl.classList.add('has-error');
@@ -11002,20 +11060,20 @@ json.dumps({"stdout": _stdout.getvalue(), "stderr": _stderr.getvalue(), "svg": _
             outputEl.classList.remove('has-error');
             outputEl.innerHTML = '';
             const hasText = result.stdout && result.stdout.trim();
-            const hasSvg = result.svg && result.svg.trim();
+            const plot = buildNotebookPlot(result.plot);
             if (hasText) {
                 const textBlock = document.createElement('pre');
                 textBlock.className = 'cell-output-text';
                 textBlock.textContent = result.stdout;
                 outputEl.appendChild(textBlock);
             }
-            if (hasSvg) {
+            if (plot) {
                 const figure = document.createElement('div');
                 figure.className = 'cell-output-figure';
-                figure.innerHTML = result.svg;
+                figure.appendChild(plot);
                 outputEl.appendChild(figure);
             }
-            if (!hasText && !hasSvg) {
+            if (!hasText && !plot) {
                 outputEl.textContent = 'No output.';
             }
         }
@@ -11024,17 +11082,13 @@ json.dumps({"stdout": _stdout.getvalue(), "stderr": _stderr.getvalue(), "svg": _
         outputEl.textContent = err?.message || String(err);
         outputEl.classList.add('has-error');
         if (statusEl) statusEl.textContent = 'Error.';
-    } finally {
-        if (pyodide) {
-            pyodide.globals.delete('code');
-        }
     }
 }
 
 async function resetNotebookKernel(statusEl, outputEls = []) {
     if (!statusEl) return;
-    if (!notebookCompilerState.pyodidePromise) {
-        statusEl.textContent = 'Kernel will reset after first run.';
+    if (!notebookCompilerState.session) {
+        statusEl.textContent = 'A fresh isolated session will start on the next run.';
         outputEls.forEach(outputEl => {
             outputEl.textContent = '';
             outputEl.classList.remove('has-error');
@@ -11043,9 +11097,9 @@ async function resetNotebookKernel(statusEl, outputEls = []) {
     }
 
     try {
-        const pyodide = await notebookCompilerState.pyodidePromise;
-        await pyodide.runPythonAsync('notebook_globals = {}');
-        statusEl.textContent = 'Kernel reset.';
+        notebookCompilerState.session.destroy();
+        notebookCompilerState.session = null;
+        statusEl.textContent = 'Session destroyed. A fresh sandbox will start on the next run.';
         outputEls.forEach(outputEl => {
             outputEl.textContent = '';
             outputEl.classList.remove('has-error');
@@ -11653,8 +11707,13 @@ function setupOnnxDemo() {
     const scale = canvas.width / size;
     let session = null;
     let sessionUrl = '';
-    let currentPattern = 'center';
+    let sessionRequestUrl = '';
+    let sessionUsedFallback = false;
+    let currentPattern = '5';
     let currentData = null;
+    const validatedModelSources = [
+        'assets/models/mnist-8.onnx'
+    ];
 
     const setStatus = (text) => {
         if (statusEl) statusEl.textContent = text;
@@ -11673,29 +11732,34 @@ function setupOnnxDemo() {
     };
 
     const buildPattern = (name) => {
+        const digit = /^\d$/.test(name) ? name : '5';
+        const sourceCanvas = document.createElement('canvas');
+        sourceCanvas.width = 112;
+        sourceCanvas.height = 112;
+        const sourceContext = sourceCanvas.getContext('2d');
+        const sampleCanvas = document.createElement('canvas');
+        sampleCanvas.width = size;
+        sampleCanvas.height = size;
+        const sampleContext = sampleCanvas.getContext('2d', { willReadFrequently: true });
+        if (!sourceContext || !sampleContext) return new Float32Array(size * size);
+
+        sourceContext.fillStyle = '#000';
+        sourceContext.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+        sourceContext.fillStyle = '#fff';
+        sourceContext.font = '900 92px "Arial Rounded MT Bold", Arial, sans-serif';
+        sourceContext.textAlign = 'center';
+        sourceContext.textBaseline = 'middle';
+        sourceContext.fillText(digit, sourceCanvas.width / 2, sourceCanvas.height / 2 + 4);
+
+        sampleContext.fillStyle = '#000';
+        sampleContext.fillRect(0, 0, size, size);
+        sampleContext.imageSmoothingEnabled = true;
+        sampleContext.imageSmoothingQuality = 'high';
+        sampleContext.drawImage(sourceCanvas, 0, 0, size, size);
+        const pixels = sampleContext.getImageData(0, 0, size, size).data;
         const data = new Float32Array(size * size);
-        if (name === 'center') {
-            for (let r = 12; r <= 15; r += 1) {
-                for (let c = 12; c <= 15; c += 1) {
-                    data[r * size + c] = 1;
-                }
-            }
-        } else if (name === 'diagonal') {
-            for (let i = 0; i < size; i += 1) {
-                data[i * size + i] = 1;
-                if (i + 1 < size) data[i * size + i + 1] = 0.6;
-            }
-        } else if (name === 'box') {
-            for (let i = 7; i <= 20; i += 1) {
-                data[7 * size + i] = 1;
-                data[20 * size + i] = 1;
-                data[i * size + 7] = 1;
-                data[i * size + 20] = 1;
-            }
-        } else if (name === 'noise') {
-            for (let i = 0; i < data.length; i += 1) {
-                data[i] = Math.random();
-            }
+        for (let index = 0; index < data.length; index += 1) {
+            data[index] = pixels[index * 4] / 255;
         }
         return data;
     };
@@ -11740,9 +11804,40 @@ function setupOnnxDemo() {
     const ensureOrtEnv = () => {
         if (!window.ort || !window.ort.env || !window.ort.env.wasm) return;
         window.ort.env.wasm.numThreads = 1;
-        if (!window.ort.env.wasm.wasmPaths) {
-            window.ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/';
+        window.ort.env.wasm.proxy = false;
+        window.ort.env.wasm.jspi = false;
+        window.ort.env.wasm.wasmPaths = new URL('assets/vendor/onnxruntime-web/', document.baseURI).href;
+    };
+
+    const fetchModelBytes = async (url) => {
+        const sourceHost = new URL(url, window.location.href).hostname || 'local source';
+        const response = await fetch(url, { cache: 'force-cache' });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} from ${sourceHost}`);
         }
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        const prefix = new TextDecoder().decode(bytes.slice(0, 180)).trim().toLowerCase();
+        if (bytes.byteLength < 1024 || prefix.startsWith('<!doctype') || prefix.startsWith('<html') || prefix.includes('git-lfs.github.com/spec')) {
+            throw new Error(`The response from ${sourceHost} was not a complete ONNX model`);
+        }
+        return bytes;
+    };
+
+    const createValidatedSession = async (requestedUrl) => {
+        const sources = [...new Set([requestedUrl, ...validatedModelSources].filter(Boolean))];
+        const failures = [];
+        for (let index = 0; index < sources.length; index += 1) {
+            const source = sources[index];
+            try {
+                setStatus(index === 0 ? 'Fetching model bytes…' : 'Trying validated fallback…');
+                const modelBytes = await fetchModelBytes(source);
+                const loadedSession = await window.ort.InferenceSession.create(modelBytes, { executionProviders: ['wasm'] });
+                return { loadedSession, source, usedFallback: index > 0 };
+            } catch (error) {
+                failures.push(error?.message || String(error));
+            }
+        }
+        throw new Error(`Unable to load a valid MNIST model. ${failures.join(' · ')}`);
     };
 
     const runInference = async () => {
@@ -11763,9 +11858,12 @@ function setupOnnxDemo() {
             if (!modelUrl) {
                 throw new Error('Model URL is empty.');
             }
-            if (!session || sessionUrl !== modelUrl) {
-                session = await window.ort.InferenceSession.create(modelUrl, { executionProviders: ['wasm'] });
-                sessionUrl = modelUrl;
+            if (!session || sessionRequestUrl !== modelUrl) {
+                const loaded = await createValidatedSession(modelUrl);
+                session = loaded.loadedSession;
+                sessionUrl = loaded.source;
+                sessionRequestUrl = modelUrl;
+                sessionUsedFallback = loaded.usedFallback;
             }
 
             if (!currentData) {
@@ -11790,8 +11888,12 @@ function setupOnnxDemo() {
                 .slice(0, 3)
                 .map(item => `${item.index} (${(item.value * 100).toFixed(1)}%)`);
 
-            setOutput(`Top predictions: ${ranked.join(', ')}`);
-            setStatus('Done.');
+            setOutput(`Input digit ${currentPattern} · top predictions: ${ranked.join(', ')}`);
+            const sourceUrl = new URL(sessionUrl, window.location.href);
+            const sourceLabel = sourceUrl.origin === window.location.origin
+                ? 'bundled model'
+                : sourceUrl.hostname.replace('www.', '');
+            setStatus(`${sessionUsedFallback ? 'Done using validated fallback' : 'Done'} · ${sourceLabel}`);
         } catch (err) {
             setOutput(`Error: ${err?.message || err}`, true);
             setStatus('Error.');
@@ -11804,8 +11906,8 @@ function setupOnnxDemo() {
     patternButtons.forEach(button => {
         button.addEventListener('click', () => {
             setPattern(button.dataset.onnxPattern);
-            setOutput('Output will appear here.');
-            setStatus('Ready.');
+            setOutput(`Digit ${button.dataset.onnxPattern} selected. Run inference to classify it.`);
+            setStatus(`Digit ${button.dataset.onnxPattern} ready.`);
         });
     });
 
@@ -11813,7 +11915,7 @@ function setupOnnxDemo() {
         const defaultUrl = urlInput.value;
         resetBtn.addEventListener('click', () => {
             urlInput.value = defaultUrl;
-            setPattern('center');
+            setPattern('5');
             setOutput('Output will appear here.');
             setStatus('Reset.');
         });

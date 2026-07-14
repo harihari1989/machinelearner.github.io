@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="math-deep-dive.css">
     <link rel="stylesheet" href="math-foundations-lab.css">
+    <link rel="stylesheet" href="learning-depth.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         window.MathJax = {
@@ -17,7 +18,7 @@
             svg: { fontCache: 'global' }
         };
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    <script defer src="assets/vendor/onnxruntime-web/ort.wasm.min.js?v=1.27.0"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body data-theme="light">
@@ -39,6 +40,7 @@
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="math-deep-dive">Math Deep Dive</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml">Machine Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="python">Python for ML</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning">Reinforcement Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="notebook">Notebook Lab</button>
@@ -123,6 +125,25 @@
                         </div>
                     </div>
                 </div>
+                <article class="mitchell-definition" aria-labelledby="mitchell-foundations-title">
+                    <div class="definition-copy">
+                        <span class="depth-kicker">A precise test for learning</span>
+                        <h3 id="mitchell-foundations-title">Tom Mitchell's experience–task–performance definition</h3>
+                        <p>Tom Mitchell frames learning as improvement: a program learns from <strong>experience (E)</strong> when its measured <strong>performance (P)</strong> on a <strong>task (T)</strong> gets better. This is more useful than saying a system merely “uses data,” because every word can be made concrete and tested.</p>
+                        <p><strong>Learning is not memorizing.</strong> The real test is whether experience helps on fresh cases that were not used to adjust the model.</p>
+                    </div>
+                    <div class="etp-flow" aria-label="Experience changes a learning program and improves measured performance on a task">
+                        <div class="etp-node"><span>E</span><strong>Experience</strong><small>examples, feedback, interactions</small></div>
+                        <span class="etp-arrow" aria-hidden="true">→</span>
+                        <div class="etp-node etp-model"><span>Learn</span><strong>Program</strong><small>updates its internal parameters</small></div>
+                        <span class="etp-arrow" aria-hidden="true">→</span>
+                        <div class="etp-node"><span>P on T</span><strong>Improvement</strong><small>measured on unseen cases</small></div>
+                    </div>
+                    <div class="etp-example">
+                        <strong>Spam-filter example</strong>
+                        <p><b>(T)</b>: classify inbox messages. <b>(E)</b>: messages marked spam or not spam. <b>(P)</b>: precision and recall on later mail. If those scores improve after seeing more labeled messages, the filter learned by this definition.</p>
+                    </div>
+                </article>
                 <div class="ai-categories">
                     <h3>AI categories in practice</h3>
                     <p class="section-intro">Different AI families focus on different parts of the loop, but they often work together.</p>
@@ -154,6 +175,7 @@
                     </div>
                     <p class="ai-category-note">Most real systems blend categories, such as robots that plan with search and see with deep learning.</p>
                 </div>
+                <p class="reference-strip"><strong>Reference:</strong> <a href="https://www.cs.cmu.edu/~tom/book.html" target="_blank" rel="noopener">Tom Mitchell, <em>Machine Learning</em> (Carnegie Mellon University)</a>.</p>
             </section>
 
             <!-- Foundations Section -->
@@ -191,6 +213,43 @@
                         <p>Compute gradients for whole batches at once.</p>
                         <span class="path-goal">Goal: track shapes and vectorized rules.</span>
                     </div>
+                </div>
+                <div class="intuition-atlas" aria-label="Five mathematical ideas from intuition to machine learning">
+                    <article class="intuition-atlas-card">
+                        <span class="depth-kicker">Represent</span>
+                        <h3>Linear algebra is geometry with coordinates</h3>
+                        <p><strong>Picture:</strong> a vector is a location or directed move; a matrix is a rule that moves every vector consistently.</p>
+                        <p><strong>Build:</strong> each output coordinate is a dot product between one row of \(W\) and the input \(\mathbf{x}\). Large aligned weights amplify a feature; opposite signs suppress it.</p>
+                        <p><strong>ML bridge:</strong> \(W\mathbf{x}+\mathbf b\) mixes input evidence into learned features. Shape tells the story: \(W\in\mathbb R^{m\times d}\) turns \(d\) inputs into \(m\) outputs.</p>
+                    </article>
+                    <article class="intuition-atlas-card">
+                        <span class="depth-kicker">Measure change</span>
+                        <h3>Calculus asks “what would a tiny nudge do?”</h3>
+                        <p><strong>Picture:</strong> zoom into a smooth curve until it looks straight. The slope of that local line is the derivative.</p>
+                        <p><strong>Build:</strong> \(f'(x)=\lim_{h\to0}[f(x+h)-f(x)]/h\). A gradient collects one such sensitivity for every input direction.</p>
+                        <p><strong>ML bridge:</strong> \(\partial L/\partial w_j\) predicts how loss changes after nudging weight \(w_j\). Its sign chooses direction; its magnitude measures sensitivity.</p>
+                    </article>
+                    <article class="intuition-atlas-card">
+                        <span class="depth-kicker">Improve</span>
+                        <h3>Optimization turns sensitivity into a move</h3>
+                        <p><strong>Picture:</strong> on a foggy hillside you cannot see the valley, but the local slope still tells which way is downhill.</p>
+                        <p><strong>Build:</strong> \(\theta_{t+1}=\theta_t-\eta\nabla L(\theta_t)\). The minus sign reverses uphill; \(\eta\) decides how much of the proposed move to trust.</p>
+                        <p><strong>ML bridge:</strong> repeated mini-batch estimates trade exactness for fast, useful progress. Momentum averages recent directions so noisy steps do not zigzag as much.</p>
+                    </article>
+                    <article class="intuition-atlas-card">
+                        <span class="depth-kicker">Reason under uncertainty</span>
+                        <h3>Probability separates possibility from belief</h3>
+                        <p><strong>Picture:</strong> a distribution spreads one unit of belief across competing outcomes. Evidence moves that belief; it does not create certainty from nowhere.</p>
+                        <p><strong>Build:</strong> Bayes' rule \(p(h\mid d)\propto p(d\mid h)p(h)\) combines prior plausibility with how expected the data is under each hypothesis.</p>
+                        <p><strong>ML bridge:</strong> calibration asks whether events predicted at 80% really happen about 80% of the time. Accuracy alone cannot answer that.</p>
+                    </article>
+                    <article class="intuition-atlas-card">
+                        <span class="depth-kicker">Scale up</span>
+                        <h3>Matrix calculus is careful bookkeeping</h3>
+                        <p><strong>Picture:</strong> a computation graph is a network of local cause-and-effect statements. Backprop sends one “responsibility signal” backward through each edge.</p>
+                        <p><strong>Build:</strong> Jacobians record how every output responds to every input. Vector–Jacobian products compute the needed gradient without materializing a giant Jacobian.</p>
+                        <p><strong>ML bridge:</strong> transposes are not decoration: they reverse the direction of a linear map so output responsibility can be assigned back to inputs and weights.</p>
+                    </article>
                 </div>
                 <div class="content-grid fundamentals-grid">
                     <div class="explanation">
@@ -1907,46 +1966,86 @@
 
             <section id="ml-intro" class="example-section">
                 <h2>What is Machine Learning?</h2>
-                <p class="section-intro">Machine learning is the study of systems that learn patterns from data to make predictions or decisions without being explicitly programmed for each case.</p>
-                <div class="content-grid">
+                <p class="section-intro">A model has learned only when experience produces measurable improvement on a defined task—not merely when it stores the training examples.</p>
+
+                <article class="mitchell-definition mitchell-definition--ml">
+                    <div class="definition-copy">
+                        <span class="depth-kicker">The operational definition</span>
+                        <h3>Specify (T), (E), and (P) before choosing an algorithm</h3>
+                        <p>In Tom Mitchell's framework, a computer program learns when <strong>experience (E)</strong> improves <strong>performance (P)</strong> at <strong>task (T)</strong>. The definition forces a vague goal—“make it intelligent”—into a claim that an experiment can confirm or reject.</p>
+                    </div>
+                    <div class="etp-example etp-example--wide">
+                        <strong>House-price example</strong>
+                        <div class="etp-example-grid">
+                            <p><b>Task (T)</b><span>Predict the sale price of a new house from its features.</span></p>
+                            <p><b>Experience (E)</b><span>Past homes with size, location, age, and sale price.</span></p>
+                            <p><b>Performance (P)</b><span>Lower mean absolute error on held-out future sales.</span></p>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="content-grid depth-content-grid">
                     <div class="explanation">
-                        <h3>Definition</h3>
-                        <p>Given data \(x\) and outcomes \(y\), machine learning finds a function \(f_\theta\) that maps inputs to outputs by optimizing parameters \(\theta\) to reduce error.</p>
+                        <span class="depth-kicker">From examples to a rule</span>
+                        <h3>The learning loop, one idea at a time</h3>
+                        <ol class="deep-step-list">
+                            <li><strong>Represent the case.</strong> Features \(\mathbf x\) turn a house, image, or sentence into numbers a model can operate on.</li>
+                            <li><strong>Make a guess.</strong> A parameterized function \(f_\theta(\mathbf x)\) produces prediction \(\hat y\). Parameters \(\theta\) are the adjustable parts.</li>
+                            <li><strong>Measure the miss.</strong> A loss \(\mathcal L(\hat y,y)\) converts “how wrong?” into a number. The loss defines what improvement means during training.</li>
+                            <li><strong>Assign responsibility.</strong> Optimization estimates which parameter changes would lower loss, then updates \(\theta\).</li>
+                            <li><strong>Test the rule elsewhere.</strong> Validation and test data reveal whether the model learned a reusable pattern or memorized accidents in the training set.</li>
+                        </ol>
                         <div class="math-formula">
                             \[
-                            \theta^* = \arg\min_\theta \frac{1}{n} \sum_{i=1}^{n} \mathcal{L}(f_\theta(x_i), y_i)
+                            \theta^* = \arg\min_\theta \frac{1}{n}\sum_{i=1}^{n}\mathcal L\big(f_\theta(\mathbf x_i),y_i\big)
                             \]
                         </div>
-                        <h3>How it works (intuitive)</h3>
-                        <ul class="concept-bullets">
-                            <li><strong>Observe</strong>: collect examples and features.</li>
-                            <li><strong>Learn</strong>: fit a model that captures patterns.</li>
-                            <li><strong>Evaluate</strong>: test on new data to check generalization.</li>
-                            <li><strong>Use</strong>: deploy the model to make predictions.</li>
-                        </ul>
+                        <p>The equation says: among the allowed models, search for parameters whose predictions have the smallest average training penalty. It does <em>not</em> guarantee useful behavior on new data; data quality, evaluation design, regularization, and assumptions about the future provide that bridge.</p>
                     </div>
-                    <div class="visualization">
-                        <div class="guide-stack">
-                            <article class="guide-card">
-                                <h4>Supervised learning</h4>
-                                <p>Learn from labeled examples to predict targets or classes.</p>
-                            </article>
-                            <article class="guide-card">
-                                <h4>Unsupervised learning</h4>
-                                <p>Discover structure or clusters without labels.</p>
-                            </article>
-                            <article class="guide-card">
-                                <h4>Self-supervised learning</h4>
-                                <p>Generate labels from data itself to learn useful representations.</p>
-                            </article>
+                    <div class="visualization generalization-lab">
+                        <div class="generalization-lab__header">
+                            <div><span class="depth-kicker">Interactive intuition</span><h3>Fit versus generalize</h3></div>
+                            <strong id="complexityLabel">Balanced model</strong>
                         </div>
+                        <canvas id="generalizationCanvas" width="560" height="310" role="img" aria-label="Training points, test points, and a model curve whose complexity changes with the slider"></canvas>
+                        <label for="complexityRange">Model flexibility <span id="complexityValue">5</span></label>
+                        <input id="complexityRange" type="range" min="1" max="9" step="1" value="5">
+                        <p id="generalizationReadout" aria-live="polite">Enough flexibility to follow the signal without chasing every noisy point.</p>
                     </div>
                 </div>
+
+                <div class="ml-vocabulary" aria-label="Machine learning vocabulary translated into plain language">
+                    <article><strong>Feature</strong><span>one measured clue, such as size or pixel brightness</span></article>
+                    <article><strong>Label / target</strong><span>the answer the supervised model is asked to predict</span></article>
+                    <article><strong>Model</strong><span>a family of possible input-to-output rules</span></article>
+                    <article><strong>Parameter</strong><span>a number learned from data, such as a weight</span></article>
+                    <article><strong>Hyperparameter</strong><span>a choice that controls learning, such as tree depth or step size</span></article>
+                    <article><strong>Loss</strong><span>the training penalty assigned to a prediction</span></article>
+                    <article><strong>Metric</strong><span>the real-world score used to judge success</span></article>
+                    <article><strong>Generalization</strong><span>useful performance on new examples from the intended setting</span></article>
+                </div>
+
+                <div class="learning-family-flow">
+                    <article><span>Answers supplied</span><h4>Supervised learning</h4><p>Learn an input-to-target mapping from labeled examples. Regression predicts quantities; classification predicts categories.</p></article>
+                    <article><span>No target supplied</span><h4>Unsupervised learning</h4><p>Find structure such as clusters, lower-dimensional coordinates, or unusual cases. The result still needs human interpretation.</p></article>
+                    <article><span>Data supplies its own task</span><h4>Self-supervised learning</h4><p>Hide, corrupt, or predict part of the data so the system learns representations before a downstream task.</p></article>
+                    <article><span>Consequences supply feedback</span><h4>Reinforcement learning</h4><p>Choose actions, observe rewards and new states, and learn a policy that improves long-run return.</p></article>
+                </div>
+                <p class="reference-strip"><strong>Read next:</strong> <a href="https://www.cs.cmu.edu/~tom/book.html" target="_blank" rel="noopener">Mitchell's machine-learning text</a>, <a href="https://developers.google.com/machine-learning/crash-course" target="_blank" rel="noopener">Google's visual ML course</a>, and the <a href="https://scikit-learn.org/stable/user_guide" target="_blank" rel="noopener">scikit-learn user guide</a>.</p>
             </section>
 
             <!-- Machine Learning Algorithms Section -->
             <section id="ml-algorithms" class="example-section">
                 <h2>Machine Learning Algorithms</h2>
+                <p class="section-intro">Algorithms differ mainly in the shape of rule they can express and the assumptions they make about useful structure.</p>
+                <div class="algorithm-intuition-grid">
+                    <article><span class="algorithm-mark algorithm-mark--line" aria-hidden="true"></span><h3>Regression: draw a trend</h3><p>Choose a line or curve that keeps prediction residuals small. Regularization prefers a simpler trend unless extra complexity earns enough error reduction.</p></article>
+                    <article><span class="algorithm-mark algorithm-mark--split" aria-hidden="true"></span><h3>Classification: divide a space</h3><p>Each feature is an axis. A classifier learns boundaries that place different labels in different regions, then reports a class or probability.</p></article>
+                    <article><span class="algorithm-mark algorithm-mark--questions" aria-hidden="true"></span><h3>Trees: ask useful questions</h3><p>Each split asks one yes/no question. Training chooses questions that make the child groups purer; a path from root to leaf becomes an explanation.</p></article>
+                    <article><span class="algorithm-mark algorithm-mark--neighbors" aria-hidden="true"></span><h3>Nearest neighbors: compare cases</h3><p>Nearby examples vote or average. “Nearby” depends entirely on the distance and feature scaling, so representation is part of the algorithm.</p></article>
+                    <article><span class="algorithm-mark algorithm-mark--clusters" aria-hidden="true"></span><h3>Clustering: find prototypes</h3><p>Alternately assign points to the closest center and move each center to its assigned mean. The loop shrinks within-cluster distance.</p></article>
+                    <article><span class="algorithm-mark algorithm-mark--vote" aria-hidden="true"></span><h3>Ensembles: combine imperfect views</h3><p>Averaging weakly correlated errors can reduce variance. Bagging trains peers on resampled data; boosting trains each learner to repair earlier mistakes.</p></article>
+                </div>
                 <div class="content-grid">
                     <div class="explanation">
                         <h3>Common algorithm families</h3>
@@ -2452,6 +2551,7 @@
         <section class="chapter" data-chapter="neural">
             <nav class="chapter-nav" aria-label="Neural network sections">
                 <a href="#neural-network">Overview</a>
+                <a href="#neural-intuition">Build a neuron</a>
                 <a href="#backprop">Backpropagation</a>
                 <a href="#transformer-advanced">Transformer Deep Dive</a>
             </nav>
@@ -2460,6 +2560,68 @@
             <section id="neural-network" class="example-section">
                 <h2>Neural Networks: From Neurons to Transformers</h2>
             <p class="section-intro">Zoom in from a single neuron all the way up to deep networks, CNNs, RNNs, LSTMs, and transformers. Each module walks step-by-step and animates the flow.</p>
+
+            <div class="neural-intuition" id="neural-intuition">
+                <div class="explanation">
+                    <span class="depth-kicker">Start with one computational unit</span>
+                    <h3>A neuron is a learnable evidence meter</h3>
+                    <p>The name is historical; the useful mental model is an adjustable function. It receives clues, decides how much each clue matters, adds a baseline preference, and passes the score through a gate.</p>
+                </div>
+                <div class="neuron-evidence-flow" aria-label="Inputs are weighted, added with a bias, then passed through an activation">
+                    <div class="neuron-flow-node"><span>\(x_1,x_2,\ldots,x_d\)</span><strong>Inputs</strong><small>measured evidence</small></div>
+                    <span class="neuron-flow-arrow" aria-hidden="true">→</span>
+                    <div class="neuron-flow-node"><span>\(w_ix_i\)</span><strong>Weights</strong><small>importance and direction</small></div>
+                    <span class="neuron-flow-arrow" aria-hidden="true">→</span>
+                    <div class="neuron-flow-node"><span>\(z=\sum_iw_ix_i+b\)</span><strong>Score</strong><small>evidence plus baseline</small></div>
+                    <span class="neuron-flow-arrow" aria-hidden="true">→</span>
+                    <div class="neuron-flow-node"><span>\(a=\phi(z)\)</span><strong>Activation</strong><small>the response rule</small></div>
+                </div>
+                <div class="neural-deep-grid">
+                    <article>
+                        <span class="depth-kicker">Why weights?</span>
+                        <h4>They encode relevance and direction</h4>
+                        <p>A positive weight makes the output rise when its feature rises. A negative weight makes it fall. A near-zero weight makes that feature almost irrelevant. Training discovers these values from examples.</p>
+                    </article>
+                    <article>
+                        <span class="depth-kicker">Why a bias?</span>
+                        <h4>It moves the threshold</h4>
+                        <p>Without \(b\), every linear boundary must pass through the origin. Bias lets the neuron prefer “on” or “off” before seeing evidence and place its decision boundary where the data requires.</p>
+                    </article>
+                    <article>
+                        <span class="depth-kicker">Why an activation?</span>
+                        <h4>It lets layers bend</h4>
+                        <p>Stacking linear maps alone collapses to one linear map: \(W_2(W_1x)=W'x\). A nonlinear \(\phi\) breaks that collapse, letting many simple boundaries combine into curved, disconnected regions.</p>
+                    </article>
+                    <article>
+                        <span class="depth-kicker">Why layers?</span>
+                        <h4>They compose reusable features</h4>
+                        <p>Early image layers can respond to oriented edges; later layers combine those responses into textures, parts, and task-specific patterns. Depth means composition, not automatic understanding.</p>
+                    </article>
+                </div>
+                <div class="training-loop-visual" aria-label="Forward pass, loss, backward pass, parameter update, and repeat">
+                    <article><b>1</b><strong>Forward</strong><span>current weights make a prediction</span></article>
+                    <i aria-hidden="true">→</i>
+                    <article><b>2</b><strong>Loss</strong><span>compare prediction with the target</span></article>
+                    <i aria-hidden="true">→</i>
+                    <article><b>3</b><strong>Backward</strong><span>chain rule assigns responsibility</span></article>
+                    <i aria-hidden="true">→</i>
+                    <article><b>4</b><strong>Update</strong><span>move weights a small downhill step</span></article>
+                    <i aria-hidden="true">↺</i>
+                </div>
+                <div class="backprop-plain-language">
+                    <h3>Backpropagation in plain language</h3>
+                    <p>Suppose the final loss changes by \(dL\). The output layer knows how its output changed with its input; the previous layer knows the same local relationship for its own operation. The chain rule multiplies those local sensitivities, so each parameter receives \(\partial L/\partial w\): the predicted loss change per tiny change in that weight. Backprop is the efficient reuse of these backward signals, not a separate learning objective.</p>
+                    <div class="math-formula math-mini">
+                        \[
+                        \frac{\partial L}{\partial w}
+                        =\frac{\partial L}{\partial a}
+                        \frac{\partial a}{\partial z}
+                        \frac{\partial z}{\partial w}
+                        \]
+                    </div>
+                </div>
+                <p class="reference-strip"><strong>Explore further:</strong> <a href="https://developers.google.com/machine-learning/crash-course/neural-networks" target="_blank" rel="noopener">neural-network foundations</a>, <a href="https://developers.google.com/machine-learning/crash-course/neural-networks/backpropagation" target="_blank" rel="noopener">backpropagation</a>, <a href="https://playground.tensorflow.org/" target="_blank" rel="noopener">an interactive decision-boundary playground</a>, and <a href="https://distill.pub/2017/feature-visualization/" target="_blank" rel="noopener">feature visualization</a>.</p>
+            </div>
 
             <div class="neural-module">
                 <div class="content-grid">
@@ -5310,6 +5472,163 @@ actions(state) -&gt; action list
             </section>
         </section>
 
+        <section class="chapter python-course" data-chapter="python">
+            <nav class="chapter-nav" aria-label="Python for machine learning sections">
+                <a href="#python-mental-model">Mental model</a>
+                <a href="#python-core">Core language</a>
+                <a href="#python-data">Data thinking</a>
+                <a href="#python-libraries">Libraries</a>
+                <a href="#python-course-lab">Python lab</a>
+            </nav>
+
+            <section id="python-mental-model" class="example-section">
+                <span class="depth-kicker">Python for machine learning</span>
+                <h2>Learn the language as a data pipeline</h2>
+                <p class="section-intro">Python is the glue around the mathematics: it loads observations, represents them as objects, transforms them with functions, and connects numerical libraries into reproducible experiments.</p>
+                <div class="python-pipeline" aria-label="Python source code creates objects, applies operations, and produces results">
+                    <article><b>1</b><strong>Source</strong><span>readable statements and expressions</span></article>
+                    <i aria-hidden="true">→</i>
+                    <article><b>2</b><strong>Objects</strong><span>values with a type and identity</span></article>
+                    <i aria-hidden="true">→</i>
+                    <article><b>3</b><strong>Operations</strong><span>functions transform or combine values</span></article>
+                    <i aria-hidden="true">→</i>
+                    <article><b>4</b><strong>Evidence</strong><span>outputs, plots, metrics, and tests</span></article>
+                </div>
+                <div class="content-grid depth-content-grid">
+                    <div class="explanation">
+                        <h3>The five ideas beneath most Python code</h3>
+                        <ol class="deep-step-list">
+                            <li><strong>A name points to an object.</strong> In <code>loss = 0.42</code>, <code>loss</code> is a name bound to a floating-point object. Assignment is not an algebraic equation.</li>
+                            <li><strong>A type defines valid behavior.</strong> Numbers add numerically; strings concatenate; lists hold an ordered sequence; dictionaries map keys to values.</li>
+                            <li><strong>An expression produces a value.</strong> <code>weight * feature + bias</code> is evaluated before its result is assigned or passed onward.</li>
+                            <li><strong>Control flow chooses what runs.</strong> Conditions branch; loops repeat; functions package a reusable transformation.</li>
+                            <li><strong>Imports expose another module's names.</strong> <code>import numpy as np</code> binds the module to <code>np</code>; <code>np.mean</code> then selects its <code>mean</code> function.</li>
+                        </ol>
+                    </div>
+                    <aside class="python-reading-card">
+                        <h3>Read this small program aloud</h3>
+                        <pre><code>def predict(features, weights, bias=0.0):
+    score = sum(x * w for x, w in zip(features, weights))
+    return score + bias
+
+x = [0.8, -0.2, 1.5]
+w = [1.2, 0.4, -0.7]
+prediction = predict(x, w, bias=0.3)</code></pre>
+                        <p>Define a function with three inputs. Pair each feature with a weight. Multiply each pair, sum the evidence, add a defaultable bias, and bind the returned number to <code>prediction</code>.</p>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="python-core" class="example-section">
+                <h2>Core Python, from values to programs</h2>
+                <p class="section-intro">Master these pieces before reaching for a framework; they make data code easier to read, test, and debug.</p>
+                <div class="python-concept-grid">
+                    <article><h3>Scalar values</h3><p><code>int</code> counts, <code>float</code> approximates real numbers, <code>bool</code> records truth, <code>str</code> stores text, and <code>None</code> marks the absence of a value.</p><pre><code>epochs = 20
+rate = 0.01
+training = True
+name = "baseline"
+result = None</code></pre></article>
+                    <article><h3>Collections</h3><p>A <code>list</code> is ordered and mutable; a <code>tuple</code> is ordered and fixed; a <code>dict</code> maps unique keys; a <code>set</code> keeps unique members.</p><pre><code>scores = [0.8, 0.9]
+shape = (28, 28)
+row = {"age": 42, "label": 1}
+classes = {"cat", "dog"}</code></pre></article>
+                    <article><h3>Index, slice, iterate</h3><p>Indexes start at zero. A slice includes its start but excludes its stop. Iteration visits items directly, which is usually clearer than manually managing an index.</p><pre><code>batch = [12, 18, 25, 31]
+first = batch[0]
+middle = batch[1:3]
+for value in batch:
+    print(value)</code></pre></article>
+                    <article><h3>Branch and repeat</h3><p><code>if</code> chooses a path. <code>for</code> iterates over a collection. <code>while</code> repeats while a condition remains true; use it only when the stopping rule is explicit.</p><pre><code>for epoch in range(10):
+    if loss &lt; 0.01:
+        break
+    loss = train_one_epoch()</code></pre></article>
+                    <article><h3>Functions</h3><p>A function should have a clear contract: expected inputs, returned output, and side effects. Small pure functions are easiest to test and reuse.</p><pre><code>def mse(actual, predicted):
+    errors = [(a - p) ** 2
+              for a, p in zip(actual, predicted)]
+    return sum(errors) / len(errors)</code></pre></article>
+                    <article><h3>Errors are information</h3><p>Read the final traceback line first. <code>NameError</code> means a name is unavailable; <code>TypeError</code> means an operation does not fit the value; <code>IndexError</code> and <code>KeyError</code> mean lookup failed.</p><pre><code>try:
+    value = row["target"]
+except KeyError:
+    value = 0</code></pre></article>
+                </div>
+                <div class="python-traps">
+                    <h3>Three habits that prevent subtle bugs</h3>
+                    <div><strong>Mutability</strong><p><code>b = a</code> gives two names to the same list; use <code>b = a.copy()</code> when an independent shallow copy is intended.</p></div>
+                    <div><strong>Equality</strong><p>Use <code>==</code> for equal values and <code>is</code> for object identity. The common identity check is <code>value is None</code>.</p></div>
+                    <div><strong>Scope</strong><p>Names created inside a function are local by default. Return a result instead of silently changing distant global state.</p></div>
+                </div>
+            </section>
+
+            <section id="python-data" class="example-section">
+                <h2>Think in shapes, dtypes, and transformations</h2>
+                <p class="section-intro">Most ML bugs are not advanced mathematics; they are mismatched rows, columns, units, types, or train/test boundaries.</p>
+                <div class="data-shape-visual" aria-label="A dataset table becomes a feature matrix X and target vector y, then batches">
+                    <article><span>Raw table</span><strong>rows = examples</strong><small>columns = measured fields</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>Split roles</span><strong>\(X\in\mathbb R^{n\times d}\)</strong><small>\(n\) examples, \(d\) features</small></article>
+                    <span class="data-plus" aria-hidden="true">+</span>
+                    <article><span>Target</span><strong>\(y\in\mathbb R^n\)</strong><small>one answer per example</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>Mini-batches</span><strong>\(X_b,y_b\)</strong><small>small aligned slices</small></article>
+                </div>
+                <div class="data-principles-grid">
+                    <article><h3>Shape</h3><p>Write expected shapes beside important operations. Matrix multiplication \((n\times d)(d\times m)\) produces \((n\times m)\); the inner dimensions must agree.</p></article>
+                    <article><h3>dtype</h3><p>Integers represent counts or class IDs; floating-point values represent measurements and learned parameters. Converting too early can discard precision.</p></article>
+                    <article><h3>Vectorization</h3><p>Describe the operation over a whole array instead of looping in Python. Numerical libraries run the compact operation in optimized compiled code.</p></article>
+                    <article><h3>Missingness</h3><p>A missing value is information about collection, not automatically zero. Inspect why it is absent before dropping or imputing it.</p></article>
+                    <article><h3>Leakage</h3><p>Anything learned from data—normalization, vocabulary, feature selection—must be fitted using training data only, then applied unchanged to validation and test data.</p></article>
+                    <article><h3>Reproducibility</h3><p>Record code, data version, package versions, random seeds, and evaluation split. A seed controls one source of variation; it does not guarantee identical hardware results.</p></article>
+                </div>
+            </section>
+
+            <section id="python-libraries" class="example-section">
+                <h2>The important Python libraries and their jobs</h2>
+                <p class="section-intro">Choose a library because it owns the operation you need, not because every project must import the entire stack.</p>
+                <div class="library-map">
+                    <article><span>Language toolkit</span><h3>Standard library</h3><p><code>math</code>, <code>statistics</code>, <code>random</code>, <code>pathlib</code>, <code>json</code>, and <code>collections</code> cover many scripts without another installation.</p><strong>Use for:</strong> files, configuration, small calculations, counters, and program structure.</article>
+                    <article><span>Numerical foundation</span><h3>NumPy</h3><p>Homogeneous n-dimensional arrays, broadcasting, vectorized operations, linear algebra, and random sampling.</p><strong>Use for:</strong> fast array math and understanding tensor shapes.</article>
+                    <article><span>Tables</span><h3>pandas</h3><p>Labeled rows and columns, joins, grouping, missing-data handling, timestamps, and file import/export.</p><strong>Use for:</strong> inspection and preparation of tabular datasets.</article>
+                    <article><span>Scientific routines</span><h3>SciPy</h3><p>Optimization, integration, interpolation, signal processing, sparse matrices, and probability distributions built around NumPy arrays.</p><strong>Use for:</strong> trusted numerical algorithms beyond basic array operations.</article>
+                    <article><span>Plots</span><h3>Matplotlib + Seaborn</h3><p>Matplotlib supplies precise plotting primitives; Seaborn adds statistical defaults and concise views for distributions and relationships.</p><strong>Use for:</strong> checking data and communicating evidence.</article>
+                    <article><span>Classical ML</span><h3>scikit-learn</h3><p>A consistent <code>fit</code>/<code>predict</code>/<code>transform</code> API for preprocessing, models, pipelines, validation, and metrics.</p><strong>Use for:</strong> strong baselines and disciplined evaluation.</article>
+                    <article><span>Deep learning</span><h3>PyTorch</h3><p>Tensors, automatic differentiation, neural-network modules, optimizers, data loaders, and accelerator support.</p><strong>Use for:</strong> differentiable programs and neural networks.</article>
+                    <article><span>Experiment interface</span><h3>Jupyter</h3><p>Combines executable cells, equations, notes, and plots. It is excellent for exploration; reusable logic should still move into tested modules.</p><strong>Use for:</strong> inspectable experiments and teaching.</article>
+                </div>
+                <div class="library-workflow" aria-label="Typical machine learning workflow across Python libraries">
+                    <span>Load<br><b>pandas</b></span><i>→</i><span>Explore<br><b>Seaborn</b></span><i>→</i><span>Transform<br><b>NumPy</b></span><i>→</i><span>Model<br><b>scikit-learn / PyTorch</b></span><i>→</i><span>Evaluate<br><b>metrics + plots</b></span>
+                </div>
+            </section>
+
+            <section id="python-course-lab" class="example-section python-course-lab">
+                <span class="depth-kicker">Run it in the browser</span>
+                <h2>Python concept lab</h2>
+                <p class="section-intro">Predict the result, run the example, then change one line. Every run starts with a fresh Python namespace inside a dedicated browser worker with no page-DOM or external-network bridge; Python, NumPy, and their runtime files are bundled with the lesson.</p>
+                <div class="python-course-lab__grid">
+                    <div class="python-course-editor">
+                        <label for="pythonCourseExample">Example</label>
+                        <select id="pythonCourseExample">
+                            <option value="core">Names, types, and control flow</option>
+                            <option value="collections">Collections and functions</option>
+                            <option value="numpy">NumPy shapes and broadcasting</option>
+                            <option value="gradient">Gradient descent from scratch</option>
+                            <option value="metrics">Classification metrics</option>
+                        </select>
+                        <label class="sr-only" for="pythonCourseEditor">Editable Python code</label>
+                        <textarea id="pythonCourseEditor" spellcheck="false" aria-label="Editable Python code"></textarea>
+                        <div class="python-course-actions">
+                            <button class="notebook-btn" id="pythonCourseRun" type="button">Run Python</button>
+                            <button class="notebook-btn secondary" id="pythonCourseReset" type="button">Reset example</button>
+                        </div>
+                    </div>
+                    <div class="python-course-output">
+                        <div class="python-course-output__header"><strong>Output</strong><span id="pythonCourseStatus" aria-live="polite">Ready</span></div>
+                        <pre id="pythonCourseOutput" aria-live="polite">Choose an example and run it.</pre>
+                        <p><strong>Debugging loop:</strong> read the final error line, locate the referenced line, inspect the value and type, make the smallest correction, and rerun.</p>
+                    </div>
+                </div>
+                <p class="reference-strip"><strong>References:</strong> the <a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">official Python tutorial</a> and <a href="https://numpy.org/doc/stable/user/" target="_blank" rel="noopener">NumPy user guide</a>.</p>
+            </section>
+        </section>
+
         <section class="chapter" data-chapter="notebook">
             <nav class="chapter-nav" aria-label="Notebook lab sections">
                 <a href="#ipython-notebook">Math Notebook</a>
@@ -5324,7 +5643,7 @@ actions(state) -&gt; action list
 
             <section id="ipython-notebook" class="example-section notebook-section">
                 <h2>Jupyter-Style Math Notebook</h2>
-                <p class="section-intro">Work through the foundations topics in order. Each cell runs in a shared kernel for a practical hands-on workshop.</p>
+                <p class="section-intro">Work through the foundations topics in order. Notebook cells share only this notebook's private Python namespace inside a dedicated browser worker with no page-DOM or external-network bridge. Reset destroys that worker and the next run starts a clean sandbox.</p>
                 <div class="notebook-toolbar">
                     <div class="toolbar-left">
                         <span class="notebook-chip">Python kernel</span>
@@ -5489,20 +5808,21 @@ for step in range(6):
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [7]</span>
-                                <span class="cell-title">Plot a curve</span>
+                                <span class="cell-title">Plot a curve from Python values</span>
                             </div>
-                            <textarea class="cell-editor" rows="12" spellcheck="false">import matplotlib.pyplot as plt
-
-xs = [x / 10 for x in range(-30, 31)]
+                            <textarea class="cell-editor" rows="13" spellcheck="false">xs = [x / 10 for x in range(-30, 31)]
 ys = [x ** 2 - 2 * x + 1 for x in xs]
 
-plt.figure(figsize=(5, 3))
-plt.plot(xs, ys, label="f(x)=x^2-2x+1")
-plt.axhline(0, color="gray", linewidth=0.8)
-plt.scatter([1], [0], color="tomato", label="minimum")
-plt.title("Quadratic curve")
-plt.legend()
-plt.tight_layout()</textarea>
+_lesson_plot = {
+    "title": "Quadratic curve",
+    "x": xs,
+    "series": [
+        {"label": "f(x)=x²−2x+1", "y": ys}
+    ],
+    "points": [
+        {"x": 1, "y": 0, "label": "minimum"}
+    ]
+}</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -5569,23 +5889,24 @@ print("tanh =", [round(tanh(x), 3) for x in xs])</textarea>
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [10]</span>
-                                <span class="cell-title">Plot activation curves</span>
+                                <span class="cell-title">Plot activation curves from Python values</span>
                             </div>
-                            <textarea class="cell-editor" rows="13" spellcheck="false">import math
-import matplotlib.pyplot as plt
+                            <textarea class="cell-editor" rows="16" spellcheck="false">import math
 
 xs = [x / 10 for x in range(-50, 51)]
 sig = [1 / (1 + math.exp(-x)) for x in xs]
 rel = [x if x > 0 else 0 for x in xs]
 th = [math.tanh(x) for x in xs]
 
-plt.figure(figsize=(5, 3))
-plt.plot(xs, sig, label="sigmoid")
-plt.plot(xs, rel, label="relu")
-plt.plot(xs, th, label="tanh")
-plt.title("Activation curves")
-plt.legend()
-plt.tight_layout()</textarea>
+_lesson_plot = {
+    "title": "Activation curves",
+    "x": xs,
+    "series": [
+        {"label": "sigmoid", "y": sig},
+        {"label": "ReLU", "y": rel},
+        {"label": "tanh", "y": th}
+    ]
+}</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -5794,8 +6115,8 @@ except Exception:
 
                         <article class="notebook-cell markdown-cell">
                             <h4>What this demo does</h4>
-                            <p>Loads a tiny MNIST classifier and runs inference on simple 28x28 input patterns. No Python kernel required.</p>
-                            <p class="example-note">If the model URL fails, use another ONNX model that accepts a 1x1x28x28 float tensor.</p>
+                            <p>Choose a handwritten-style digit, inspect its 28×28 pixels, and ask the model to classify it. No Python kernel is required.</p>
+                            <p class="example-note">The model, ONNX runtime, WebAssembly backend, Python runtime, and NumPy are bundled with this lesson. Notebook plots are rendered from Python-computed values by a local SVG helper, so the notebook and MNIST demo no longer depend on CDN modules or cross-origin model requests.</p>
                         </article>
 
                         <article class="notebook-cell onnx-demo-cell" id="onnxDemoCell">
@@ -5805,13 +6126,19 @@ except Exception:
                             </div>
                             <div class="onnx-demo">
                                 <div class="onnx-demo-controls">
-                                    <label class="onnx-demo-label" for="onnxModelUrl">Model URL</label>
-                                    <input class="onnx-demo-input" type="text" id="onnxModelUrl" value="https://cdn.jsdelivr.net/gh/onnx/models/vision/classification/mnist/model/mnist-8.onnx">
-                                    <div class="toggle-group onnx-patterns" role="group" aria-label="Input pattern">
-                                        <button class="toggle-btn is-active" type="button" data-onnx-pattern="center">Center dot</button>
-                                        <button class="toggle-btn" type="button" data-onnx-pattern="diagonal">Diagonal</button>
-                                        <button class="toggle-btn" type="button" data-onnx-pattern="box">Box</button>
-                                        <button class="toggle-btn" type="button" data-onnx-pattern="noise">Noise</button>
+                                    <label class="onnx-demo-label" for="onnxModelUrl">Model source (advanced)</label>
+                                    <input class="onnx-demo-input" type="text" id="onnxModelUrl" value="assets/models/mnist-8.onnx" spellcheck="false">
+                                    <div class="toggle-group onnx-patterns" role="group" aria-label="Choose a digit">
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="0">0</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="1">1</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="2">2</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="3">3</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="4">4</button>
+                                        <button class="toggle-btn is-active" type="button" data-onnx-pattern="5">5</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="6">6</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="7">7</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="8">8</button>
+                                        <button class="toggle-btn" type="button" data-onnx-pattern="9">9</button>
                                     </div>
                                     <div class="onnx-demo-actions">
                                         <button class="notebook-btn" type="button" id="onnxDemoRun">Run inference</button>
@@ -5839,14 +6166,15 @@ except Exception:
         <p>All visualizations are interactive - click buttons to see animations!</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="python-sandbox-client.js?v=20260713-local-runtimes-4"></script>
+    <script src="script.js?v=20260713-local-runtimes-4"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
     <script src="math-foundation-course-data.js"></script>
     <script src="manim/scene-manifest.js"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/pyodide.js" defer></script>
     <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
+    <script src="learning-depth.js?v=20260713-local-runtimes-4"></script>
 </body>
 </html>
