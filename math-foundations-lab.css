@@ -1,0 +1,708 @@
+.math-proof-section,
+.probability-lab-section,
+.python-math-lab-section {
+    padding: clamp(1.5rem, 4vw, 4rem) !important;
+}
+
+.math-proof-grid {
+    align-items: stretch;
+}
+
+.trig-proof-controls,
+.probability-controls {
+    align-items: end;
+}
+
+.trig-proof-controls label,
+.probability-controls label {
+    min-width: 132px;
+}
+
+.trig-proof-controls output,
+.probability-controls output {
+    color: var(--math-blue);
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    margin-left: .35rem;
+    min-width: 2.8rem;
+    text-align: right;
+}
+
+.proof-conclusion {
+    background: rgba(5, 150, 105, .07);
+    border-left: 4px solid var(--math-mint);
+    border-radius: 0 14px 14px 0;
+    margin-top: 1.25rem;
+    padding: 1rem 1.1rem;
+}
+
+.proof-conclusion strong {
+    color: var(--math-mint);
+    display: block;
+    font-size: .77rem;
+    letter-spacing: .1em;
+    margin-bottom: .35rem;
+    text-transform: uppercase;
+}
+
+.proof-conclusion p {
+    color: #475569 !important;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.proof-ladder {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+    margin-top: 1.75rem;
+}
+
+.proof-chapter {
+    background: rgba(255, 255, 255, .88);
+    border: 1px solid rgba(148, 163, 184, .27);
+    border-radius: 22px;
+    box-shadow: 0 10px 25px rgba(30, 41, 59, .06);
+    overflow: hidden;
+    padding: clamp(1rem, 2.4vw, 1.7rem);
+}
+
+.proof-chapter-final {
+    border-color: rgba(5, 150, 105, .32);
+    box-shadow: 0 16px 36px rgba(5, 150, 105, .09);
+}
+
+.proof-chapter-heading {
+    align-items: center;
+    display: flex;
+    gap: .9rem;
+    margin-bottom: 1.15rem;
+}
+
+.proof-number {
+    align-items: center;
+    background: var(--math-blue);
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    font-weight: 800;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.proof-chapter-final .proof-number {
+    background: var(--math-mint);
+}
+
+.proof-chapter-heading small {
+    color: var(--math-blue);
+    display: block;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .13em;
+    margin-bottom: .18rem;
+    text-transform: uppercase;
+}
+
+.proof-chapter-heading h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2.2vw, 1.75rem);
+    line-height: 1.12;
+    margin: 0;
+}
+
+.proof-chapter-grid {
+    align-items: stretch;
+    display: grid;
+    gap: clamp(1.2rem, 3vw, 2.2rem);
+    grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
+}
+
+.proof-theory {
+    align-self: center;
+}
+
+.proof-theory p {
+    color: #475569 !important;
+    font-size: .96rem;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.proof-question {
+    color: #1e3a8a !important;
+    font-size: 1.02rem !important;
+    font-weight: 800;
+    margin-bottom: .55rem !important;
+}
+
+.proof-equation {
+    background: #f8fbff;
+    border: 1px solid rgba(37, 99, 235, .15);
+    border-left: 4px solid var(--math-blue);
+    border-radius: 0 13px 13px 0;
+    display: grid;
+    gap: .35rem;
+    margin: 1rem 0;
+    padding: .85rem 1rem;
+}
+
+.proof-equation code {
+    background: transparent;
+    color: #172554;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: clamp(.78rem, 1.45vw, .96rem);
+    font-weight: 700;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    padding: 0;
+    white-space: normal;
+}
+
+.proof-equation-long code:first-child {
+    color: var(--math-coral);
+}
+
+.proof-reason {
+    background: rgba(5, 150, 105, .065);
+    border-radius: 12px;
+    padding: .8rem .9rem;
+}
+
+.proof-reason strong {
+    color: #047857;
+}
+
+.proof-graphic {
+    background:
+        linear-gradient(rgba(37, 99, 235, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37, 99, 235, .045) 1px, transparent 1px),
+        #fbfdff;
+    background-size: 24px 24px;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 17px;
+    min-height: 285px;
+    overflow: hidden;
+    position: relative;
+}
+
+.proof-axis {
+    background: rgba(71, 85, 105, .28);
+    display: block;
+    position: absolute;
+}
+
+.proof-axis-x {
+    height: 1px;
+    left: 8%;
+    right: 8%;
+    top: 58%;
+}
+
+.proof-axis-y {
+    bottom: 8%;
+    left: 48%;
+    top: 8%;
+    width: 1px;
+}
+
+.proof-label {
+    color: #334155;
+    font-size: .72rem;
+    font-weight: 800;
+    position: absolute;
+    white-space: nowrap;
+}
+
+.proof-shape-circle,
+.proof-composition-circle,
+.proof-derivative-circle {
+    border: 3px solid rgba(37, 99, 235, .35);
+    border-radius: 50%;
+    height: 178px;
+    left: calc(48% - 89px);
+    position: absolute;
+    top: calc(58% - 89px);
+    width: 178px;
+}
+
+.proof-radius-line,
+.proof-basis-arrow,
+.proof-composition-radius,
+.proof-derivative-radius,
+.proof-derivative-secant,
+.proof-derivative-tangent {
+    display: block;
+    height: 4px;
+    position: absolute;
+    transform-origin: left center;
+}
+
+.proof-radius-line {
+    background: var(--math-blue);
+    left: 48%;
+    top: 58%;
+    transform: rotate(-38deg);
+    width: 89px;
+}
+
+.proof-radius-line::after,
+.proof-basis-arrow::after,
+.proof-composition-radius::after,
+.proof-derivative-tangent::after {
+    border-bottom: 6px solid transparent;
+    border-left: 9px solid currentColor;
+    border-top: 6px solid transparent;
+    content: "";
+    position: absolute;
+    right: -2px;
+    top: -4px;
+}
+
+.proof-radius-line,
+.proof-basis-arrow,
+.proof-composition-radius,
+.proof-derivative-tangent {
+    color: var(--math-blue);
+}
+
+.proof-projection-x,
+.proof-projection-y {
+    border-color: var(--math-coral);
+    border-style: dashed;
+    display: block;
+    position: absolute;
+}
+
+.proof-projection-x {
+    border-width: 0 0 2px;
+    left: 48%;
+    top: 36%;
+    width: 70px;
+}
+
+.proof-projection-y {
+    border-width: 0 2px 0 0;
+    height: 64px;
+    left: calc(48% + 69px);
+    top: 36%;
+}
+
+.proof-point,
+.proof-endpoint,
+.proof-derivative-point {
+    background: var(--math-blue);
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .3);
+    height: 13px;
+    position: absolute;
+    width: 13px;
+}
+
+.proof-point {
+    left: calc(48% + 64px);
+    top: calc(36% - 6px);
+}
+
+.proof-label-theta { left: 54%; top: 49%; }
+.proof-label-cos { color: var(--math-coral); left: 54%; top: 61%; }
+.proof-label-sin { color: var(--math-mint); left: 23%; top: 42%; }
+
+.proof-basis-arrow {
+    left: 48%;
+    top: 58%;
+    width: 105px;
+}
+
+.proof-basis-i {
+    background: var(--math-blue);
+    color: var(--math-blue);
+    transform: rotate(-34deg);
+}
+
+.proof-basis-j {
+    background: var(--math-violet);
+    color: var(--math-violet);
+    transform: rotate(-124deg);
+}
+
+.proof-right-angle {
+    border-left: 2px solid var(--math-gold);
+    border-top: 2px solid var(--math-gold);
+    height: 20px;
+    left: calc(48% - 6px);
+    position: absolute;
+    top: calc(58% - 31px);
+    transform: rotate(-34deg);
+    width: 20px;
+}
+
+.proof-label-i { color: var(--math-blue); left: 62%; top: 31%; }
+.proof-label-j { color: var(--math-violet); left: 9%; top: 25%; }
+.proof-label-alpha { color: var(--math-gold); left: 55%; top: 48%; }
+
+.proof-composition-circle {
+    height: 190px;
+    left: calc(46% - 95px);
+    top: calc(55% - 95px);
+    width: 190px;
+}
+
+.proof-composition-radius {
+    background: var(--math-blue);
+    left: 46%;
+    top: 55%;
+    transform: rotate(-74deg);
+    width: 95px;
+}
+
+.proof-composition-first {
+    background: var(--math-violet);
+    color: var(--math-violet);
+    opacity: .68;
+    transform: rotate(-35deg);
+}
+
+.proof-turn {
+    border: 4px solid transparent;
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+}
+
+.proof-turn-b {
+    border-right-color: var(--math-violet);
+    border-top-color: var(--math-violet);
+    height: 66px;
+    left: calc(46% - 33px);
+    top: calc(55% - 33px);
+    transform: rotate(-18deg);
+    width: 66px;
+}
+
+.proof-turn-a {
+    border-left-color: var(--math-coral);
+    border-top-color: var(--math-coral);
+    height: 112px;
+    left: calc(46% - 56px);
+    top: calc(55% - 56px);
+    transform: rotate(15deg);
+    width: 112px;
+}
+
+.proof-endpoint {
+    left: calc(46% + 20px);
+    top: calc(55% - 98px);
+}
+
+.proof-label-b { color: var(--math-violet); left: 54%; top: 52%; }
+.proof-label-a { color: var(--math-coral); left: 57%; top: 31%; }
+.proof-label-total { color: var(--math-blue); left: 53%; top: 12%; }
+
+.proof-squeeze-inner,
+.proof-squeeze-sector,
+.proof-squeeze-outer {
+    bottom: 18%;
+    display: block;
+    left: 16%;
+    position: absolute;
+    transform-origin: bottom left;
+}
+
+.proof-squeeze-outer {
+    background: rgba(225, 29, 72, .12);
+    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+    height: 195px;
+    width: 250px;
+}
+
+.proof-squeeze-sector {
+    background: rgba(37, 99, 235, .18);
+    border-radius: 100% 0 0;
+    clip-path: polygon(0 100%, 100% 22%, 100% 100%);
+    height: 168px;
+    width: 220px;
+}
+
+.proof-squeeze-inner {
+    background: rgba(5, 150, 105, .25);
+    clip-path: polygon(0 100%, 76% 30%, 76% 100%);
+    height: 150px;
+    width: 210px;
+}
+
+.proof-squeeze-radius {
+    background: var(--math-blue);
+    bottom: 18%;
+    height: 3px;
+    left: 16%;
+    position: absolute;
+    transform: rotate(-37deg);
+    transform-origin: left;
+    width: 205px;
+}
+
+.proof-label-inner { color: var(--math-mint); left: 26%; top: 56%; }
+.proof-label-sector { color: var(--math-blue); left: 43%; top: 36%; }
+.proof-label-outer { color: var(--math-coral); left: 66%; top: 21%; }
+
+.proof-derivative-circle {
+    height: 174px;
+    left: calc(42% - 87px);
+    top: calc(57% - 87px);
+    width: 174px;
+}
+
+.proof-derivative-radius {
+    background: var(--math-blue);
+    left: 42%;
+    top: 57%;
+    transform: rotate(-43deg);
+    width: 87px;
+}
+
+.proof-derivative-secant {
+    background: var(--math-coral);
+    left: 55%;
+    top: 30%;
+    transform: rotate(-72deg);
+    width: 86px;
+}
+
+.proof-derivative-tangent {
+    background: var(--math-gold);
+    color: var(--math-gold);
+    left: 57%;
+    top: 33%;
+    transform: rotate(-133deg);
+    width: 125px;
+}
+
+.proof-derivative-point {
+    left: calc(57% - 6px);
+    top: calc(33% - 6px);
+}
+
+.proof-label-secant { color: var(--math-coral); left: 69%; top: 21%; }
+.proof-label-tangent { color: var(--math-gold); left: 20%; top: 15%; }
+.proof-label-vertical { color: var(--math-mint); left: 55%; top: 74%; }
+
+.probability-derivation-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.python-math-lab-section .math-lab-heading {
+    margin-bottom: 1.5rem;
+}
+
+.python-lab-grid {
+    align-items: stretch;
+    display: grid;
+    gap: 1.2rem;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+}
+
+.python-editor-panel,
+.python-output-panel {
+    background: rgba(255, 255, 255, .94);
+    border: 1px solid rgba(148, 163, 184, .28);
+    border-radius: 22px;
+    box-shadow: 0 14px 35px rgba(30, 41, 59, .08);
+    min-width: 0;
+    padding: 1.2rem;
+}
+
+.python-toolbar,
+.python-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    justify-content: space-between;
+}
+
+.python-toolbar label {
+    align-items: center;
+    display: flex;
+    font-size: .78rem;
+    font-weight: 800;
+    gap: .6rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.python-toolbar select {
+    background: #fff;
+    border: 1px solid rgba(100, 116, 139, .32);
+    border-radius: 10px;
+    color: var(--math-white);
+    font: inherit;
+    letter-spacing: 0;
+    max-width: 100%;
+    padding: .58rem .75rem;
+    text-transform: none;
+}
+
+.python-runtime-status {
+    align-items: center;
+    color: var(--math-mint);
+    display: flex;
+    font-size: .8rem;
+    font-weight: 800;
+    gap: .4rem;
+}
+
+.python-runtime-status::before {
+    background: currentColor;
+    border-radius: 50%;
+    content: "";
+    height: .48rem;
+    width: .48rem;
+}
+
+.python-editor {
+    background: #f8fbff;
+    border: 1px solid rgba(100, 116, 139, .28);
+    border-radius: 16px;
+    color: #0f172a;
+    display: block;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: .87rem;
+    line-height: 1.65;
+    margin: 1rem 0;
+    min-height: 410px;
+    padding: 1.1rem;
+    resize: vertical;
+    tab-size: 4;
+    width: 100%;
+}
+
+.python-editor:focus-visible {
+    outline: 3px solid rgba(2, 132, 199, .35);
+    outline-offset: 3px;
+}
+
+.python-actions {
+    justify-content: flex-start;
+}
+
+.python-output-panel h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+    line-height: 1.12;
+    margin: 0 0 .8rem;
+}
+
+.python-output-panel > p {
+    color: #475569 !important;
+    line-height: 1.7;
+}
+
+.python-output-panel pre {
+    background: #f1f5f9;
+    border: 1px solid rgba(100, 116, 139, .2);
+    border-radius: 14px;
+    color: #0f172a;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: .82rem;
+    line-height: 1.62;
+    margin: 1.2rem 0;
+    min-height: 245px;
+    overflow-x: auto;
+    padding: 1rem;
+    white-space: pre-wrap;
+}
+
+.python-output-panel .ml-bridge {
+    margin-top: 1rem;
+}
+
+.sr-only {
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+@media (max-width: 1180px) {
+    .probability-derivation-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .proof-chapter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .proof-graphic {
+        min-height: 270px;
+    }
+
+    .python-lab-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .python-editor {
+        min-height: 330px;
+    }
+}
+
+@media (max-width: 640px) {
+    .probability-derivation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .proof-chapter {
+        border-radius: 16px;
+        padding: .9rem;
+    }
+
+    .proof-chapter-heading {
+        align-items: flex-start;
+    }
+
+    .proof-number {
+        flex: 0 0 auto;
+    }
+
+    .proof-graphic {
+        min-height: 245px;
+    }
+
+    .proof-label {
+        font-size: .64rem;
+    }
+
+    .proof-label-i { left: 55%; }
+    .proof-label-j { left: 4%; }
+    .proof-label-total { left: 42%; }
+    .proof-label-outer { left: 58%; }
+    .proof-label-secant { left: 62%; }
+    .proof-label-vertical { left: 47%; }
+
+    .proof-equation {
+        padding: .75rem;
+    }
+
+    .python-editor-panel,
+    .python-output-panel {
+        border-radius: 16px;
+        padding: .85rem;
+    }
+
+    .python-toolbar,
+    .python-toolbar label {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .python-runtime-status {
+        align-self: flex-start;
+    }
+}

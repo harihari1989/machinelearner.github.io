@@ -2,7 +2,6 @@ window.MathLectureCatalog = {
     calculus: {
         label: "Calculus",
         color: "#61dafb",
-        playlist: "https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr",
         lectures: [
             {
                 video: "WUvTyaaNkzM", duration: "17:05", scene: "accumulation",
@@ -105,7 +104,6 @@ window.MathLectureCatalog = {
     linear: {
         label: "Linear algebra",
         color: "#a78bfa",
-        playlist: "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab",
         lectures: [
             {
                 video: "fNk_zzaMoSs", duration: "9:52", scene: "vectors",
@@ -237,81 +235,9 @@ window.MathLectureCatalog = {
             }
         ]
     },
-    ode: {
-        label: "Differential equations",
-        color: "#58e6b0",
-        playlist: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNPOjrT6KVlfJuKtYTftqH6",
-        lectures: [
-            {
-                video: "p_di4Zn4wz4", duration: "27:16", scene: "field",
-                title: "Differential equations, a tourist's guide",
-                summary: "Study equations that specify change rather than position, using phase space and numerical stepping when a closed-form trajectory is unavailable.",
-                concepts: ["State and its time derivative", "Pendulum as a second-order equation", "Converting higher-order equations into first-order systems", "Phase space and vector fields", "Euler's numerical method", "Initial conditions and families of solutions", "Why qualitative structure matters when formulas fail"],
-                math: "\\(\\dot\\theta=\\omega,\\quad \\dot\\omega=-\\frac{g}{L}\\sin\\theta\\)",
-                ml: "Residual networks and optimizers are discrete dynamical systems with stability, trajectories, and step sizes."
-            },
-            {
-                video: "ly4S0oi3Yz8", duration: "17:39", scene: "pde",
-                title: "But what is a partial differential equation?",
-                summary: "Let an entire function evolve with time and use partial derivatives to express how local spatial differences drive global change.",
-                concepts: ["Functions of space and time", "Partial derivatives", "Heat equation", "Second spatial derivative as deviation from neighbor average", "Laplacian in multiple dimensions", "Boundary and initial conditions", "PDE as infinitely many coupled ODEs"],
-                math: "\\(\\frac{\\partial T}{\\partial t}=\\alpha\\nabla^2T\\)",
-                ml: "Diffusion models, neural PDE solvers, image smoothing, and spatial inductive biases all use local differential operators."
-            },
-            {
-                video: "ToIXSwZ1pJU", duration: "14:13", scene: "heat",
-                title: "Solving the heat equation",
-                summary: "Decompose a temperature profile into sinusoidal eigenfunctions whose amplitudes decay independently, then recombine them into the solution.",
-                concepts: ["Discrete neighbor averaging", "Continuum second derivative", "Sine-wave eigenfunctions", "Frequency-dependent decay rates", "Separation of variables", "Superposition from linearity", "Fourier coefficients from the initial condition"],
-                math: "\\(T(x,t)=\\sum_n b_n e^{-\\alpha n^2t}\\sin(nx)\\)",
-                ml: "Spectral filtering explains why high-frequency noise disappears faster and motivates diffusion-based denoising."
-            },
-            {
-                video: "r6sGWTCMz2k", duration: "24:47", scene: "fourier",
-                title: "But what is a Fourier series?",
-                summary: "Represent periodic functions as sums of rotating complex vectors, linking heat flow, frequency analysis, and drawings traced by epicycles.",
-                concepts: ["Sine and cosine frequency components", "Complex exponentials as rotation", "Fourier coefficients as projections", "Orthogonality of frequencies", "Epicycles and path drawing", "Approximation and Gibbs behavior", "Heat evolution by damping high frequencies"],
-                math: "\\(f(t)=\\sum_{n=-\\infty}^{\\infty}c_ne^{2\\pi int}\\)",
-                ml: "Fourier features, positional encodings, convolution, spectral bias, and signal preprocessing all organize information by frequency."
-            },
-            {
-                video: "-j8PzkZ70Lg", duration: "27:49", scene: "complex",
-                title: "The physics of Euler's formula",
-                summary: "Derive complex exponential rotation from a physical differential equation, showing that multiplying by i turns velocity by ninety degrees.",
-                concepts: ["Complex numbers as 2D vectors", "Multiplication by i as quarter-turn", "Exponential defined by its derivative", "Circular motion from z'=iz", "Spring and oscillation equations", "Euler's identity", "Real sine/cosine as coordinates of complex motion"],
-                math: "\\(e^{it}=\\cos t+i\\sin t\\)",
-                ml: "Complex exponentials diagonalize translation and oscillation, forming the basis of Fourier-domain learning."
-            },
-            {
-                video: "j0wJBEZdwLs", duration: "34:41", scene: "laplace",
-                title: "But what is a Laplace transform?",
-                summary: "Map a time-domain function to a new function of complex frequency by measuring exponentially weighted accumulated area.",
-                concepts: ["Transforming a function into another function", "Exponential weighting e^{-st}", "Convergence region", "Real decay and imaginary oscillation", "Poles and encoded growth modes", "Laplace as a continuous family of inner products", "Relationship to Fourier transforms"],
-                math: "\\(\\mathcal L\\{f\\}(s)=\\int_0^\\infty f(t)e^{-st}\\,dt\\)",
-                ml: "Transforms reveal modes and stability in continuous-time models, state-space layers, and system identification."
-            },
-            {
-                video: "FE-hM1kRK4Y", duration: "23:05", scene: "laplace-use",
-                title: "Why Laplace transforms are so useful",
-                summary: "Use transform rules to turn differentiation and convolution into algebra, solve initial-value problems, and read system response from poles.",
-                concepts: ["Derivative becomes multiplication by s plus initial-condition terms", "ODEs become algebraic equations", "Inverse transform", "Convolution becomes multiplication", "Impulse and step responses", "Poles, resonance, and stability", "Transfer-function viewpoint"],
-                math: "\\(\\mathcal L\\{f'\\}=sF(s)-f(0)\\)",
-                ml: "Linear state-space and sequence models use the same transfer-function logic for memory and filtering."
-            },
-            {
-                video: "O85OWBJ2ayo", duration: "27:07", scene: "matrix-exp",
-                title: "How (and why) to raise e to the power of a matrix",
-                summary: "Generalize exponential growth to coupled linear systems using a matrix power series and simplify the result through eigenvectors.",
-                concepts: ["Matrix exponential power series", "Solution of x'=Ax", "Infinitesimal repeated transformations", "Eigenvectors evolve independently as e^{λt}", "Diagonalization", "Rotation and shear examples", "Defective matrices and polynomial factors"],
-                math: "\\(e^{At}=I+At+\\frac{(At)^2}{2!}+\\cdots,\\quad \\mathbf x(t)=e^{At}\\mathbf x(0)\\)",
-                ml: "Matrix exponentials drive continuous state-space models, neural ODEs, exponential moving dynamics, and stable sequence layers."
-            }
-        ]
-    },
     neural: {
         label: "Neural networks",
         color: "#ff7a90",
-        playlist: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
         lectures: [
             {
                 video: "aircAruvnKk", duration: "18:40", scene: "network",
