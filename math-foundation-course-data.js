@@ -6,11 +6,14 @@
 
     Object.values(catalog).forEach(course => {
         delete course.playlist;
-        course.lectures.forEach(lecture => delete lecture.video);
+        course.lectures.forEach(lecture => {
+            delete lecture.video;
+            delete lecture.duration;
+        });
     });
 
-    const lesson = (scene, title, summary, concepts, math, ml, duration = '14 min') => ({
-        scene, title, summary, concepts, math, ml, duration
+    const lesson = (scene, title, summary, concepts, math, ml) => ({
+        scene, title, summary, concepts, math, ml
     });
 
     catalog.calculus.label = 'Calculus + trigonometry';
@@ -30,8 +33,7 @@
                 'The tangent direction is a quarter-turn of the radius'
             ],
             '\\(\\mathbf u(\\theta)=(\\cos\\theta,\\sin\\theta),\\quad \\cos^2\\theta+\\sin^2\\theta=1\\)',
-            'Periodic features, Fourier encodings, and positional representations all inherit this circular geometry.',
-            '15 min'
+            'Periodic features, Fourier encodings, and positional representations all inherit this circular geometry.'
         ),
         lesson(
             'rotation-addition-proof',
@@ -48,8 +50,7 @@
                 'Replacing B by -B yields subtraction and double-angle identities'
             ],
             '\\(R(A)R(B)=R(A+B)\\Rightarrow\\sin(A+B)=\\sin A\\cos B+\\cos A\\sin B\\)',
-            'Orthogonal transformations, data augmentation, and equivariant models use exactly this composition law.',
-            '18 min'
+            'Orthogonal transformations, data augmentation, and equivariant models use exactly this composition law.'
         ),
         lesson(
             'sine-derivative-proof',
@@ -66,8 +67,7 @@
                 'The derivative vector (-sin θ, cos θ) is tangent and perpendicular to the radius'
             ],
             '\\(\\displaystyle\\frac{d}{d\\theta}\\sin\\theta=\\lim_{h\\to0}\\frac{\\sin(\\theta+h)-\\sin\\theta}{h}=\\cos\\theta\\)',
-            'Derivatives of periodic activations, Fourier features, and oscillatory kernels begin with this proof.',
-            '20 min'
+            'Derivatives of periodic activations, Fourier features, and oscillatory kernels begin with this proof.'
         )
     );
 

@@ -781,7 +781,7 @@
     cursor: pointer;
     display: grid;
     gap: .6rem;
-    grid-template-columns: 30px 1fr auto;
+    grid-template-columns: 30px 1fr;
     min-height: 54px;
     padding: .55rem .6rem;
     text-align: left;
@@ -793,7 +793,6 @@
 .lecture-index-item.is-active { background: color-mix(in srgb, var(--course-color, var(--math-cyan)) 10%, #0d1b2d); border-color: color-mix(in srgb, var(--course-color, var(--math-cyan)) 65%, transparent); }
 .lecture-index-item > span:first-child { align-items: center; border: 1px solid rgba(158, 178, 201, .18); border-radius: 50%; color: var(--course-color, var(--math-cyan)); display: flex; font: 800 .65rem var(--font-body); height: 27px; justify-content: center; }
 .lecture-index-item strong { display: -webkit-box; font-size: .72rem; line-height: 1.35; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.lecture-index-item small { color: var(--math-muted); font-size: .61rem; }
 
 .lecture-detail-panel { min-width: 0; overflow: hidden; }
 .lecture-scene-shell { background: #081523; border-bottom: 1px solid rgba(158, 178, 201, .14); }
@@ -1197,7 +1196,6 @@
 .lecture-title-row { align-items: start; display: flex; gap: 1rem; justify-content: space-between; }
 .lecture-number { color: var(--course-color, var(--math-cyan)); display: block; font-size: .68rem; font-weight: 800; letter-spacing: .14em; margin-bottom: .4rem; }
 .lecture-title-row h3 { font-size: clamp(1.35rem, 2.5vw, 2rem); line-height: 1.15; margin: 0; }
-.lecture-duration { background: rgba(255, 255, 255, .055); border: 1px solid rgba(158, 178, 201, .14); border-radius: 999px; color: var(--math-muted); flex: 0 0 auto; font: 800 .68rem ui-monospace, monospace; padding: .35rem .6rem; }
 .lecture-summary { color: #b9cce0 !important; font-size: .89rem; line-height: 1.68; margin: 1rem 0; }
 
 .lecture-equation {
@@ -1335,8 +1333,7 @@
 .math-deep-dive-chapter .lecture-index-meta { border-color: #e2e8f0; }
 .math-deep-dive-chapter .math-metrics dt,
 .math-deep-dive-chapter .math-legend span,
-.math-deep-dive-chapter .lecture-index-meta,
-.math-deep-dive-chapter .lecture-duration { color: #64748b; }
+.math-deep-dive-chapter .lecture-index-meta { color: #64748b; }
 
 .math-deep-dive-chapter .ml-bridge,
 .math-deep-dive-chapter .lecture-ml-bridge {
@@ -1376,7 +1373,6 @@
 
 .math-deep-dive-chapter .lecture-index-item:hover { background: #eef7ff; }
 .math-deep-dive-chapter .lecture-index-item.is-active { background: color-mix(in srgb, var(--course-color, var(--math-cyan)) 9%, white); }
-.math-deep-dive-chapter .lecture-index-item small { color: #64748b; }
 .math-deep-dive-chapter .lecture-concepts li { background: #f8fafc; color: #475569; }
 
 body[data-theme="dark"] .math-deep-dive-chapter .example-section,

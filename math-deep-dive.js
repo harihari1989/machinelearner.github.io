@@ -805,7 +805,6 @@
         const sceneCaption = $("#lectureSceneCaption");
         const number = $("#lectureNumber");
         const title = $("#lectureTitle");
-        const duration = $("#lectureDuration");
         const summary = $("#lectureSummary");
         const equation = $("#lectureEquation");
         const concepts = $("#lectureConcepts");
@@ -1089,7 +1088,7 @@
             const slides = [
                 {
                     title: "Build the mental picture",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Course<b>' + escapeHtml(course.label) + '</b></span><span>Lesson<b>' + String(lectureIndex + 1).padStart(2, "0") + ' · ' + escapeHtml(lecture.duration) + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + ' dedicated slides</b></span><span>Study pace<b>' + state.playbackRate.toFixed(2).replace(/0$/, "") + '× by default</b></span></div></div>'
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Subject<b>' + escapeHtml(course.label) + '</b></span><span>Lesson<b>' + String(lectureIndex + 1).padStart(2, "0") + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + ' ideas explained</b></span><span>Learning goal<b>Explain the picture and rebuild the formula</b></span></div></div>'
                 }
             ].concat(lecture.concepts.map(function(concept, conceptIndex) {
                 const previous = conceptIndex === 0 ? "Starting intuition" : lecture.concepts[conceptIndex - 1];
@@ -1332,10 +1331,10 @@
             filtered.forEach(function(item) {
                 const button = document.createElement("button"); const chapter = String(item.lectureIndex + 1).padStart(2, "0");
                 button.type = "button"; button.className = "lecture-index-item" + (item.lectureIndex === state.lectureIndex ? " is-active" : ""); button.setAttribute("role", "option"); button.setAttribute("aria-selected", item.lectureIndex === state.lectureIndex ? "true" : "false");
-                button.innerHTML = "<span>" + chapter + "</span><strong>" + item.lecture.title + "</strong><small>" + item.lecture.duration + "</small>";
+                button.innerHTML = "<span>" + chapter + "</span><strong>" + item.lecture.title + "</strong>";
                 button.addEventListener("click", function() { selectLecture(item.lectureIndex); }); index.appendChild(button);
             });
-            courseCount.textContent = filtered.length + " of " + course.lectures.length + " lectures";
+            courseCount.textContent = filtered.length + " of " + course.lectures.length + " lessons";
         }
 
         function selectLecture(lectureIndex) {
@@ -1343,7 +1342,7 @@
             const course = catalog[state.course], lecture = course.lectures[lectureIndex];
             library.style.setProperty("--course-color", course.color);
             number.textContent = course.label.toUpperCase() + " · " + String(lectureIndex + 1).padStart(2, "0");
-            title.textContent = lecture.title; duration.textContent = lecture.duration; summary.textContent = lecture.summary; mlBridge.textContent = lecture.ml;
+            title.textContent = lecture.title; summary.textContent = lecture.summary; mlBridge.textContent = lecture.ml;
             sceneLabel.textContent = lecture.scene.replaceAll("-", " "); sceneCaption.textContent = sceneCopy[lecture.scene] || lecture.summary;
             concepts.innerHTML = "";
             lecture.concepts.forEach(function(concept) { const item = document.createElement("li"), check = document.createElement("span"); check.textContent = "✓"; item.append(check, document.createTextNode(concept)); concepts.appendChild(item); });

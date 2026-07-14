@@ -1514,12 +1514,89 @@
                         <div class="proof-conclusion"><strong id="trigConclusionTitle">What the picture proves</strong><p id="trigConclusion">The Pythagorean theorem immediately gives \(\sin^2\theta+\cos^2\theta=1\).</p></div>
                     </aside>
                 </div>
-                <div class="proof-ladder" aria-label="Complete proof of the derivative of sine">
-                    <article><span>1</span><div><h3>Coordinates</h3><p>\(\mathbf u(\theta)=(\cos\theta,\sin\theta)\) because those are the two projections of a unit radius.</p></div></article>
-                    <article><span>2</span><div><h3>Rotation</h3><p>The rotated basis vectors are \(R(A)\hat\imath=(\cos A,\sin A)\) and \(R(A)\hat\jmath=(-\sin A,\cos A)\).</p><div class="math-formula math-mini">\[R(A)=\begin{bmatrix}\cos A&-\sin A\\\sin A&\cos A\end{bmatrix}\]</div></div></article>
-                    <article><span>3</span><div><h3>Composition</h3><p>Rotating by B and then A is the same physical motion as rotating once by \(A+B\): \(R(A)R(B)=R(A+B)\). Comparing matrix entries proves both addition formulas.</p><div class="math-formula math-mini">\[\sin(A+B)=\sin A\cos B+\cos A\sin B\]</div></div></article>
-                    <article><span>4</span><div><h3>Small angles</h3><p>Triangle and sector areas on the unit circle give \(\sin h&lt;h&lt;\tan h\). The squeeze theorem yields \(\lim_{h\to0}\sin h/h=1\), and \(1-\cos h=2\sin^2(h/2)\) gives the second limit.</p><div class="math-formula math-mini">\[\lim_{h\to0}\frac{\sin h}{h}=1,\qquad\lim_{h\to0}\frac{\cos h-1}{h}=0\]</div></div></article>
-                    <article><span>5</span><div><h3>Differentiate</h3><p>Expand \(\sin(\theta+h)\), divide its change by \(h\), and apply the two limits. Geometrically, the unit-radius velocity is tangent to the circle; its vertical component is \(\cos\theta\).</p><div class="math-formula math-mini">\[\frac{d}{d\theta}\sin\theta=\sin\theta\cdot0+\cos\theta\cdot1=\cos\theta\]</div></div></article>
+                <div class="proof-ladder" aria-label="Complete intuitive proof that the derivative of sine is cosine">
+                    <article class="proof-chapter">
+                        <header class="proof-chapter-heading"><span class="proof-number">1</span><div><small>Define the objects</small><h3>Coordinates: sine and cosine are shadows</h3></div></header>
+                        <div class="proof-chapter-grid">
+                            <div class="proof-graphic proof-graphic-circle" role="img" aria-label="A unit radius at angle theta with horizontal projection cosine theta and vertical projection sine theta">
+                                <span class="proof-axis proof-axis-x"></span><span class="proof-axis proof-axis-y"></span><span class="proof-shape-circle"></span>
+                                <span class="proof-radius-line"></span><span class="proof-projection-x"></span><span class="proof-projection-y"></span><span class="proof-point"></span>
+                                <b class="proof-label proof-label-theta">θ</b><b class="proof-label proof-label-cos">cos θ</b><b class="proof-label proof-label-sin">sin θ</b>
+                            </div>
+                            <div class="proof-theory">
+                                <p class="proof-question">What do the symbols mean?</p>
+                                <p>Start with a circle of radius one. A signed angle θ selects one point on the circle. Drop that point onto the horizontal and vertical axes. The horizontal coordinate is called <strong>cosine</strong>; the vertical coordinate is called <strong>sine</strong>.</p>
+                                <div class="proof-equation"><code>u(θ) = (cos θ, sin θ)</code><code>cos²θ + sin²θ = 1</code></div>
+                                <p class="proof-reason"><strong>Why it is true.</strong> The radius, horizontal shadow, and vertical shadow make a right triangle. Pythagoras says the two squared shadows add to the squared radius, which is one.</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="proof-chapter">
+                        <header class="proof-chapter-heading"><span class="proof-number">2</span><div><small>Turn coordinates into motion</small><h3>Rotation: the matrix is made from moved basis vectors</h3></div></header>
+                        <div class="proof-chapter-grid">
+                            <div class="proof-graphic proof-graphic-rotation" role="img" aria-label="The horizontal and vertical basis vectors rotated by angle alpha, forming the two columns of a rotation matrix">
+                                <span class="proof-axis proof-axis-x"></span><span class="proof-axis proof-axis-y"></span>
+                                <span class="proof-basis-arrow proof-basis-i"></span><span class="proof-basis-arrow proof-basis-j"></span><span class="proof-right-angle"></span>
+                                <b class="proof-label proof-label-i">(cos α, sin α)</b><b class="proof-label proof-label-j">(−sin α, cos α)</b><b class="proof-label proof-label-alpha">α</b>
+                            </div>
+                            <div class="proof-theory">
+                                <p class="proof-question">What does it take to rotate every vector?</p>
+                                <p>A linear transformation is completely determined by where it sends the two basis vectors. Rotating the horizontal unit vector by α gives <strong>(cos α, sin α)</strong>. The vertical unit vector begins a quarter-turn ahead, so it lands at <strong>(−sin α, cos α)</strong>. Those destination vectors become the matrix columns.</p>
+                                <div class="proof-equation"><code>R(α) = [[cos α, −sin α], [sin α, cos α]]</code></div>
+                                <p class="proof-reason"><strong>Why the minus sign is necessary.</strong> The two columns must remain perpendicular, have length one, and keep their counterclockwise orientation. The vector (−sin α, cos α) is exactly the quarter-turn of (cos α, sin α).</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="proof-chapter">
+                        <header class="proof-chapter-heading"><span class="proof-number">3</span><div><small>Compose two motions</small><h3>Angle addition: two turns have one endpoint</h3></div></header>
+                        <div class="proof-chapter-grid">
+                            <div class="proof-graphic proof-graphic-composition" role="img" aria-label="A turn by B followed by a turn by A reaches the same endpoint as a single turn by A plus B">
+                                <span class="proof-composition-circle"></span><span class="proof-composition-radius"></span><span class="proof-composition-radius proof-composition-first"></span>
+                                <span class="proof-turn proof-turn-b"></span><span class="proof-turn proof-turn-a"></span><span class="proof-endpoint"></span>
+                                <b class="proof-label proof-label-b">first: B</b><b class="proof-label proof-label-a">then: A</b><b class="proof-label proof-label-total">same endpoint: A + B</b>
+                            </div>
+                            <div class="proof-theory">
+                                <p class="proof-question">Why must the angle-addition formulas have their particular signs and products?</p>
+                                <p>Rotate by B, then rotate the result by A. Physical rotations add, so this two-step motion is identical to one rotation by A+B. Therefore the matrices must be equal: <strong>R(A)R(B) = R(A+B)</strong>.</p>
+                                <div class="proof-equation"><code>sin(A+B) = sin A cos B + cos A sin B</code><code>cos(A+B) = cos A cos B − sin A sin B</code></div>
+                                <p class="proof-reason"><strong>Proof by comparing coordinates.</strong> Multiply the matrices and compare the first column. Its lower entry gives the sine formula; its upper entry gives the cosine formula. The formulas are forced by the fact that both motions reach the same point.</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="proof-chapter">
+                        <header class="proof-chapter-heading"><span class="proof-number">4</span><div><small>Understand an infinitesimal turn</small><h3>Small angles: triangle areas squeeze the limit</h3></div></header>
+                        <div class="proof-chapter-grid">
+                            <div class="proof-graphic proof-graphic-squeeze" role="img" aria-label="An inner triangle inside a circular sector inside an outer tangent triangle, proving sine h is less than h which is less than tangent h">
+                                <span class="proof-squeeze-inner"></span><span class="proof-squeeze-sector"></span><span class="proof-squeeze-outer"></span><span class="proof-squeeze-radius"></span>
+                                <b class="proof-label proof-label-inner">½ sin h</b><b class="proof-label proof-label-sector">½h</b><b class="proof-label proof-label-outer">½ tan h</b>
+                            </div>
+                            <div class="proof-theory">
+                                <p class="proof-question">How can we prove the tiny-angle behavior without already knowing the derivative?</p>
+                                <p>For 0 &lt; h &lt; π/2 on a unit circle, the inner triangle lies inside the circular sector, and the sector lies inside the outer tangent triangle. Comparing their areas gives <strong>sin h &lt; h &lt; tan h</strong>.</p>
+                                <div class="proof-equation"><code>cos h &lt; sin h / h &lt; 1</code><code>lim[h→0] sin h / h = 1</code><code>lim[h→0] (cos h − 1) / h = 0</code></div>
+                                <p class="proof-reason"><strong>Why the squeeze works.</strong> As h approaches zero, cos h approaches one. The middle ratio is trapped between two quantities approaching one. The second limit follows from 1−cos h = 2sin²(h/2). Radians are essential because the unit-sector area is h/2 only in radians.</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="proof-chapter proof-chapter-final">
+                        <header class="proof-chapter-heading"><span class="proof-number">5</span><div><small>Take the limit</small><h3>Differentiate: the tangent’s height change is cosine</h3></div></header>
+                        <div class="proof-chapter-grid">
+                            <div class="proof-graphic proof-graphic-derivative" role="img" aria-label="A secant on the unit circle shrinking into a tangent whose vertical component equals cosine theta">
+                                <span class="proof-derivative-circle"></span><span class="proof-derivative-radius"></span><span class="proof-derivative-secant"></span><span class="proof-derivative-tangent"></span><span class="proof-derivative-point"></span>
+                                <b class="proof-label proof-label-secant">secant, h ≠ 0</b><b class="proof-label proof-label-tangent">tangent u′(θ)</b><b class="proof-label proof-label-vertical">vertical component = cos θ</b>
+                            </div>
+                            <div class="proof-theory">
+                                <p class="proof-question">Why is the derivative of sine exactly cosine?</p>
+                                <p>Use the addition formula to expand sin(θ+h). After subtracting sin θ and dividing by h, the change splits into the two small-angle ratios already proved.</p>
+                                <div class="proof-equation proof-equation-long"><code>[sin(θ+h) − sin θ] / h</code><code>= sin θ[(cos h−1)/h] + cos θ[sin h/h]</code><code>→ sin θ·0 + cos θ·1 = cos θ</code></div>
+                                <p class="proof-reason"><strong>Geometric meaning.</strong> The radius vector u(θ)=(cos θ, sin θ) moves perpendicular to itself. Its unit tangent is u′(θ)=(−sin θ, cos θ). Sine is the point’s height, so its rate of height change is the tangent’s vertical component: <strong>cos θ</strong>.</p>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </section>
 
@@ -1747,7 +1824,6 @@
                         <article class="lecture-notes">
                             <div class="lecture-title-row">
                                 <div><span class="lecture-number" id="lectureNumber">CALCULUS · 01</span><h3 id="lectureTitle">The essence of calculus</h3></div>
-                                <span class="lecture-duration" id="lectureDuration">17:05</span>
                             </div>
                             <p class="lecture-summary" id="lectureSummary"></p>
                             <div class="lecture-equation" id="lectureEquation"></div>
