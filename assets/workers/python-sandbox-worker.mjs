@@ -6,6 +6,7 @@ const runtimeFetch = self.fetch.bind(self);
 const blockedFetch = () => Promise.reject(new TypeError('Network access is disabled inside this Python session.'));
 
 let runtimePromise = null;
+let requestQueue = Promise.resolve();
 
 function allowRuntimeAssetLoading() {
     self.fetch = runtimeFetch;
@@ -116,22 +117,32 @@ _ml_json.dumps({
         `);
         return JSON.parse(resultJson);
     } finally {
-        runtime.globals.delete('_ml_code');
-        runtime.globals.delete('_ml_scope_id');
-        runtime.globals.delete('_ml_reset_scope');
+        for (const name of ['_ml_code', '_ml_scope_id', '_ml_reset_scope']) {
+            try {
+                runtime.globals.delete(name);
+            } catch {
+                // A failed cell must not poison the next queued request.
+            }
+        }
     }
 }
 
-self.addEventListener('message', async event => {
-    const request = event.data || {};
+async function handleRequest(request) {
     const response = { id: request.id };
 
     try {
         const runtime = await getRuntime();
         if (request.type === 'reset') {
             runtime.globals.set('_ml_scope_id', request.scope || 'session');
-            await runtime.runPythonAsync('_ml_scopes.pop(_ml_scope_id, None)');
-            runtime.globals.delete('_ml_scope_id');
+            try {
+                await runtime.runPythonAsync('_ml_scopes.pop(_ml_scope_id, None)');
+            } finally {
+                try {
+                    runtime.globals.delete('_ml_scope_id');
+                } catch {
+                    // The next request still receives a fresh value.
+                }
+            }
             response.result = { reset: true };
         } else if (request.type === 'run') {
             response.result = await runCode(runtime, request);
@@ -143,4 +154,12 @@ self.addEventListener('message', async event => {
     }
 
     self.postMessage(response);
+}
+
+self.addEventListener('message', event => {
+    const request = event.data || {};
+    requestQueue = requestQueue.then(
+        () => handleRequest(request),
+        () => handleRequest(request)
+    );
 });

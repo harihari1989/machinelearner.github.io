@@ -10913,14 +10913,20 @@ function drawControlCharts() {
 const notebookCompilerState = {
     session: null
 };
+const playgroundCompilerState = {
+    session: null
+};
 
-function ensureNotebookSession(statusEl) {
-    if (!notebookCompilerState.session) {
+function ensurePythonSession(state, scope, statusEl) {
+    if (!state.session) {
         if (statusEl) statusEl.textContent = 'Starting isolated Python session...';
-        notebookCompilerState.session = window.createMachineLearnerPythonSession('notebook');
+        state.session = window.createMachineLearnerPythonSession(scope);
     }
-    return notebookCompilerState.session;
+    return state.session;
 }
+
+const ensureNotebookSession = statusEl => ensurePythonSession(notebookCompilerState, 'notebook', statusEl);
+const ensurePlaygroundSession = statusEl => ensurePythonSession(playgroundCompilerState, 'foundations-playground', statusEl);
 
 function buildNotebookPlot(spec) {
     if (!spec || !Array.isArray(spec.x) || !Array.isArray(spec.series)) return null;
@@ -11032,14 +11038,14 @@ function buildNotebookPlot(spec) {
     return svg;
 }
 
-async function runNotebookCode(code, outputEl, statusEl) {
+async function runNotebookCode(code, outputEl, statusEl, sessionProvider = ensureNotebookSession) {
     if (!outputEl) return;
     const trimmed = code.trim();
     if (!trimmed) {
         if (statusEl) statusEl.textContent = 'Add some code to run.';
         outputEl.textContent = '';
         outputEl.classList.remove('has-error');
-        return;
+        return false;
     }
 
     outputEl.textContent = '';
@@ -11048,7 +11054,7 @@ async function runNotebookCode(code, outputEl, statusEl) {
 
     let session;
     try {
-        session = ensureNotebookSession(statusEl);
+        session = sessionProvider(statusEl);
         const wantsPlot = /_lesson_plot\s*=/.test(code);
         if (wantsPlot && statusEl) statusEl.textContent = 'Preparing local plot...';
         if (statusEl) statusEl.textContent = 'Running...';
@@ -11056,6 +11062,8 @@ async function runNotebookCode(code, outputEl, statusEl) {
         if (result.stderr) {
             outputEl.textContent = result.stderr;
             outputEl.classList.add('has-error');
+            if (statusEl) statusEl.textContent = 'Cell error.';
+            return false;
         } else {
             outputEl.classList.remove('has-error');
             outputEl.innerHTML = '';
@@ -11078,16 +11086,18 @@ async function runNotebookCode(code, outputEl, statusEl) {
             }
         }
         if (statusEl) statusEl.textContent = 'Done.';
+        return true;
     } catch (err) {
         outputEl.textContent = err?.message || String(err);
         outputEl.classList.add('has-error');
         if (statusEl) statusEl.textContent = 'Error.';
+        return false;
     }
 }
 
-async function resetNotebookKernel(statusEl, outputEls = []) {
+async function resetNotebookKernel(statusEl, outputEls = [], state = notebookCompilerState) {
     if (!statusEl) return;
-    if (!notebookCompilerState.session) {
+    if (!state.session) {
         statusEl.textContent = 'A fresh isolated session will start on the next run.';
         outputEls.forEach(outputEl => {
             outputEl.textContent = '';
@@ -11097,8 +11107,8 @@ async function resetNotebookKernel(statusEl, outputEls = []) {
     }
 
     try {
-        notebookCompilerState.session.destroy();
-        notebookCompilerState.session = null;
+        state.session.destroy();
+        state.session = null;
         statusEl.textContent = 'Session destroyed. A fresh sandbox will start on the next run.';
         outputEls.forEach(outputEl => {
             outputEl.textContent = '';
@@ -11584,7 +11594,7 @@ function setupFundamentalsPlayground() {
 
     if (runBtn) {
         runBtn.addEventListener('click', () => {
-            runNotebookCode(editor.value, output, status);
+            runNotebookCode(editor.value, output, status, ensurePlaygroundSession);
         });
     }
 
@@ -11605,14 +11615,14 @@ function setupFundamentalsPlayground() {
 
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
-            resetNotebookKernel(status, [output]);
+            resetNotebookKernel(status, [output], playgroundCompilerState);
         });
     }
 
     editor.addEventListener('keydown', (event) => {
         if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
             event.preventDefault();
-            runNotebookCode(editor.value, output, status);
+            runNotebookCode(editor.value, output, status, ensurePlaygroundSession);
         }
     });
 
@@ -11640,7 +11650,7 @@ function setupNotebookLab() {
         const editor = cell.querySelector('.cell-editor');
         const output = cell.querySelector('.cell-output');
         if (!editor || !output) return;
-        await runNotebookCode(editor.value, output, status);
+        return await runNotebookCode(editor.value, output, status);
     };
 
     const setControlsDisabled = (disabled) => {
@@ -11663,12 +11673,21 @@ function setupNotebookLab() {
     if (runAllBtn) {
         runAllBtn.addEventListener('click', async () => {
             setControlsDisabled(true);
-            for (let i = 0; i < cells.length; i++) {
-                if (status) status.textContent = `Running cell ${i + 1} of ${cells.length}...`;
-                await runCell(cells[i]);
+            let failures = 0;
+            try {
+                for (let i = 0; i < cells.length; i++) {
+                    if (status) status.textContent = `Running cell ${i + 1} of ${cells.length}...`;
+                    const succeeded = await runCell(cells[i]);
+                    if (!succeeded) failures += 1;
+                }
+                if (status) {
+                    status.textContent = failures
+                        ? `Completed with ${failures} cell error${failures === 1 ? '' : 's'}.`
+                        : `All ${cells.length} cells completed.`;
+                }
+            } finally {
+                setControlsDisabled(false);
             }
-            if (status) status.textContent = 'Done.';
-            setControlsDisabled(false);
         });
     }
 
