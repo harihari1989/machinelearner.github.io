@@ -6,6 +6,7 @@
     <title>Artificial Intelligence Math Foundations</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="math-deep-dive.css">
+    <link rel="stylesheet" href="math-foundations-lab.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         window.MathJax = {
@@ -1390,32 +1391,34 @@
             <nav class="chapter-nav math-dive-nav" aria-label="Mathematics deep dive sections">
                 <a href="#math-atlas">Atlas</a>
                 <a href="#deep-calculus">Calculus</a>
+                <a href="#deep-trigonometry">Trigonometric proofs</a>
                 <a href="#deep-linear-algebra">Linear algebra</a>
-                <a href="#deep-differential-equations">Differential equations</a>
+                <a href="#deep-probability">Probability &amp; statistics</a>
                 <a href="#deep-neural-networks">Neural networks</a>
-                <a href="#lecture-library">45-lecture atlas</a>
+                <a href="#python-math-lab">Python lab</a>
+                <a href="#lecture-library">Formula library</a>
                 <a href="#math-synthesis">Synthesis</a>
             </nav>
 
             <section id="math-atlas" class="example-section math-atlas-section">
                 <div class="math-atlas-hero">
                     <div class="math-atlas-copy">
-                        <span class="math-eyebrow">An animated course in four connected ideas</span>
+                        <span class="math-eyebrow">An animated course in the mathematics of learning</span>
                         <h2>See the mathematics that makes learning possible</h2>
-                        <p class="math-atlas-lead">A neural network is not a bag of tricks. It is geometry transformed by linear algebra, sensitivity measured by calculus, state evolved like a differential equation, and parameters refined by a learning algorithm.</p>
+                        <p class="math-atlas-lead">A model represents data with vectors, transforms geometry with matrices, measures sensitivity with calculus, quantifies uncertainty with probability, and improves its parameters by following gradients.</p>
                         <div class="math-atlas-actions">
                             <a class="math-dive-primary" href="#deep-calculus">Begin with change</a>
                             <button class="math-dive-secondary" id="mathTourToggle" type="button" aria-pressed="false">Play guided tour</button>
                         </div>
                     </div>
-                    <div class="math-atlas-orbit" id="mathAtlasOrbit" aria-label="Animated map connecting the four mathematical subjects">
+                    <div class="math-atlas-orbit" id="mathAtlasOrbit" aria-label="Animated map connecting the core mathematical subjects">
                         <div class="atlas-core">
                             <span>Learning</span>
                             <strong>minimize \(L(\theta)\)</strong>
                         </div>
                         <button class="atlas-node atlas-calculus" type="button" data-math-target="deep-calculus"><span>01</span>Calculus</button>
                         <button class="atlas-node atlas-linear" type="button" data-math-target="deep-linear-algebra"><span>02</span>Linear algebra</button>
-                        <button class="atlas-node atlas-ode" type="button" data-math-target="deep-differential-equations"><span>03</span>Differential equations</button>
+                        <button class="atlas-node atlas-ode" type="button" data-math-target="deep-probability"><span>03</span>Probability</button>
                         <button class="atlas-node atlas-network" type="button" data-math-target="deep-neural-networks"><span>04</span>Neural networks</button>
                         <span class="atlas-ring atlas-ring-one" aria-hidden="true"></span>
                         <span class="atlas-ring atlas-ring-two" aria-hidden="true"></span>
@@ -1424,7 +1427,7 @@
                 <div class="math-path-grid">
                     <article><span class="path-index">01</span><h3>Measure change</h3><p>Derivatives turn tiny input nudges into precise output sensitivity.</p><code>dx → df</code></article>
                     <article><span class="path-index">02</span><h3>Transform space</h3><p>Matrices move every vector by moving the basis vectors.</p><code>x → Wx + b</code></article>
-                    <article><span class="path-index">03</span><h3>Evolve a state</h3><p>A derivative field tells a system how to move at every instant.</p><code>dz/dt = f(z,t)</code></article>
+                    <article><span class="path-index">03</span><h3>Quantify uncertainty</h3><p>Distributions describe possible outcomes; inference updates what the data makes plausible.</p><code>posterior ∝ likelihood × prior</code></article>
                     <article><span class="path-index">04</span><h3>Learn parameters</h3><p>Backprop combines local sensitivities into a useful global update.</p><code>θ ← θ − η∇L</code></article>
                 </div>
             </section>
@@ -1474,9 +1477,55 @@
                 </details>
             </section>
 
+            <section id="deep-trigonometry" class="example-section math-lab-section math-proof-section" data-math-lab="trigonometry">
+                <div class="math-lab-heading">
+                    <div><span class="math-chapter-number">02 · ROTATION</span><h2>Trigonometry: prove the formulas from one rotating radius</h2></div>
+                    <p>Sine and cosine are coordinates, not rules to memorize. Build the rotation matrix from where the basis vectors move, compose two rotations to prove the angle-addition identities, prove the small-angle limits geometrically, and only then differentiate sine.</p>
+                </div>
+                <div class="math-concept-rail" role="tablist" aria-label="Trigonometric proof stages">
+                    <button class="math-mode-btn is-active" type="button" role="tab" aria-selected="true" data-trig-proof="circle">Circle coordinates</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-trig-proof="rotation">Rotation matrix</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-trig-proof="addition">Angle addition</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-trig-proof="small-angle">Small-angle proof</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-trig-proof="derivative">Why sine differentiates to cosine</button>
+                </div>
+                <div class="math-lab-grid math-proof-grid">
+                    <div class="math-stage-card">
+                        <div class="math-stage-topline"><span id="trigStageLabel">Coordinates are shadows of a radius</span><span class="live-dot">proof in motion</span></div>
+                        <canvas id="trigProofCanvas" class="math-deep-canvas" width="1000" height="560" aria-label="Interactive geometric proof using a unit circle, composed rotations, small-angle bounds, and tangent vectors"></canvas>
+                        <div class="math-canvas-controls trig-proof-controls">
+                            <label>θ <input id="trigTheta" type="range" min="-3.14" max="3.14" step="0.01" value="0.8"><output id="trigThetaValue">0.80</output></label>
+                            <label>A <input id="trigA" type="range" min="-3.14" max="3.14" step="0.01" value="0.65"><output id="trigAValue">0.65</output></label>
+                            <label>B <input id="trigB" type="range" min="-3.14" max="3.14" step="0.01" value="0.9"><output id="trigBValue">0.90</output></label>
+                            <label>h <input id="trigH" type="range" min="0.02" max="1.1" step="0.01" value="0.55"><output id="trigHValue">0.55</output></label>
+                            <button class="math-play-btn" id="trigAnimate" type="button">Animate the proof</button>
+                        </div>
+                    </div>
+                    <aside class="math-insight-panel math-proof-insight">
+                        <span class="insight-kicker" id="trigProofKicker">UNIT CIRCLE</span>
+                        <h3 id="trigProofTitle">Sine and cosine are coordinates</h3>
+                        <p id="trigProofText">A radius of length one at angle θ lands at \((\cos\theta,\sin\theta)\). The horizontal and vertical projections are the adjacent and opposite sides of the right triangle.</p>
+                        <div class="math-live-equation" id="trigProofEquation">\[\mathbf u(\theta)=\begin{bmatrix}\cos\theta\\\sin\theta\end{bmatrix}\]</div>
+                        <dl class="math-metrics">
+                            <div><dt id="trigMetricALabel">Horizontal coordinate</dt><dd id="trigMetricA">—</dd></div>
+                            <div><dt id="trigMetricBLabel">Vertical coordinate</dt><dd id="trigMetricB">—</dd></div>
+                            <div><dt id="trigMetricCLabel">Radius check</dt><dd id="trigMetricC">—</dd></div>
+                        </dl>
+                        <div class="proof-conclusion"><strong id="trigConclusionTitle">What the picture proves</strong><p id="trigConclusion">The Pythagorean theorem immediately gives \(\sin^2\theta+\cos^2\theta=1\).</p></div>
+                    </aside>
+                </div>
+                <div class="proof-ladder" aria-label="Complete proof of the derivative of sine">
+                    <article><span>1</span><div><h3>Coordinates</h3><p>\(\mathbf u(\theta)=(\cos\theta,\sin\theta)\) because those are the two projections of a unit radius.</p></div></article>
+                    <article><span>2</span><div><h3>Rotation</h3><p>The rotated basis vectors are \(R(A)\hat\imath=(\cos A,\sin A)\) and \(R(A)\hat\jmath=(-\sin A,\cos A)\).</p><div class="math-formula math-mini">\[R(A)=\begin{bmatrix}\cos A&-\sin A\\\sin A&\cos A\end{bmatrix}\]</div></div></article>
+                    <article><span>3</span><div><h3>Composition</h3><p>Rotating by B and then A is the same physical motion as rotating once by \(A+B\): \(R(A)R(B)=R(A+B)\). Comparing matrix entries proves both addition formulas.</p><div class="math-formula math-mini">\[\sin(A+B)=\sin A\cos B+\cos A\sin B\]</div></div></article>
+                    <article><span>4</span><div><h3>Small angles</h3><p>Triangle and sector areas on the unit circle give \(\sin h&lt;h&lt;\tan h\). The squeeze theorem yields \(\lim_{h\to0}\sin h/h=1\), and \(1-\cos h=2\sin^2(h/2)\) gives the second limit.</p><div class="math-formula math-mini">\[\lim_{h\to0}\frac{\sin h}{h}=1,\qquad\lim_{h\to0}\frac{\cos h-1}{h}=0\]</div></div></article>
+                    <article><span>5</span><div><h3>Differentiate</h3><p>Expand \(\sin(\theta+h)\), divide its change by \(h\), and apply the two limits. Geometrically, the unit-radius velocity is tangent to the circle; its vertical component is \(\cos\theta\).</p><div class="math-formula math-mini">\[\frac{d}{d\theta}\sin\theta=\sin\theta\cdot0+\cos\theta\cdot1=\cos\theta\]</div></div></article>
+                </div>
+            </section>
+
             <section id="deep-linear-algebra" class="example-section math-lab-section" data-math-lab="linear">
                 <div class="math-lab-heading">
-                    <div><span class="math-chapter-number">02 · SPACE</span><h2>Linear algebra: matrices as moving geometry</h2></div>
+                    <div><span class="math-chapter-number">03 · SPACE</span><h2>Linear algebra: matrices as moving geometry</h2></div>
                     <p>Forget “boxes of numbers” for a moment. A matrix is a function that preserves lines and the origin; its columns tell you where the basis vectors land.</p>
                 </div>
                 <div class="math-concept-rail" role="group" aria-label="Matrix transformation preset">
@@ -1522,55 +1571,56 @@
                 </details>
             </section>
 
-            <section id="deep-differential-equations" class="example-section math-lab-section" data-math-lab="ode">
+            <section id="deep-probability" class="example-section math-lab-section probability-lab-section" data-math-lab="probability">
                 <div class="math-lab-heading">
-                    <div><span class="math-chapter-number">03 · TIME</span><h2>Differential equations: rules that become motion</h2></div>
-                    <p>An equation like \(d\mathbf{z}/dt=f(\mathbf{z},t)\) does not directly give a trajectory. It gives a velocity arrow at every state; a solver follows those arrows.</p>
+                    <div><span class="math-chapter-number">04 · UNCERTAINTY</span><h2>Probability and statistics: from possible worlds to justified beliefs</h2></div>
+                    <p>Probability describes uncertainty before data arrives. Statistics runs the logic backward: use observed samples to infer the hidden process that generated them. Explore events, conditioning, distributions, the central limit theorem, and sampling uncertainty.</p>
                 </div>
-                <div class="math-concept-rail" role="group" aria-label="Differential equation system">
-                    <button class="math-mode-btn is-active" type="button" data-ode-system="sink">Stable sink</button>
-                    <button class="math-mode-btn" type="button" data-ode-system="saddle">Saddle</button>
-                    <button class="math-mode-btn" type="button" data-ode-system="oscillator">Oscillator</button>
-                    <button class="math-mode-btn" type="button" data-ode-system="nonlinear">Nonlinear flow</button>
+                <div class="math-concept-rail" role="tablist" aria-label="Probability and statistics lesson">
+                    <button class="math-mode-btn is-active" type="button" role="tab" aria-selected="true" data-prob-mode="events">Events</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-prob-mode="bayes">Conditional + Bayes</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-prob-mode="distribution">Distributions</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-prob-mode="clt">Central limit theorem</button>
+                    <button class="math-mode-btn" type="button" role="tab" aria-selected="false" data-prob-mode="inference">Statistical inference</button>
                 </div>
                 <div class="math-lab-grid">
                     <div class="math-stage-card">
-                        <div class="math-stage-topline"><span>Phase portrait + numerical solution</span><span class="live-dot">simulating</span></div>
-                        <canvas id="odeDeepCanvas" class="math-deep-canvas math-drag-canvas" width="900" height="540" aria-label="Differential equation vector field. Click or drag to seed a trajectory."></canvas>
-                        <div class="math-canvas-controls">
-                            <label>Solver<select id="odeSolver"><option value="euler">Euler</option><option value="rk4" selected>Runge–Kutta 4</option></select></label>
-                            <label>Step Δt <input id="odeDt" type="range" min="0.005" max="0.12" step="0.005" value="0.025"></label>
-                            <button class="math-play-btn" id="odePause" type="button" aria-pressed="false">Pause</button>
-                            <button class="math-dive-secondary" id="odeReset" type="button">Reset trails</button>
+                        <div class="math-stage-topline"><span id="probStageLabel">Events are regions of a sample space</span><span class="live-dot">sampling</span></div>
+                        <canvas id="probabilityDeepCanvas" class="math-deep-canvas" width="1000" height="560" aria-label="Interactive probability and statistics visualization"></canvas>
+                        <div class="math-canvas-controls probability-controls">
+                            <label>Probability p <input id="probP" type="range" min="0.05" max="0.95" step="0.01" value="0.35"><output id="probPValue">0.35</output></label>
+                            <label>Sample size n <input id="probN" type="range" min="2" max="80" step="1" value="20"><output id="probNValue">20</output></label>
+                            <label>Experiments <input id="probTrials" type="range" min="20" max="600" step="20" value="200"><output id="probTrialsValue">200</output></label>
+                            <button class="math-play-btn" id="probResample" type="button">Resample</button>
                         </div>
-                        <p class="math-stage-hint">Click anywhere in the field to launch a new state. Drag to paint several initial conditions.</p>
                     </div>
                     <aside class="math-insight-panel">
-                        <span class="insight-kicker">STATE EVOLUTION</span>
-                        <h3 id="odeTitle">Stable systems forget perturbations</h3>
-                        <p id="odeDescription">Every arrow points toward the fixed point. Nearby trajectories contract, so small errors fade over time.</p>
-                        <div class="math-live-equation" id="odeEquation">\(\dot{x}=-x,\quad \dot{y}=-y\)</div>
+                        <span class="insight-kicker" id="probKicker">SAMPLE SPACE</span>
+                        <h3 id="probTitle">Probability is normalized area</h3>
+                        <p id="probDescription">An event is a set of outcomes. When outcomes are equally likely, probability is the fraction of the sample-space area occupied by that event.</p>
+                        <div class="math-live-equation" id="probEquation">\[P(A)=\frac{|A|}{|\Omega|},\qquad 0\le P(A)\le1\]</div>
                         <dl class="math-metrics">
-                            <div><dt>Simulated time</dt><dd id="odeTime">0.00</dd></div>
-                            <div><dt>Active trajectories</dt><dd id="odeParticles">0</dd></div>
-                            <div><dt>Local behavior</dt><dd id="odeBehavior">contracting</dd></div>
+                            <div><dt id="probMetricALabel">Theoretical</dt><dd id="probMetricA">—</dd></div>
+                            <div><dt id="probMetricBLabel">Observed</dt><dd id="probMetricB">—</dd></div>
+                            <div><dt id="probMetricCLabel">Sampling error</dt><dd id="probMetricC">—</dd></div>
                         </dl>
-                        <div class="ml-bridge"><strong>ML bridge</strong><p>A residual layer \(\mathbf{z}_{k+1}=\mathbf{z}_k+h f_\theta(\mathbf{z}_k)\) is an Euler step. Very deep residual networks can be read as learned flows through feature space.</p></div>
+                        <div class="ml-bridge"><strong>ML bridge</strong><p id="probBridge">A classifier estimates probabilities over labels; calibration asks whether events predicted at probability p occur about p of the time.</p></div>
                     </aside>
                 </div>
-                <details class="derivation-drawer">
-                    <summary>Open the derivation: from a derivative field to a solver</summary>
-                    <div class="derivation-grid">
-                        <div><h4>Euler: trust the local arrow</h4><div class="math-formula math-mini">\[\mathbf{z}_{n+1}=\mathbf{z}_n+h f(\mathbf{z}_n,t_n)\]</div><p>First-order global error: \(O(h)\). Fast, intuitive, and inaccurate for large steps.</p></div>
-                        <div><h4>RK4: sample four slopes</h4><p>Blend slopes at the start, two midpoints, and the end. Global error is \(O(h^4)\), usually far smaller at the same step size.</p></div>
-                        <div><h4>Stability matters</h4><p>A good continuous system can look unstable under a poor discretization. Optimizers have the same issue: learning rate is a numerical step size.</p></div>
+                <details class="derivation-drawer" open>
+                    <summary>The inference chain: model → sample → estimate → uncertainty</summary>
+                    <div class="derivation-grid probability-derivation-grid">
+                        <div><h4>Expectation</h4><p>A probability-weighted center: \(\mathbb E[X]=\sum_x xP(X=x)\) or \(\int x f(x)dx\). It is the long-run average, not necessarily a likely outcome.</p></div>
+                        <div><h4>Variance</h4><p>Square distance from the mean before averaging: \(\operatorname{Var}(X)=\mathbb E[(X-\mu)^2]=\mathbb E[X^2]-\mu^2\).</p></div>
+                        <div><h4>Bayes</h4><p>Reverse a condition by reweighting hypotheses: \(P(H|D)=P(D|H)P(H)/P(D)\). The evidence normalizes the posterior to total one.</p></div>
+                        <div><h4>Sampling error</h4><p>For a sample mean, \(\operatorname{SE}(\bar X)=\sigma/\sqrt n\). Four times the data roughly halves uncertainty.</p></div>
                     </div>
                 </details>
             </section>
 
             <section id="deep-neural-networks" class="example-section math-lab-section" data-math-lab="network">
                 <div class="math-lab-heading">
-                    <div><span class="math-chapter-number">04 · LEARNING</span><h2>Neural networks: forward meaning, backward credit</h2></div>
+                    <div><span class="math-chapter-number">05 · LEARNING</span><h2>Neural networks: forward meaning, backward credit</h2></div>
                     <p>A neuron forms a weighted sum and applies a nonlinearity. A network composes many such functions. Backpropagation then assigns credit by multiplying local derivatives backward.</p>
                 </div>
                 <div class="math-concept-rail" role="group" aria-label="Neural network animation">
@@ -1620,60 +1670,59 @@
             <section id="lecture-library" class="example-section lecture-library-section">
                 <div class="lecture-library-heading">
                     <div>
-                        <span class="math-eyebrow">COMPLETE PLAYLIST COVERAGE · 12H 32M</span>
-                        <h2>Every lecture, mapped concept by concept</h2>
-                        <p>Select any chapter to open its intuition, mathematical core, detailed concept checklist, ML connection, and a matching ManimGL lecture scene rendered directly in the browser. All 45 videos in the four supplied playlists are represented, with an interactive JavaScript canvas available for experimentation.</p>
+                        <span class="math-eyebrow">54 GUIDED LESSONS · 382 CONCEPT CHECKPOINTS</span>
+                        <h2>Every formula, rebuilt from its intuition</h2>
+                        <p>Select any lesson to open its mental picture, governing equation, complete concept chain, visual proof, boundary-case test, and machine-learning consequence. The library now centers calculus, trigonometry, linear algebra, probability, statistics, optimization, and neural networks.</p>
                     </div>
-                    <div class="coverage-orb" aria-label="45 of 45 source lectures covered">
-                        <strong>45</strong>
-                        <span>of 45 lectures</span>
-                        <i>covered</i>
+                    <div class="coverage-orb" aria-label="382 mathematical concepts explained">
+                        <strong>382</strong>
+                        <span>concepts</span>
+                        <i>explained</i>
                     </div>
                 </div>
 
-                <div class="lecture-playlist-tabs" id="lecturePlaylistTabs" role="tablist" aria-label="Source playlist">
-                    <button class="lecture-playlist-tab is-active" type="button" role="tab" aria-selected="true" data-lecture-course="calculus"><span>12</span>Calculus</button>
+                <div class="lecture-playlist-tabs" id="lecturePlaylistTabs" role="tablist" aria-label="Mathematics subjects">
+                    <button class="lecture-playlist-tab is-active" type="button" role="tab" aria-selected="true" data-lecture-course="calculus"><span>15</span>Calculus + trigonometry</button>
                     <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="linear"><span>16</span>Linear algebra</button>
-                    <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="ode"><span>8</span>Differential equations</button>
+                    <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="probability"><span>14</span>Probability &amp; statistics</button>
                     <button class="lecture-playlist-tab" type="button" role="tab" aria-selected="false" data-lecture-course="neural"><span>9</span>Neural networks</button>
                 </div>
 
                 <div class="lecture-explorer">
                     <aside class="lecture-index-panel">
-                        <label class="lecture-search-label" for="lectureSearch">Search this playlist</label>
-                        <input class="lecture-search" id="lectureSearch" type="search" placeholder="Try “eigen”, “limit”, or “attention”" autocomplete="off">
-                        <div class="lecture-index-meta"><span id="lectureCourseCount">12 lectures</span><a id="lecturePlaylistLink" href="#" target="_blank" rel="noopener noreferrer">Open playlist ↗</a></div>
-                        <div class="lecture-index" id="lectureIndex" role="listbox" aria-label="Lecture chapters"></div>
+                        <label class="lecture-search-label" for="lectureSearch">Search this subject</label>
+                        <input class="lecture-search" id="lectureSearch" type="search" placeholder="Try “Bayes”, “rotation”, or “gradient”" autocomplete="off">
+                        <div class="lecture-index-meta"><span id="lectureCourseCount">15 lessons</span><span>Choose a proof path</span></div>
+                        <div class="lecture-index" id="lectureIndex" role="listbox" aria-label="Mathematics lessons"></div>
                     </aside>
 
                     <div class="lecture-detail-panel">
                         <div class="lecture-scene-shell">
                             <div class="math-stage-topline lecture-media-topline">
-                                <div class="lecture-stage-meta"><span id="lectureSceneLabel">Visual intuition</span><span class="live-dot" id="lectureMediaStatus">loading ManimGL</span></div>
+                                <div class="lecture-stage-meta"><span id="lectureSceneLabel">Visual intuition</span><span class="live-dot" id="lectureMediaStatus">interactive proof</span></div>
                                 <div class="lecture-media-actions">
-                                    <a href="https://github.com/3b1b/manim" target="_blank" rel="noopener noreferrer">ManimGL ↗</a>
                                     <label class="lecture-speed-label" for="lecturePlaybackRate">Pace
-                                        <select id="lecturePlaybackRate" aria-label="Manim animation playback pace">
+                                        <select id="lecturePlaybackRate" aria-label="Guided animation playback pace">
                                             <option value="0.55">Slow · 0.55×</option>
                                             <option value="0.7" selected>Study · 0.70×</option>
                                             <option value="1">Normal · 1×</option>
                                         </select>
                                     </label>
-                                    <button id="lectureMediaToggle" type="button" aria-pressed="false">Manim render</button>
+                                    <button id="lectureMediaToggle" type="button" aria-pressed="false">Guided animation</button>
                                 </div>
                             </div>
                             <div class="lecture-media-stage" id="lectureMediaStage">
-                                <video id="lectureManimVideo" class="lecture-manim-video" muted loop playsinline preload="auto" aria-label="ManimGL animation for the selected lecture"></video>
-                                <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Interactive JavaScript visualization for the selected lecture"></canvas>
-                                <span class="lecture-manim-badge" id="lectureManimBadge">MANIMGL · BROWSER VIDEO</span>
-                                <button class="lecture-video-play" id="lectureVideoPlay" type="button" aria-pressed="false" aria-label="Pause the Manim lecture animation">Pause</button>
+                                <video id="lectureManimVideo" class="lecture-manim-video" muted loop playsinline preload="auto" aria-label="Guided animation for the selected lesson"></video>
+                                <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Interactive visualization for the selected lesson"></canvas>
+                                <span class="lecture-manim-badge" id="lectureManimBadge">GUIDED VISUAL PROOF</span>
+                                <button class="lecture-video-play" id="lectureVideoPlay" type="button" aria-pressed="false" aria-label="Pause the guided animation">Pause</button>
                             </div>
                             <div class="lecture-concept-rail" id="lectureConceptRail" aria-label="Concepts synchronized with the animation">
                                 <div class="lecture-concept-rail-heading"><span>Animated concept path</span><span id="lectureConceptProgress">1 of 6</span></div>
                                 <div class="lecture-concept-track" id="lectureConceptTrack"></div>
                                 <strong id="lectureCurrentConcept">Follow the highlighted concept as the animation develops.</strong>
                             </div>
-                            <div class="lecture-scene-caption"><span id="lectureSceneCaption">The animation responds to the selected lecture.</span><span id="lectureMediaHint">Rendered with 3b1b/manim, played in your browser.</span></div>
+                            <div class="lecture-scene-caption"><span id="lectureSceneCaption">The animation responds to the selected lesson.</span><span id="lectureMediaHint">Pause, seek a concept, predict the next move, then replay.</span></div>
                         </div>
                         <section class="lecture-carousel" id="lectureCarousel" aria-label="Guided lecture slides" aria-roledescription="carousel" tabindex="0">
                             <div class="lecture-carousel-heading">
@@ -1710,7 +1759,6 @@
                                 <div>
                                     <h4>Why machine learning cares</h4>
                                     <p class="lecture-ml-bridge" id="lectureMlBridge"></p>
-                                    <a class="lecture-watch-link" id="lectureWatchLink" href="#" target="_blank" rel="noopener noreferrer">Watch source lecture ↗</a>
                                 </div>
                             </div>
                         </article>
@@ -1718,28 +1766,57 @@
                 </div>
             </section>
 
+            <section id="python-math-lab" class="example-section python-math-lab-section">
+                <div class="math-lab-heading">
+                    <div><span class="math-chapter-number">EXPERIMENT · PYTHON</span><h2>Turn each proof into a numerical experiment</h2></div>
+                    <p>Use the examples as a bridge between picture and computation. Shrink a difference quotient, compose rotation matrices, update a posterior, sample the central limit theorem, or follow gradient descent one update at a time. Edit any value and run it again.</p>
+                </div>
+                <div class="python-lab-grid">
+                    <div class="python-editor-panel">
+                        <div class="python-toolbar">
+                            <label for="pythonExample">Experiment
+                                <select id="pythonExample">
+                                    <option value="sine">Derivative of sine</option>
+                                    <option value="rotation">Rotation composition</option>
+                                    <option value="bayes">Bayes with a rare base rate</option>
+                                    <option value="clt">Central limit theorem</option>
+                                    <option value="gradient">Gradient descent</option>
+                                </select>
+                            </label>
+                            <span class="python-runtime-status" id="pythonStatus" aria-live="polite">Ready</span>
+                        </div>
+                        <label class="sr-only" for="pythonEditor">Editable Python code</label>
+                        <textarea id="pythonEditor" class="python-editor" spellcheck="false" aria-label="Editable Python code"></textarea>
+                        <div class="python-actions">
+                            <button class="math-play-btn" id="pythonRun" type="button">Run Python</button>
+                            <button class="math-dive-secondary" id="pythonReset" type="button">Reset example</button>
+                        </div>
+                    </div>
+                    <aside class="python-output-panel">
+                        <span class="insight-kicker">NUMERICAL EVIDENCE</span>
+                        <h3>Read the limit, identity, or uncertainty directly</h3>
+                        <p>The output does not replace the proof. It stress-tests the prediction with concrete values and exposes convergence, approximation error, and sampling variation.</p>
+                        <pre id="pythonOutput" aria-live="polite">Run the code to inspect the numerical experiment.</pre>
+                        <div class="ml-bridge"><strong>How to learn from it</strong><p>Predict the output first. Then change one quantity, rerun, and explain which term in the formula caused the change.</p></div>
+                    </aside>
+                </div>
+            </section>
+
             <section id="math-synthesis" class="example-section math-synthesis-section">
                 <span class="math-eyebrow">PUT THE FOUR LENSES TOGETHER</span>
-                <h2>One training step, read four ways</h2>
+                <h2>One prediction, read four ways</h2>
                 <div class="synthesis-flow">
-                    <article><span>Linear algebra</span><strong>Represent</strong><p>\(W\mathbf{x}+\mathbf{b}\) moves the example through feature spaces.</p></article>
+                    <article><span>Linear algebra</span><strong>Represent</strong><p>\(W\mathbf{x}+\mathbf{b}\) moves the example through learned feature spaces.</p></article>
                     <i aria-hidden="true">→</i>
-                    <article><span>Calculus</span><strong>Measure</strong><p>\(\nabla_\theta L\) measures how every parameter affects error.</p></article>
+                    <article><span>Probability</span><strong>Infer</strong><p>\(p(y\mid\mathbf{x},\theta)\) expresses uncertainty over possible labels or outcomes.</p></article>
                     <i aria-hidden="true">→</i>
-                    <article><span>Differential equations</span><strong>Evolve</strong><p>Layers and optimizer steps discretize continuous-looking flows.</p></article>
+                    <article><span>Calculus</span><strong>Optimize</strong><p>\(\nabla_\theta L\) measures how every parameter changes the probabilistic error.</p></article>
                     <i aria-hidden="true">→</i>
-                    <article><span>Neural networks</span><strong>Learn</strong><p>Backprop reuses the chain rule to compute the update efficiently.</p></article>
+                    <article><span>Neural networks</span><strong>Learn</strong><p>Backprop reuses local derivatives to compute the full parameter update efficiently.</p></article>
                 </div>
                 <div class="math-checkpoint">
-                    <div><h3>The compact mental model</h3><p>Data is a point. A layer transforms the point. A loss measures the result. A gradient tells how to change the transformation. Training repeats that flow.</p></div>
-                    <div class="math-formula">\[\mathbf{x}\xrightarrow{\;f_\theta\;}\hat{\mathbf{y}}\xrightarrow{\;L\;}\text{error}\xrightarrow{\;\nabla_\theta\;}\theta-\eta\nabla_\theta L\]</div>
-                </div>
-                <div class="math-source-strip">
-                    <span>Continue with the visual source courses:</span>
-                    <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr" target="_blank" rel="noopener noreferrer">Essence of Calculus ↗</a>
-                    <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab" target="_blank" rel="noopener noreferrer">Essence of Linear Algebra ↗</a>
-                    <a href="https://www.youtube.com/watch?v=p_di4Zn4wz4&amp;list=PLZHQObOWTQDNPOjrT6KVlfJuKtYTftqH6" target="_blank" rel="noopener noreferrer">Differential Equations ↗</a>
-                    <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi" target="_blank" rel="noopener noreferrer">Neural Networks ↗</a>
+                    <div><h3>The compact mental model</h3><p>Data becomes a vector. A model transforms the vector. A distribution expresses what remains uncertain. A loss scores the observed outcome. A gradient tells every parameter how to improve.</p></div>
+                    <div class="math-formula">\[\mathbf{x}\xrightarrow{\;f_\theta\;}p(\mathbf y\mid\mathbf x,\theta)\xrightarrow{\;-\log p(y)\;}L\xrightarrow{\;\nabla_\theta\;}\theta-\eta\nabla_\theta L\]</div>
                 </div>
             </section>
         </section>
@@ -5690,7 +5767,10 @@ except Exception:
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
+    <script src="math-foundation-course-data.js"></script>
     <script src="manim/scene-manifest.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/pyodide.js" defer></script>
+    <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
 </body>
 </html>

@@ -801,7 +801,6 @@
         const search = $("#lectureSearch");
         const index = $("#lectureIndex");
         const courseCount = $("#lectureCourseCount");
-        const playlistLink = $("#lecturePlaylistLink");
         const sceneLabel = $("#lectureSceneLabel");
         const sceneCaption = $("#lectureSceneCaption");
         const number = $("#lectureNumber");
@@ -811,7 +810,6 @@
         const equation = $("#lectureEquation");
         const concepts = $("#lectureConcepts");
         const mlBridge = $("#lectureMlBridge");
-        const watchLink = $("#lectureWatchLink");
         const library = $("#lecture-library");
         const mediaStage = $("#lectureMediaStage");
         const manimVideo = $("#lectureManimVideo");
@@ -889,10 +887,6 @@
             });
         }
 
-        function sourceUrl(course, lecture) {
-            return "https://www.youtube.com/watch?v=" + lecture.video + "&list=" + new URL(course.playlist).searchParams.get("list");
-        }
-
         function activeLecture() {
             return catalog[state.course].lectures[state.lectureIndex];
         }
@@ -939,7 +933,7 @@
             const paused = manimVideo.paused;
             videoPlay.textContent = paused ? "Play" : "Pause";
             videoPlay.setAttribute("aria-pressed", paused ? "true" : "false");
-            videoPlay.setAttribute("aria-label", (paused ? "Play" : "Pause") + " the Manim lecture animation");
+            videoPlay.setAttribute("aria-label", (paused ? "Play" : "Pause") + " the guided lecture animation");
         }
 
         function playManim(userInitiated) {
@@ -956,16 +950,16 @@
             const showingManim = state.mediaMode === "manim";
             mediaStage.classList.toggle("is-manim-mode", showingManim);
             mediaToggle.setAttribute("aria-pressed", showingManim ? "true" : "false");
-            mediaToggle.textContent = showingManim ? "Interactive canvas" : "Manim render";
+            mediaToggle.textContent = showingManim ? "Interactive canvas" : "Guided animation";
             if (showingManim) {
                 cancelAnimationFrame(state.frame);
-                mediaStatus.textContent = "ManimGL browser render";
-                mediaHint.textContent = "Rendered with 3b1b/manim, played in your browser.";
+                mediaStatus.textContent = "guided visual proof";
+                mediaHint.textContent = "Pause at any concept checkpoint, predict the next move, and replay slowly.";
                 playManim(false);
             } else {
                 manimVideo.pause();
-                mediaStatus.textContent = manimReady ? "interactive JavaScript" : "JavaScript fallback";
-                mediaHint.textContent = manimReady ? "Switch back to the Manim render at any time." : "The browser canvas remains fully animated.";
+                mediaStatus.textContent = manimReady ? "interactive proof" : "interactive visualization";
+                mediaHint.textContent = manimReady ? "Switch back to the guided animation at any time." : "Use the concept rail to move through the visual argument.";
                 state.sceneStart = performance.now();
                 cancelAnimationFrame(state.frame);
                 drawScene(performance.now());
@@ -977,8 +971,8 @@
             mediaStage.classList.remove("is-manim-ready", "is-manim-mode");
             state.mediaAsset = null;
             setMediaMode("canvas");
-            mediaStatus.textContent = "JavaScript fallback";
-            mediaHint.textContent = message || "The Manim render is unavailable; the interactive canvas is active.";
+            mediaStatus.textContent = "interactive visualization";
+            mediaHint.textContent = message || "The interactive proof is active.";
         }
 
         function updateManimMedia() {
@@ -987,7 +981,7 @@
             if (!manimCatalog) return;
             const slug = manimCatalog.scenes?.[lecture.scene];
             const asset = slug ? manimCatalog.assets?.[slug] : null;
-            if (!slug || !asset) { fallbackToCanvas("No Manim scene is mapped for this lecture; the interactive canvas is active."); return; }
+            if (!slug || !asset) { fallbackToCanvas("This lesson uses the interactive proof; use the concept rail to inspect each step."); return; }
 
             state.mediaToken += 1;
             const token = state.mediaToken;
@@ -995,11 +989,11 @@
             state.mediaMode = "canvas";
             mediaStage.classList.remove("is-manim-ready", "is-manim-mode");
             mediaToggle.setAttribute("aria-pressed", "false");
-            mediaToggle.textContent = "Manim render";
+            mediaToggle.textContent = "Guided animation";
             manimVideo.pause();
             manimVideo.replaceChildren();
             manimVideo.poster = manimCatalog.assetBase + "/" + slug + ".jpg";
-            manimVideo.setAttribute("aria-label", asset.title + " — ManimGL animation for " + lecture.title);
+            manimVideo.setAttribute("aria-label", asset.title + " — guided animation for " + lecture.title);
             const markCurrentAssetReady = function() {
                 if (token !== state.mediaToken || state.mediaAsset !== slug || manimVideo.readyState < 2) return;
                 manimVideo.playbackRate = state.playbackRate;
@@ -1015,12 +1009,12 @@
                 source.addEventListener("error", function() {
                     if (token !== state.mediaToken) return;
                     failures += 1;
-                    if (failures === 2) fallbackToCanvas("This Manim asset has not been rendered yet; the interactive canvas is active.");
+                    if (failures === 2) fallbackToCanvas("The guided animation is unavailable; the interactive proof is active.");
                 });
                 manimVideo.appendChild(source);
             });
-            mediaStatus.textContent = "loading ManimGL";
-            mediaHint.textContent = "Loading the matching Manim lecture scene…";
+            mediaStatus.textContent = "loading guided proof";
+            mediaHint.textContent = "Loading the matching lecture animation…";
             manimVideo.load();
         }
 
@@ -1036,7 +1030,7 @@
                     state.manimCatalog = manimCatalog;
                     updateManimMedia();
                 })
-                .catch(function() { fallbackToCanvas("Manim metadata is unavailable; the interactive canvas is active."); });
+                .catch(function() { fallbackToCanvas("The guided animation is unavailable; the interactive proof is active."); });
         }
 
         function stopAutoplay() {
@@ -1091,12 +1085,11 @@
             const derivations = window.MathLectureDerivations?.[lecture.scene] || [
                 { math: lecture.math, text: guide.formula }
             ];
-            const url = sourceUrl(course, lecture);
             const sceneDescription = sceneCopy[lecture.scene] || lecture.summary;
             const slides = [
                 {
                     title: "Build the mental picture",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Course<b>' + escapeHtml(course.label) + '</b></span><span>Source chapter<b>' + String(lectureIndex + 1).padStart(2, "0") + ' · ' + escapeHtml(lecture.duration) + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + ' dedicated slides</b></span><span>Study pace<b>' + state.playbackRate.toFixed(2).replace(/0$/, "") + '× by default</b></span></div></div>'
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Course<b>' + escapeHtml(course.label) + '</b></span><span>Lesson<b>' + String(lectureIndex + 1).padStart(2, "0") + ' · ' + escapeHtml(lecture.duration) + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + ' dedicated slides</b></span><span>Study pace<b>' + state.playbackRate.toFixed(2).replace(/0$/, "") + '× by default</b></span></div></div>'
                 }
             ].concat(lecture.concepts.map(function(concept, conceptIndex) {
                 const previous = conceptIndex === 0 ? "Starting intuition" : lecture.concepts[conceptIndex - 1];
@@ -1123,7 +1116,7 @@
                 },
                 {
                     title: "Transfer the idea to ML",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">' + String(lecture.concepts.length + 4).padStart(2, "0") + '</span><span class="lecture-slide-kicker">From mathematics to models</span><h4>Find the machine-learning role</h4><p>' + escapeHtml(lecture.ml) + '</p><div class="lecture-slide-actions"><a class="lecture-slide-source" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">Watch this source lecture ↗</a></div></div><div class="lecture-slide-visual"><div class="lecture-slide-question"><strong>Check your understanding</strong>' + escapeHtml(guide.check) + '</div><div class="lecture-slide-mini-meta"><span>Explain it visually<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span><span>Explain it symbolically<b>Rebuild every derivation step</b></span></div></div>'
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">' + String(lecture.concepts.length + 4).padStart(2, "0") + '</span><span class="lecture-slide-kicker">From mathematics to models</span><h4>Find the machine-learning role</h4><p>' + escapeHtml(lecture.ml) + '</p><div class="lecture-slide-actions"><button class="lecture-replay" type="button" data-carousel-replay>Replay the proof</button></div></div><div class="lecture-slide-visual"><div class="lecture-slide-question"><strong>Check your understanding</strong>' + escapeHtml(guide.check) + '</div><div class="lecture-slide-mini-meta"><span>Explain it visually<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span><span>Explain it symbolically<b>Rebuild every derivation step</b></span></div></div>'
                 }
             ]);
 
@@ -1323,10 +1316,10 @@
             const sceneTime = Math.max(0, time - state.sceneStart);
             if (state.mediaMode !== "manim") updateConceptBeat(Math.floor(sceneTime / 5200) % lecture.concepts.length);
             drawBackdrop();
-            if (state.course === "calculus") drawCalculus(lecture, sceneTime, course.color);
-            if (state.course === "linear") drawLinear(lecture, sceneTime, course.color);
-            if (state.course === "ode") drawOde(lecture, sceneTime, course.color);
-            if (state.course === "neural") drawNeural(lecture, sceneTime, course.color);
+            const customDrawn = window.MathVisualScenes?.drawLectureScene(ctx, canvas, lecture, sceneTime, course.color, palette, { drawArrow, roundedRect }) || false;
+            if (!customDrawn && state.course === "calculus") drawCalculus(lecture, sceneTime, course.color);
+            if (!customDrawn && state.course === "linear") drawLinear(lecture, sceneTime, course.color);
+            if (!customDrawn && state.course === "neural") drawNeural(lecture, sceneTime, course.color);
             drawCarouselOverlay(course);
             if (library.closest(".chapter")?.classList.contains("is-active") && state.mediaMode !== "manim" && !reducedMotion) state.frame = requestAnimationFrame(drawScene);
         }
@@ -1352,7 +1345,6 @@
             number.textContent = course.label.toUpperCase() + " · " + String(lectureIndex + 1).padStart(2, "0");
             title.textContent = lecture.title; duration.textContent = lecture.duration; summary.textContent = lecture.summary; mlBridge.textContent = lecture.ml;
             sceneLabel.textContent = lecture.scene.replaceAll("-", " "); sceneCaption.textContent = sceneCopy[lecture.scene] || lecture.summary;
-            watchLink.href = sourceUrl(course, lecture);
             concepts.innerHTML = "";
             lecture.concepts.forEach(function(concept) { const item = document.createElement("li"), check = document.createElement("span"); check.textContent = "✓"; item.append(check, document.createTextNode(concept)); concepts.appendChild(item); });
             renderConceptRail(lecture); setMath(equation, lecture.math); buildCarousel(course, lecture, lectureIndex); updateManimMedia(); renderIndex(); restartScene();
@@ -1360,7 +1352,7 @@
 
         function selectCourse(courseKey) {
             state.course = courseKey; state.lectureIndex = 0; search.value = "";
-            const course = catalog[courseKey]; library.style.setProperty("--course-color", course.color); playlistLink.href = course.playlist;
+            const course = catalog[courseKey]; library.style.setProperty("--course-color", course.color);
             courseButtons.forEach(function(button) { const selected = button.dataset.lectureCourse === courseKey; button.classList.toggle("is-active", selected); button.setAttribute("aria-selected", selected ? "true" : "false"); button.style.setProperty("--course-color", catalog[button.dataset.lectureCourse].color); });
             selectLecture(0);
         }
@@ -1435,7 +1427,6 @@
         setupAtlas();
         setupCalculusLab();
         setupLinearLab();
-        setupOdeLab();
         setupNetworkLab();
         setupLectureExplorer();
     }

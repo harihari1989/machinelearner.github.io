@@ -1,26 +1,18 @@
 # machinelearner.github.io
-Visual summaries of Machine Learning and Neural Network algorithms — built for intuition. This repository powers machinelearner.github.io, a GitHub Pages site dedicated to clear, visual, and intuitive explanations of common machine learning and neural network algorithms.
+
+Visual, interactive explanations of machine learning and the mathematics that makes it work.
 
 ## Math Deep Dive
 
-The Math Deep Dive chapter is an animated, interactive course connecting calculus, linear algebra, differential equations, and neural networks. Its browser-native labs use real numerical methods and learning algorithms:
+The Math Deep Dive is a white-theme course that builds formulas from pictures, motion, proofs, and numerical experiments. It concentrates on the mathematical foundations used most often in machine learning:
 
-- finite differences, Riemann sums, chain-rule composition, and Taylor approximations;
-- animated matrix transformations with determinant, rank, and eigen-direction diagnostics;
-- phase portraits integrated with Euler or Runge–Kutta 4; and
-- a trainable 2–3–1 neural network with forward, loss-surface, backpropagation, and XOR-training views.
+- calculus and trigonometry: limits, derivatives, integrals, the chain rule, Taylor approximation, the unit circle, rotation matrices, angle addition, and the geometric proof that the derivative of sine is cosine;
+- linear algebra: vectors, span, transformations, composition, determinants, subspaces, projections, basis changes, eigenvectors, and abstract vector spaces;
+- probability and statistics: events, counting, conditioning, Bayes’ rule, random variables, distributions, expectation, variance, covariance, the central limit theorem, likelihood, inference, regression, entropy, cross-entropy, and KL divergence; and
+- neural networks: forward computation, loss, gradient descent, backpropagation, tokens, attention, transformers, feature memory, and diffusion.
 
-The chapter also includes a searchable coverage atlas for all 45 lectures in the four source playlists—12 calculus, 16 linear algebra, 8 differential equations, and 9 neural/deep-learning lectures. Each lecture maps one-to-one to a visual scene, its central equation, a detailed concept checklist, and a machine-learning connection. The guided carousel gives every one of the 302 named concepts its own checkpoint slide with meaning, visible mechanism, symbolic invariant, and a boundary-case stress test. It then builds the main formula through staged visual derivations before moving to an experiment and ML transfer. Keyboard, swipe, replay, synchronized concept seeking, playback pace, and optional auto-play controls are included.
+The searchable formula library contains 54 guided lessons and 382 concept checkpoints. Each lesson moves through intuition, a concept-by-concept argument, a staged derivation, a visual experiment, boundary cases, and the connection to machine learning.
 
-### ManimGL browser lectures
+Dedicated proof labs let readers manipulate the angles in the unit-circle and rotation arguments. A probability lab connects exact probability to samples, Bayes updates, distributions, sampling distributions, and confidence intervals. The embedded Python lab lets readers edit and run numerical experiments for the sine derivative, rotation composition, Bayes’ rule, the central limit theorem, and gradient descent.
 
-The lecture carousel can play original white-theme scenes rendered with [3Blue1Brown's ManimGL engine](https://github.com/3b1b/manim). Because ManimGL is a Python/OpenGL renderer rather than a browser runtime, the repository pins the upstream engine, renders 45 deterministic MP4/WebM assets, and delivers them through an HTML5 video layer. Every lecture has its own focused Manim scene; the existing JavaScript canvas remains available as an interactive and reduced-bandwidth fallback. The clips use slower staged transitions and default to a 0.70× study pace. A dedicated unit-circle scene derives `sin θ = y/r`, `cos θ = x/r`, the sine trace, and Euler's formula.
-
-- Scene source: `manim/lecture_scenes.py`
-- Lecture-to-scene mapping: `manim/scene-manifest.json` with a browser-ready mirror at `manim/scene-manifest.js`
-- Reproducible renderer: `scripts/render-manim-lectures.sh`
-- Optional GitHub Actions artifact build: `.github/workflows/render-manim-lectures.yml`
-
-The ManimGL engine is MIT licensed. These scenes are original and do not copy the separately CC BY-NC-SA scene code or artwork in the `3b1b/videos` repository.
-
-Serve the repository as a static site, then open index.html through that local server.
+Serve the repository as a static site and open `index.html` through that local server.

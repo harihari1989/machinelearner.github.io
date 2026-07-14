@@ -1,0 +1,294 @@
+.math-proof-section,
+.probability-lab-section,
+.python-math-lab-section {
+    padding: clamp(1.5rem, 4vw, 4rem) !important;
+}
+
+.math-proof-grid {
+    align-items: stretch;
+}
+
+.trig-proof-controls,
+.probability-controls {
+    align-items: end;
+}
+
+.trig-proof-controls label,
+.probability-controls label {
+    min-width: 132px;
+}
+
+.trig-proof-controls output,
+.probability-controls output {
+    color: var(--math-blue);
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    margin-left: .35rem;
+    min-width: 2.8rem;
+    text-align: right;
+}
+
+.proof-conclusion {
+    background: rgba(5, 150, 105, .07);
+    border-left: 4px solid var(--math-mint);
+    border-radius: 0 14px 14px 0;
+    margin-top: 1.25rem;
+    padding: 1rem 1.1rem;
+}
+
+.proof-conclusion strong {
+    color: var(--math-mint);
+    display: block;
+    font-size: .77rem;
+    letter-spacing: .1em;
+    margin-bottom: .35rem;
+    text-transform: uppercase;
+}
+
+.proof-conclusion p {
+    color: #475569 !important;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.proof-ladder {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-top: 1.4rem;
+}
+
+.proof-ladder article {
+    background: rgba(255, 255, 255, .88);
+    border: 1px solid rgba(148, 163, 184, .27);
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(30, 41, 59, .06);
+    display: grid;
+    gap: .75rem;
+    grid-template-columns: auto 1fr;
+    padding: 1rem;
+}
+
+.proof-ladder article > span {
+    align-items: center;
+    background: var(--math-blue);
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    font-weight: 800;
+    height: 1.8rem;
+    justify-content: center;
+    width: 1.8rem;
+}
+
+.proof-ladder h3 {
+    font-size: 1rem;
+    margin: .25rem 0 .45rem;
+}
+
+.proof-ladder p {
+    color: #475569 !important;
+    font-size: .88rem;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.proof-ladder .math-mini {
+    background: #f8fbff;
+    border-color: rgba(37, 99, 235, .12);
+    font-size: .78rem;
+    margin: .7rem 0 0;
+    overflow-x: auto;
+    padding: .7rem;
+}
+
+.probability-derivation-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.python-math-lab-section .math-lab-heading {
+    margin-bottom: 1.5rem;
+}
+
+.python-lab-grid {
+    align-items: stretch;
+    display: grid;
+    gap: 1.2rem;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+}
+
+.python-editor-panel,
+.python-output-panel {
+    background: rgba(255, 255, 255, .94);
+    border: 1px solid rgba(148, 163, 184, .28);
+    border-radius: 22px;
+    box-shadow: 0 14px 35px rgba(30, 41, 59, .08);
+    min-width: 0;
+    padding: 1.2rem;
+}
+
+.python-toolbar,
+.python-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    justify-content: space-between;
+}
+
+.python-toolbar label {
+    align-items: center;
+    display: flex;
+    font-size: .78rem;
+    font-weight: 800;
+    gap: .6rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.python-toolbar select {
+    background: #fff;
+    border: 1px solid rgba(100, 116, 139, .32);
+    border-radius: 10px;
+    color: var(--math-white);
+    font: inherit;
+    letter-spacing: 0;
+    max-width: 100%;
+    padding: .58rem .75rem;
+    text-transform: none;
+}
+
+.python-runtime-status {
+    align-items: center;
+    color: var(--math-mint);
+    display: flex;
+    font-size: .8rem;
+    font-weight: 800;
+    gap: .4rem;
+}
+
+.python-runtime-status::before {
+    background: currentColor;
+    border-radius: 50%;
+    content: "";
+    height: .48rem;
+    width: .48rem;
+}
+
+.python-editor {
+    background: #f8fbff;
+    border: 1px solid rgba(100, 116, 139, .28);
+    border-radius: 16px;
+    color: #0f172a;
+    display: block;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: .87rem;
+    line-height: 1.65;
+    margin: 1rem 0;
+    min-height: 410px;
+    padding: 1.1rem;
+    resize: vertical;
+    tab-size: 4;
+    width: 100%;
+}
+
+.python-editor:focus-visible {
+    outline: 3px solid rgba(2, 132, 199, .35);
+    outline-offset: 3px;
+}
+
+.python-actions {
+    justify-content: flex-start;
+}
+
+.python-output-panel h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+    line-height: 1.12;
+    margin: 0 0 .8rem;
+}
+
+.python-output-panel > p {
+    color: #475569 !important;
+    line-height: 1.7;
+}
+
+.python-output-panel pre {
+    background: #f1f5f9;
+    border: 1px solid rgba(100, 116, 139, .2);
+    border-radius: 14px;
+    color: #0f172a;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: .82rem;
+    line-height: 1.62;
+    margin: 1.2rem 0;
+    min-height: 245px;
+    overflow-x: auto;
+    padding: 1rem;
+    white-space: pre-wrap;
+}
+
+.python-output-panel .ml-bridge {
+    margin-top: 1rem;
+}
+
+.sr-only {
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+@media (max-width: 1180px) {
+    .proof-ladder {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .proof-ladder article:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .probability-derivation-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .python-lab-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .python-editor {
+        min-height: 330px;
+    }
+}
+
+@media (max-width: 640px) {
+    .proof-ladder,
+    .probability-derivation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .proof-ladder article:last-child {
+        grid-column: auto;
+    }
+
+    .python-editor-panel,
+    .python-output-panel {
+        border-radius: 16px;
+        padding: .85rem;
+    }
+
+    .python-toolbar,
+    .python-toolbar label {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .python-runtime-status {
+        align-self: flex-start;
+    }
+}
