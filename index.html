@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // WebAssembly workers cannot start from an opaque file:// origin. When
+        // this repository is opened directly, hand the page to its documented
+        // local preview server before any labs initialize.
+        if (window.location.protocol === 'file:') {
+            const localPreview = new URL('http://127.0.0.1:4173/');
+            localPreview.hash = window.location.hash;
+            window.location.replace(localPreview.href);
+        }
+    </script>
     <title>Artificial Intelligence Math Foundations</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="math-deep-dive.css">
@@ -6204,8 +6214,8 @@ for step in range(8):
         <p>All visualizations are interactive - click buttons to see animations!</p>
     </footer>
 
-    <script src="python-sandbox-client.js?v=20260713-local-runtimes-6"></script>
-    <script src="script.js?v=20260713-local-runtimes-6"></script>
+    <script src="python-sandbox-client.js?v=20260713-local-runtimes-8"></script>
+    <script src="script.js?v=20260713-local-runtimes-8"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
@@ -6213,6 +6223,6 @@ for step in range(8):
     <script src="manim/scene-manifest.js"></script>
     <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
-    <script src="learning-depth.js?v=20260713-local-runtimes-6"></script>
+    <script src="learning-depth.js?v=20260713-local-runtimes-8"></script>
 </body>
 </html>

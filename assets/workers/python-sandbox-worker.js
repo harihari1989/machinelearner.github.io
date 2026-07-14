@@ -1,29 +1,65 @@
-import { loadPyodide } from '../vendor/pyodide/pyodide.mjs';
-
 const PYODIDE_BASE_URL = new URL('../vendor/pyodide/', self.location.href).href;
+const PYODIDE_MODULE_URL = new URL('../vendor/pyodide/pyodide.mjs', self.location.href).href;
 const SUPPORTED_PACKAGES = new Set(['numpy']);
 const runtimeFetch = self.fetch.bind(self);
 const blockedFetch = () => Promise.reject(new TypeError('Network access is disabled inside this Python session.'));
 
 let runtimePromise = null;
+let loaderPromise = null;
 let requestQueue = Promise.resolve();
 
+function replaceWorkerCapability(name, value) {
+    try {
+        Object.defineProperty(self, name, {
+            configurable: true,
+            writable: true,
+            value
+        });
+        return true;
+    } catch {
+        try {
+            self[name] = value;
+            return self[name] === value;
+        } catch {
+            return false;
+        }
+    }
+}
+
 function allowRuntimeAssetLoading() {
-    self.fetch = runtimeFetch;
+    replaceWorkerCapability('fetch', runtimeFetch);
 }
 
 function blockUserNetworkCapabilities() {
-    self.fetch = blockedFetch;
-    self.WebSocket = undefined;
-    self.EventSource = undefined;
-    self.WebTransport = undefined;
-    self.Worker = undefined;
+    replaceWorkerCapability('fetch', blockedFetch);
+    replaceWorkerCapability('WebSocket', undefined);
+    replaceWorkerCapability('EventSource', undefined);
+    replaceWorkerCapability('WebTransport', undefined);
+    replaceWorkerCapability('Worker', undefined);
+}
+
+async function getRuntimeLoader() {
+    if (!loaderPromise) {
+        loaderPromise = import(PYODIDE_MODULE_URL)
+            .then(module => {
+                if (typeof module.loadPyodide !== 'function') {
+                    throw new Error('The bundled Python module does not export loadPyodide.');
+                }
+                return module.loadPyodide;
+            })
+            .catch(error => {
+                loaderPromise = null;
+                throw error;
+            });
+    }
+    return loaderPromise;
 }
 
 async function getRuntime() {
     if (!runtimePromise) {
         runtimePromise = (async () => {
             allowRuntimeAssetLoading();
+            const loadPyodide = await getRuntimeLoader();
             const runtime = await loadPyodide({ indexURL: PYODIDE_BASE_URL });
             await runtime.runPythonAsync(`
 import builtins as _ml_builtins
@@ -131,7 +167,13 @@ async function handleRequest(request) {
     const response = { id: request.id };
 
     try {
-        const runtime = await getRuntime();
+        let runtime;
+        try {
+            runtime = await getRuntime();
+        } catch (error) {
+            const detail = error?.message || String(error);
+            throw new Error(`The bundled Python runtime could not initialize. ${detail} Reload the page once, then run the cell again.`);
+        }
         if (request.type === 'reset') {
             runtime.globals.set('_ml_scope_id', request.scope || 'session');
             try {
@@ -163,3 +205,5 @@ self.addEventListener('message', event => {
         () => handleRequest(request)
     );
 });
+
+self.postMessage({ type: 'sandbox-worker-ready' });
