@@ -15,4 +15,12 @@ The searchable formula library contains 54 guided lessons and 382 concept checkp
 
 Dedicated proof labs let readers manipulate the angles in the unit-circle and rotation arguments. A probability lab connects exact probability to samples, Bayes updates, distributions, sampling distributions, and confidence intervals. The embedded Python lab lets readers edit and run numerical experiments for the sine derivative, rotation composition, Bayes’ rule, the central limit theorem, and gradient descent.
 
-Serve the repository as a static site and open `index.html` through that local server.
+Serve the repository as a static site; browser security prevents the isolated
+Python worker from running when `index.html` is opened with a `file://` URL.
+
+```bash
+python3 -m http.server 4173 --bind 127.0.0.1
+```
+
+Then open <http://127.0.0.1:4173/>. If `index.html` is opened directly while
+that preview server is running, the page automatically hands off to this URL.

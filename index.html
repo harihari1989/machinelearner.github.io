@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // WebAssembly workers cannot start from an opaque file:// origin. When
+        // this repository is opened directly, hand the page to its documented
+        // local preview server before any labs initialize.
+        if (window.location.protocol === 'file:') {
+            const localPreview = new URL('http://127.0.0.1:4173/');
+            localPreview.hash = window.location.hash;
+            window.location.replace(localPreview.href);
+        }
+    </script>
     <title>Artificial Intelligence Math Foundations</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="math-deep-dive.css">
@@ -5637,7 +5647,7 @@ except KeyError:
                 <a href="#notebook-calculus">Calculus + Optimization</a>
                 <a href="#notebook-probability">Probability + Activations</a>
                 <a href="#notebook-matrix">Matrix Calculus</a>
-                <a href="#notebook-pytorch-fundamentals">PyTorch Fundamentals</a>
+                <a href="#notebook-pytorch-fundamentals">Framework Mechanics</a>
                 <a href="#notebook-pytorch-tutorials">ONNX/JS Inference</a>
             </nav>
 
@@ -5659,7 +5669,7 @@ except KeyError:
                 <div class="notebook-workspace">
                     <article class="notebook-cell markdown-cell">
                         <h4>Notebook goal</h4>
-                        <p>Cover the Foundations math with a practical hands-on workshop: linear algebra, calculus, optimization, probability, activations, matrix calculus, plus PyTorch fundamentals and tutorials.</p>
+                        <p>Cover the Foundations math with a practical hands-on workshop: linear algebra, calculus, optimization, probability, activations, matrix calculus, framework mechanics, and browser inference.</p>
                     </article>
 
                     <div class="notebook-group" id="notebook-python">
@@ -5960,36 +5970,28 @@ print("grad =", [round(g, 4) for g in grad])</textarea>
                     </div>
 
                     <div class="notebook-group" id="notebook-pytorch-fundamentals">
-                        <h3>Section 6: PyTorch fundamentals</h3>
-                        <p class="section-intro">Tensors, autograd, modules, and optimizers. These cells print install guidance if PyTorch is unavailable.</p>
+                        <h3>Section 6: Neural-network framework concepts</h3>
+                        <p class="section-intro">Explore tensors, automatic differentiation, layers, losses, and optimizer steps with small browser-safe Python implementations. Each idea maps directly to the role played by a production framework without requiring an unavailable browser package.</p>
 
                         <article class="notebook-cell markdown-cell">
-                            <h4>Install PyTorch for this lab</h4>
-                            <p>This web lab runs in the browser and cannot install PyTorch. To run the PyTorch cells, open the notebook in local Jupyter or Colab and run the install cell below. For GPU builds, use the command from the PyTorch get-started page.</p>
+                            <h4>From the mechanism to the framework</h4>
+                            <p>A tensor is structured numerical data. Automatic differentiation records how results depend on parameters. A layer packages a parameterized function, a loss measures error, and an optimizer updates parameters. The cells below expose those mechanics directly so every line runs in this isolated browser session.</p>
                         </article>
 
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [12]</span>
-                                <span class="cell-title">Install PyTorch (local or Colab)</span>
+                                <span class="cell-title">Runtime + reproducible parameters</span>
                             </div>
-                            <textarea class="cell-editor" rows="12" spellcheck="false">try:
-    import sys
-    if sys.platform == "emscripten":
-        print("PyTorch cannot be installed in the browser lab.")
-        print("Run this in local Jupyter or Colab:")
-        print("python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu")
-    else:
-        import subprocess
-        cmd = [
-            sys.executable, "-m", "pip", "install",
-            "torch", "torchvision", "torchaudio",
-            "--index-url", "https://download.pytorch.org/whl/cpu"
-        ]
-        subprocess.check_call(cmd)
-        print("PyTorch installed.")
-except Exception as err:
-    print("Install failed:", err)</textarea>
+                            <textarea class="cell-editor" rows="9" spellcheck="false">import random
+
+random.seed(0)
+device = "CPU inside a WebAssembly worker"
+weights = [round(random.uniform(-0.5, 0.5), 4) for _ in range(3)]
+
+print("runtime =", device)
+print("seed =", 0)
+print("initial weights =", weights)</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -5999,15 +6001,17 @@ except Exception as err:
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [13]</span>
-                                <span class="cell-title">Setup + device</span>
+                                <span class="cell-title">Tensor shape + elementwise operations</span>
                             </div>
-                            <textarea class="cell-editor" rows="8" spellcheck="false">try:
-    import torch
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print("torch version =", torch.__version__)
-    print("device =", device)
-except Exception:
-    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <textarea class="cell-editor" rows="10" spellcheck="false">tensor = [
+    [1.0, -2.0, 0.5],
+    [0.0, 3.0, -1.0]
+]
+shape = (len(tensor), len(tensor[0]))
+relu = [[max(0.0, value) for value in row] for row in tensor]
+
+print("shape =", shape)
+print("ReLU(tensor) =", relu)</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -6017,22 +6021,21 @@ except Exception:
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [14]</span>
-                                <span class="cell-title">Tensors + matrix multiply</span>
+                                <span class="cell-title">Tensor dot product + matrix multiply</span>
                             </div>
-                            <textarea class="cell-editor" rows="11" spellcheck="false">try:
-    import torch
-    a = torch.tensor([2.0, -1.0, 3.0])
-    b = torch.tensor([0.5, 1.5, -2.0])
-    dot = torch.dot(a, b)
+                            <textarea class="cell-editor" rows="13" spellcheck="false">def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
 
-    M = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
-    v = torch.tensor([1.0, -1.0])
-    mv = M @ v
+def matvec(matrix, vector):
+    return [dot(row, vector) for row in matrix]
 
-    print("dot =", round(dot.item(), 3))
-    print("M @ v =", mv.tolist())
-except Exception:
-    print("PyTorch not available. Install with: pip install torch")</textarea>
+a = [2.0, -1.0, 3.0]
+b = [0.5, 1.5, -2.0]
+matrix = [[1.0, 2.0], [3.0, 4.0]]
+vector = [1.0, -1.0]
+
+print("dot(a, b) =", round(dot(a, b), 3))
+print("matrix @ vector =", matvec(matrix, vector))</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -6042,16 +6045,56 @@ except Exception:
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [15]</span>
-                                <span class="cell-title">Autograd basics</span>
+                                <span class="cell-title">Automatic differentiation, exposed</span>
                             </div>
-                            <textarea class="cell-editor" rows="8" spellcheck="false">try:
-    import torch
-    x = torch.tensor(1.5, requires_grad=True)
-    y = x ** 2 + 3 * x
-    y.backward()
-    print("dy/dx =", round(x.grad.item(), 3))
-except Exception:
-    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <textarea class="cell-editor" rows="25" spellcheck="false">class Value:
+    def __init__(self, data, parents=(), backward=lambda: None):
+        self.data = float(data)
+        self.grad = 0.0
+        self.parents = tuple(parents)
+        self._backward = backward
+
+    def __add__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, (self, other))
+        def backward():
+            self.grad += out.grad
+            other.grad += out.grad
+        out._backward = backward
+        return out
+
+    __radd__ = __add__
+
+    def __mul__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, (self, other))
+        def backward():
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
+        out._backward = backward
+        return out
+
+    __rmul__ = __mul__
+
+    def backward(self):
+        order, seen = [], set()
+        def visit(node):
+            if id(node) in seen:
+                return
+            seen.add(id(node))
+            for parent in node.parents:
+                visit(parent)
+            order.append(node)
+        visit(self)
+        self.grad = 1.0
+        for node in reversed(order):
+            node._backward()
+
+x = Value(1.5)
+y = x * x + 3 * x
+y.backward()
+print("y =", y.data)
+print("dy/dx =", x.grad)</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -6061,17 +6104,20 @@ except Exception:
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [16]</span>
-                                <span class="cell-title">Linear layer forward pass</span>
+                                <span class="cell-title">Linear layer forward pass, exposed</span>
                             </div>
-                            <textarea class="cell-editor" rows="10" spellcheck="false">try:
-    import torch
-    torch.manual_seed(0)
-    layer = torch.nn.Linear(2, 1)
-    x = torch.tensor([[1.0, -2.0], [0.5, 1.5]])
-    y = layer(x)
-    print("y =", y.detach().squeeze().tolist())
-except Exception:
-    print("PyTorch not available. Install with: pip install torch")</textarea>
+                            <textarea class="cell-editor" rows="12" spellcheck="false">def linear_layer(rows, weights, bias):
+    return [
+        sum(value * weight for value, weight in zip(row, weights)) + bias
+        for row in rows
+    ]
+
+inputs = [[1.0, -2.0], [0.5, 1.5]]
+weights = [0.4, -0.7]
+bias = 0.2
+outputs = linear_layer(inputs, weights, bias)
+
+print("outputs =", [round(value, 3) for value in outputs])</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -6081,27 +6127,29 @@ except Exception:
                         <article class="notebook-cell code-cell">
                             <div class="cell-top">
                                 <span class="cell-label">In [17]</span>
-                                <span class="cell-title">Loss + optimizer step</span>
+                                <span class="cell-title">MSE loss + optimizer steps, exposed</span>
                             </div>
-                            <textarea class="cell-editor" rows="14" spellcheck="false">try:
-    import torch
-    torch.manual_seed(0)
-    model = torch.nn.Linear(1, 1)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-    loss_fn = torch.nn.MSELoss()
+                            <textarea class="cell-editor" rows="18" spellcheck="false">xs = [0.0, 1.0, 2.0]
+targets = [1.0, 3.0, 5.0]
+weight, bias = 0.0, 0.0
+learning_rate = 0.1
 
-    x = torch.tensor([[0.0], [1.0], [2.0]])
-    y = torch.tensor([[1.0], [3.0], [5.0]])
+for step in range(8):
+    predictions = [weight * x + bias for x in xs]
+    errors = [prediction - target for prediction, target in zip(predictions, targets)]
+    loss = sum(error ** 2 for error in errors) / len(xs)
 
-    for step in range(5):
-        optimizer.zero_grad()
-        preds = model(x)
-        loss = loss_fn(preds, y)
-        loss.backward()
-        optimizer.step()
-        print("step", step, "loss", round(loss.item(), 4))
-except Exception:
-    print("PyTorch not available. Install with: pip install torch")</textarea>
+    grad_weight = (2 / len(xs)) * sum(error * x for error, x in zip(errors, xs))
+    grad_bias = (2 / len(xs)) * sum(errors)
+    weight -= learning_rate * grad_weight
+    bias -= learning_rate * grad_bias
+
+    print(
+        "step", step,
+        "loss", round(loss, 4),
+        "w", round(weight, 3),
+        "b", round(bias, 3)
+    )</textarea>
                             <div class="cell-actions">
                                 <button class="notebook-btn cell-run" type="button">Run cell</button>
                             </div>
@@ -6166,8 +6214,8 @@ except Exception:
         <p>All visualizations are interactive - click buttons to see animations!</p>
     </footer>
 
-    <script src="python-sandbox-client.js?v=20260713-local-runtimes-4"></script>
-    <script src="script.js?v=20260713-local-runtimes-4"></script>
+    <script src="python-sandbox-client.js?v=20260713-local-runtimes-8"></script>
+    <script src="script.js?v=20260713-local-runtimes-8"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
@@ -6175,6 +6223,6 @@ except Exception:
     <script src="manim/scene-manifest.js"></script>
     <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
-    <script src="learning-depth.js?v=20260713-local-runtimes-4"></script>
+    <script src="learning-depth.js?v=20260713-local-runtimes-8"></script>
 </body>
 </html>
