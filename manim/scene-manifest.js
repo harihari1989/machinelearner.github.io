@@ -322,6 +322,27 @@ window.MathManimCatalog = {
       "scenes": [
         "diffusion"
       ]
+    },
+    "bellman-backup": {
+      "class": "BellmanBackup",
+      "title": "A Bellman backup gathers possible futures",
+      "scenes": [
+        "bellman-backup"
+      ]
+    },
+    "temporal-credit-assignment": {
+      "class": "TemporalCreditAssignment",
+      "title": "Delayed reward sends credit backward through time",
+      "scenes": [
+        "temporal-credit"
+      ]
+    },
+    "policy-gradient-geometry": {
+      "class": "PolicyGradientGeometry",
+      "title": "Policy gradients move probability toward useful actions",
+      "scenes": [
+        "policy-gradient"
+      ]
     }
   },
   "scenes": {
@@ -369,6 +390,9 @@ window.MathManimCatalog = {
     "transformer": "transformer-flow",
     "attention": "attention-routing",
     "memory": "mlp-fact-memory",
-    "diffusion": "diffusion-denoising"
+    "diffusion": "diffusion-denoising",
+    "bellman-backup": "bellman-backup",
+    "temporal-credit": "temporal-credit-assignment",
+    "policy-gradient": "policy-gradient-geometry"
   }
 };

@@ -47,7 +47,7 @@ class BrowserLectureScene(Scene):
         return Text(value, font=FONT, font_size=size, weight=weight).set_color(color)
 
     def header(self):
-        eyebrow = self.text("MANIM VISUAL LECTURE", 16, self.accent, BOLD)
+        eyebrow = self.text("VISUAL LECTURE", 16, self.accent, BOLD)
         title = self.text(self.title, 39, INK, BOLD)
         subtitle = self.text(self.subtitle, 20, MUTED)
         group = VGroup(eyebrow, title, subtitle).arrange(DOWN, buff=0.12, aligned_edge=LEFT)
@@ -948,3 +948,140 @@ class BackpropagationCalculus(StepwiseDerivation):
     accent = CORAL
     steps = ("weight w changes z", "z changes activation", "activation changes cost")
     final_formula = "∂C/∂wⱼᵢ = (∂C/∂aⱼ)(∂aⱼ/∂zⱼ)(∂zⱼ/∂wⱼᵢ) = δⱼaᵢ"
+
+
+class BellmanBackup(BrowserLectureScene):
+    title = "A Bellman backup gathers possible futures"
+    subtitle = "Weight each one-step outcome, then flow its prediction backward"
+    accent = VIOLET
+
+    def outcome(self, position, probability, reward, next_value, color):
+        state = Circle(radius=0.34).set_fill("#FFFFFF", 1).set_stroke(color, 2.4)
+        state.move_to(position)
+        state_label = self.text("s′", 20, INK, BOLD).move_to(state)
+        details = self.text(f"p={probability}   r={reward:+d}   V={next_value}", 17, MUTED, BOLD)
+        details.next_to(state, RIGHT, buff=0.14)
+        return VGroup(state, state_label, details)
+
+    def animate_concept(self):
+        current = self.node("state s", VIOLET, width=1.55).move_to(4.8 * LEFT + 0.25 * DOWN)
+        action_a = self.node("action a₁", CYAN, width=1.65).move_to(1.75 * LEFT + 1.15 * UP)
+        action_b = self.node("action a₂", GOLD, width=1.65).move_to(1.75 * LEFT + 1.55 * DOWN)
+        outcomes = VGroup(
+            self.outcome([1.45, 1.55, 0], 0.7, 2, 5, CYAN),
+            self.outcome([1.45, 0.65, 0], 0.3, -1, 4, CYAN),
+            self.outcome([1.45, -0.85, 0], 0.4, 4, 2, GOLD),
+            self.outcome([1.45, -1.75, 0], 0.6, 0, 3, GOLD),
+        )
+        policy_edges = VGroup(
+            Arrow(current.get_right(), action_a.get_left(), buff=0.1).set_color(CYAN),
+            Arrow(current.get_right(), action_b.get_left(), buff=0.1).set_color(GOLD),
+        )
+        policy_labels = VGroup(
+            self.text("π(a₁|s)=0.6", 17, CYAN, BOLD).next_to(policy_edges[0], UP, buff=0.03),
+            self.text("π(a₂|s)=0.4", 17, GOLD, BOLD).next_to(policy_edges[1], DOWN, buff=0.03),
+        )
+        branch_edges = VGroup(
+            Arrow(action_a.get_right(), outcomes[0][0].get_left(), buff=0.08).set_color(CYAN),
+            Arrow(action_a.get_right(), outcomes[1][0].get_left(), buff=0.08).set_color(CYAN),
+            Arrow(action_b.get_right(), outcomes[2][0].get_left(), buff=0.08).set_color(GOLD),
+            Arrow(action_b.get_right(), outcomes[3][0].get_left(), buff=0.08).set_color(GOLD),
+        )
+        returns = VGroup(
+            self.text("2 + γ·5", 18, CYAN, BOLD).move_to([5.1, 1.55, 0]),
+            self.text("−1 + γ·4", 18, CYAN, BOLD).move_to([5.1, 0.65, 0]),
+            self.text("4 + γ·2", 18, GOLD, BOLD).move_to([5.1, -0.85, 0]),
+            self.text("0 + γ·3", 18, GOLD, BOLD).move_to([5.1, -1.75, 0]),
+        )
+
+        self.play(FadeIn(current), run_time=0.55)
+        self.play(LaggedStart(GrowArrow(policy_edges[0]), FadeIn(action_a), GrowArrow(policy_edges[1]), FadeIn(action_b), lag_ratio=0.16), FadeIn(policy_labels), run_time=1.0)
+        self.play(LaggedStart(*[GrowArrow(edge) for edge in branch_edges], lag_ratio=0.12), LaggedStart(*[FadeIn(item) for item in outcomes], lag_ratio=0.12), run_time=1.25)
+        self.play(LaggedStart(*[FadeIn(item, shift=0.16 * LEFT) for item in returns], lag_ratio=0.12), run_time=0.9)
+
+        backup_arrows = VGroup(*[
+            CurvedArrow(item.get_left() + 0.05 * LEFT, current.get_right() + 0.05 * RIGHT, angle=(-0.25 if index < 2 else 0.25)).set_color(VIOLET)
+            for index, item in enumerate(returns)
+        ])
+        self.play(LaggedStart(*[ShowCreation(arrow) for arrow in backup_arrows], lag_ratio=0.12), Indicate(current, color=VIOLET), run_time=1.35)
+        self.formula("Vπ(s) = Σₐ π(a|s) Σₛ′,ᵣ p(s′,r|s,a) [r + γVπ(s′)]")
+
+
+class TemporalCreditAssignment(BrowserLectureScene):
+    title = "Delayed reward sends credit backward through time"
+    subtitle = "Discounting says how much a distant consequence should matter now"
+    accent = CORAL
+
+    def animate_concept(self):
+        positions = [np.array([-5.0 + 2.0 * index, -0.15, 0]) for index in range(6)]
+        states = VGroup()
+        transitions = VGroup()
+        for index, position in enumerate(positions):
+            state = Circle(radius=0.37).set_fill("#FFFFFF", 1).set_stroke(CYAN, 2.4).move_to(position)
+            state_label = self.text(f"S{index}", 19, INK, BOLD).move_to(state)
+            states.add(VGroup(state, state_label))
+            if index < len(positions) - 1:
+                transitions.add(Arrow(position + 0.4 * RIGHT, positions[index + 1] + 0.4 * LEFT, buff=0.06).set_color(GRID))
+        action_labels = VGroup(*[
+            self.text(f"A{index}", 16, MUTED, BOLD).next_to(edge, UP, buff=0.04)
+            for index, edge in enumerate(transitions)
+        ])
+        reward = RoundedRectangle(width=1.55, height=0.82, corner_radius=0.16).set_fill(CORAL, 0.12).set_stroke(CORAL, 2.5)
+        reward.move_to([5.15, 1.55, 0])
+        reward_label = self.text("reward +10", 19, CORAL, BOLD).move_to(reward)
+        reward_arrow = Arrow(states[-1].get_top(), reward.get_bottom(), buff=0.08).set_color(CORAL)
+
+        self.play(LaggedStart(*[FadeIn(state) for state in states], lag_ratio=0.11), run_time=1.0)
+        self.play(LaggedStart(*[GrowArrow(edge) for edge in transitions], lag_ratio=0.11), FadeIn(action_labels), run_time=1.1)
+        self.play(GrowArrow(reward_arrow), FadeIn(VGroup(reward, reward_label)), Indicate(states[-1], color=CORAL), run_time=0.8)
+
+        credit_marks = VGroup()
+        for distance, state in enumerate(reversed(states[:-1]), start=1):
+            color = [CORAL, GOLD, VIOLET, BLUE, CYAN][distance - 1]
+            halo = Circle(radius=0.52).set_fill(color, 0.08).set_stroke(color, 3).move_to(state)
+            credit = self.text(f"γ^{distance} · 10", 18, color, BOLD).next_to(state, DOWN, buff=0.22)
+            back_arrow = CurvedArrow(reward.get_left(), state.get_top(), angle=0.22).set_color(color)
+            self.play(ShowCreation(back_arrow), FadeIn(halo), FadeIn(credit), run_time=0.65)
+            credit_marks.add(back_arrow, halo, credit)
+
+        target = self.text("earlier actions receive smaller, but nonzero, responsibility", 19, MUTED, BOLD)
+        target.move_to([0, -2.35, 0])
+        self.play(FadeIn(target), run_time=0.55)
+        self.formula("Gₜ = Rₜ₊₁ + γRₜ₊₂ + γ²Rₜ₊₃ + ···     and     Gₜ = Rₜ₊₁ + γGₜ₊₁")
+
+
+class PolicyGradientGeometry(BrowserLectureScene):
+    title = "Policy gradients move probability toward useful actions"
+    subtitle = "Advantage supplies the sign; log probability supplies the direction"
+    accent = MINT
+
+    def bar(self, x, probability, color, name):
+        height = 3.2 * probability
+        bar = Rectangle(width=1.55, height=height).set_fill(color, 0.42).set_stroke(color, 2.5)
+        bar.move_to([x, -1.55 + height / 2, 0])
+        value = self.text(f"{probability:.0%}", 26, INK, BOLD).next_to(bar, UP, buff=0.12)
+        label_text = self.text(name, 19, MUTED, BOLD).move_to([x, -1.88, 0])
+        return VGroup(bar, value, label_text)
+
+    def animate_concept(self):
+        baseline = Line(LEFT * 5.7, RIGHT * 5.7).set_stroke(GRID, 2).move_to([0, -1.55, 0])
+        before_good = self.bar(-2.35, 0.38, MINT, "helpful action")
+        before_bad = self.bar(2.35, 0.62, CORAL, "other action")
+        sample = self.text("sample helpful action", 19, CYAN, BOLD).move_to([-3.8, 1.55, 0])
+        outcome = self.text("return exceeds baseline  →  advantage Â > 0", 19, GOLD, BOLD).move_to([1.2, 1.55, 0])
+        sample_arrow = Arrow(sample.get_right(), outcome.get_left(), buff=0.15).set_color(GOLD)
+
+        self.play(ShowCreation(baseline), FadeIn(before_good), FadeIn(before_bad), run_time=0.9)
+        self.play(FadeIn(sample), GrowArrow(sample_arrow), FadeIn(outcome), run_time=0.9)
+        self.play(Indicate(before_good, color=MINT), Indicate(outcome, color=GOLD), run_time=0.8)
+
+        after_good = self.bar(-2.35, 0.62, MINT, "helpful action")
+        after_bad = self.bar(2.35, 0.38, CORAL, "other action")
+        transfer = Arrow([1.4, -0.15, 0], [-1.4, -0.15, 0], buff=0.08).set_color(VIOLET)
+        transfer_label = self.text("probability mass", 17, VIOLET, BOLD).next_to(transfer, UP, buff=0.05)
+        self.play(GrowArrow(transfer), FadeIn(transfer_label), Transform(before_good, after_good), Transform(before_bad, after_bad), run_time=1.35)
+
+        note = self.text("negative advantage reverses the update; a baseline reduces variance", 18, MUTED, BOLD)
+        note.move_to([0, -2.32, 0])
+        self.play(FadeIn(note), run_time=0.55)
+        self.formula("∇θJ = E[ ∇θ log πθ(A|S) · Â ]")

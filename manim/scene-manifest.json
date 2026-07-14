@@ -52,7 +52,10 @@
     "token-probability-flow": { "class": "TokenProbabilityFlow", "title": "Language models factor sequence probability", "scenes": ["tokens"] },
     "mlp-fact-memory": { "class": "MLPFactMemory", "title": "Transformer MLPs detect and write features", "scenes": ["memory"] },
     "attention-routing": { "class": "AttentionRouting", "title": "Attention is content-dependent routing", "scenes": ["attention"] },
-    "diffusion-denoising": { "class": "DiffusionDenoising", "title": "Diffusion generates through local denoising", "scenes": ["diffusion"] }
+    "diffusion-denoising": { "class": "DiffusionDenoising", "title": "Diffusion generates through local denoising", "scenes": ["diffusion"] },
+    "bellman-backup": { "class": "BellmanBackup", "title": "A Bellman backup gathers possible futures", "scenes": ["bellman-backup"] },
+    "temporal-credit-assignment": { "class": "TemporalCreditAssignment", "title": "Delayed reward sends credit backward through time", "scenes": ["temporal-credit"] },
+    "policy-gradient-geometry": { "class": "PolicyGradientGeometry", "title": "Policy gradients move probability toward useful actions", "scenes": ["policy-gradient"] }
   },
   "scenes": {
     "accumulation": "integral-accumulator",
@@ -99,6 +102,9 @@
     "transformer": "transformer-flow",
     "attention": "attention-routing",
     "memory": "mlp-fact-memory",
-    "diffusion": "diffusion-denoising"
+    "diffusion": "diffusion-denoising",
+    "bellman-backup": "bellman-backup",
+    "temporal-credit": "temporal-credit-assignment",
+    "policy-gradient": "policy-gradient-geometry"
   }
 }

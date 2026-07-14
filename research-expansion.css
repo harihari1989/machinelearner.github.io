@@ -1,0 +1,467 @@
+.paper-expansion {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 2px solid var(--section-border);
+}
+
+.paper-expansion-heading {
+    max-width: 850px;
+}
+
+.paper-kicker {
+    display: inline-block;
+    color: var(--accent-2);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+}
+
+.paper-foundation-map,
+.rl-learning-path {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.85rem;
+    margin: 1.3rem 0 2rem;
+}
+
+.paper-foundation-map article,
+.rl-learning-path article {
+    position: relative;
+    min-width: 0;
+    padding: 1rem 1rem 1rem 3.2rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+}
+
+.paper-foundation-map article > span,
+.rl-learning-path article > span {
+    position: absolute;
+    left: 0.9rem;
+    top: 1rem;
+    width: 1.65rem;
+    height: 1.65rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--button-text);
+    background: var(--accent-2);
+    font-weight: 800;
+}
+
+.paper-foundation-map h3,
+.rl-learning-path h3 {
+    margin: 0 0 0.35rem;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1rem;
+}
+
+.paper-foundation-map p,
+.rl-learning-path p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+}
+
+.paper-studio,
+.rl-concept-lab {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 22px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.paper-studio-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(220px, 1fr) auto;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1rem;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.paper-studio-toolbar label {
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.paper-studio-toolbar select {
+    min-width: 0;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--input-border, var(--section-border));
+    border-radius: 10px;
+    font: inherit;
+}
+
+#paperConceptProgress {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.paper-studio-layout,
+.rl-concept-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 1.25rem;
+    padding: 1.1rem;
+}
+
+.paper-lesson,
+.paper-visual-column,
+.rl-concept-copy,
+.rl-concept-visual {
+    min-width: 0;
+}
+
+.paper-lesson-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.paper-lesson h3,
+.rl-concept-copy h3 {
+    margin: 0.55rem 0 0.65rem;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.paper-question {
+    color: var(--ink);
+    font-weight: 750;
+    margin-bottom: 1rem;
+}
+
+.paper-prerequisite,
+.paper-mechanism,
+.paper-formula,
+.rl-concept-formula,
+.rl-concept-contrast {
+    padding: 0.8rem 0.9rem;
+    margin: 0 0 0.85rem;
+    background: var(--panel-bg);
+    border-left: 4px solid var(--accent-2);
+    border-radius: 10px;
+}
+
+.paper-prerequisite h4,
+.paper-mechanism h4,
+.paper-evidence-grid h4,
+.rl-concept-contrast h4 {
+    color: var(--ink);
+    margin: 0 0 0.35rem;
+    font-family: var(--font-display);
+}
+
+.paper-prerequisite p,
+.paper-evidence-grid p,
+.rl-concept-contrast p {
+    color: var(--ink-soft);
+    margin: 0;
+}
+
+.paper-mechanism-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.6rem;
+}
+
+#paperConceptStepLabel {
+    color: var(--accent-2);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+#paperConceptSteps,
+#rlConceptSteps {
+    margin: 0.6rem 0 0 1.2rem;
+    padding: 0;
+}
+
+#paperConceptSteps li,
+#rlConceptSteps li {
+    color: var(--ink-soft);
+    margin: 0.42rem 0;
+    padding-left: 0.2rem;
+    transition: color 320ms ease, transform 320ms ease;
+}
+
+#paperConceptSteps li.is-current,
+#rlConceptSteps li.is-current {
+    color: var(--ink);
+    font-weight: 750;
+    transform: translateX(4px);
+}
+
+.paper-formula,
+.rl-concept-formula {
+    color: var(--ink);
+    border-left-color: var(--accent-3);
+    font-family: "Times New Roman", serif;
+    font-size: 1.02rem;
+    overflow-wrap: anywhere;
+}
+
+.paper-evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0.85rem 0;
+}
+
+.paper-evidence-grid article {
+    padding: 0.75rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+}
+
+.paper-transfer {
+    color: var(--ink-soft);
+}
+
+.paper-source-link {
+    color: var(--accent-2);
+    font-weight: 800;
+}
+
+.paper-visual-column canvas,
+.rl-concept-visual canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--canvas-bg);
+    border: 1px solid var(--canvas-border);
+    border-radius: 16px;
+}
+
+.paper-visual-caption,
+#rlConceptCaption {
+    min-height: 2.7em;
+    margin: 0.65rem 0;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+}
+
+.paper-step-controls,
+.rl-concept-controls,
+.rl-concept-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.paper-step-controls button,
+.rl-concept-controls button,
+.rl-concept-toolbar button {
+    padding: 0.58rem 0.8rem;
+    border: 0;
+    border-radius: 10px;
+    color: #ffffff;
+    background: var(--button-bg);
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.paper-step-controls button:hover,
+.rl-concept-controls button:hover,
+.rl-concept-toolbar button:hover,
+.rl-concept-toolbar button.is-active {
+    background: var(--button-bg-hover);
+    transform: translateY(-1px);
+}
+
+.paper-step-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.paper-motion {
+    margin: 1rem 0 0;
+}
+
+.paper-motion video,
+.rl-motion-lessons video {
+    display: block;
+    width: 100%;
+    border-radius: 14px;
+    background: var(--canvas-bg);
+    border: 1px solid var(--canvas-border);
+}
+
+.paper-motion figcaption,
+.rl-motion-lessons figcaption {
+    margin-top: 0.45rem;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+}
+
+.paper-expansion,
+.rl-foundation-studio {
+    scroll-margin-top: 120px;
+}
+
+.rl-concept-toolbar {
+    padding: 0.9rem 1rem;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.rl-concept-toolbar button.is-active {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 1px;
+}
+
+.rl-concept-copy > p {
+    color: var(--ink-soft);
+}
+
+.rl-concept-visual {
+    align-self: start;
+}
+
+.rl-concept-controls {
+    padding-top: 0.2rem;
+}
+
+.rl-concept-controls label {
+    color: var(--ink);
+    font-weight: 750;
+}
+
+.rl-concept-controls input[type="range"] {
+    flex: 1 1 160px;
+}
+
+.rl-motion-lessons,
+.rl-foundation-details,
+.deep-rl-algorithm-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.rl-motion-lessons figure,
+.rl-foundation-details article,
+.deep-rl-algorithm-map article {
+    margin: 0;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+}
+
+.rl-foundation-details h3,
+.deep-rl-algorithm-map h3 {
+    color: var(--ink);
+    font-family: var(--font-display);
+    margin: 0 0 0.55rem;
+}
+
+.rl-foundation-details p,
+.deep-rl-algorithm-map p,
+.deep-rl-algorithm-map li {
+    color: var(--ink-soft);
+}
+
+.deep-rl-algorithm-map > article > span {
+    color: var(--accent-2);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.deep-rl-algorithm-map ol {
+    margin: 0.8rem 0 0.8rem 1.2rem;
+}
+
+.deep-rl-algorithm-map li {
+    margin-bottom: 0.4rem;
+}
+
+.rl-stability-table {
+    overflow-x: auto;
+    margin: 1rem 0 1.5rem;
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.rl-stability-table table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+    background: var(--card-bg);
+}
+
+.rl-stability-table th,
+.rl-stability-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--section-border);
+    color: var(--ink-soft);
+    vertical-align: top;
+}
+
+.rl-stability-table th {
+    color: var(--ink);
+    background: var(--panel-bg);
+}
+
+@media (max-width: 980px) {
+    .paper-studio-layout,
+    .rl-concept-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 680px) {
+    .paper-studio-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .paper-evidence-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .paper-studio-layout,
+    .rl-concept-layout {
+        padding: 0.8rem;
+    }
+
+    .paper-step-controls button,
+    .rl-concept-controls button,
+    .rl-concept-toolbar button {
+        flex: 1 1 130px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #paperConceptSteps li,
+    #rlConceptSteps li,
+    .paper-step-controls button,
+    .rl-concept-controls button,
+    .rl-concept-toolbar button {
+        transition: none;
+    }
+}

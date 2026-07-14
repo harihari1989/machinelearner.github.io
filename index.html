@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="math-deep-dive.css">
     <link rel="stylesheet" href="math-foundations-lab.css">
     <link rel="stylesheet" href="learning-depth.css">
+    <link rel="stylesheet" href="research-expansion.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         window.MathJax = {
@@ -4517,7 +4518,7 @@ Return JSON with owner, task, and due.</pre>
                             <span class="reading-category">Sequence Models</span>
                             <span class="reading-year">Year: 2014</span>
                         </div>
-                        <h3><a href="https://arxiv.org/abs/1409.3215" target="_blank" rel="noopener noreferrer">Neural Machine Translation by Jointly Learning to Align and Translate</a></h3>
+                        <h3><a href="https://arxiv.org/abs/1409.0473" target="_blank" rel="noopener noreferrer">Neural Machine Translation by Jointly Learning to Align and Translate</a></h3>
                         <p class="reading-summary">Shows how attention improves neural translation by aligning outputs with inputs.</p>
                         <ul class="concept-bullets reading-bullets">
                             <li><strong>Theme</strong>: Attention in seq2seq translation.</li>
@@ -4553,7 +4554,7 @@ Return JSON with owner, task, and due.</pre>
                             <span class="reading-category">Generative Models</span>
                             <span class="reading-year">Year: 2015</span>
                         </div>
-                        <h3><a href="https://arxiv.org/abs/1511.05644" target="_blank" rel="noopener noreferrer">Variational Lossy Autoencoder</a></h3>
+                        <h3><a href="https://arxiv.org/abs/1611.02731" target="_blank" rel="noopener noreferrer">Variational Lossy Autoencoder</a></h3>
                         <p class="reading-summary">Combines autoencoder with variational losses for generative modeling.</p>
                         <ul class="concept-bullets reading-bullets">
                             <li><strong>Theme</strong>: Lossy compression in generative models.</li>
@@ -4625,9 +4626,8 @@ Return JSON with owner, task, and due.</pre>
                             <span class="reading-category">Theory</span>
                             <span class="reading-year">Year: n/a</span>
                         </div>
-                        <h3 class="reading-title">A Tutorial Introduction to the Minimum Description Length Principle</h3>
+                        <h3><a href="https://arxiv.org/abs/math/0406077" target="_blank" rel="noopener noreferrer">A Tutorial Introduction to the Minimum Description Length Principle</a></h3>
                         <p class="reading-summary">Introductory explanation of MDL principle connecting compression and learning.</p>
-                        <p class="reading-link-note">Link unavailable.</p>
                         <ul class="concept-bullets reading-bullets">
                             <li><strong>Theme</strong>: Compression-based model selection.</li>
                             <li><strong>Main idea</strong>: Better compression implies better generalization.</li>
@@ -4638,9 +4638,8 @@ Return JSON with owner, task, and due.</pre>
                             <span class="reading-category">Theory</span>
                             <span class="reading-year">Year: n/a</span>
                         </div>
-                        <h3 class="reading-title">Machine Super Intelligence</h3>
+                        <h3><a href="https://www.vetta.org/documents/Machine_Super_Intelligence.pdf" target="_blank" rel="noopener noreferrer">Machine Super Intelligence</a></h3>
                         <p class="reading-summary">Discusses theoretical aspects of AGI and intelligence measures.</p>
-                        <p class="reading-link-note">Link unavailable.</p>
                         <ul class="concept-bullets reading-bullets">
                             <li><strong>Theme</strong>: Theoretical intelligence measures.</li>
                             <li><strong>Main idea</strong>: Frames limits and metrics for machine intelligence.</li>
@@ -4651,9 +4650,8 @@ Return JSON with owner, task, and due.</pre>
                             <span class="reading-category">Theory</span>
                             <span class="reading-year">Year: n/a</span>
                         </div>
-                        <h3 class="reading-title">Kolmogorov Complexity and Algorithmic Randomness</h3>
+                        <h3><a href="https://bookstore.ams.org/surv-220" target="_blank" rel="noopener noreferrer">Kolmogorov Complexity and Algorithmic Randomness</a></h3>
                         <p class="reading-summary">Foundations of algorithmic complexity and information theory.</p>
-                        <p class="reading-link-note">Link unavailable.</p>
                         <ul class="concept-bullets reading-bullets">
                             <li><strong>Theme</strong>: Algorithmic information theory.</li>
                             <li><strong>Main idea</strong>: Randomness is defined by shortest program length.</li>
@@ -4672,6 +4670,79 @@ Return JSON with owner, task, and due.</pre>
                         </ul>
                     </article>
                 </div>
+
+                <section class="paper-expansion" id="paper-concept-lab" aria-labelledby="paperConceptLabTitle">
+                    <div class="paper-expansion-heading">
+                        <span class="paper-kicker">From reading list to working understanding</span>
+                        <h2 id="paperConceptLabTitle">Paper Concept Studio</h2>
+                        <p class="section-intro">Choose any of the 27 readings. The studio reconstructs its prerequisite idea, the problem it addresses, the mechanism it introduces, the evidence it offers, and the limits that matter when applying it.</p>
+                    </div>
+
+                    <div class="paper-foundation-map" aria-label="Foundational ideas connecting the reading list">
+                        <article><span>1</span><h3>Representation</h3><p>Turn images, words, graphs, or memories into numerical states that preserve useful structure.</p></article>
+                        <article><span>2</span><h3>Credit assignment</h3><p>Determine which parameter, feature, action, or earlier time step caused an eventual error or reward.</p></article>
+                        <article><span>3</span><h3>Information flow</h3><p>Move selected information through recurrence, attention, convolutions, skip paths, or external memory.</p></article>
+                        <article><span>4</span><h3>Inductive bias</h3><p>Build symmetry, locality, ordering, compression, or relational structure into what the model learns easily.</p></article>
+                        <article><span>5</span><h3>Optimization</h3><p>Shape gradients and training dynamics so that larger, deeper, or longer computations remain learnable.</p></article>
+                        <article><span>6</span><h3>Scale and evidence</h3><p>Separate a mechanism’s mathematical promise from the experiments, compute assumptions, and failure modes supporting it.</p></article>
+                    </div>
+
+                    <div class="paper-studio">
+                        <div class="paper-studio-toolbar">
+                            <label for="paperConceptSelect">Reading</label>
+                            <select id="paperConceptSelect" aria-describedby="paperConceptProgress"></select>
+                            <span id="paperConceptProgress" aria-live="polite">Reading 1 of 27</span>
+                        </div>
+
+                        <div class="paper-studio-layout">
+                            <article class="paper-lesson" aria-live="polite">
+                                <div class="paper-lesson-meta">
+                                    <span id="paperConceptCategory"></span>
+                                    <span id="paperConceptYear"></span>
+                                </div>
+                                <h3 id="paperConceptTitle"></h3>
+                                <p class="paper-question" id="paperConceptQuestion"></p>
+
+                                <div class="paper-prerequisite">
+                                    <h4>Foundation first</h4>
+                                    <p id="paperConceptFoundation"></p>
+                                </div>
+
+                                <div class="paper-mechanism">
+                                    <div class="paper-mechanism-heading">
+                                        <h4>Build the argument</h4>
+                                        <span id="paperConceptStepLabel">Step 1</span>
+                                    </div>
+                                    <ol id="paperConceptSteps"></ol>
+                                </div>
+
+                                <div class="paper-formula" id="paperConceptFormula"></div>
+
+                                <div class="paper-evidence-grid">
+                                    <article><h4>What the evidence establishes</h4><p id="paperConceptEvidence"></p></article>
+                                    <article><h4>What it does not establish</h4><p id="paperConceptLimit"></p></article>
+                                </div>
+
+                                <p class="paper-transfer"><strong>Carry this forward:</strong> <span id="paperConceptTransfer"></span></p>
+                                <a id="paperConceptSource" class="paper-source-link" href="#" target="_blank" rel="noopener noreferrer">Open the authoritative source</a>
+                            </article>
+
+                            <div class="paper-visual-column">
+                                <canvas id="paperConceptCanvas" width="720" height="430" role="img" aria-label="Animated diagram of the selected paper mechanism"></canvas>
+                                <p class="paper-visual-caption" id="paperConceptCaption" aria-live="polite"></p>
+                                <div class="paper-step-controls" role="group" aria-label="Paper mechanism steps">
+                                    <button type="button" id="paperConceptPrev">Previous idea</button>
+                                    <button type="button" id="paperConceptNext">Next idea</button>
+                                    <button type="button" id="paperConceptReplay">Replay motion</button>
+                                </div>
+                                <figure class="paper-motion" id="paperConceptMotion" hidden>
+                                    <video id="paperConceptVideo" controls muted playsinline preload="metadata"></video>
+                                    <figcaption id="paperConceptVideoCaption"></figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </section>
 
             <!-- AI Agents Section -->
@@ -4760,6 +4831,7 @@ Return JSON with owner, task, and due.</pre>
         <section class="chapter" data-chapter="reinforcement-learning">
             <nav class="chapter-nav" aria-label="Reinforcement learning sections">
                 <a href="#rl-fundamentals">Fundamentals</a>
+                <a href="#rl-foundation-studio">Foundation Studio</a>
                 <a href="#rl-bandits">Bandits</a>
                 <a href="#rl-gridworld">MDP + Dynamic Programming</a>
                 <a href="#rl-mc">Monte Carlo</a>
@@ -5008,6 +5080,104 @@ actions(state) -&gt; action list
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section id="rl-foundation-studio" class="example-section rl-foundation-studio">
+                <h2>Reinforcement Learning Foundation Studio</h2>
+                <p class="section-intro">Build reinforcement learning from one coherent idea: predict the consequences of actions, compare those predictions, and improve behavior from sampled experience.</p>
+
+                <div class="rl-learning-path" aria-label="Reinforcement learning conceptual progression">
+                    <article><span>1</span><h3>Model the interaction</h3><p>An MDP states what the agent observes, what it can do, how the world changes, and what feedback arrives.</p></article>
+                    <article><span>2</span><h3>Define long-term success</h3><p>Return converts a stream of delayed rewards into the quantity a policy should maximize.</p></article>
+                    <article><span>3</span><h3>Predict with values</h3><p>Value functions compress many possible futures into expected return from a state or state-action pair.</p></article>
+                    <article><span>4</span><h3>Use Bellman structure</h3><p>Every long prediction is an immediate reward plus a discounted prediction from the next state.</p></article>
+                    <article><span>5</span><h3>Learn from samples</h3><p>Monte Carlo uses completed returns; temporal difference learning bootstraps from its current prediction.</p></article>
+                    <article><span>6</span><h3>Improve the policy</h3><p>Choose actions with better predicted return, while preserving enough exploration to correct mistaken beliefs.</p></article>
+                </div>
+
+                <div class="rl-concept-lab">
+                    <div class="rl-concept-toolbar" role="group" aria-label="Choose a reinforcement learning foundation">
+                        <button type="button" class="is-active" data-rl-concept="mdp">MDP</button>
+                        <button type="button" data-rl-concept="return">Return</button>
+                        <button type="button" data-rl-concept="bellman">Bellman backup</button>
+                        <button type="button" data-rl-concept="sampling">MC vs TD</button>
+                        <button type="button" data-rl-concept="control">Control</button>
+                        <button type="button" data-rl-concept="policy-gradient">Policy gradient</button>
+                    </div>
+
+                    <div class="rl-concept-layout">
+                        <article class="rl-concept-copy" aria-live="polite">
+                            <span class="paper-kicker" id="rlConceptEyebrow">The decision process</span>
+                            <h3 id="rlConceptTitle">A Markov decision process names every moving part</h3>
+                            <p id="rlConceptIntuition"></p>
+                            <div class="rl-concept-formula" id="rlConceptFormula"></div>
+                            <ol id="rlConceptSteps"></ol>
+                            <div class="rl-concept-contrast">
+                                <h4>Common confusion</h4>
+                                <p id="rlConceptConfusion"></p>
+                            </div>
+                        </article>
+
+                        <div class="rl-concept-visual">
+                            <canvas id="rlConceptCanvas" width="760" height="440" role="img" aria-label="Interactive reinforcement learning foundation diagram"></canvas>
+                            <p id="rlConceptCaption" aria-live="polite"></p>
+                            <div class="rl-concept-controls">
+                                <label for="rlConceptGamma">Discount γ <span id="rlConceptGammaValue">0.90</span></label>
+                                <input id="rlConceptGamma" type="range" min="0" max="0.99" step="0.01" value="0.9">
+                                <button type="button" id="rlConceptStep">Advance one transition</button>
+                                <button type="button" id="rlConceptReset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rl-motion-lessons" aria-label="Animated reinforcement learning derivations">
+                    <figure>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/bellman-backup.jpg">
+                            <source src="assets/manim/bellman-backup.webm" type="video/webm">
+                            <source src="assets/manim/bellman-backup.mp4" type="video/mp4">
+                        </video>
+                        <figcaption><strong>Bellman backup:</strong> a long-horizon value becomes one reward plus the value of possible next states.</figcaption>
+                    </figure>
+                    <figure>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/temporal-credit-assignment.jpg">
+                            <source src="assets/manim/temporal-credit-assignment.webm" type="video/webm">
+                            <source src="assets/manim/temporal-credit-assignment.mp4" type="video/mp4">
+                        </video>
+                        <figcaption><strong>Temporal credit:</strong> a delayed outcome sends learning signal backward to the decisions that helped cause it.</figcaption>
+                    </figure>
+                    <figure>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/policy-gradient-geometry.jpg">
+                            <source src="assets/manim/policy-gradient-geometry.webm" type="video/webm">
+                            <source src="assets/manim/policy-gradient-geometry.mp4" type="video/mp4">
+                        </video>
+                        <figcaption><strong>Policy gradient:</strong> advantageous sampled actions become more probable without requiring a differentiable environment.</figcaption>
+                    </figure>
+                </div>
+
+                <div class="rl-foundation-details">
+                    <article>
+                        <h3>State is a sufficient summary, not merely a screenshot</h3>
+                        <p>The Markov property says the conditional distribution of the next state and reward depends on the present state and action, not on an omitted history. If the observation hides relevant history, the problem is partially observable and memory may be necessary.</p>
+                        <div class="math-formula math-mini">\[P(S_{t+1},R_{t+1}\mid S_t,A_t,S_{t-1},\ldots)=P(S_{t+1},R_{t+1}\mid S_t,A_t)\]</div>
+                    </article>
+                    <article>
+                        <h3>Expectation is essential</h3>
+                        <p>A value is not the reward from one rollout. It is the probability-weighted average return over environment randomness and the policy’s future actions. Sampling produces noisy estimates of that expectation.</p>
+                        <div class="math-formula math-mini">\[Q^\pi(s,a)=\mathbb{E}_\pi[G_t\mid S_t=s,A_t=a]\]</div>
+                    </article>
+                    <article>
+                        <h3>Bootstrapping trades variance for bias</h3>
+                        <p>Monte Carlo waits for the real return and is unbiased under on-policy sampling but noisy. TD replaces the unseen tail with a current estimate, reducing variance while introducing temporary bias.</p>
+                        <div class="math-formula math-mini">\[\delta_t=R_{t+1}+\gamma V(S_{t+1})-V(S_t)\]</div>
+                    </article>
+                    <article>
+                        <h3>On-policy and off-policy answer different questions</h3>
+                        <p>On-policy methods evaluate or improve the behavior that generated the data. Off-policy methods can learn about a target policy from another behavior policy, enabling replay and reuse but making distribution mismatch a central stability problem.</p>
+                    </article>
+                </div>
+
+                <p class="reference-strip"><strong>Authoritative foundations:</strong> <a href="https://www.incompleteideas.net/book/bookdraft2018mar21.pdf" target="_blank" rel="noopener">Sutton and Barto, <em>Reinforcement Learning: An Introduction</em></a>, <a href="https://doi.org/10.1007/BF00992698" target="_blank" rel="noopener">Watkins and Dayan on Q-learning</a>, <a href="https://papers.nips.cc/paper_files/paper/1999/hash/464d828b85b0bed98e80ade0a5c43b0f-Abstract.html" target="_blank" rel="noopener">the policy-gradient theorem</a>, and <a href="https://mlanthology.org/mlj/1992/williams1992mlj-simple/" target="_blank" rel="noopener">Williams’s REINFORCE paper</a>.</p>
             </section>
 
             <section id="rl-bandits" class="example-section">
@@ -5479,6 +5649,58 @@ actions(state) -&gt; action list
                         </div>
                     </div>
                 </div>
+
+                <div class="deep-rl-algorithm-map" id="rl-deep-algorithms">
+                    <article>
+                        <span>Value based · off-policy</span>
+                        <h3>DQN</h3>
+                        <p><strong>Question:</strong> which discrete action has the greatest predicted return?</p>
+                        <div class="math-formula math-mini">\[y=r+\gamma(1-d)\max_{a'}Q_{\bar\theta}(s',a')\qquad L=(Q_\theta(s,a)-y)^2\]</div>
+                        <ol>
+                            <li>A replay buffer breaks short-range temporal correlation and reuses experience.</li>
+                            <li>A slowly updated target network holds the bootstrap target approximately fixed.</li>
+                            <li>The online network regresses its chosen-action estimate toward that target.</li>
+                        </ol>
+                        <p><strong>Watch for:</strong> overestimated values, sparse-reward exploration, sensitivity to reward scale, and divergence when approximation, bootstrapping, and off-policy data interact.</p>
+                    </article>
+                    <article>
+                        <span>Actor–critic · on-policy</span>
+                        <h3>PPO</h3>
+                        <p><strong>Question:</strong> how can a policy improve without one update moving it destructively far?</p>
+                        <div class="math-formula math-mini">\[L^{clip}=\mathbb E[\min(r_t(\theta)\hat A_t,\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)\hat A_t)]\]</div>
+                        <ol>
+                            <li>The critic estimates value; advantages say whether sampled actions were better than expected.</li>
+                            <li>The probability ratio measures how much the new policy changes each sampled action.</li>
+                            <li>Clipping removes the incentive for excessively large probability changes.</li>
+                        </ol>
+                        <p><strong>Watch for:</strong> the clipped objective is a heuristic, collected data becomes stale after updates, and implementation details strongly affect results.</p>
+                    </article>
+                    <article>
+                        <span>Actor–critic · off-policy</span>
+                        <h3>Soft Actor-Critic</h3>
+                        <p><strong>Question:</strong> can continuous control reuse experience while maintaining broad, robust exploration?</p>
+                        <div class="math-formula math-mini">\[J(\pi)=\mathbb E\!\left[\sum_t\gamma^t(R_t+\alpha\mathcal H(\pi(\cdot\mid S_t)))\right]\]</div>
+                        <ol>
+                            <li>Twin critics reduce optimistic value errors.</li>
+                            <li>A stochastic actor chooses actions that trade expected value against entropy.</li>
+                            <li>Replay enables multiple updates per interaction; target critics stabilize bootstrapping.</li>
+                        </ol>
+                        <p><strong>Watch for:</strong> entropy temperature, action scaling, critic extrapolation, and learning from a replay distribution unlike the current policy.</p>
+                    </article>
+                </div>
+
+                <div class="rl-stability-table" role="region" aria-label="Deep reinforcement learning algorithm comparison">
+                    <table>
+                        <thead><tr><th>Algorithm</th><th>Policy type</th><th>Data reuse</th><th>Main stabilizer</th><th>Best first fit</th></tr></thead>
+                        <tbody>
+                            <tr><td>DQN</td><td>Implicit greedy discrete policy</td><td>High, from replay</td><td>Replay + target Q-network</td><td>Discrete actions</td></tr>
+                            <tr><td>PPO</td><td>Explicit stochastic actor</td><td>Low, recent rollout only</td><td>Clipped policy ratio</td><td>Reliable on-policy baseline</td></tr>
+                            <tr><td>SAC</td><td>Entropy-regularized stochastic actor</td><td>High, from replay</td><td>Twin critics + targets + entropy</td><td>Continuous actions</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="reference-strip"><strong>Primary deep-RL sources:</strong> <a href="https://arxiv.org/abs/1312.5602" target="_blank" rel="noopener">Deep Q-Networks</a>, <a href="https://arxiv.org/abs/1707.06347" target="_blank" rel="noopener">Proximal Policy Optimization</a>, and <a href="https://proceedings.mlr.press/v80/haarnoja18b.html" target="_blank" rel="noopener">Soft Actor-Critic</a>.</p>
             </section>
         </section>
 
@@ -6223,6 +6445,8 @@ for step in range(8):
     <script src="manim/scene-manifest.js"></script>
     <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
+    <script src="research-expansion-data.js?v=20260714-research-2"></script>
+    <script src="research-expansion.js?v=20260714-research-2"></script>
     <script src="learning-depth.js?v=20260713-local-runtimes-8"></script>
 </body>
 </html>
