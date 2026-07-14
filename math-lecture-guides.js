@@ -4,6 +4,16 @@ window.MathLectureGuides = {
         observe: "Watch the rectangles become thinner while their combined area stabilizes. The important change is not the number of pieces; it is the error shrinking as the largest piece width approaches zero.",
         check: "If the upper boundary moves twice as fast, which factor in the rate of accumulated area must change?"
     },
+    integration: {
+        formula: "A definite integral is a limit of signed Riemann sums. Extending the endpoint by dx adds a strip whose leading area is f(x)dx; antiderivatives package that accumulated change.",
+        observe: "Read the height and width of each signed rectangle. Then watch the partition refine, the accumulated area become A(x), and one marginal strip expose A'(x)=f(x).",
+        check: "Why do regions below the axis subtract, and why does substitution require the differential factor du=g'(x)dx?"
+    },
+    "area-slope": {
+        formula: "Accumulation turns a rate into a total: displacement is accumulated velocity. Differentiation reverses that operation locally, but it cannot recover the additive starting constant without an initial condition.",
+        observe: "Move the time boundary across the velocity graph. The thin new area has height v(t), while the displacement graph acquires exactly that instantaneous slope.",
+        check: "How can two position functions have identical velocity graphs yet remain different at every time?"
+    },
     tangent: {
         formula: "The numerator is an output change and the denominator is the input nudge that caused it. The derivative is the stable ratio approached by finite secant slopes, not a literal division by zero.",
         observe: "Track the second point as it approaches the first. The chord still uses two distinct points at every frame, while its orientation settles toward one local linear prediction.",
@@ -119,6 +129,11 @@ window.MathLectureGuides = {
         observe: "Most arrows rotate under the transformation; the highlighted eigen-directions remain on their original lines and only stretch, shrink, or reverse.",
         check: "Why do eigenvectors make repeated application of a matrix much easier to understand?"
     },
+    "eigen-compute": {
+        formula: "The characteristic determinant detects when A-λI collapses a direction. In two dimensions, trace and determinant become the sum and product of the eigenvalues, giving a fast consistency check.",
+        observe: "Slide λ while subtracting it from the diagonal. At the values where the grid flattens, det(A-λI)=0 and a nonzero null direction appears.",
+        check: "Why does a repeated characteristic root not automatically guarantee two independent eigenvectors?"
+    },
     abstract: {
         formula: "Vector-space axioms retain only addition and scalar multiplication. Once those rules hold, basis, dimension, linear maps, and eigen-behavior apply to functions or polynomials just as they do to arrows.",
         observe: "Treat each object in the side panel as a possible vector. Ask what adding two objects and scaling one object mean, rather than looking for a physical arrow.",
@@ -154,6 +169,11 @@ window.MathLectureGuides = {
         observe: "Read each fading curve as a probe with a different decay and oscillation. Strong alignment produces a larger transformed response.",
         check: "Where do initial conditions enter when transforming a time derivative?"
     },
+    "laplace-use": {
+        formula: "Transform an initial-value problem, solve algebraically for Y(s), factor its poles, and decompose it into standard transform pairs. Pole locations encode the exponential modes and stability.",
+        observe: "Follow the equation through derivatives in time, multiplication by s, partial fractions, and finally a sum of time-domain modes. Keep the initial condition visible throughout.",
+        check: "What does a pole with positive real part predict about the recovered time-domain solution?"
+    },
     "matrix-exp": {
         formula: "The matrix exponential sums every repeated power of the generator. It is the limit of infinitely many tiny linear updates and therefore advances a linear system continuously in time.",
         observe: "Compare the flow arrows with the spiral trajectory. The local matrix action is repeated everywhere, and its eigenstructure controls growth, decay, and rotation.",
@@ -173,6 +193,11 @@ window.MathLectureGuides = {
         formula: "The downstream error is multiplied by transposed weights to distribute responsibility backward, then gated elementwise by the activation derivative. Shared upstream nodes sum responsibility from every outgoing path.",
         observe: "Reverse the visual flow: prediction error reaches later edges first, then spreads toward earlier neurons in proportion to both influence and local sensitivity.",
         check: "Why are forward activations cached for use during the backward pass?"
+    },
+    "backprop-calculus": {
+        formula: "Every weight influences cost through intermediate activations. Derivatives multiply along each path; reverse-mode differentiation reuses downstream factors and sums contributions where paths merge.",
+        observe: "Hold one weight as the starting variable, highlight every route to the cost, multiply local derivatives along each route, then collect shared factors into one backward signal.",
+        check: "Why does reverse mode compute all parameter gradients efficiently when the network has one scalar cost?"
     },
     tokens: {
         formula: "The joint probability of a sequence factors into a product of next-token probabilities conditioned on the prefix. Generation repeatedly samples one factor and appends its outcome to the next prefix.",

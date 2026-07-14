@@ -819,6 +819,10 @@
         const mediaStatus = $("#lectureMediaStatus");
         const mediaHint = $("#lectureMediaHint");
         const videoPlay = $("#lectureVideoPlay");
+        const playbackRate = $("#lecturePlaybackRate");
+        const conceptTrack = $("#lectureConceptTrack");
+        const conceptProgress = $("#lectureConceptProgress");
+        const currentConcept = $("#lectureCurrentConcept");
         const carousel = $("#lectureCarousel");
         const carouselViewport = $(".lecture-carousel-viewport", carousel);
         const carouselTrack = $("#lectureCarouselTrack");
@@ -828,12 +832,13 @@
         const slidePrev = $("#lectureSlidePrev");
         const slideNext = $("#lectureSlideNext");
         const autoplay = $("#lectureAutoplay");
-        const slideNames = ["Mental picture", "Core ideas", "Mechanism", "Read the formula", "Visual experiment", "ML connection"];
-        const state = { course: "calculus", lectureIndex: 0, frame: null, slideIndex: 0, slideCount: slideNames.length, autoplay: null, pointerStart: null, sceneStart: performance.now(), manimCatalog: null, mediaMode: "canvas", mediaAsset: null, mediaToken: 0 };
+        const state = { course: "calculus", lectureIndex: 0, frame: null, slideIndex: 0, slideCount: 1, slideNames: ["Mental picture"], autoplay: null, pointerStart: null, sceneStart: performance.now(), manimCatalog: null, mediaMode: "canvas", mediaAsset: null, mediaToken: 0, playbackRate: 0.7, conceptIndex: -1 };
         const lectureFactorial = function(n) { let result = 1; for (let i = 2; i <= n; i += 1) result *= i; return result; };
 
         const sceneCopy = {
             accumulation: "Finite pieces accumulate into a smooth whole as the partition becomes finer.",
+            integration: "Signed Riemann sums converge, then a marginal strip turns accumulated area into the fundamental theorem.",
+            "area-slope": "A moving boundary makes velocity-area and position-slope describe the same infinitesimal change.",
             tangent: "A secant line pivots toward the local tangent as the input nudge contracts.",
             geometry: "First-order boundary pieces explain the derivative; higher-order corners disappear faster.",
             chain: "A pulse moves through local dependencies; each link scales the change it receives.",
@@ -857,6 +862,7 @@
             cramer: "Replacing a basis column turns solution coordinates into ratios of signed areas.",
             basis: "The vector stays fixed while its coordinate grid changes around it.",
             eigen: "Eigen-directions remain on their own lines while all other directions turn.",
+            "eigen-compute": "Subtracting λ from the diagonal flattens space exactly at the characteristic roots.",
             abstract: "Different-looking objects share the same add-and-scale structure.",
             field: "A state follows the arrow at its current location, one numerical step at a time.",
             pde: "Each spatial point exchanges information with its neighbors as the whole function evolves.",
@@ -864,10 +870,12 @@
             fourier: "Rotating frequency vectors add tip-to-tail to reconstruct a signal.",
             complex: "Multiplication by i continuously turns velocity, generating circular motion.",
             laplace: "Exponential probes test how strongly a signal contains each decay and oscillation mode.",
+            "laplace-use": "An initial-value problem becomes algebra in s, whose poles unpack into time-domain modes.",
             "matrix-exp": "Infinitely many tiny linear steps accumulate into the matrix exponential flow.",
             network: "Activations move forward through weighted edges and nonlinear gates.",
             landscape: "The parameter point follows the negative gradient across a loss landscape.",
             backprop: "Prediction error moves backward, splitting into responsibility signals for every edge.",
+            "backprop-calculus": "Local derivatives multiply along paths and shared downstream factors are reused in reverse.",
             tokens: "A token becomes a vector, gathers context, and produces a next-token distribution.",
             transformer: "The residual stream is repeatedly read and edited by attention and MLP blocks.",
             attention: "Query-key scores become a probability distribution that blends value vectors.",
@@ -885,6 +893,48 @@
             return "https://www.youtube.com/watch?v=" + lecture.video + "&list=" + new URL(course.playlist).searchParams.get("list");
         }
 
+        function activeLecture() {
+            return catalog[state.course].lectures[state.lectureIndex];
+        }
+
+        function updateConceptBeat(nextIndex) {
+            const lecture = activeLecture();
+            const conceptCount = lecture.concepts.length;
+            const boundedIndex = Math.max(0, Math.min(conceptCount - 1, nextIndex));
+            if (boundedIndex === state.conceptIndex) return;
+            state.conceptIndex = boundedIndex;
+            currentConcept.textContent = lecture.concepts[boundedIndex];
+            conceptProgress.textContent = (boundedIndex + 1) + " of " + conceptCount;
+            $$("button", conceptTrack).forEach(function(button, buttonIndex) {
+                const active = buttonIndex === boundedIndex;
+                button.classList.toggle("is-active", active);
+                button.setAttribute("aria-current", active ? "step" : "false");
+            });
+        }
+
+        function renderConceptRail(lecture) {
+            state.conceptIndex = -1;
+            conceptTrack.innerHTML = lecture.concepts.map(function(concept, conceptIndex) {
+                return '<button type="button" aria-label="Jump to concept ' + (conceptIndex + 1) + ': ' + escapeHtml(concept) + '" data-concept-index="' + conceptIndex + '"><span>' + String(conceptIndex + 1).padStart(2, "0") + '</span></button>';
+            }).join("");
+            $$("button", conceptTrack).forEach(function(button) {
+                button.addEventListener("click", function() {
+                    const conceptIndex = Number(button.dataset.conceptIndex);
+                    const duration = manimVideo.duration;
+                    if (state.mediaMode === "manim" && Number.isFinite(duration) && duration > 0) {
+                        manimVideo.currentTime = Math.min(duration - 0.05, duration * conceptIndex / lecture.concepts.length + 0.01);
+                        playManim(true);
+                    } else {
+                        state.sceneStart = performance.now() - conceptIndex * 5200;
+                        cancelAnimationFrame(state.frame);
+                        drawScene(performance.now());
+                    }
+                    updateConceptBeat(conceptIndex);
+                });
+            });
+            updateConceptBeat(0);
+        }
+
         function setVideoButton() {
             const paused = manimVideo.paused;
             videoPlay.textContent = paused ? "Play" : "Pause";
@@ -895,6 +945,7 @@
         function playManim(userInitiated) {
             const chapterActive = library.closest(".chapter")?.classList.contains("is-active");
             if ((reducedMotion && !userInitiated) || (!chapterActive && !userInitiated) || state.mediaMode !== "manim") { setVideoButton(); return; }
+            manimVideo.playbackRate = state.playbackRate;
             const playRequest = manimVideo.play();
             if (playRequest?.catch) playRequest.catch(function() { setVideoButton(); });
         }
@@ -951,6 +1002,7 @@
             manimVideo.setAttribute("aria-label", asset.title + " — ManimGL animation for " + lecture.title);
             const markCurrentAssetReady = function() {
                 if (token !== state.mediaToken || state.mediaAsset !== slug || manimVideo.readyState < 2) return;
+                manimVideo.playbackRate = state.playbackRate;
                 mediaStage.classList.add("is-manim-ready");
                 setMediaMode("manim");
             };
@@ -987,12 +1039,6 @@
                 .catch(function() { fallbackToCanvas("Manim metadata is unavailable; the interactive canvas is active."); });
         }
 
-        function focusList(items, startIndex) {
-            return '<ul class="lecture-slide-focus-list">' + items.map(function(item, itemIndex) {
-                return "<li><span>" + String(startIndex + itemIndex).padStart(2, "0") + "</span>" + escapeHtml(item) + "</li>";
-            }).join("") + "</ul>";
-        }
-
         function stopAutoplay() {
             if (state.autoplay) window.clearInterval(state.autoplay);
             state.autoplay = null;
@@ -1024,9 +1070,15 @@
                 dot.setAttribute("aria-current", dotIndex === state.slideIndex ? "true" : "false");
             });
             const activeSlide = $$(".lecture-carousel-slide", carouselTrack)[state.slideIndex];
-            carouselTitle.textContent = activeSlide?.dataset.slideTitle || slideNames[state.slideIndex];
+            carouselTitle.textContent = activeSlide?.dataset.slideTitle || state.slideNames[state.slideIndex];
             slideCounter.textContent = (state.slideIndex + 1) + " / " + state.slideCount;
-            if (state.slideIndex === 4) restartScene();
+            if (activeSlide?.dataset.replay === "true") restartScene();
+        }
+
+        function derivationList(steps) {
+            return '<ol class="lecture-derivation-list">' + steps.map(function(step, stepIndex) {
+                return '<li><span>' + String(stepIndex + 1).padStart(2, "0") + '</span><div><div class="lecture-derivation-math">' + escapeHtml("\\(" + step.math + "\\)") + '</div><p>' + escapeHtml(step.text) + '</p></div></li>';
+            }).join("") + '</ol>';
         }
 
         function buildCarousel(course, lecture, lectureIndex) {
@@ -1036,45 +1088,53 @@
                 observe: sceneCopy[lecture.scene] || lecture.summary,
                 check: "Can you explain what changes, what remains invariant, and how the formula predicts the animation?"
             };
-            const split = Math.ceil(lecture.concepts.length / 2);
-            const firstConcepts = lecture.concepts.slice(0, split);
-            const laterConcepts = lecture.concepts.slice(split);
+            const derivations = window.MathLectureDerivations?.[lecture.scene] || [
+                { math: lecture.math, text: guide.formula }
+            ];
             const url = sourceUrl(course, lecture);
             const sceneDescription = sceneCopy[lecture.scene] || lecture.summary;
             const slides = [
                 {
                     title: "Build the mental picture",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Course<b>' + escapeHtml(course.label) + '</b></span><span>Source chapter<b>' + String(lectureIndex + 1).padStart(2, "0") + ' · ' + escapeHtml(lecture.duration) + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + '</b></span><span>Animated scene<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span></div></div>'
-                },
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">01</span><span class="lecture-slide-kicker">Start with intuition</span><h4>' + escapeHtml(lecture.title) + '</h4><p>' + escapeHtml(lecture.summary) + '</p></div><div class="lecture-slide-visual"><strong>Orient the picture</strong><p>' + escapeHtml(sceneDescription) + '</p><div class="lecture-slide-mini-meta"><span>Course<b>' + escapeHtml(course.label) + '</b></span><span>Source chapter<b>' + String(lectureIndex + 1).padStart(2, "0") + ' · ' + escapeHtml(lecture.duration) + '</b></span><span>Concept checkpoints<b>' + lecture.concepts.length + ' dedicated slides</b></span><span>Study pace<b>' + state.playbackRate.toFixed(2).replace(/0$/, "") + '× by default</b></span></div></div>'
+                }
+            ].concat(lecture.concepts.map(function(concept, conceptIndex) {
+                const previous = conceptIndex === 0 ? "Starting intuition" : lecture.concepts[conceptIndex - 1];
+                const next = conceptIndex === lecture.concepts.length - 1 ? "Final synthesis" : lecture.concepts[conceptIndex + 1];
+                const derivationIndex = Math.min(derivations.length - 1, Math.floor(conceptIndex * derivations.length / lecture.concepts.length));
+                const conceptStep = derivations[derivationIndex];
+                const argumentRole = conceptIndex === 0
+                    ? "This establishes the objects and geometric language used by the rest of the chapter."
+                    : conceptIndex === lecture.concepts.length - 1
+                        ? "This closes the argument by turning the visual invariant into a reusable mathematical consequence."
+                        : "This is the next causal link: it explains how the preceding picture produces the following conclusion.";
+                return {
+                    title: "Concept " + (conceptIndex + 1) + " of " + lecture.concepts.length,
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">' + String(conceptIndex + 2).padStart(2, "0") + '</span><span class="lecture-slide-kicker">Concept checkpoint ' + (conceptIndex + 1) + '</span><h4>' + escapeHtml(concept) + '</h4><p>' + escapeHtml(argumentRole) + ' In the full lecture, it supports this central claim: ' + escapeHtml(lecture.summary) + '</p><div class="lecture-slide-formula">' + escapeHtml("\\(" + conceptStep.math + "\\)") + '</div><p class="lecture-slide-callout"><strong>Why this equation is here:</strong> ' + escapeHtml(conceptStep.text) + '</p></div><div class="lecture-slide-visual"><strong>Read the animation as an argument</strong><ul class="lecture-slide-focus-list lecture-concept-depth"><li><span>1</span><div><b>Meaning</b>' + escapeHtml(concept) + '</div></li><li><span>2</span><div><b>Visible mechanism</b>' + escapeHtml(guide.observe) + '</div></li><li><span>3</span><div><b>Symbolic invariant</b>' + escapeHtml(guide.formula) + '</div></li><li><span>4</span><div><b>Stress test</b>' + escapeHtml(guide.check) + '</div></li></ul><div class="lecture-slide-mini-meta lecture-concept-neighbors"><span>Built from<b>' + escapeHtml(previous) + '</b></span><span>Leads to<b>' + escapeHtml(next) + '</b></span></div></div>'
+                };
+            })).concat([
                 {
-                    title: "Establish the core ideas",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">02</span><span class="lecture-slide-kicker">Foundation</span><h4>Name the mathematical objects</h4><p>Build the vocabulary before compressing the idea into notation. These are the first dependencies the lecture establishes.</p>' + focusList(firstConcepts, 1) + '</div><div class="lecture-slide-visual"><strong>Connect the ideas</strong><p class="lecture-slide-callout">Start with <b>' + escapeHtml(firstConcepts[0]) + '</b>. Then ask how each following idea changes or measures the object introduced before it.</p></div>'
-                },
-                {
-                    title: "Trace the mechanism",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">03</span><span class="lecture-slide-kicker">Cause and effect</span><h4>Follow what the operation does</h4><p>Move from definitions to the chain of consequences. These checkpoints complete the lecture’s conceptual argument.</p>' + focusList(laterConcepts, split + 1) + '</div><div class="lecture-slide-visual"><strong>Reason in sequence</strong><p class="lecture-slide-callout">Use the animation as a causal diagram: identify the input, predict the local change, and then explain the visible output. End by connecting the mechanism to <b>' + escapeHtml(laterConcepts[laterConcepts.length - 1]) + '</b>.</p></div>'
-                },
-                {
-                    title: "Read the formula",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">04</span><span class="lecture-slide-kicker">Notation with meaning</span><h4>Translate symbols into motion</h4><div class="lecture-slide-formula">' + escapeHtml(lecture.math) + '</div><p>' + escapeHtml(guide.formula) + '</p></div><div class="lecture-slide-visual"><strong>Three-pass reading</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Name every quantity and its units or dimensions.</li><li><span>2</span>Read the equality as a claim about a process, not just a rearrangement.</li><li><span>3</span>Test an edge case: zero, alignment, tiny change, or very long time.</li></ul></div>'
+                    title: "Derive the formula",
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">' + String(lecture.concepts.length + 2).padStart(2, "0") + '</span><span class="lecture-slide-kicker">Notation with meaning</span><h4>Build the equation from the picture</h4><div class="lecture-slide-formula">' + escapeHtml(lecture.math) + '</div><p>' + escapeHtml(guide.formula) + '</p></div><div class="lecture-slide-visual lecture-derivation-panel"><strong>Derivation, one visual move at a time</strong>' + derivationList(derivations) + '</div>'
                 },
                 {
                     title: "Run the visual experiment",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">05</span><span class="lecture-slide-kicker">Observe and predict</span><h4>Use motion as a proof sketch</h4><p>' + escapeHtml(guide.observe) + '</p><div class="lecture-slide-actions"><button class="lecture-replay" type="button" data-carousel-replay>Replay animation</button><span class="lecture-carousel-hint">The active Manim or canvas scene resets above.</span></div></div><div class="lecture-slide-visual"><strong>Prediction loop</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Pause mentally before the next change.</li><li><span>2</span>Predict the direction and relative size.</li><li><span>3</span>Use the formula to explain any surprise.</li></ul><p class="lecture-slide-callout">' + escapeHtml(sceneDescription) + '</p></div>'
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">' + String(lecture.concepts.length + 3).padStart(2, "0") + '</span><span class="lecture-slide-kicker">Observe and predict</span><h4>Use motion as a proof sketch</h4><p>' + escapeHtml(guide.observe) + '</p><div class="lecture-slide-actions"><button class="lecture-replay" type="button" data-carousel-replay>Replay slowly</button><span class="lecture-carousel-hint">Use the numbered concept rail to seek individual beats.</span></div></div><div class="lecture-slide-visual"><strong>Prediction loop</strong><ul class="lecture-slide-focus-list"><li><span>1</span>Pause before the next geometric change.</li><li><span>2</span>Predict its direction, sign, and relative size.</li><li><span>3</span>Use a derivation step to explain any surprise.</li><li><span>4</span>Test a boundary case: zero, alignment, collapse, or long time.</li></ul><p class="lecture-slide-callout">' + escapeHtml(sceneDescription) + '</p></div>'
                 },
                 {
                     title: "Transfer the idea to ML",
-                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">06</span><span class="lecture-slide-kicker">From mathematics to models</span><h4>Find the machine-learning role</h4><p>' + escapeHtml(lecture.ml) + '</p><div class="lecture-slide-actions"><a class="lecture-slide-source" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">Watch this source lecture ↗</a></div></div><div class="lecture-slide-visual"><div class="lecture-slide-question"><strong>Check your understanding</strong>' + escapeHtml(guide.check) + '</div><div class="lecture-slide-mini-meta"><span>Explain it visually<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span><span>Explain it symbolically<b>Use the displayed formula</b></span></div></div>'
+                    body: '<div class="lecture-slide-copy"><span class="lecture-slide-index">' + String(lecture.concepts.length + 4).padStart(2, "0") + '</span><span class="lecture-slide-kicker">From mathematics to models</span><h4>Find the machine-learning role</h4><p>' + escapeHtml(lecture.ml) + '</p><div class="lecture-slide-actions"><a class="lecture-slide-source" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">Watch this source lecture ↗</a></div></div><div class="lecture-slide-visual"><div class="lecture-slide-question"><strong>Check your understanding</strong>' + escapeHtml(guide.check) + '</div><div class="lecture-slide-mini-meta"><span>Explain it visually<b>' + escapeHtml(lecture.scene.replaceAll("-", " ")) + '</b></span><span>Explain it symbolically<b>Rebuild every derivation step</b></span></div></div>'
                 }
-            ];
+            ]);
 
             carouselTrack.innerHTML = slides.map(function(slide, slideIndex) {
-                return '<article class="lecture-carousel-slide" role="group" aria-roledescription="slide" aria-label="Slide ' + (slideIndex + 1) + ' of ' + slides.length + '" data-slide-title="' + escapeHtml(slide.title) + '"><div class="lecture-slide-layout">' + slide.body + "</div></article>";
+                return '<article class="lecture-carousel-slide" role="group" aria-roledescription="slide" aria-label="Slide ' + (slideIndex + 1) + ' of ' + slides.length + '" data-slide-title="' + escapeHtml(slide.title) + '" data-replay="' + (slide.title === "Run the visual experiment" ? "true" : "false") + '"><div class="lecture-slide-layout">' + slide.body + "</div></article>";
             }).join("");
             slideDots.innerHTML = slides.map(function(slide, slideIndex) {
                 return '<button class="lecture-slide-dot" type="button" aria-label="Show slide ' + (slideIndex + 1) + ': ' + escapeHtml(slide.title) + '" data-slide-index="' + slideIndex + '"></button>';
             }).join("");
             state.slideCount = slides.length;
+            state.slideNames = slides.map(function(slide) { return slide.title; });
             showSlide(0, false);
             if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([carouselTrack]).catch(function() {});
         }
@@ -1107,7 +1167,7 @@
             ctx.strokeStyle = palette.axis; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(45, cy); ctx.lineTo(955, cy); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(cx, 30); ctx.lineTo(cx, 470); ctx.stroke();
-            if (lecture.scene === "accumulation") {
+            if (["accumulation", "integration", "area-slope"].includes(lecture.scene)) {
                 const count = 6 + Math.floor(phase * 34); const step = 5.8 / count;
                 for (let i = 0; i < count; i += 1) {
                     const x = -3 + i * step; const h = .18 * (x * x + .4);
@@ -1154,7 +1214,7 @@
             if (lecture.scene === "area" || lecture.scene === "cramer") matrix = [1.25, .65 * phase, .2, .7];
             if (lecture.scene === "subspaces" || lecture.scene === "dimensions") matrix = [1, .7, .03, .08];
             if (lecture.scene === "projection") matrix = [1, .45, 0, .2];
-            if (lecture.scene === "eigen") matrix = [1.45, .45, .45, .9];
+            if (["eigen", "eigen-compute"].includes(lecture.scene)) matrix = [1.45, .45, .45, .9];
             const map = function(x, y) { return { x: cx + (matrix[0] * x + matrix[1] * y) * 62, y: cy - (matrix[2] * x + matrix[3] * y) * 62 }; };
             ctx.strokeStyle = "rgba(158,178,201,.12)"; ctx.lineWidth = 1;
             for (let n = -8; n <= 8; n += .5) {
@@ -1165,20 +1225,56 @@
             if (lecture.scene === "vectors" || lecture.scene === "span" || lecture.scene === "projection") { const v = map(2.6, 1.8); drawArrow(ctx, origin.x, origin.y, v.x, v.y, palette.gold, 4, 11); }
             if (lecture.scene === "area" || lecture.scene === "cramer") { const corner = map(1, 1); ctx.fillStyle = "rgba(97,218,251,.18)"; ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(origin.x, origin.y); ctx.lineTo(i.x, i.y); ctx.lineTo(corner.x, corner.y); ctx.lineTo(j.x, j.y); ctx.closePath(); ctx.fill(); ctx.stroke(); }
             if (["cross", "duality3d", "transform3d"].includes(lecture.scene)) { drawArrow(ctx, cx, cy, cx + 165, cy + 75, color, 4, 11); drawArrow(ctx, cx, cy, cx - 90, cy - 130, palette.coral, 4, 11); drawArrow(ctx, cx, cy, cx + 35 * Math.sin(time * .001), cy - 180, palette.gold, 4, 11); }
-            if (lecture.scene === "eigen") { ctx.setLineDash([9, 7]); ctx.strokeStyle = palette.violet; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(90, 455); ctx.lineTo(910, 45); ctx.stroke(); ctx.strokeStyle = palette.mint; ctx.beginPath(); ctx.moveTo(190, 25); ctx.lineTo(810, 475); ctx.stroke(); ctx.setLineDash([]); }
+            if (["eigen", "eigen-compute"].includes(lecture.scene)) { ctx.setLineDash([9, 7]); ctx.strokeStyle = palette.violet; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(90, 455); ctx.lineTo(910, 45); ctx.stroke(); ctx.strokeStyle = palette.mint; ctx.beginPath(); ctx.moveTo(190, 25); ctx.lineTo(810, 475); ctx.stroke(); ctx.setLineDash([]); }
             if (lecture.scene === "abstract") { ctx.fillStyle = "rgba(7,17,31,.88)"; ctx.strokeStyle = color; roundedRect(ctx, 650, 85, 275, 330, 20); ctx.fill(); ctx.stroke(); ctx.fillStyle = palette.text; ctx.font = "800 14px Nunito, sans-serif"; ctx.fillText("functions + polynomials", 705, 120); }
         }
 
         function drawOde(lecture, time, color) {
             const cx = 500; const cy = 250;
-            if (lecture.scene === "fourier" || lecture.scene === "complex") {
-                let x = 280, y = cy; const count = lecture.scene === "complex" ? 1 : 7;
+            if (lecture.scene === "complex") {
+                const circleCenter = { x: 245, y: 255 }; const radius = 138; const theta = (time * .00022) % (Math.PI * 2);
+                const point = { x: circleCenter.x + radius * Math.cos(theta), y: circleCenter.y - radius * Math.sin(theta) };
+                ctx.strokeStyle = palette.axis; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(55, circleCenter.y); ctx.lineTo(445, circleCenter.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(circleCenter.x, 55); ctx.lineTo(circleCenter.x, 445); ctx.stroke();
+                ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(circleCenter.x, circleCenter.y, radius, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = palette.violet; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(circleCenter.x, circleCenter.y, 42, -theta, 0); ctx.stroke();
+                drawArrow(ctx, circleCenter.x, circleCenter.y, point.x, point.y, palette.gold, 4, 11);
+                ctx.setLineDash([7, 6]); ctx.strokeStyle = palette.coral; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(point.x, point.y); ctx.lineTo(point.x, circleCenter.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(point.x, point.y); ctx.lineTo(circleCenter.x, point.y); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = palette.gold; ctx.beginPath(); ctx.arc(point.x, point.y, 8, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = palette.text; ctx.font = "800 15px Nunito, sans-serif"; ctx.fillText("θ", circleCenter.x + 50, circleCenter.y - 15);
+                ctx.fillStyle = palette.coral; ctx.fillText("sin θ = y / r", 82, 36);
+                ctx.fillStyle = color; ctx.fillText("cos θ = x / r", 292, 36);
+                ctx.fillStyle = palette.muted; ctx.font = "700 13px Nunito, sans-serif"; ctx.fillText("r = 1", 280, 330);
+
+                const graphLeft = 520; const graphRight = 955; const graphMid = 255; const graphScale = 118;
+                ctx.strokeStyle = palette.axis; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(graphLeft, graphMid); ctx.lineTo(graphRight, graphMid); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(graphLeft, 75); ctx.lineTo(graphLeft, 430); ctx.stroke();
+                ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath();
+                for (let px = graphLeft; px <= graphRight; px += 2) {
+                    const angle = (px - graphLeft) / (graphRight - graphLeft) * Math.PI * 2;
+                    const py = graphMid - graphScale * Math.sin(angle);
+                    if (px === graphLeft) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+                const graphX = graphLeft + theta / (Math.PI * 2) * (graphRight - graphLeft); const graphY = graphMid - graphScale * Math.sin(theta);
+                ctx.setLineDash([6, 5]); ctx.strokeStyle = palette.coral; ctx.beginPath(); ctx.moveTo(point.x, point.y); ctx.lineTo(graphX, graphY); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = palette.coral; ctx.beginPath(); ctx.arc(graphX, graphY, 7, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = palette.text; ctx.font = "800 14px Nunito, sans-serif"; ctx.fillText("vertical projection traces y = sin θ", 620, 55);
+                ctx.fillStyle = palette.muted; ctx.font = "700 12px Nunito, sans-serif"; ctx.fillText("0", graphLeft - 4, graphMid + 20); ctx.fillText("2π", graphRight - 14, graphMid + 20);
+                return;
+            }
+            if (lecture.scene === "fourier") {
+                let x = 280, y = cy; const count = 7;
                 for (let n = 1; n <= count; n += 1) { const r = 95 / n, angle = time * .00045 * n * (n % 2 ? 1 : -1); ctx.strokeStyle = "rgba(158,178,201,.18)"; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke(); const nx = x + Math.cos(angle) * r, ny = y + Math.sin(angle) * r; drawArrow(ctx, x, y, nx, ny, n % 2 ? color : palette.violet, 2, 6); x = nx; y = ny; }
                 ctx.strokeStyle = palette.gold; ctx.lineWidth = 3; ctx.beginPath(); for (let px = x; px < 960; px += 2) { const py = y + 60 * Math.sin((px - x) * .018 + time * .001); if (px === x) ctx.moveTo(px, py); else ctx.lineTo(px, py); } ctx.stroke();
             } else if (lecture.scene === "heat" || lecture.scene === "pde") {
                 const modes = lecture.scene === "heat" ? 6 : 3;
                 for (let n = modes; n >= 1; n -= 1) { const decay = Math.exp(-n * n * ((time * .00018) % 1.2)); ctx.strokeStyle = n === 1 ? color : "rgba(167,139,250,.35)"; ctx.lineWidth = n === 1 ? 4 : 1.5; ctx.beginPath(); for (let px = 45; px <= 955; px += 3) { const u = (px - 45) / 910, py = cy - 110 * decay * Math.sin(n * Math.PI * u) / n; if (px === 45) ctx.moveTo(px, py); else ctx.lineTo(px, py); } ctx.stroke(); }
-            } else if (lecture.scene === "laplace") {
+            } else if (["laplace", "laplace-use"].includes(lecture.scene)) {
                 for (let i = 0; i < 10; i += 1) { const rate = .25 + i * .14; ctx.strokeStyle = "rgba(97,218,251," + (.15 + i * .055) + ")"; ctx.lineWidth = 2; ctx.beginPath(); for (let px = 80; px < 930; px += 3) { const x = (px - 80) / 130, py = 420 - 300 * Math.exp(-rate * x) * Math.cos((i % 3) * x + time * .0002); if (px === 80) ctx.moveTo(px, py); else ctx.lineTo(px, py); } ctx.stroke(); }
                 ctx.fillStyle = palette.gold; ctx.font = "800 14px Nunito, sans-serif"; ctx.fillText("exponential probes e⁻ˢᵗ", 75, 55);
             } else {
@@ -1197,11 +1293,11 @@
             const layers = [[120, [165, 335]], [400, [105, 250, 395]], [690, [150, 350]], [900, [250]]];
             for (let l = 0; l < layers.length - 1; l += 1) layers[l][1].forEach(function(y1) { layers[l + 1][1].forEach(function(y2) { ctx.strokeStyle = l % 2 ? "rgba(167,139,250,.28)" : "rgba(97,218,251,.25)"; ctx.beginPath(); ctx.moveTo(layers[l][0], y1); ctx.lineTo(layers[l + 1][0], y2); ctx.stroke(); }); });
             layers.forEach(function(layer, l) { layer[1].forEach(function(y, n) { const activation = .2 + .8 * Math.abs(Math.sin(time * .001 + l * .8 + n)); ctx.fillStyle = "rgba(255,255,255," + (.04 + activation * .22) + ")"; ctx.strokeStyle = l === layers.length - 1 ? palette.gold : (l % 2 ? palette.violet : color); ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(layer[0], y, 27, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }); });
-            const reverse = lecture.scene === "backprop", px = lerp(reverse ? 900 : 120, reverse ? 120 : 900, pulse); ctx.fillStyle = reverse ? palette.coral : palette.gold; ctx.beginPath(); ctx.arc(px, 250, 7, 0, Math.PI * 2); ctx.fill();
+            const reverse = ["backprop", "backprop-calculus"].includes(lecture.scene), px = lerp(reverse ? 900 : 120, reverse ? 120 : 900, pulse); ctx.fillStyle = reverse ? palette.coral : palette.gold; ctx.beginPath(); ctx.arc(px, 250, 7, 0, Math.PI * 2); ctx.fill();
         }
 
         function drawCarouselOverlay(course) {
-            const label = String(state.slideIndex + 1).padStart(2, "0") + " / " + String(state.slideCount).padStart(2, "0") + "  " + slideNames[state.slideIndex];
+            const label = String(state.slideIndex + 1).padStart(2, "0") + " / " + String(state.slideCount).padStart(2, "0") + "  " + (state.slideNames[state.slideIndex] || "Lecture step");
             ctx.save();
             ctx.fillStyle = "rgba(255,255,255,.92)";
             ctx.strokeStyle = colorMixForCanvas(course.color, .46);
@@ -1225,6 +1321,7 @@
         function drawScene(time) {
             const course = catalog[state.course], lecture = course.lectures[state.lectureIndex];
             const sceneTime = Math.max(0, time - state.sceneStart);
+            if (state.mediaMode !== "manim") updateConceptBeat(Math.floor(sceneTime / 5200) % lecture.concepts.length);
             drawBackdrop();
             if (state.course === "calculus") drawCalculus(lecture, sceneTime, course.color);
             if (state.course === "linear") drawLinear(lecture, sceneTime, course.color);
@@ -1258,7 +1355,7 @@
             watchLink.href = sourceUrl(course, lecture);
             concepts.innerHTML = "";
             lecture.concepts.forEach(function(concept) { const item = document.createElement("li"), check = document.createElement("span"); check.textContent = "✓"; item.append(check, document.createTextNode(concept)); concepts.appendChild(item); });
-            setMath(equation, lecture.math); buildCarousel(course, lecture, lectureIndex); updateManimMedia(); renderIndex(); restartScene();
+            renderConceptRail(lecture); setMath(equation, lecture.math); buildCarousel(course, lecture, lectureIndex); updateManimMedia(); renderIndex(); restartScene();
         }
 
         function selectCourse(courseKey) {
@@ -1281,7 +1378,7 @@
             if (state.autoplay) { stopAutoplay(); return; }
             autoplay.setAttribute("aria-pressed", "true");
             autoplay.textContent = "Pause slides";
-            state.autoplay = window.setInterval(function() { showSlide(state.slideIndex + 1, false); }, 6500);
+            state.autoplay = window.setInterval(function() { showSlide(state.slideIndex + 1, false); }, 12000);
         });
         carousel.addEventListener("keydown", function(event) {
             if (event.key === "ArrowLeft") { event.preventDefault(); showSlide(state.slideIndex - 1, true); }
@@ -1309,6 +1406,17 @@
         });
         manimVideo.addEventListener("play", setVideoButton);
         manimVideo.addEventListener("pause", setVideoButton);
+        manimVideo.addEventListener("timeupdate", function() {
+            const lecture = activeLecture();
+            if (!Number.isFinite(manimVideo.duration) || manimVideo.duration <= 0) return;
+            const progress = Math.max(0, Math.min(0.999999, manimVideo.currentTime / manimVideo.duration));
+            updateConceptBeat(Math.floor(progress * lecture.concepts.length));
+        });
+        playbackRate.addEventListener("change", function() {
+            state.playbackRate = Number(playbackRate.value) || 0.7;
+            manimVideo.playbackRate = state.playbackRate;
+            mediaHint.textContent = "Study pace set to " + state.playbackRate.toFixed(2).replace(/0$/, "") + "×; every concept remains seekable below.";
+        });
         document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
             restartScene();
         });

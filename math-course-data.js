@@ -61,7 +61,7 @@ window.MathLectureCatalog = {
                 ml: "Limit reasoning underlies convergence, numerical stability, gradient checking, and asymptotic approximations."
             },
             {
-                video: "rfG8ce4nNh0", duration: "20:46", scene: "accumulation",
+                video: "rfG8ce4nNh0", duration: "20:46", scene: "integration",
                 title: "Integration and the fundamental theorem of calculus",
                 summary: "Turn signed area into a limiting sum and show why changing the endpoint exposes the original function as the derivative of accumulated area.",
                 concepts: ["Riemann rectangles and signed area", "Definite versus indefinite integrals", "Area accumulation function", "Antiderivatives", "Fundamental theorem, both directions", "Substitution as reversing the chain rule"],
@@ -69,7 +69,7 @@ window.MathLectureCatalog = {
                 ml: "Expectations are integrals; empirical risk replaces them with finite sample averages."
             },
             {
-                video: "FnJqaIESC2s", duration: "12:39", scene: "accumulation",
+                video: "FnJqaIESC2s", duration: "12:39", scene: "area-slope",
                 title: "What does area have to do with slope?",
                 summary: "Unify the seemingly different pictures of area and slope by tracking how a moving boundary changes accumulated quantity.",
                 concepts: ["Velocity area gives displacement", "Height controls marginal area", "Accumulator graphs", "Derivative and integral as inverse operations", "Constants lost under differentiation", "Initial conditions restore the constant"],
@@ -220,7 +220,7 @@ window.MathLectureCatalog = {
                 ml: "Eigenvectors describe covariance directions, graph modes, recurrent dynamics, curvature, and long-run behavior."
             },
             {
-                video: "e50Bj7jn9IQ", duration: "13:13", scene: "eigen",
+                video: "e50Bj7jn9IQ", duration: "13:13", scene: "eigen-compute",
                 title: "A quick trick for computing eigenvalues",
                 summary: "Turn the search for invariant directions into the condition that A−λI collapses some nonzero vector to zero.",
                 concepts: ["Rearranging A v=λv", "Nontrivial null space", "Characteristic determinant", "Characteristic polynomial", "Trace and determinant relationships in 2D", "Algebraic versus geometric multiplicity"],
@@ -291,7 +291,7 @@ window.MathLectureCatalog = {
                 ml: "Transforms reveal modes and stability in continuous-time models, state-space layers, and system identification."
             },
             {
-                video: "FE-hM1kRK4Y", duration: "23:05", scene: "laplace",
+                video: "FE-hM1kRK4Y", duration: "23:05", scene: "laplace-use",
                 title: "Why Laplace transforms are so useful",
                 summary: "Use transform rules to turn differentiation and convolution into algebra, solve initial-value problems, and read system response from poles.",
                 concepts: ["Derivative becomes multiplication by s plus initial-condition terms", "ODEs become algebraic equations", "Inverse transform", "Convolution becomes multiplication", "Impulse and step responses", "Poles, resonance, and stability", "Transfer-function viewpoint"],
@@ -338,7 +338,7 @@ window.MathLectureCatalog = {
                 ml: "The algorithm efficiently computes every parameter's effect without perturbing parameters one by one."
             },
             {
-                video: "tIeHLnjs5U8", duration: "10:18", scene: "chain",
+                video: "tIeHLnjs5U8", duration: "10:18", scene: "backprop-calculus",
                 title: "Backpropagation calculus",
                 summary: "Write the intuitive backward influence as explicit chain-rule factors for weights, biases, weighted sums, activations, and cost.",
                 concepts: ["Weighted input z=wa+b", "Activation derivative", "Cost derivative", "Chain rule for one weight", "Previous activation scales the weight gradient", "Bias derivative", "Multiple paths add", "Vectorized layer equations"],

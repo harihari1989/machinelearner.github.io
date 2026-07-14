@@ -27,6 +27,7 @@ CORAL = "#E11D48"
 GOLD = "#C27A00"
 MINT = "#059669"
 FONT = os.environ.get("MANIM_FONT", "Helvetica")
+LECTURE_PACE = float(os.environ.get("MANIM_LECTURE_PACE", "2.1"))
 
 
 class BrowserLectureScene(Scene):
@@ -35,6 +36,12 @@ class BrowserLectureScene(Scene):
     title = "Mathematical motion"
     subtitle = "Watch the invariant, not just the moving object"
     accent = CYAN
+
+    def play(self, *animations, **kwargs):
+        """Slow every staged transition so the geometry can be read before it changes."""
+        if "run_time" in kwargs:
+            kwargs["run_time"] *= LECTURE_PACE
+        return super().play(*animations, **kwargs)
 
     def text(self, value, size=30, color=INK, weight=NORMAL):
         return Text(value, font=FONT, font_size=size, weight=weight).set_color(color)
@@ -60,7 +67,7 @@ class BrowserLectureScene(Scene):
     def construct(self):
         self.header()
         self.animate_concept()
-        self.wait(0.35)
+        self.wait(1.0)
 
     def animate_concept(self):
         raise NotImplementedError
@@ -397,6 +404,58 @@ class FourierEpicycles(BrowserLectureScene):
         self.formula("signal = sum of rotating frequency components")
 
 
+class UnitCircleSine(BrowserLectureScene):
+    title = "Sine and cosine are circle coordinates"
+    subtitle = "Project one rotating radius to derive both functions"
+    accent = CORAL
+
+    def circle_point(self, center, radius, angle):
+        return center + radius * np.array([math.cos(angle), math.sin(angle), 0])
+
+    def projection_group(self, center, radius, angle):
+        point = self.circle_point(center, radius, angle)
+        radius_line = Arrow(center, point, buff=0).set_color(GOLD)
+        vertical = DashedLine(point, np.array([point[0], center[1], 0])).set_stroke(CORAL, 2.5)
+        horizontal = DashedLine(point, np.array([center[0], point[1], 0])).set_stroke(CYAN, 2.5)
+        dot = Dot(point, radius=0.095).set_color(GOLD)
+        return VGroup(radius_line, vertical, horizontal, dot)
+
+    def animate_concept(self):
+        center = 3.65 * LEFT + 0.35 * DOWN
+        radius = 1.62
+        x_axis = Line(center + 2.15 * LEFT, center + 2.15 * RIGHT).set_stroke(GRID, 1.5)
+        y_axis = Line(center + 2.05 * DOWN, center + 2.05 * UP).set_stroke(GRID, 1.5)
+        circle = Circle(radius=radius).move_to(center).set_stroke(CYAN, 3.5)
+        angle = 38 * DEGREES
+        projection = self.projection_group(center, radius, angle)
+        theta_arc = Arc(radius=0.48, start_angle=0, angle=angle).move_arc_center_to(center).set_stroke(VIOLET, 3)
+        theta_label = self.text("θ", 22, VIOLET, BOLD).next_to(theta_arc, RIGHT, buff=0.05)
+        x_label = self.text("x = r cos θ", 18, CYAN, BOLD).next_to(x_axis, DOWN, buff=0.12).shift(0.25 * RIGHT)
+        y_label = self.text("y = r sin θ", 18, CORAL, BOLD).next_to(y_axis, LEFT, buff=0.12).shift(0.3 * UP)
+
+        graph_axes = Axes((0, 2 * PI, PI / 2), (-1.25, 1.25, 1), width=5.1, height=3.4)
+        graph_axes.set_stroke(GRID, 1.4).shift(3.35 * RIGHT + 0.28 * DOWN)
+        sine = graph_axes.get_graph(math.sin, x_range=(0, 2 * PI)).set_stroke(CORAL, 3.5)
+        graph_title = self.text("vertical coordinate", 18, CORAL, BOLD).next_to(graph_axes, UP, buff=0.08)
+        graph_point = Dot(graph_axes.c2p(angle, math.sin(angle)), radius=0.085).set_color(GOLD)
+        circle_point = projection[-1].get_center()
+        bridge = DashedLine(circle_point, graph_point.get_center()).set_stroke(GOLD, 2)
+
+        self.play(ShowCreation(x_axis), ShowCreation(y_axis), ShowCreation(circle), run_time=0.9)
+        self.play(GrowArrow(projection[0]), ShowCreation(projection[1]), ShowCreation(projection[2]), FadeIn(projection[3]), ShowCreation(theta_arc), FadeIn(theta_label), run_time=1.15)
+        self.play(FadeIn(x_label), FadeIn(y_label), run_time=0.75)
+        self.play(ShowCreation(graph_axes), FadeIn(graph_title), ShowCreation(sine), run_time=1.2)
+        self.play(ShowCreation(bridge), FadeIn(graph_point), run_time=0.8)
+
+        for next_angle in [72 * DEGREES, 132 * DEGREES, 218 * DEGREES, 318 * DEGREES]:
+            next_projection = self.projection_group(center, radius, next_angle)
+            next_graph_point = Dot(graph_axes.c2p(next_angle, math.sin(next_angle)), radius=0.085).set_color(GOLD)
+            next_bridge = DashedLine(next_projection[-1].get_center(), next_graph_point.get_center()).set_stroke(GOLD, 2)
+            self.play(Transform(projection, next_projection), Transform(graph_point, next_graph_point), Transform(bridge, next_bridge), run_time=0.85)
+
+        self.formula("sin θ = y / r     cos θ = x / r     e^(iθ) = cos θ + i sin θ")
+
+
 class NeuralSignals(BrowserLectureScene):
     title = "A neural network composes transformations"
     subtitle = "Signals move forward; responsibility moves backward"
@@ -528,3 +587,364 @@ class DiffusionDenoising(BrowserLectureScene):
             self.play(GrowArrow(arrows[index]), FadeIn(stages[index + 1]), run_time=0.5)
         self.play(LaggedStart(*[stage.animate.set_stroke(CYAN, 3) for stage in stages], lag_ratio=0.08, rate_func=there_and_back), run_time=1.0)
         self.formula("noise  →  prediction  →  correction  →  structure")
+
+
+class StepwiseDerivation(BrowserLectureScene):
+    """Concept-specific three-beat argument for topics that are best read as a process."""
+
+    steps = ("starting object", "geometric move", "invariant")
+    final_formula = "structure  →  operation  →  consequence"
+
+    def animate_concept(self):
+        colors = [CYAN, VIOLET, CORAL]
+        nodes = VGroup(*[self.node(label, color, width=2.75) for label, color in zip(self.steps, colors)])
+        nodes.arrange(RIGHT, buff=0.9).shift(0.3 * DOWN)
+        arrows = VGroup(*[
+            Arrow(nodes[index].get_right(), nodes[index + 1].get_left(), buff=0.1).set_color(GOLD)
+            for index in range(len(nodes) - 1)
+        ])
+        captions = VGroup(*[
+            self.text(label, 16, MUTED, BOLD).next_to(node, DOWN, buff=0.18)
+            for label, node in zip(("identify", "transform", "interpret"), nodes)
+        ])
+        pulse = Dot(nodes[0].get_center(), radius=0.1).set_color(GOLD)
+        self.play(LaggedStartMap(FadeIn, nodes, lag_ratio=0.16), LaggedStartMap(GrowArrow, arrows, lag_ratio=0.18), run_time=1.0)
+        self.play(LaggedStartMap(FadeIn, captions, lag_ratio=0.15), run_time=0.65)
+        self.add(pulse)
+        for node in nodes:
+            self.play(pulse.animate.move_to(node.get_center()), Indicate(node, color=self.accent), run_time=0.72)
+        self.formula(self.final_formula)
+
+
+class GeometricPowerRule(BrowserLectureScene):
+    title = "The power rule is visible in area"
+    subtitle = "First-order strips survive; the tiny corner disappears"
+    accent = GOLD
+
+    def animate_concept(self):
+        side = 2.35
+        dx = 0.48
+        square = Square(side_length=side).set_fill(CYAN, 0.12).set_stroke(CYAN, 3).shift(0.4 * LEFT + 0.25 * DOWN)
+        right_strip = Rectangle(width=dx, height=side).set_fill(GOLD, 0.35).set_stroke(GOLD, 2).next_to(square, RIGHT, buff=0)
+        top_strip = Rectangle(width=side, height=dx).set_fill(GOLD, 0.35).set_stroke(GOLD, 2).next_to(square, UP, buff=0)
+        corner = Square(side_length=dx).set_fill(CORAL, 0.5).set_stroke(CORAL, 2).next_to(right_strip, UP, buff=0)
+        x_label = self.text("x", 20, CYAN, BOLD).next_to(square, DOWN, buff=0.1)
+        dx_label = self.text("dx", 18, CORAL, BOLD).next_to(corner, RIGHT, buff=0.1)
+        first_order = self.text("2x · dx", 24, GOLD, BOLD).move_to([3.15, 0.7, 0])
+        second_order = self.text("(dx)²", 22, CORAL, BOLD).next_to(first_order, DOWN, buff=0.55)
+        arrow = Arrow(first_order.get_left(), right_strip.get_right(), buff=0.25).set_color(GOLD)
+        self.play(ShowCreation(square), FadeIn(x_label), run_time=0.9)
+        self.play(FadeIn(right_strip), FadeIn(top_strip), GrowArrow(arrow), FadeIn(first_order), run_time=1.05)
+        self.play(FadeIn(corner), FadeIn(dx_label), FadeIn(second_order), run_time=0.8)
+        self.play(corner.animate.scale(0.18), second_order.animate.set_opacity(0.18), run_time=1.05)
+        self.formula("(x + dx)² − x² = 2x·dx + (dx)²   ⇒   d(x²)/dx = 2x")
+
+
+class EpsilonDeltaLimit(BrowserLectureScene):
+    title = "A limit is a tolerance guarantee"
+    subtitle = "Choose epsilon first; then find a delta that works"
+    accent = VIOLET
+
+    def animate_concept(self):
+        axes = self.axes(x_range=(-3.4, 3.4, 1), y_range=(-1.2, 3.2, 1), width=9.3, height=4.2)
+        fn = lambda x: 0.25 * (x - 0.4) ** 2 + 0.6
+        graph = axes.get_graph(fn).set_stroke(CYAN, 4)
+        a = 0.8; limit = fn(a); epsilon = 0.55; delta = 0.85
+        band = Rectangle(width=9.3, height=axes.c2p(0, limit + epsilon)[1] - axes.c2p(0, limit - epsilon)[1])
+        band.set_fill(VIOLET, 0.12).set_stroke(VIOLET, 1).move_to(axes.c2p(0, limit))
+        left = DashedLine(axes.c2p(a - delta, -1.1), axes.c2p(a - delta, 3.0)).set_stroke(GOLD, 2.5)
+        right = DashedLine(axes.c2p(a + delta, -1.1), axes.c2p(a + delta, 3.0)).set_stroke(GOLD, 2.5)
+        epsilon_label = self.text("L ± ε", 19, VIOLET, BOLD).next_to(band, RIGHT, buff=0.15)
+        delta_label = self.text("a ± δ", 19, GOLD, BOLD).next_to(VGroup(left, right), DOWN, buff=0.12)
+        self.play(ShowCreation(axes), ShowCreation(graph), run_time=0.95)
+        self.play(FadeIn(band), FadeIn(epsilon_label), run_time=0.9)
+        self.play(ShowCreation(left), ShowCreation(right), FadeIn(delta_label), run_time=1.0)
+        self.play(band.animate.stretch(0.5, 1), left.animate.shift(0.36 * RIGHT), right.animate.shift(0.36 * LEFT), run_time=1.2)
+        self.formula("every ε > 0 receives a δ > 0 that keeps nearby outputs inside the band")
+
+
+class CurvatureOrders(BrowserLectureScene):
+    title = "Higher derivatives refine the local model"
+    subtitle = "Value, slope, and curvature predict progressively more"
+    accent = GOLD
+
+    def animate_concept(self):
+        axes = self.axes(x_range=(-3.5, 3.5, 1), y_range=(-2, 2.3, 1), width=9.4, height=4.3)
+        target = axes.get_graph(lambda x: 0.22 * x ** 3 - 0.55 * x).set_stroke(CYAN, 4)
+        tangent = axes.get_graph(lambda x: -0.55 * x).set_stroke(GOLD, 3)
+        quadratic = axes.get_graph(lambda x: -0.55 * x + 0.01 * x ** 2).set_stroke(VIOLET, 3)
+        cubic = axes.get_graph(lambda x: -0.55 * x + 0.22 * x ** 3).set_stroke(CORAL, 3)
+        center = Dot(axes.c2p(0, 0), radius=0.09).set_color(INK)
+        self.play(ShowCreation(axes), ShowCreation(target), FadeIn(center), run_time=0.9)
+        self.play(ShowCreation(tangent), run_time=0.85)
+        self.play(Transform(tangent, quadratic), run_time=0.95)
+        self.play(Transform(tangent, cubic), run_time=1.05)
+        self.formula("local model = value + slope·h + ½ curvature·h² + higher orders")
+
+
+class LocalStretchMap(StepwiseDerivation):
+    title = "A derivative is a local stretch map"
+    subtitle = "Zoom until nonlinear motion becomes almost linear"
+    accent = GOLD
+    steps = ("input interval", "zoom near x", "uniform stretch")
+    final_formula = "f(x + h) − f(x) = f′(x)h + error smaller than h"
+
+
+class SpanSweep(StepwiseDerivation):
+    title = "Span is every reachable combination"
+    subtitle = "Independent coefficient sliders sweep a line, plane, or space"
+    accent = VIOLET
+    steps = ("scale first vector", "scale second", "add tip-to-tail")
+    final_formula = "span{v, w} = {av + bw : a,b are free}"
+
+
+class AbstractVectorSpace(StepwiseDerivation):
+    title = "Vector structure survives abstraction"
+    subtitle = "Functions and polynomials obey the same add-and-scale rules"
+    accent = VIOLET
+    steps = ("choose objects", "define add + scale", "reuse linear tools")
+    final_formula = "T(au + bv) = aT(u) + bT(v)"
+
+
+class MatrixComposition(StepwiseDerivation):
+    title = "Matrix multiplication is composition"
+    subtitle = "The rightmost transformation moves the grid first"
+    accent = VIOLET
+    steps = ("x enters B", "B(x) enters A", "one product AB")
+    final_formula = "(AB)x = A(Bx)     order matters"
+
+
+class TransformThreeDimensions(StepwiseDerivation):
+    title = "Three columns move three-dimensional space"
+    subtitle = "The transformed basis becomes the edge frame of a new cube"
+    accent = VIOLET
+    steps = ("move i-hat", "move j-hat", "move k-hat")
+    final_formula = "Ax = x₁Aî + x₂Aĵ + x₃A k-hat"
+
+
+class DeterminantArea(BrowserLectureScene):
+    title = "The determinant measures area scaling"
+    subtitle = "Track the unit square through shear, stretch, and collapse"
+    accent = GOLD
+
+    def animate_concept(self):
+        plane = NumberPlane((-5, 5), (-3, 3), width=10.3, height=5.0).set_stroke(GRID, 1).shift(0.25 * DOWN)
+        origin = plane.c2p(0, 0)
+        square = Polygon(origin, plane.c2p(1, 0), plane.c2p(1, 1), plane.c2p(0, 1)).set_fill(GOLD, 0.28).set_stroke(GOLD, 3)
+        i_hat = Arrow(origin, plane.c2p(1, 0), buff=0).set_color(CYAN)
+        j_hat = Arrow(origin, plane.c2p(0, 1), buff=0).set_color(CORAL)
+        group = VGroup(plane, square, i_hat, j_hat)
+        self.play(ShowCreation(plane), FadeIn(square), GrowArrow(i_hat), GrowArrow(j_hat), run_time=0.95)
+        self.play(group.animate.apply_matrix([[1.45, 0.55], [0.2, 0.9]]), run_time=1.25)
+        self.play(Indicate(square, color=GOLD), run_time=0.75)
+        self.play(group.animate.apply_matrix([[1.0, -0.6], [0.0, 0.08]]), run_time=1.2)
+        self.formula("det A = signed area after / area before     det A = 0 means collapse")
+
+
+class DimensionBridge(StepwiseDerivation):
+    title = "Nonsquare matrices bridge dimensions"
+    subtitle = "Columns live in the output space, whatever its dimension"
+    accent = MINT
+    steps = ("n input numbers", "m × n matrix", "m output numbers")
+    final_formula = "A ∈ R^(m×n) maps R^n → R^m     rank ≤ min(m,n)"
+
+
+class ChangeOfBasis(StepwiseDerivation):
+    title = "Change of basis translates coordinates"
+    subtitle = "The vector stays fixed while its numerical description changes"
+    accent = CYAN
+    steps = ("B-coordinates", "translate with B", "apply + translate back")
+    final_formula = "[T]_B = B⁻¹ T B"
+
+
+class CrossProductArea(BrowserLectureScene):
+    title = "The cross product packages oriented area"
+    subtitle = "Unit-circle sine supplies the perpendicular height"
+    accent = CORAL
+
+    def animate_concept(self):
+        origin = 3.3 * LEFT + 1.25 * DOWN
+        v_end = origin + np.array([3.8, 0.45, 0])
+        w_end = origin + np.array([1.65, 2.65, 0])
+        v = Arrow(origin, v_end, buff=0).set_color(CYAN)
+        w = Arrow(origin, w_end, buff=0).set_color(CORAL)
+        parallelogram = Polygon(origin, v_end, v_end + w_end - origin, w_end).set_fill(GOLD, 0.2).set_stroke(GOLD, 2.5)
+        height = DashedLine(w_end, np.array([w_end[0], origin[1] + 0.2, 0])).set_stroke(VIOLET, 2.5)
+        angle = Arc(radius=0.65, start_angle=angle_of_vector(v_end - origin), angle=angle_of_vector(w_end - origin) - angle_of_vector(v_end - origin)).move_arc_center_to(origin).set_stroke(CORAL, 3)
+        theta = self.text("θ", 21, CORAL, BOLD).next_to(angle, RIGHT, buff=0.06)
+        height_label = self.text("|w| sin θ", 21, VIOLET, BOLD).next_to(height, RIGHT, buff=0.15)
+        normal = Arrow(3.9 * RIGHT + 1.2 * DOWN, 3.9 * RIGHT + 1.75 * UP, buff=0).set_color(GOLD)
+        normal_label = self.text("v × w", 20, GOLD, BOLD).next_to(normal, RIGHT, buff=0.12)
+        self.play(GrowArrow(v), GrowArrow(w), ShowCreation(angle), FadeIn(theta), run_time=0.95)
+        self.play(FadeIn(parallelogram), ShowCreation(height), FadeIn(height_label), run_time=1.05)
+        self.play(GrowArrow(normal), FadeIn(normal_label), run_time=0.9)
+        self.play(parallelogram.animate.set_fill(GOLD, 0.38), normal.animate.scale(1.2, about_point=normal.get_start()), run_time=0.85)
+        self.formula("|v × w| = |v||w| sin θ     direction from the right-hand rule")
+
+
+class VolumeDuality(StepwiseDerivation):
+    title = "Cross-product duality encodes signed volume"
+    subtitle = "A scalar volume measurement hides a representing vector"
+    accent = GOLD
+    steps = ("fix base v,w", "measure det[u,v,w]", "find dual normal")
+    final_formula = "(v × w) · u = det[u v w]"
+
+
+class CramerAreaRatio(StepwiseDerivation):
+    title = "Cramer's rule reads coordinates as area ratios"
+    subtitle = "Replace one basis column with the target vector"
+    accent = GOLD
+    steps = ("basis volume det A", "replace column i", "normalize ratio")
+    final_formula = "xᵢ = det(Aᵢ) / det(A)"
+
+
+class PartialDifferentialEquation(StepwiseDerivation):
+    title = "A PDE evolves an entire function"
+    subtitle = "Every point exchanges information with nearby points"
+    accent = MINT
+    steps = ("profile T(x,t)", "neighbor curvature", "time update")
+    final_formula = "∂T/∂t = α ∂²T/∂x²"
+
+
+class LaplaceProbes(StepwiseDerivation):
+    title = "Laplace transforms test exponential modes"
+    subtitle = "Decay and oscillation turn differential equations into algebra"
+    accent = GOLD
+    steps = ("signal f(t)", "weight by e^(−st)", "integrate response")
+    final_formula = "F(s) = ∫₀^∞ f(t)e^(−st)dt     L{f′}=sF−f(0)"
+
+
+class MatrixExponentialFlow(StepwiseDerivation):
+    title = "The matrix exponential accumulates tiny maps"
+    subtitle = "Continuous flow is the limit of repeated linear updates"
+    accent = MINT
+    steps = ("I + A·dt", "repeat n times", "continuous limit")
+    final_formula = "e^(At) = lim (I + At/n)^n = Σ(At)^k/k!"
+
+
+class BackpropagationFlow(BrowserLectureScene):
+    title = "Backpropagation assigns responsibility"
+    subtitle = "Error moves backward through weights and local derivatives"
+    accent = CORAL
+
+    def animate_concept(self):
+        positions = [(-4.8, [-1.1, 1.1]), (-1.6, [-1.65, 0, 1.65]), (1.8, [-1.0, 1.0]), (4.8, [0])]
+        layers = [VGroup(*[Circle(radius=0.3).set_fill("#FFFFFF", 1).set_stroke(VIOLET if index % 2 else CYAN, 2).move_to([x, y - 0.2, 0]) for y in ys]) for index, (x, ys) in enumerate(positions)]
+        edges = VGroup(*[Line(left.get_center(), right.get_center()).set_stroke(GRID, 1.2) for left_layer, right_layer in zip(layers, layers[1:]) for left in left_layer for right in right_layer])
+        error = Dot(layers[-1][0].get_center(), radius=0.11).set_color(CORAL)
+        self.play(LaggedStartMap(ShowCreation, edges, lag_ratio=0.006), LaggedStart(*[FadeIn(layer) for layer in layers], lag_ratio=0.1), run_time=1.0)
+        self.play(FadeIn(error), Indicate(layers[-1], color=CORAL), run_time=0.75)
+        for layer in reversed(layers[:-1]):
+            self.play(error.animate.move_to(layer[0].get_center()), layer.animate.set_fill(CORAL, 0.16), run_time=0.75)
+        self.formula("δˡ = (Wˡ⁺¹ᵀ δˡ⁺¹) ⊙ σ′(zˡ)     gradients reuse cached activations")
+
+
+class TokenProbabilityFlow(StepwiseDerivation):
+    title = "Language models factor sequence probability"
+    subtitle = "Each sampled token changes every later conditional distribution"
+    accent = CYAN
+    steps = ("tokens x₁…xₜ", "contextual logits", "sample next token")
+    final_formula = "p(x₁…x_T) = ∏ p(x_t | x_<t)"
+
+
+class MLPFactMemory(StepwiseDerivation):
+    title = "Transformer MLPs detect and write features"
+    subtitle = "Facts emerge from distributed gated associations"
+    accent = VIOLET
+    steps = ("detect direction", "nonlinear gate", "write update")
+    final_formula = "MLP(x) = W_out φ(W_in x + b_in) + b_out"
+
+
+class RiemannFundamentalTheorem(BrowserLectureScene):
+    title = "Integration turns pieces into a total"
+    subtitle = "Signed sums converge; a marginal strip reveals the derivative"
+    accent = MINT
+
+    def rectangles(self, axes, count):
+        items = VGroup()
+        left, right = -3.2, 2.25
+        dx = (right - left) / count
+        for index in range(count):
+            x = left + index * dx
+            height = 0.12 * x * x + 0.3 * x + 0.55
+            base = axes.c2p(x + dx / 2, 0)
+            top = axes.c2p(x + dx / 2, height)
+            rect = Rectangle(width=abs(axes.c2p(x + dx, 0)[0] - axes.c2p(x, 0)[0]), height=abs(top[1] - base[1]))
+            rect.set_fill(MINT if height >= 0 else CORAL, 0.2).set_stroke(MINT if height >= 0 else CORAL, 0.9)
+            rect.move_to((base + top) / 2)
+            items.add(rect)
+        return items
+
+    def animate_concept(self):
+        axes = self.axes(x_range=(-3.5, 3.5, 1), y_range=(-1, 2.8, 1), width=9.5, height=4.25)
+        fn = lambda x: 0.12 * x * x + 0.3 * x + 0.55
+        graph = axes.get_graph(fn).set_stroke(CYAN, 4)
+        coarse = self.rectangles(axes, 8)
+        fine = self.rectangles(axes, 34)
+        endpoint = 2.25
+        dx = 0.24
+        marginal = Rectangle(
+            width=abs(axes.c2p(endpoint + dx, 0)[0] - axes.c2p(endpoint, 0)[0]),
+            height=abs(axes.c2p(0, fn(endpoint))[1] - axes.c2p(0, 0)[1]),
+        ).set_fill(GOLD, 0.45).set_stroke(GOLD, 2.5)
+        marginal.move_to((axes.c2p(endpoint + dx / 2, 0) + axes.c2p(endpoint + dx / 2, fn(endpoint))) / 2)
+        strip_label = self.text("f(x) · dx", 20, GOLD, BOLD).next_to(marginal, RIGHT, buff=0.12)
+        self.play(ShowCreation(axes), ShowCreation(graph), run_time=0.9)
+        self.play(FadeIn(coarse, lag_ratio=0.07), run_time=0.95)
+        self.play(Transform(coarse, fine), run_time=1.35)
+        self.play(FadeIn(marginal), FadeIn(strip_label), run_time=0.95)
+        self.play(Indicate(marginal, color=GOLD), run_time=0.75)
+        self.formula("∫ₐᵇ f(x)dx = F(b) − F(a)     and     d/dx ∫ₐˣ f(t)dt = f(x)")
+
+
+class AreaSlopeBridge(BrowserLectureScene):
+    title = "Area and slope are the same local change"
+    subtitle = "Velocity accumulates into position; endpoint height becomes slope"
+    accent = CYAN
+
+    def animate_concept(self):
+        velocity_axes = Axes((-3.2, 3.2, 1), (-1.2, 1.6, 1), width=9.2, height=2.0).set_stroke(GRID, 1.3).shift(1.0 * UP)
+        position_axes = Axes((-3.2, 3.2, 1), (-1.2, 1.8, 1), width=9.2, height=2.0).set_stroke(GRID, 1.3).shift(1.35 * DOWN)
+        velocity = lambda t: 0.72 * math.sin(t) + 0.28
+        position = lambda t: -0.72 * math.cos(t) + 0.28 * t + 0.72
+        velocity_graph = velocity_axes.get_graph(velocity).set_stroke(CORAL, 4)
+        position_graph = position_axes.get_graph(position).set_stroke(CYAN, 4)
+        endpoint = 1.45
+        v_dot = Dot(velocity_axes.c2p(endpoint, velocity(endpoint)), radius=0.09).set_color(GOLD)
+        s_dot = Dot(position_axes.c2p(endpoint, position(endpoint)), radius=0.09).set_color(GOLD)
+        boundary = DashedLine(velocity_axes.c2p(endpoint, -1.0), velocity_axes.c2p(endpoint, velocity(endpoint))).set_stroke(GOLD, 2.5)
+        slope = velocity(endpoint)
+        center = position_axes.c2p(endpoint, position(endpoint))
+        tangent = Line(center + np.array([-1.25, -0.36 * slope, 0]), center + np.array([1.25, 0.36 * slope, 0])).set_stroke(GOLD, 3)
+        v_label = self.text("velocity v(t)", 18, CORAL, BOLD).next_to(velocity_axes, LEFT, buff=0.12)
+        s_label = self.text("position s(t)", 18, CYAN, BOLD).next_to(position_axes, LEFT, buff=0.12)
+        bridge = Arrow(v_dot.get_center(), s_dot.get_center(), buff=0.18).set_color(VIOLET)
+        self.play(ShowCreation(velocity_axes), ShowCreation(velocity_graph), FadeIn(v_label), run_time=0.9)
+        self.play(ShowCreation(position_axes), ShowCreation(position_graph), FadeIn(s_label), run_time=0.9)
+        self.play(ShowCreation(boundary), FadeIn(v_dot), FadeIn(s_dot), GrowArrow(bridge), run_time=0.9)
+        self.play(ShowCreation(tangent), Indicate(VGroup(v_dot, s_dot), color=GOLD), run_time=1.05)
+        self.formula("s(t) = s(0) + ∫₀ᵗ v(τ)dτ     ⇔     s′(t) = v(t)")
+
+
+class CharacteristicPolynomial(StepwiseDerivation):
+    title = "Eigenvalues are the shifts that collapse space"
+    subtitle = "The characteristic polynomial detects a nonzero null direction"
+    accent = VIOLET
+    steps = ("start with A − λI", "set determinant to zero", "solve null direction")
+    final_formula = "det(A − λI)=0     in 2D: λ² − tr(A)λ + det(A)=0"
+
+
+class LaplaceSolveOde(StepwiseDerivation):
+    title = "Laplace transforms solve initial-value problems"
+    subtitle = "Derivatives become algebra; poles become time-domain modes"
+    accent = GOLD
+    steps = ("transform ODE + initials", "factor Y(s) into poles", "invert each mode")
+    final_formula = "y″+ay′+by=g(t)  →  Y(s)  →  Σ cₖ/(s−pₖ)  →  Σ cₖe^(pₖt)"
+
+
+class BackpropagationCalculus(StepwiseDerivation):
+    title = "Backpropagation is the chain rule organized"
+    subtitle = "Multiply along paths, add at merges, reuse downstream factors"
+    accent = CORAL
+    steps = ("weight w changes z", "z changes activation", "activation changes cost")
+    final_formula = "∂C/∂wⱼᵢ = (∂C/∂aⱼ)(∂aⱼ/∂zⱼ)(∂zⱼ/∂wⱼᵢ) = δⱼaᵢ"
