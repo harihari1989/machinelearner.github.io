@@ -1,0 +1,855 @@
+.depth-kicker {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    color: var(--helper-text);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.reference-strip {
+    margin-top: 1.3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--section-border);
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+}
+
+.reference-strip a {
+    color: var(--helper-text);
+    font-weight: 700;
+}
+
+.mitchell-definition {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+    gap: 1.25rem;
+    align-items: center;
+    margin: 1.6rem 0;
+    padding: 1.4rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-left: 5px solid var(--accent-1);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+}
+
+.mitchell-definition h3,
+.generalization-lab h3,
+.python-reading-card h3 {
+    margin-bottom: 0.5rem;
+}
+
+.definition-copy p + p {
+    margin-top: 0.65rem;
+}
+
+.etp-flow {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.45rem;
+}
+
+.etp-node {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: 0.85rem 0.55rem;
+    text-align: center;
+    background: var(--panel-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.etp-node > span {
+    align-self: center;
+    min-width: 2rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.etp-node small {
+    color: var(--ink-soft);
+    line-height: 1.35;
+}
+
+.etp-model {
+    border-color: var(--accent-1);
+}
+
+.etp-arrow,
+.neuron-flow-arrow {
+    align-self: center;
+    color: var(--accent-1);
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.etp-example {
+    grid-column: 1 / -1;
+    padding: 0.85rem 1rem;
+    background: var(--helper-bg);
+    color: var(--ink);
+    border-radius: 12px;
+}
+
+.etp-example p {
+    margin-top: 0.25rem;
+}
+
+.mitchell-definition--ml {
+    grid-template-columns: minmax(0, 0.8fr) minmax(380px, 1.2fr);
+}
+
+.etp-example--wide {
+    grid-column: auto;
+}
+
+.etp-example-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-top: 0.65rem;
+}
+
+.etp-example-grid p {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.65rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 10px;
+}
+
+.etp-example-grid span {
+    color: var(--ink-soft);
+    line-height: 1.45;
+}
+
+.intuition-atlas {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 2rem;
+}
+
+.intuition-atlas-card {
+    grid-column: span 2;
+    padding: 1.15rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-top: 4px solid var(--accent-1);
+    border-radius: 16px;
+}
+
+.intuition-atlas-card:nth-child(4) {
+    grid-column: 2 / span 2;
+}
+
+.intuition-atlas-card h3 {
+    margin-bottom: 0.6rem;
+    font-size: 1.08rem;
+}
+
+.intuition-atlas-card p + p {
+    margin-top: 0.55rem;
+}
+
+.intuition-atlas-card p {
+    color: var(--ink-soft);
+    font-size: 0.94rem;
+}
+
+.depth-content-grid {
+    margin-top: 1.2rem;
+    align-items: stretch;
+}
+
+.deep-step-list {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0.8rem 0 1rem 1.2rem;
+}
+
+.deep-step-list li {
+    padding-left: 0.25rem;
+}
+
+.generalization-lab {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 16px;
+}
+
+.generalization-lab__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: start;
+}
+
+.generalization-lab__header > strong {
+    padding: 0.3rem 0.65rem;
+    color: var(--helper-text);
+    background: var(--helper-bg);
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+#generalizationCanvas {
+    width: 100%;
+    height: auto;
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 12px;
+}
+
+.generalization-lab label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+}
+
+.generalization-lab input {
+    width: 100%;
+    accent-color: var(--accent-1);
+}
+
+#generalizationReadout {
+    min-height: 3em;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+}
+
+.ml-vocabulary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 1.5rem;
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.ml-vocabulary article {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.85rem;
+    background: var(--paper);
+    border-right: 1px solid var(--section-border);
+    border-bottom: 1px solid var(--section-border);
+}
+
+.ml-vocabulary article:nth-child(4n) {
+    border-right: 0;
+}
+
+.ml-vocabulary article:nth-last-child(-n + 4) {
+    border-bottom: 0;
+}
+
+.ml-vocabulary span {
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+
+.learning-family-flow,
+.algorithm-intuition-grid,
+.neural-deep-grid,
+.python-concept-grid,
+.data-principles-grid,
+.library-map {
+    display: grid;
+    gap: 1rem;
+}
+
+.learning-family-flow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 1.5rem;
+}
+
+.learning-family-flow article,
+.algorithm-intuition-grid article,
+.neural-deep-grid article,
+.python-concept-grid article,
+.data-principles-grid article,
+.library-map article {
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.learning-family-flow article > span,
+.library-map article > span {
+    color: var(--helper-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.learning-family-flow h4,
+.algorithm-intuition-grid h3,
+.library-map h3 {
+    margin: 0.35rem 0;
+}
+
+.learning-family-flow p,
+.algorithm-intuition-grid p,
+.neural-deep-grid p,
+.data-principles-grid p,
+.library-map p {
+    color: var(--ink-soft);
+}
+
+.algorithm-intuition-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 1.25rem 0 1.75rem;
+}
+
+.algorithm-intuition-grid article {
+    position: relative;
+    padding-top: 4rem;
+}
+
+.algorithm-mark {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 3.2rem;
+    height: 2.1rem;
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.algorithm-mark::before,
+.algorithm-mark::after {
+    content: "";
+    position: absolute;
+}
+
+.algorithm-mark--line::before {
+    width: 3rem;
+    height: 2px;
+    left: 0.05rem;
+    top: 1rem;
+    background: var(--accent-1);
+    transform: rotate(-24deg);
+}
+
+.algorithm-mark--line::after,
+.algorithm-mark--neighbors::after,
+.algorithm-mark--clusters::after {
+    width: 0.42rem;
+    height: 0.42rem;
+    left: 0.6rem;
+    top: 1.15rem;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0.65rem -0.45rem var(--accent-2), 1.35rem -0.35rem var(--accent-3), 1.8rem -0.85rem var(--accent-3);
+}
+
+.algorithm-mark--split::before {
+    width: 2px;
+    height: 3rem;
+    left: 1.6rem;
+    top: -0.4rem;
+    background: var(--accent-1);
+    transform: rotate(22deg);
+}
+
+.algorithm-mark--split::after {
+    width: 0.42rem;
+    height: 0.42rem;
+    left: 0.55rem;
+    top: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0.55rem 0.55rem var(--accent-2), 1.65rem 0.8rem var(--accent-3), 2rem 0.2rem var(--accent-3);
+}
+
+.algorithm-mark--questions::before {
+    left: 1.45rem;
+    top: 0.35rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--accent-1);
+    box-shadow: -0.8rem 1rem var(--accent-2), 0.8rem 1rem var(--accent-3);
+}
+
+.algorithm-mark--questions::after {
+    left: 0.82rem;
+    top: 0.75rem;
+    width: 1.7rem;
+    height: 1rem;
+    border-left: 2px solid var(--axis);
+    border-right: 2px solid var(--axis);
+    transform: perspective(20px) rotateX(-30deg);
+}
+
+.algorithm-mark--neighbors::before {
+    width: 1.4rem;
+    height: 1.4rem;
+    left: 0.9rem;
+    top: 0.3rem;
+    border: 2px dashed var(--accent-1);
+    border-radius: 50%;
+}
+
+.algorithm-mark--clusters::before {
+    width: 0.95rem;
+    height: 0.95rem;
+    left: 0.35rem;
+    top: 0.55rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--accent-2) 24%, transparent);
+    box-shadow: 1.55rem -0.2rem 0 0.15rem color-mix(in srgb, var(--accent-3) 24%, transparent);
+}
+
+.algorithm-mark--vote::before {
+    content: "✓";
+    left: 0.42rem;
+    top: 0.22rem;
+    color: var(--accent-1);
+    font-weight: 700;
+    text-shadow: 0.8rem 0.45rem var(--accent-1), 1.6rem -0.05rem var(--accent-1);
+}
+
+.neural-intuition {
+    margin: 1.4rem 0 2rem;
+    padding: 1.25rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 18px;
+}
+
+.neuron-evidence-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0.6rem;
+    margin: 1.1rem 0;
+}
+
+.neuron-flow-node {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.9rem 0.55rem;
+    text-align: center;
+    background: var(--panel-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.neuron-flow-node > span {
+    color: var(--helper-text);
+    font-weight: 700;
+}
+
+.neuron-flow-node small {
+    color: var(--ink-soft);
+}
+
+.neural-deep-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 1.2rem 0;
+}
+
+.neural-deep-grid article {
+    background: var(--panel-bg);
+}
+
+.training-loop-visual,
+.python-pipeline,
+.data-shape-visual {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.55rem;
+    margin: 1.25rem 0;
+}
+
+.training-loop-visual article,
+.python-pipeline article,
+.data-shape-visual article {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.8rem;
+    text-align: center;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.training-loop-visual article b,
+.python-pipeline article b {
+    align-self: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent-1);
+    color: white;
+}
+
+.training-loop-visual article span,
+.python-pipeline article span,
+.data-shape-visual article span,
+.data-shape-visual article small {
+    color: var(--ink-soft);
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+.training-loop-visual i,
+.python-pipeline i,
+.data-shape-visual i,
+.library-workflow i {
+    align-self: center;
+    color: var(--accent-1);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.backprop-plain-language {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.65fr);
+    gap: 0.7rem 1.2rem;
+    align-items: center;
+    padding: 1rem;
+    background: var(--helper-bg);
+    border-radius: 14px;
+}
+
+.backprop-plain-language h3 {
+    grid-column: 1 / -1;
+}
+
+.backprop-plain-language .math-formula {
+    margin: 0;
+}
+
+.python-course .example-section {
+    background: var(--paper);
+}
+
+.python-reading-card {
+    padding: 1rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.python-reading-card pre,
+.python-concept-grid pre,
+.python-course-editor textarea,
+.python-course-output pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.python-reading-card pre,
+.python-concept-grid pre {
+    margin: 0.8rem 0;
+    padding: 0.85rem;
+    overflow-x: auto;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+.python-concept-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 1.2rem;
+}
+
+.python-concept-grid h3,
+.data-principles-grid h3 {
+    margin-bottom: 0.4rem;
+}
+
+.python-concept-grid > article > p {
+    min-height: 7.2em;
+    color: var(--ink-soft);
+}
+
+.python-traps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: 1.3rem;
+    padding: 1.1rem;
+    background: var(--helper-bg);
+    border-radius: 14px;
+}
+
+.python-traps h3 {
+    grid-column: 1 / -1;
+}
+
+.python-traps p {
+    margin-top: 0.25rem;
+    color: var(--ink-soft);
+}
+
+.data-shape-visual .data-plus {
+    align-self: center;
+    color: var(--accent-2);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.data-principles-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 1.1rem;
+}
+
+.library-map {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 1.2rem;
+}
+
+.library-map article {
+    display: flex;
+    flex-direction: column;
+}
+
+.library-map article > strong {
+    margin-top: auto;
+    padding-top: 0.7rem;
+}
+
+.library-workflow {
+    display: flex;
+    align-items: stretch;
+    gap: 0.55rem;
+    margin-top: 1.3rem;
+}
+
+.library-workflow span {
+    flex: 1;
+    padding: 0.7rem;
+    text-align: center;
+    background: var(--panel-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 10px;
+    line-height: 1.4;
+}
+
+.python-course-lab__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    gap: 1rem;
+    margin-top: 1.1rem;
+}
+
+.python-course-editor,
+.python-course-output {
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.python-course-editor {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.python-course-editor label {
+    font-weight: 700;
+}
+
+.python-course-editor select {
+    width: 100%;
+    padding: 0.65rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--grid);
+    border-radius: 9px;
+}
+
+.python-course-editor textarea {
+    width: 100%;
+    min-height: 350px;
+    resize: vertical;
+    padding: 0.9rem;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.python-course-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.python-course-output {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.python-course-output__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+#pythonCourseStatus {
+    color: var(--helper-text);
+    font-weight: 700;
+}
+
+.python-course-output pre {
+    min-height: 270px;
+    padding: 0.9rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+.python-course-output > p {
+    color: var(--ink-soft);
+}
+
+@media (max-width: 1050px) {
+    .mitchell-definition,
+    .mitchell-definition--ml,
+    .backprop-plain-language,
+    .python-course-lab__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .etp-example--wide {
+        grid-column: 1 / -1;
+    }
+
+    .intuition-atlas-card,
+    .intuition-atlas-card:nth-child(4) {
+        grid-column: span 3;
+    }
+
+    .learning-family-flow,
+    .neural-deep-grid,
+    .library-map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .python-concept-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .python-concept-grid > article > p {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 760px) {
+    .etp-flow,
+    .neuron-evidence-flow,
+    .training-loop-visual,
+    .python-pipeline,
+    .data-shape-visual,
+    .library-workflow {
+        flex-direction: column;
+    }
+
+    .etp-arrow,
+    .neuron-flow-arrow,
+    .training-loop-visual i,
+    .python-pipeline i,
+    .data-shape-visual i,
+    .library-workflow i {
+        transform: rotate(90deg);
+    }
+
+    .etp-example-grid,
+    .ml-vocabulary,
+    .algorithm-intuition-grid,
+    .python-concept-grid,
+    .python-traps,
+    .data-principles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ml-vocabulary article,
+    .ml-vocabulary article:nth-child(4n),
+    .ml-vocabulary article:nth-last-child(-n + 4) {
+        border-right: 0;
+        border-bottom: 1px solid var(--section-border);
+    }
+
+    .ml-vocabulary article:last-child {
+        border-bottom: 0;
+    }
+
+    .intuition-atlas {
+        grid-template-columns: 1fr;
+    }
+
+    .intuition-atlas-card,
+    .intuition-atlas-card:nth-child(4) {
+        grid-column: 1;
+    }
+
+    .python-traps h3 {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 520px) {
+    .learning-family-flow,
+    .neural-deep-grid,
+    .library-map {
+        grid-template-columns: 1fr;
+    }
+
+    .mitchell-definition,
+    .neural-intuition {
+        padding: 1rem;
+    }
+
+    .generalization-lab__header {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #generalizationCanvas {
+        scroll-behavior: auto;
+    }
+}

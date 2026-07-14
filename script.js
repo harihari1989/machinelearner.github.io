@@ -11653,8 +11653,15 @@ function setupOnnxDemo() {
     const scale = canvas.width / size;
     let session = null;
     let sessionUrl = '';
+    let sessionRequestUrl = '';
+    let sessionUsedFallback = false;
     let currentPattern = 'center';
     let currentData = null;
+    const validatedModelSources = [
+        'assets/models/mnist-8.onnx',
+        'https://github.com/onnx/models/raw/main/validated/vision/classification/mnist/model/mnist-8.onnx',
+        'https://huggingface.co/onnxmodelzoo/mnist-8/resolve/main/mnist-8.onnx'
+    ];
 
     const setStatus = (text) => {
         if (statusEl) statusEl.textContent = text;
@@ -11745,6 +11752,37 @@ function setupOnnxDemo() {
         }
     };
 
+    const fetchModelBytes = async (url) => {
+        const sourceHost = new URL(url, window.location.href).hostname || 'local source';
+        const response = await fetch(url, { cache: 'force-cache' });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} from ${sourceHost}`);
+        }
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        const prefix = new TextDecoder().decode(bytes.slice(0, 180)).trim().toLowerCase();
+        if (bytes.byteLength < 1024 || prefix.startsWith('<!doctype') || prefix.startsWith('<html') || prefix.includes('git-lfs.github.com/spec')) {
+            throw new Error(`The response from ${sourceHost} was not a complete ONNX model`);
+        }
+        return bytes;
+    };
+
+    const createValidatedSession = async (requestedUrl) => {
+        const sources = [...new Set([requestedUrl, ...validatedModelSources].filter(Boolean))];
+        const failures = [];
+        for (let index = 0; index < sources.length; index += 1) {
+            const source = sources[index];
+            try {
+                setStatus(index === 0 ? 'Fetching model bytes…' : 'Trying validated fallback…');
+                const modelBytes = await fetchModelBytes(source);
+                const loadedSession = await window.ort.InferenceSession.create(modelBytes, { executionProviders: ['wasm'] });
+                return { loadedSession, source, usedFallback: index > 0 };
+            } catch (error) {
+                failures.push(error?.message || String(error));
+            }
+        }
+        throw new Error(`Unable to load a valid MNIST model. ${failures.join(' · ')}`);
+    };
+
     const runInference = async () => {
         if (!window.ort) {
             setOutput('ONNX Runtime Web is not loaded. Check your network connection.', true);
@@ -11763,9 +11801,12 @@ function setupOnnxDemo() {
             if (!modelUrl) {
                 throw new Error('Model URL is empty.');
             }
-            if (!session || sessionUrl !== modelUrl) {
-                session = await window.ort.InferenceSession.create(modelUrl, { executionProviders: ['wasm'] });
-                sessionUrl = modelUrl;
+            if (!session || sessionRequestUrl !== modelUrl) {
+                const loaded = await createValidatedSession(modelUrl);
+                session = loaded.loadedSession;
+                sessionUrl = loaded.source;
+                sessionRequestUrl = modelUrl;
+                sessionUsedFallback = loaded.usedFallback;
             }
 
             if (!currentData) {
@@ -11791,7 +11832,11 @@ function setupOnnxDemo() {
                 .map(item => `${item.index} (${(item.value * 100).toFixed(1)}%)`);
 
             setOutput(`Top predictions: ${ranked.join(', ')}`);
-            setStatus('Done.');
+            const sourceUrl = new URL(sessionUrl, window.location.href);
+            const sourceLabel = sourceUrl.origin === window.location.origin
+                ? 'bundled model'
+                : sourceUrl.hostname.replace('www.', '');
+            setStatus(`${sessionUsedFallback ? 'Done using validated fallback' : 'Done'} · ${sourceLabel}`);
         } catch (err) {
             setOutput(`Error: ${err?.message || err}`, true);
             setStatus('Error.');
