@@ -162,6 +162,99 @@ for hour in range(3):
 print("types:", type(readings).__name__, type(readings[0]).__name__)
 print("mean:", sum(readings) / len(readings))`
         },
+        python_language: {
+            goal: 'Goal: combine modern function signatures, pattern matching, dataclasses, comprehensions, JSON, and handled failure in one small pipeline.',
+            bridge: 'PyTorch bridge: training code is still Python—clear function boundaries and immutable experiment records make tensor programs easier to test and reproduce.',
+            project: 'Route transaction events into an operations queue',
+            dataset: 'Typed event records with valid, ordinary, and malformed cases',
+            skill: 'Function contracts, structural matching, dataclasses, comprehensions, and exceptions',
+            deliverable: 'A JSON summary plus an explicit rejected-record report',
+            watchFor: 'catch only the exception you can handle; do not silently convert malformed data into valid zeros',
+            challenges: [
+                'Add a refund case whose amount must be negative.',
+                'Make high_value positional-or-keyword and explain how that weakens the call-site signal.',
+                'Add a frozen dataclass field and observe the error raised by mutation.'
+            ],
+            code: `from dataclasses import dataclass, asdict
+from statistics import fmean
+import json
+
+@dataclass(frozen=True)
+class Decision:
+    event_id: str
+    label: str
+    amount: float
+
+def classify(event, /, *, high_value=500.0):
+    match event:
+        case {"id": event_id, "kind": "sale", "amount": amount} if amount >= high_value:
+            return Decision(event_id, "priority", float(amount))
+        case {"id": event_id, "kind": "sale", "amount": amount}:
+            return Decision(event_id, "standard", float(amount))
+        case _:
+            raise ValueError(f"unsupported event: {event!r}")
+
+events = [
+    {"id": "A1", "kind": "sale", "amount": 920},
+    {"id": "B2", "kind": "sale", "amount": 180},
+    {"id": "C3", "kind": "heartbeat"},
+]
+
+accepted, rejected = [], []
+for event in events:
+    try:
+        accepted.append(classify(event, high_value=750))
+    except ValueError as error:
+        rejected.append(str(error))
+
+summary = {
+    "accepted": [asdict(item) for item in accepted],
+    "mean_amount": fmean(item.amount for item in accepted),
+    "rejected": rejected,
+}
+print(json.dumps(summary, indent=2))`
+        },
+        python_protocols: {
+            goal: 'Goal: implement the small Python protocols that data pipelines and PyTorch datasets rely on.',
+            bridge: 'PyTorch bridge: torch.utils.data.Dataset uses the same __len__/__getitem__ contract, while DataLoader turns samples into batches.',
+            project: 'Batch a tiny sensor dataset without materializing a second dataset',
+            dataset: 'Five immutable feature/label pairs',
+            skill: 'Classes, sequence protocol, generators, slicing, and explicit boundary errors',
+            deliverable: 'Lazy batches with preserved feature/label alignment',
+            watchFor: 'a generator is consumed once; store source data, not a half-consumed generator, when repeatable epochs are required',
+            challenges: [
+                'Add __iter__ and compare direct iteration with indexed batching.',
+                'Yield tuples instead of lists and explain the mutability difference.',
+                'Raise a custom EmptyDatasetError when no rows are supplied.'
+            ],
+            code: `class SensorDataset:
+    def __init__(self, rows):
+        self._rows = tuple(rows)
+
+    def __len__(self):
+        return len(self._rows)
+
+    def __getitem__(self, index):
+        return self._rows[index]
+
+def batches(dataset, size):
+    if size <= 0:
+        raise ValueError("batch size must be positive")
+    for start in range(0, len(dataset), size):
+        stop = min(start + size, len(dataset))
+        yield [dataset[index] for index in range(start, stop)]
+
+rows = [
+    ((0.2, 1.1), 0), ((0.4, 0.9), 0), ((1.8, 2.4), 1),
+    ((1.4, 2.1), 1), ((0.7, 1.3), 0),
+]
+dataset = SensorDataset(rows)
+
+print("samples:", len(dataset), "last:", dataset[-1])
+for batch_number, batch in enumerate(batches(dataset, 2), start=1):
+    features, labels = zip(*batch)
+    print(f"batch {batch_number}: shape=({len(features)}, 2) labels={labels}")`
+        },
         numpy: {
             goal: 'Goal: reason about tensor shape, strides, dtype, views, and broadcasting.',
             bridge: 'PyTorch bridge: torch.Tensor follows the same shape algebra while adding devices and automatic differentiation.',
@@ -189,6 +282,103 @@ print("W shape:", W.shape)
 print("scores shape:", scores.shape)
 print("broadcast result:\\n", np.round(scores, 3))
 print("slice is a view:", np.shares_memory(X, view))`
+        },
+        numpy_indexing: {
+            goal: 'Goal: create a typed ndarray, filter valid rows, and predict when selection returns a view or a copy.',
+            bridge: 'PyTorch bridge: tensor indexing uses the same basic versus advanced distinction, with device placement and gradient history added.',
+            project: 'Clean a compact feature matrix before modeling',
+            dataset: 'Six rows × four columns with one missing measurement',
+            skill: 'Creation, dtype, axes, boolean masks, slicing, reshape, and reductions',
+            deliverable: 'A float32 feature matrix and target vector with explicit shapes',
+            watchFor: 'basic slices usually share memory; boolean and integer-array indexing gather into a copy',
+            challenges: [
+                'Select columns 0 and 2 with integer indexing and inspect the result shape.',
+                'Replace the boolean mask with np.where and compare the index representation.',
+                'Accumulate the column mean in float64 and explain why.'
+            ],
+            code: `import numpy as np
+
+raw = np.array([
+    [10, 0.2, 1.1, 0], [11, 0.4, 0.9, 0],
+    [12, np.nan, 2.4, 1], [13, 1.4, 2.1, 1],
+    [14, 0.7, 1.3, 0], [15, 1.9, 2.8, 1],
+], dtype=np.float64)
+
+valid = np.isfinite(raw).all(axis=1)
+clean = raw[valid].astype(np.float32)  # boolean gather, then dtype copy
+features = clean[:, 1:3]              # basic slice: view
+target = clean[:, 3].astype(np.int64)
+
+print("raw / clean:", raw.shape, clean.shape)
+print("features:", features.shape, features.dtype)
+print("target:", target.shape, target.dtype, target.tolist())
+print("features share clean storage:", np.shares_memory(clean, features))
+print("clean shares raw storage:", np.shares_memory(raw, clean))
+print("feature means:", features.mean(axis=0, dtype=np.float64).round(3))`
+        },
+        numpy_memory: {
+            goal: 'Goal: explain views, copies, strides, broadcasting, and ufunc output buffers from memory behavior.',
+            bridge: 'PyTorch bridge: transpose/permute also produce strided views, expand performs broadcast-style viewing, and contiguous/clone materialize storage.',
+            project: 'Standardize a batch without explicit tiling',
+            dataset: 'Four examples × three features in contiguous float32 storage',
+            skill: 'Strides, views, advanced-index copies, keepdims broadcasting, and ufunc out=',
+            deliverable: 'A standardized matrix plus a memory-sharing audit',
+            watchFor: 'broadcasted values can be virtual, but compound expressions may still allocate large temporaries',
+            challenges: [
+                'Transpose X and derive its byte strides.',
+                'Replace keepdims=True and repair the broadcast shape explicitly.',
+                'Use np.subtract and np.divide with out= to reuse one output buffer.'
+            ],
+            code: `import numpy as np
+
+X = np.arange(12, dtype=np.float32).reshape(4, 3)
+columns = X[:, ::2]          # view with a larger column stride
+rows = X[[0, 2]]             # advanced-index copy
+
+mean = X.mean(axis=0, keepdims=True)
+scale = X.std(axis=0, keepdims=True)
+standardized = np.empty_like(X)
+np.subtract(X, mean, out=standardized)
+np.divide(standardized, np.maximum(scale, 1e-6), out=standardized)
+
+print("X shape / strides:", X.shape, X.strides)
+print("column view shape / strides:", columns.shape, columns.strides)
+print("columns share memory:", np.shares_memory(X, columns))
+print("gathered rows share memory:", np.shares_memory(X, rows))
+print("broadcast operands:", X.shape, mean.shape, scale.shape)
+print("standardized means:", standardized.mean(axis=0).round(6))
+print("standardized stds:", standardized.std(axis=0).round(6))`
+        },
+        numpy_linalg: {
+            goal: 'Goal: fit least squares with a local random generator and diagnose rank instead of forming a matrix inverse.',
+            bridge: 'PyTorch bridge: torch.linalg.lstsq and torch.linalg.svd follow the same matrix contract and can participate in autograd where supported.',
+            project: 'Estimate four coefficients from noisy observations',
+            dataset: '120 reproducible Gaussian rows with controlled observation noise',
+            skill: 'Generator-based randomness, matrix multiplication, least squares, residuals, rank, and singular values',
+            deliverable: 'Coefficient error and conditioning evidence',
+            watchFor: 'never solve least squares with inv(X.T @ X) unless you have a specific numerical reason and understand the conditioning cost',
+            challenges: [
+                'Make one column almost dependent on another and inspect the smallest singular value.',
+                'Compare float32 and float64 coefficient error.',
+                'Split the final 20 rows and report held-out RMSE.'
+            ],
+            code: `import numpy as np
+
+rng = np.random.default_rng(7)
+true_w = np.array([1.4, -0.8, 0.0, 2.2])
+X = rng.normal(size=(120, 4))
+y = X @ true_w + rng.normal(0, 0.2, size=120)
+
+estimated, residuals, rank, singular = np.linalg.lstsq(X, y, rcond=None)
+prediction = X @ estimated
+rmse = np.sqrt(np.mean((prediction - y) ** 2))
+
+print("estimated:", estimated.round(3))
+print("absolute error:", np.abs(estimated - true_w).round(3))
+print("rank:", rank)
+print("singular values:", singular.round(3))
+print("condition estimate:", round(float(singular[0] / singular[-1]), 3))
+print("training RMSE:", round(float(rmse), 4))`
         },
         autograd: {
             goal: 'Goal: build a dynamic computation graph and run reverse-mode autodiff.',
@@ -808,6 +998,441 @@ for name, layers, width, vocab, context, batch in configs:
 
 print("assumptions: tied embeddings, Adam, mixed precision, 40 TFLOP/s achieved")
 print("real runs also budget activations, temporary buffers, and communication")`
+        },
+        nanogpt_batch: {
+            goal: 'Goal: see exactly why a language-model target is the input stream shifted by one token.',
+            bridge: 'nanoGPT bridge: get_batch slices block_size tokens for x and the immediately following tokens for y, then stacks B independent windows.',
+            project: 'Inspect nanoGPT data preparation and batching',
+            dataset: 'One synthetic token stream · 3 sampled windows · context 8',
+            skill: 'Teacher-forcing alignment and tensor shape reasoning',
+            deliverable: 'A plotted x/y alignment plus leakage test',
+            watchFor: 'y must be shifted by one in the original stream; shifting by zero exposes the answer',
+            challenges: [
+                'Change block_size and derive the required source slice length.',
+                'Add a start index at the last valid location and prove it stays in bounds.',
+                'Explain why windows may overlap without violating causal masking.'
+            ],
+            code: `import numpy as np
+
+stream = np.array([11, 4, 9, 2, 8, 8, 3, 7, 1, 6, 5, 10,
+                   4, 2, 9, 0, 3, 8, 6, 1, 7, 5, 2, 4], dtype=np.int64)
+block_size = 8
+starts = [0, 6, 14]
+x = np.stack([stream[i:i + block_size] for i in starts])
+y = np.stack([stream[i + 1:i + 1 + block_size] for i in starts])
+
+print("stream shape:", stream.shape)
+print("batch x/y shapes:", x.shape, y.shape)
+for row, start in enumerate(starts):
+    print(f"row {row} start={start:2d} x={x[row].tolist()}")
+    print(f"                 y={y[row].tolist()}")
+print("alignment holds:", bool(np.all(x[:, 1:] == y[:, :-1])))
+
+_lesson_plot = {
+    "title": "One nanoGPT window: every target is the next token",
+    "x": list(range(block_size)),
+    "series": [
+        {"label": "input x[t]", "y": x[0].tolist()},
+        {"label": "target y[t]", "y": y[0].tolist()},
+    ],
+    "points": [{"x": 0, "y": int(y[0, 0]), "label": "predict this from x[0]"}],
+}`
+        },
+        nanogpt_parameters: {
+            goal: 'Goal: derive nanoGPT parameter count from vocabulary, context, width, and layer count.',
+            bridge: 'PyTorch bridge: numel() counts registered Parameter entries; tied weights appear once because both modules reference the same Parameter.',
+            project: 'Audit a GPT-2 124M-style configuration',
+            dataset: 'V=50,304 · T=1,024 · L=12 · C=768 · bias disabled',
+            skill: 'Transformer parameter accounting and weight tying',
+            deliverable: 'A component budget that reconciles with model.parameters()',
+            watchFor: 'activation memory and optimizer state are not model parameters',
+            challenges: [
+                'Enable every Linear and LayerNorm bias and add the missing terms.',
+                'Untie the language head and measure the extra V×C matrix.',
+                'Change MLP expansion from 4C to 8C and identify the dominant component.'
+            ],
+            code: `V, T, L, C = 50_304, 1_024, 12, 768
+
+token_embedding = V * C
+position_embedding = T * C
+attention_per_layer = 3 * C * C + C * C
+mlp_per_layer = C * (4 * C) + (4 * C) * C
+norms_per_layer = 2 * C  # two scale vectors; bias=False
+blocks = L * (attention_per_layer + mlp_per_layer + norms_per_layer)
+final_norm = C
+components = [token_embedding, position_embedding, blocks, final_norm]
+labels = ["tied token/head", "position", "12 blocks", "final norm"]
+
+running, cumulative = 0, []
+for label, count in zip(labels, components):
+    running += count
+    cumulative.append(running / 1e6)
+    print(f"{label:16s} {count / 1e6:8.3f}M")
+
+print(f"registered total: {running / 1e6:.3f}M")
+print(f"weight tying saves: {token_embedding / 1e6:.3f}M parameters")
+
+_lesson_plot = {
+    "title": "Cumulative nanoGPT parameter budget",
+    "x": [1, 2, 3, 4],
+    "series": [{"label": "millions of parameters", "y": cumulative}],
+    "points": [{"x": 4, "y": cumulative[-1], "label": "total"}],
+}`
+        },
+        nanogpt_forward: {
+            goal: 'Goal: trace a nanoGPT forward pass and visualize one causal attention head.',
+            bridge: 'PyTorch bridge: Embedding, Linear, LayerNorm, SDPA, GELU, residual addition, and the tied language head perform these same array operations.',
+            project: 'Shape audit for a tiny decoder block',
+            dataset: 'B=2 · T=5 · C=8 · H=2 · V=13 synthetic tensors',
+            skill: 'Head reshaping, causal softmax, and residual contracts',
+            deliverable: 'A complete shape trace and attention plot',
+            watchFor: 'a transpose bug can preserve element count while changing the meaning of every axis',
+            challenges: [
+                'Remove the causal mask and find the first nonzero future attention weight.',
+                'Change H from 2 to 4 and verify that C=H×D still holds.',
+                'Add a second decoder block and confirm the residual shape never changes.'
+            ],
+            code: `import numpy as np
+
+rng = np.random.default_rng(17)
+B, T, C, H, V = 2, 5, 8, 2, 13
+D = C // H
+idx = rng.integers(0, V, size=(B, T))
+token_embedding = rng.normal(scale=0.2, size=(V, C))
+position_embedding = rng.normal(scale=0.2, size=(T, C))
+W_qkv = rng.normal(scale=0.25, size=(C, 3 * C))
+W_out = rng.normal(scale=0.25, size=(C, C))
+W_up = rng.normal(scale=0.2, size=(C, 4 * C))
+W_down = rng.normal(scale=0.2, size=(4 * C, C))
+W_vocab = token_embedding.T  # tied token embedding / language head
+
+def layer_norm(values, eps=1e-5):
+    mean = values.mean(axis=-1, keepdims=True)
+    variance = ((values - mean) ** 2).mean(axis=-1, keepdims=True)
+    return (values - mean) / np.sqrt(variance + eps)
+
+x = token_embedding[idx] + position_embedding[None, :, :]
+qkv = layer_norm(x) @ W_qkv
+q, k, v = np.split(qkv, 3, axis=-1)
+reshape_heads = lambda z: z.reshape(B, T, H, D).transpose(0, 2, 1, 3)
+q, k, v = map(reshape_heads, (q, k, v))
+scores = q @ k.transpose(0, 1, 3, 2) / np.sqrt(D)
+future = np.triu(np.ones((T, T), dtype=bool), k=1)
+scores = np.where(future[None, None, :, :], -1e9, scores)
+weights = np.exp(scores - scores.max(axis=-1, keepdims=True))
+weights /= weights.sum(axis=-1, keepdims=True)
+context = weights @ v
+context = context.transpose(0, 2, 1, 3).reshape(B, T, C)
+x = x + context @ W_out
+hidden = np.tanh(layer_norm(x) @ W_up) @ W_down
+x = x + hidden
+logits = layer_norm(x) @ W_vocab
+
+print("idx:", idx.shape)
+print("embedded stream:", (B, T, C))
+print("q/k/v per head:", q.shape)
+print("attention matrix:", weights.shape)
+print("reassembled context:", context.shape)
+print("vocabulary logits:", logits.shape)
+print("future attention mass:", float(weights[..., future].sum()))
+
+_lesson_plot = {
+    "title": "Causal attention weights · batch 0, head 0",
+    "x": list(range(T)),
+    "series": [
+        {"label": f"query {query}", "y": weights[0, 0, query].tolist()}
+        for query in range(T)
+    ],
+}`
+        },
+        nanogpt_loss: {
+            goal: 'Goal: connect next-token probability, per-token surprise, mean loss, and perplexity.',
+            bridge: 'PyTorch bridge: F.cross_entropy(logits.view(-1,V), targets.view(-1)) computes a stable mean of these negative log probabilities.',
+            project: 'Audit the language-model objective position by position',
+            dataset: '8 positions · 7-token vocabulary · synthetic logits',
+            skill: 'Cross-entropy and perplexity interpretation',
+            deliverable: 'A token-level loss plot and aggregate perplexity',
+            watchFor: 'perplexity is exponential in mean natural-log loss and is only comparable under the same tokenizer/data domain',
+            challenges: [
+                'Increase one correct-target logit by 2 and measure only that position’s loss change.',
+                'Give every vocabulary item equal logits and derive perplexity analytically.',
+                'Mask one target with ignore_index logic and recompute the correct mean.'
+            ],
+            code: `import numpy as np
+
+rng = np.random.default_rng(23)
+T, V = 8, 7
+logits = rng.normal(size=(T, V))
+targets = np.array([1, 4, 3, 0, 6, 2, 5, 1])
+logits[np.arange(T), targets] += np.linspace(0.3, 2.0, T)
+
+shifted = logits - logits.max(axis=-1, keepdims=True)
+probabilities = np.exp(shifted)
+probabilities /= probabilities.sum(axis=-1, keepdims=True)
+target_probability = probabilities[np.arange(T), targets]
+token_loss = -np.log(target_probability + 1e-12)
+mean_loss = token_loss.mean()
+perplexity = np.exp(mean_loss)
+
+for position in range(T):
+    print(f"t={position} target={targets[position]} "
+          f"p={target_probability[position]:.3f} loss={token_loss[position]:.3f}")
+print(f"mean cross-entropy={mean_loss:.3f} perplexity={perplexity:.3f}")
+
+_lesson_plot = {
+    "title": "Next-token loss reveals the difficult positions",
+    "x": list(range(T)),
+    "series": [{"label": "negative log p(target)", "y": token_loss.tolist()}],
+    "points": [{"x": int(token_loss.argmax()), "y": float(token_loss.max()), "label": "hardest token"}],
+}`
+        },
+        nanogpt_accumulation: {
+            goal: 'Goal: prove that scaled microbatch gradients reproduce one larger mean gradient.',
+            bridge: 'nanoGPT bridge: loss/gradient_accumulation_steps followed by repeated backward calls accumulates one logical update while controlling activation memory.',
+            project: 'Verify nanoGPT gradient accumulation arithmetic',
+            dataset: '8 regression examples · 4 equal microbatches',
+            skill: 'Gradient reductions, accumulation, and effective token batch size',
+            deliverable: 'An equivalence error plot and token/update calculation',
+            watchFor: 'unequal microbatch sizes require weighting by example/token count, not blindly dividing by the number of microsteps',
+            challenges: [
+                'Make the last microbatch smaller and repair the weighting.',
+                'Remove the division by A and measure the gradient scale factor.',
+                'Add world_size to the effective batch calculation and explain DDP averaging.'
+            ],
+            code: `import numpy as np
+
+X = np.array([[1.0, 0.2], [1.0, 0.8], [1.0, 1.2], [1.0, 1.8],
+              [1.0, 2.1], [1.0, 2.8], [1.0, 3.2], [1.0, 3.9]])
+y = np.array([0.5, 1.1, 1.6, 2.3, 2.8, 3.6, 4.0, 4.9])
+w = np.array([0.1, 0.4])
+
+def mean_gradient(features, targets):
+    error = features @ w - targets
+    return 2 * features.T @ error / len(features)
+
+full_gradient = mean_gradient(X, y)
+microbatches = np.array_split(np.arange(len(X)), 4)
+accumulated = np.zeros_like(w)
+errors = []
+for micro_step, indices in enumerate(microbatches, 1):
+    accumulated += mean_gradient(X[indices], y[indices]) / len(microbatches)
+    error = np.linalg.norm(accumulated - full_gradient)
+    errors.append(error)
+    print(f"microstep {micro_step}: accumulated={np.round(accumulated, 4)} "
+          f"distance_to_full={error:.6f}")
+
+batch_size, block_size, accumulation, world_size = 2, 128, 4, 2
+tokens = batch_size * block_size * accumulation * world_size
+print("full gradient:", np.round(full_gradient, 6))
+print("final equality:", np.allclose(accumulated, full_gradient))
+print("effective tokens/update:", tokens)
+
+_lesson_plot = {
+    "title": "Accumulated gradient converges to the full-batch gradient",
+    "x": [1, 2, 3, 4],
+    "series": [{"label": "distance to full gradient", "y": errors}],
+    "points": [{"x": 4, "y": errors[-1], "label": "equivalent update"}],
+}`
+        },
+        nanogpt_schedule: {
+            goal: 'Goal: visualize nanoGPT’s linear warmup, cosine decay, and minimum learning-rate floor.',
+            bridge: 'PyTorch bridge: nanoGPT assigns the computed scalar to every optimizer param_group; an equivalent scheduler can encapsulate the same rule.',
+            project: 'Review an optimizer learning-rate policy',
+            dataset: '100 optimizer steps · 10-step warmup',
+            skill: 'Piecewise schedules and optimizer-step semantics',
+            deliverable: 'A schedule plot with boundary tests',
+            watchFor: 'the schedule advances per optimizer update, not per accumulation microbatch',
+            challenges: [
+                'Double warmup length without changing the decay endpoint.',
+                'Set min_lr to zero and compare the final quarter.',
+                'Convert the x-axis from optimizer steps to processed tokens.'
+            ],
+            code: `import math
+
+max_lr = 6e-4
+min_lr = 6e-5
+warmup_iters = 10
+decay_iters = 100
+
+def get_lr(step):
+    if step < warmup_iters:
+        return max_lr * (step + 1) / (warmup_iters + 1)
+    if step > decay_iters:
+        return min_lr
+    ratio = (step - warmup_iters) / (decay_iters - warmup_iters)
+    coefficient = 0.5 * (1 + math.cos(math.pi * ratio))
+    return min_lr + coefficient * (max_lr - min_lr)
+
+steps = list(range(0, 111))
+rates = [get_lr(step) for step in steps]
+print("first lr:", f"{rates[0]:.7f}")
+print("warmup peak:", f"{rates[warmup_iters]:.7f}")
+print("decay end:", f"{rates[decay_iters]:.7f}")
+print("after decay:", f"{rates[-1]:.7f}")
+
+_lesson_plot = {
+    "title": "nanoGPT warmup + cosine learning-rate schedule (×10⁴)",
+    "x": steps,
+    "series": [{"label": "learning rate ×10⁴", "y": [rate * 1e4 for rate in rates]}],
+    "points": [
+        {"x": warmup_iters, "y": rates[warmup_iters] * 1e4, "label": "warmup ends"},
+        {"x": decay_iters, "y": rates[decay_iters] * 1e4, "label": "floor"},
+    ],
+}`
+        },
+        nanogpt_optimizer: {
+            goal: 'Goal: understand nanoGPT’s AdamW parameter groups and decoupled weight decay.',
+            bridge: 'PyTorch bridge: AdamW accepts param_group dictionaries with independent weight_decay values and optional fused CUDA execution.',
+            project: 'Audit which GPT parameters should decay',
+            dataset: 'Representative nanoGPT parameter names and shapes',
+            skill: 'Optimizer grouping and decoupled regularization',
+            deliverable: 'A decay/no-decay inventory plus norm trajectory',
+            watchFor: 'embedding and matrix weights decay; bias and LayerNorm vectors do not in nanoGPT’s dimensionality rule',
+            challenges: [
+                'Add a scalar Parameter and predict its group.',
+                'Set weight_decay to zero and confirm the trajectories coincide.',
+                'Explain why tied embedding/head weight appears only once in named_parameters().'
+            ],
+            code: `parameters = {
+    "transformer.wte.weight": (50_304, 768),
+    "transformer.wpe.weight": (1_024, 768),
+    "transformer.h.0.ln_1.weight": (768,),
+    "transformer.h.0.attn.c_attn.weight": (2_304, 768),
+    "transformer.h.0.attn.c_proj.weight": (768, 768),
+    "transformer.h.0.mlp.c_fc.weight": (3_072, 768),
+    "transformer.h.0.mlp.c_proj.weight": (768, 3_072),
+}
+
+decay = [name for name, shape in parameters.items() if len(shape) >= 2]
+no_decay = [name for name, shape in parameters.items() if len(shape) < 2]
+print("decay group:")
+for name in decay:
+    print("  ", name)
+print("no-decay group:")
+for name in no_decay:
+    print("  ", name)
+
+# Isolate AdamW's decoupled decay effect after the adaptive update.
+learning_rate, weight_decay, adaptive_update = 0.05, 0.1, 0.02
+matrix_weight = norm_weight = 1.0
+matrix_history, norm_history = [], []
+for _ in range(30):
+    matrix_weight = (matrix_weight - learning_rate * adaptive_update) * (1 - learning_rate * weight_decay)
+    norm_weight = norm_weight - learning_rate * adaptive_update
+    matrix_history.append(abs(matrix_weight))
+    norm_history.append(abs(norm_weight))
+
+print("final decayed matrix magnitude:", round(matrix_weight, 4))
+print("final non-decayed norm magnitude:", round(norm_weight, 4))
+
+_lesson_plot = {
+    "title": "Decoupled AdamW decay changes matrix-weight magnitude",
+    "x": list(range(1, 31)),
+    "series": [
+        {"label": "matrix / embedding", "y": matrix_history},
+        {"label": "norm / bias", "y": norm_history},
+    ],
+}`
+        },
+        nanogpt_sampling: {
+            goal: 'Goal: visualize how temperature and top-k transform one fixed logit vector.',
+            bridge: 'nanoGPT bridge: divide final-position logits by temperature, mask below the kth value, softmax, then torch.multinomial.',
+            project: 'Tune an autoregressive decoder policy',
+            dataset: '8 candidate token logits from one fictional prompt',
+            skill: 'Temperature, top-k filtering, entropy, and sampling',
+            deliverable: 'A probability comparison with an explicit diversity trade-off',
+            watchFor: 'temperature must be positive; filtering occurs on logits before softmax',
+            challenges: [
+                'Approach temperature zero and explain the limiting distribution.',
+                'Change top-k from 3 to 1 and compare with greedy decoding.',
+                'Add nucleus top-p filtering and compare the candidate set.'
+            ],
+            code: `import numpy as np
+
+tokens = ["the", "a", "model", "system", "user", "runs", "learns", "fails"]
+logits = np.array([2.4, 1.7, 1.25, 0.9, 0.4, 0.1, -0.2, -0.8])
+
+def probabilities(temperature=1.0, top_k=None):
+    values = logits / temperature
+    if top_k is not None:
+        threshold = np.sort(values)[-top_k]
+        values = np.where(values < threshold, -np.inf, values)
+    values = values - np.max(values)
+    weights = np.exp(values)
+    return weights / weights.sum()
+
+cold = probabilities(0.5)
+neutral = probabilities(1.0)
+warm = probabilities(1.5)
+top3 = probabilities(1.0, top_k=3)
+
+def entropy(p):
+    positive = p[p > 0]
+    return float(-(positive * np.log(positive)).sum())
+
+for label, p in [("temp 0.5", cold), ("temp 1.0", neutral),
+                 ("temp 1.5", warm), ("top-k 3", top3)]:
+    print(label, "entropy=", round(entropy(p), 3),
+          "top=", tokens[int(np.argmax(p))], round(float(p.max()), 3))
+
+_lesson_plot = {
+    "title": "Temperature redistributes probability; top-k removes candidates",
+    "x": list(range(len(tokens))),
+    "series": [
+        {"label": "temperature 0.5", "y": cold.tolist()},
+        {"label": "temperature 1.0", "y": neutral.tolist()},
+        {"label": "temperature 1.5", "y": warm.tolist()},
+        {"label": "top-k 3", "y": top3.tolist()},
+    ],
+}`
+        },
+        nanogpt_cache: {
+            goal: 'Goal: quantify the repeated attention-score work in nanoGPT’s uncached generation loop.',
+            bridge: 'PyTorch bridge: original GPT.generate recomputes the cropped prefix; a production decoder can pass per-layer past K/V tensors and process only the newest token.',
+            project: 'Capacity estimate for token-by-token inference',
+            dataset: 'Prompt length 16 · generate 32 tokens · one representative layer/head factor removed',
+            skill: 'Autoregressive complexity and KV-cache memory/compute trade-offs',
+            deliverable: 'A cumulative score-work comparison and cache boundary statement',
+            watchFor: 'a KV cache reduces repeated projection/attention work but consumes memory that grows with layers, batch, context, and width',
+            challenges: [
+                'Double prompt length and compare the final work ratio.',
+                'Add a finite block_size and show when the uncached curve changes regime.',
+                'Estimate KV bytes for L=12, B=4, T=1024, C=768 in bf16.'
+            ],
+            code: `prompt_tokens = 16
+new_tokens = 32
+steps = list(range(1, new_tokens + 1))
+
+uncached_cumulative = []
+cached_cumulative = []
+uncached_total = cached_total = 0
+for step in steps:
+    context = prompt_tokens + step - 1
+    # nanoGPT recomputes a full T×T attention score grid per layer/head.
+    uncached_total += context * context
+    # A KV cache scores only the new query against the cached prefix.
+    cached_total += context
+    uncached_cumulative.append(uncached_total)
+    cached_cumulative.append(cached_total)
+
+ratio = uncached_total / cached_total
+layers, batch, context, width, bytes_per_value = 12, 4, 1024, 768, 2
+kv_bytes = 2 * layers * batch * context * width * bytes_per_value
+print("cumulative uncached score entries:", uncached_total)
+print("cumulative cached score entries:", cached_total)
+print("work ratio at 32 generated tokens:", round(ratio, 1), "x")
+print("example bf16 KV cache:", round(kv_bytes / 1024**2, 1), "MiB")
+print("source fact: nanoGPT generate() has no past-key-value cache")
+
+_lesson_plot = {
+    "title": "Cumulative attention-score work during generation",
+    "x": steps,
+    "series": [
+        {"label": "nanoGPT recompute", "y": uncached_cumulative},
+        {"label": "KV-cached decoder", "y": cached_cumulative},
+    ],
+    "points": [{"x": steps[-1], "y": uncached_cumulative[-1], "label": f"{ratio:.1f}× score work"}],
+}`
         }
     };
 

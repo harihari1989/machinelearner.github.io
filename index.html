@@ -17,9 +17,9 @@
     <link rel="stylesheet" href="styles.css?v=20260714-theme-1">
     <link rel="stylesheet" href="math-deep-dive.css">
     <link rel="stylesheet" href="math-foundations-lab.css">
-    <link rel="stylesheet" href="learning-depth.css?v=20260714-theme-1">
+    <link rel="stylesheet" href="learning-depth.css?v=20260716-python-depth-1">
     <link rel="stylesheet" href="research-expansion.css">
-    <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-practical-2">
+    <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
     <script>
@@ -6142,13 +6142,14 @@ actions(state) -&gt; action list
                 <a href="#python-mental-model">Mental model</a>
                 <a href="#python-core">Core language</a>
                 <a href="#python-data">Data thinking</a>
-                <a href="#python-libraries">Libraries</a>
+                <a href="#python-libraries">Python → NumPy → PyTorch</a>
                 <a href="#python-zero-to-hero">Project path</a>
                 <a href="#pytorch-roadmap">PyTorch map</a>
                 <a href="#pytorch-autograd">Tensor + autograd</a>
                 <a href="#pytorch-architectures">Architectures</a>
                 <a href="#pytorch-training">Train + infer</a>
                 <a href="#pytorch-transformer">Transformer + GPT</a>
+                <a href="#nanogpt-deep-dive">nanoGPT</a>
                 <a href="#python-course-lab">Python lab</a>
             </nav>
 
@@ -6251,22 +6252,246 @@ except KeyError:
                 </div>
             </section>
 
-            <section id="python-libraries" class="example-section">
-                <h2>The important Python libraries and their jobs</h2>
-                <p class="section-intro">Choose a library because it owns the operation you need, not because every project must import the entire stack.</p>
-                <div class="library-map">
-                    <article><span>Language toolkit</span><h3>Standard library</h3><p><code>math</code>, <code>statistics</code>, <code>random</code>, <code>pathlib</code>, <code>json</code>, and <code>collections</code> cover many scripts without another installation.</p><strong>Use for:</strong> files, configuration, small calculations, counters, and program structure.</article>
-                    <article><span>Numerical foundation</span><h3>NumPy</h3><p>Homogeneous n-dimensional arrays, broadcasting, vectorized operations, linear algebra, and random sampling.</p><strong>Use for:</strong> fast array math and understanding tensor shapes.</article>
-                    <article><span>Tables</span><h3>pandas</h3><p>Labeled rows and columns, joins, grouping, missing-data handling, timestamps, and file import/export.</p><strong>Use for:</strong> inspection and preparation of tabular datasets.</article>
-                    <article><span>Scientific routines</span><h3>SciPy</h3><p>Optimization, integration, interpolation, signal processing, sparse matrices, and probability distributions built around NumPy arrays.</p><strong>Use for:</strong> trusted numerical algorithms beyond basic array operations.</article>
-                    <article><span>Plots</span><h3>Matplotlib + Seaborn</h3><p>Matplotlib supplies precise plotting primitives; Seaborn adds statistical defaults and concise views for distributions and relationships.</p><strong>Use for:</strong> checking data and communicating evidence.</article>
-                    <article><span>Classical ML</span><h3>scikit-learn</h3><p>A consistent <code>fit</code>/<code>predict</code>/<code>transform</code> API for preprocessing, models, pipelines, validation, and metrics.</p><strong>Use for:</strong> strong baselines and disciplined evaluation.</article>
-                    <article><span>Deep learning</span><h3>PyTorch</h3><p>Tensors, automatic differentiation, neural-network modules, optimizers, data loaders, and accelerator support.</p><strong>Use for:</strong> differentiable programs and neural networks.</article>
-                    <article><span>Experiment interface</span><h3>Jupyter</h3><p>Combines executable cells, equations, notes, and plots. It is excellent for exploration; reusable logic should still move into tested modules.</p><strong>Use for:</strong> inspectable experiments and teaching.</article>
+            <section id="python-libraries" class="example-section python-depth-course">
+                <span class="depth-kicker">Foundations first · syntax to differentiable systems</span>
+                <h2>Python, NumPy, and PyTorch: a working tutorial</h2>
+                <p class="section-intro">This is a build path, not an import checklist. First learn how Python evaluates programs and organizes objects. Then learn how NumPy represents many values in one typed memory buffer. Finally add PyTorch devices, automatic differentiation, trainable modules, and production execution.</p>
+
+                <div class="python-depth-roadmap" aria-label="Foundations-first Python machine learning curriculum">
+                    <a href="#python-language-tutorial"><span>01 · language</span><strong>Python contracts</strong><small>objects · flow · functions · modules · errors · classes</small></a>
+                    <i aria-hidden="true">→</i>
+                    <a href="#numpy-array-tutorial"><span>02 · numerical model</span><strong>NumPy arrays</strong><small>shape · dtype · strides · indexing · broadcasting · ufuncs</small></a>
+                    <i aria-hidden="true">→</i>
+                    <a href="#pytorch-api-tutorial"><span>03 · learning system</span><strong>PyTorch programs</strong><small>tensor · device · autograd · module · optimizer · inference</small></a>
                 </div>
-                <div class="library-workflow" aria-label="Typical machine learning workflow across Python libraries">
-                    <span>Load<br><b>pandas</b></span><i>→</i><span>Explore<br><b>Seaborn</b></span><i>→</i><span>Transform<br><b>NumPy</b></span><i>→</i><span>Model<br><b>scikit-learn / PyTorch</b></span><i>→</i><span>Evaluate<br><b>metrics + plots</b></span>
-                </div>
+
+                <section class="python-depth-track" id="python-language-tutorial" aria-labelledby="pythonLanguageTutorialTitle">
+                    <div class="python-track-heading">
+                        <div><span class="python-track-number">01</span><span class="depth-kicker">Official Python tutorial · chapters 1–16</span><h3 id="pythonLanguageTutorialTitle">Write programs by reasoning about objects and protocols</h3></div>
+                        <p>Python names refer to objects. Statements change bindings or program state; expressions produce values. The practical goal is to make every function, mutation, import, failure, and resource lifetime visible in the code.</p>
+                    </div>
+
+                    <div class="python-topic-map" aria-label="Python tutorial topic coverage">
+                        <article><span>1</span><h4>Interpreter and values</h4><p>Interactive mode, scripts, arguments, encodings, numbers, strings, lists, assignment, and the difference between a value and the name bound to it.</p><code>python -m package.module</code></article>
+                        <article><span>2</span><h4>Control flow</h4><p><code>if</code>, <code>for</code>, <code>range</code>, <code>while</code>, <code>break</code>, <code>continue</code>, loop <code>else</code>, <code>pass</code>, and structural <code>match</code>.</p><code>match event: case {"kind": "sale"}:</code></article>
+                        <article><span>3</span><h4>Function contracts</h4><p>Defaults, keyword arguments, positional-only <code>/</code>, keyword-only <code>*</code>, variadic arguments, unpacking, lambdas, docstrings, and annotations.</p><code>def score(x, /, *, threshold=0.5):</code></article>
+                        <article><span>4</span><h4>Data structures</h4><p>Lists as stacks, <code>deque</code> for queues, comprehensions, tuples, sets, dictionaries, safe looping techniques, conditions, and lexicographic comparison.</p><code>{key: fn(value) for key, value in rows}</code></article>
+                        <article><span>5</span><h4>Modules and packages</h4><p>Imports, module namespaces, <code>__name__</code>, search paths, bytecode caches, <code>dir()</code>, package boundaries, and explicit relative imports.</p><code>if __name__ == "__main__": main()</code></article>
+                        <article><span>6</span><h4>I/O and failure</h4><p>F-strings, file objects, <code>with</code>, JSON, syntax errors, exception handling, raising, chaining, custom exceptions, cleanup, groups, and notes.</p><code>raise DataError("bad row") from error</code></article>
+                        <article><span>7</span><h4>Classes and iteration</h4><p>Scopes, namespaces, class and instance variables, methods, inheritance, name mangling, dataclasses, iterators, generators, and generator expressions.</p><code>yield from batched(records, 32)</code></article>
+                        <article><span>8</span><h4>Runtime discipline</h4><p>The standard library, virtual environments, <code>pip</code>, executable scripts, interactive history, testing, timing, logging, and floating-point representation limits.</p><code>python -m venv .venv</code></article>
+                    </div>
+
+                    <div class="python-manim-lesson">
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/python-object-references.jpg">
+                            <source src="assets/manim/python-object-references.webm" type="video/webm">
+                            <source src="assets/manim/python-object-references.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Manim visual model</span><h4>Assignment binds a name; mutation changes the shared object</h4><p><code>b = a</code> creates a second reference, not an independent list. A shallow copy creates a new outer container; nested mutable members may still be shared. This same distinction matters when datasets, configuration objects, and model-state dictionaries move through a program.</p></div>
+                    </div>
+
+                    <details class="python-tutorial-module" open>
+                        <summary><span>Lesson 1</span><strong>Functions transform records; comprehensions select evidence</strong><small>parameters · unpacking · dictionaries · match</small></summary>
+                        <div class="python-module-grid">
+                            <div>
+                                <p>Use positional-only parameters for inputs whose names should not become part of the public API. Use keyword-only parameters for decisions that are clearer when named. Return a new result when mutation is not the purpose.</p>
+                                <ol><li>Validate the record at the boundary.</li><li>Pattern-match the event shape.</li><li>Compute one explicit result.</li><li>Use a comprehension only when the transformation remains readable.</li></ol>
+                                <button class="notebook-btn secondary" type="button" data-pytorch-example="python_language">Run the language-contract lab</button>
+                            </div>
+                            <pre><code>def classify(event, /, *, high_value=500):
+    match event:
+        case {"kind": "sale", "amount": amount} if amount >= high_value:
+            return "priority"
+        case {"kind": "sale"}:
+            return "standard"
+        case _:
+            raise ValueError("unsupported event")
+
+labels = [classify(row, high_value=750) for row in events]</code></pre>
+                        </div>
+                    </details>
+
+                    <details class="python-tutorial-module">
+                        <summary><span>Lesson 2</span><strong>Modules own namespaces; context managers own cleanup</strong><small>imports · __main__ · files · JSON · exceptions</small></summary>
+                        <div class="python-module-grid">
+                            <div><p>A module is an object with a namespace. Import the module when the owner matters (<code>statistics.fmean</code>); import a name when the local meaning stays unambiguous. Put side effects behind <code>main()</code> so importing a module is safe.</p><p><code>with</code> guarantees cleanup even when parsing or validation raises. Catch only failures you can handle, and preserve the original cause with exception chaining.</p></div>
+                            <pre><code>from pathlib import Path
+import json
+
+def load_config(path: Path) -> dict:
+    try:
+        with path.open(encoding="utf-8") as stream:
+            return json.load(stream)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"invalid config: {path}") from error
+
+def main() -> None:
+    config = load_config(Path("config.json"))
+    print(config["experiment"])
+
+if __name__ == "__main__":
+    main()</code></pre>
+                        </div>
+                    </details>
+
+                    <details class="python-tutorial-module">
+                        <summary><span>Lesson 3</span><strong>Classes implement protocols; generators make iteration lazy</strong><small>scope · methods · inheritance · iterators · yield</small></summary>
+                        <div class="python-module-grid">
+                            <div><p>Prefer a class when values and invariants travel together. Implement the smallest useful protocol: <code>__len__</code> and <code>__getitem__</code> make a dataset indexable; <code>__iter__</code> makes it iterable; a generator expresses a stateful sequence without storing every result.</p><p>Class variables are shared. Instance variables belong to one object. Use inheritance for a true substitutable relationship; use composition for “has-a” behavior.</p><button class="notebook-btn secondary" type="button" data-pytorch-example="python_protocols">Run the protocol lab</button></div>
+                            <pre><code>class SensorDataset:
+    def __init__(self, rows):
+        self._rows = tuple(rows)
+
+    def __len__(self):
+        return len(self._rows)
+
+    def __getitem__(self, index):
+        return self._rows[index]
+
+def batches(dataset, size):
+    for start in range(0, len(dataset), size):
+        yield [dataset[i] for i in range(start,
+                                          min(start + size, len(dataset)))]</code></pre>
+                        </div>
+                    </details>
+
+                    <div class="python-runtime-checklist">
+                        <div><strong>Standard-library route</strong><span><code>pathlib</code> paths · <code>argparse</code> CLI · <code>re</code> patterns · <code>datetime</code> time · <code>math/statistics</code> scalar math · <code>collections</code> containers · <code>itertools</code> streams · <code>logging</code> evidence · <code>unittest</code> checks</span></div>
+                        <div><strong>Environment route</strong><span>Create <code>python -m venv .venv</code>, activate it, install with <code>python -m pip</code>, record versions, and keep application dependencies separate from the interpreter installation.</span></div>
+                        <div><strong>Numerical route</strong><span><code>0.1 + 0.1 + 0.1 != 0.3</code> is binary representation error, not random behavior. Compare with a tolerance, use <code>decimal</code> for decimal rules, and never infer correctness from printed rounding.</span></div>
+                    </div>
+                </section>
+
+                <section class="python-depth-track numpy-depth-track" id="numpy-array-tutorial" aria-labelledby="numpyArrayTutorialTitle">
+                    <div class="python-track-heading">
+                        <div><span class="python-track-number">02</span><span class="depth-kicker">NumPy user guide · fundamentals through interoperability</span><h3 id="numpyArrayTutorialTitle">Treat an array as a buffer plus shape, dtype, and strides</h3></div>
+                        <p>An <code>ndarray</code> is not a nested Python list. It is a homogeneous memory buffer interpreted by metadata. Indexing, reshaping, broadcasting, and vectorization become predictable once you track that contract.</p>
+                    </div>
+
+                    <div class="python-manim-lesson">
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/numpy-broadcast-strides.jpg">
+                            <source src="assets/manim/numpy-broadcast-strides.webm" type="video/webm">
+                            <source src="assets/manim/numpy-broadcast-strides.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Manim visual model</span><h4>One buffer, many views; one small operand, many aligned operations</h4><p>The first motion changes only shape and strides. The second aligns dimensions from the right and virtually expands size-one axes—broadcasting does not tile the smaller array into memory.</p></div>
+                    </div>
+
+                    <div class="numpy-contract-table" role="region" aria-label="NumPy concept and API guide" tabindex="0">
+                        <table>
+                            <thead><tr><th>Contract</th><th>Essential syntax</th><th>Reasoning test</th><th>Common failure</th></tr></thead>
+                            <tbody>
+                                <tr><td>Create</td><td><code>array</code>, <code>asarray</code>, <code>arange</code>, <code>linspace</code>, <code>zeros/ones/full</code>, <code>eye</code>, <code>fromiter</code></td><td>What shape and dtype will be created? Is a copy required?</td><td><code>arange</code> with floating steps and uninitialized <code>empty</code> values.</td></tr>
+                                <tr><td>Inspect</td><td><code>a.shape</code>, <code>ndim</code>, <code>size</code>, <code>dtype</code>, <code>itemsize</code>, <code>strides</code>, <code>flags</code></td><td>How does an index map to a byte offset?</td><td>Confusing logical shape with contiguous layout.</td></tr>
+                                <tr><td>Select</td><td><code>a[i, j]</code>, slices, <code>...</code>, <code>None</code>, boolean masks, integer arrays, <code>where</code></td><td>Does the result share memory or gather into a copy?</td><td>Chained indexing and shape-changing advanced indexing.</td></tr>
+                                <tr><td>Reshape</td><td><code>reshape</code>, <code>ravel</code>, <code>flatten</code>, <code>transpose</code>, <code>moveaxis</code>, <code>stack</code>, <code>concatenate</code>, <code>split</code></td><td>Which axis means examples, features, channels, or time?</td><td>Using <code>resize</code> when a non-mutating reshape was intended.</td></tr>
+                                <tr><td>Compute</td><td>ufuncs, <code>sum/mean/std</code>, <code>axis=</code>, <code>keepdims=</code>, <code>out=</code>, <code>where=</code></td><td>Which axes disappear, and what dtype accumulates?</td><td>Python loops, silent overflow, or reducing the wrong axis.</td></tr>
+                                <tr><td>Broadcast</td><td><code>X - mean</code>, <code>X @ W + b</code>, <code>broadcast_to</code></td><td>Align shapes from the right; are dimensions equal or one?</td><td>Accidentally creating an outer operation or huge temporary.</td></tr>
+                                <tr><td>Persist</td><td><code>save/load</code>, <code>savez</code>, <code>loadtxt/savetxt</code>, <code>genfromtxt</code>, memory mapping</td><td>Are dtype, shape, missing values, and trust boundary preserved?</td><td>Pickle-enabled object arrays from untrusted files.</td></tr>
+                                <tr><td>Specialize</td><td>string dtypes, structured arrays, <code>random.Generator</code>, <code>linalg</code>, FFT, C-API, F2PY, DLPack</td><td>Is NumPy the right storage contract for the domain?</td><td>Object dtype, global RNG state, explicit matrix inverse, or needless copies.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="numpy-tutorial-grid">
+                        <article><span>Lab A · creation + selection</span><h4>Clean a typed feature matrix</h4><pre><code>X = np.asarray(rows, dtype=np.float32)
+valid = np.isfinite(X).all(axis=1)
+X = X[valid]                 # advanced indexing: copy
+target = X[:, -1].copy()
+features = X[:, :-1]         # basic slice: view</code></pre><p>Predict shape, dtype, and memory sharing at every line.</p><button class="notebook-btn secondary" type="button" data-pytorch-example="numpy_indexing">Run indexing + dtype lab</button></article>
+                        <article><span>Lab B · views + broadcasting</span><h4>Standardize without hidden tiling</h4><pre><code>mean = X.mean(axis=0, keepdims=True)
+scale = X.std(axis=0, keepdims=True)
+Z = (X - mean) / np.maximum(scale, 1e-6)
+
+view = X[:, ::2]
+copy = X[[0, 2, 4]]
+print(np.shares_memory(X, view))</code></pre><p>Track right-aligned broadcast shapes and distinguish a strided view from a gathered copy.</p><button class="notebook-btn secondary" type="button" data-pytorch-example="numpy_memory">Run memory + broadcast lab</button></article>
+                        <article><span>Lab C · linear algebra + randomness</span><h4>Fit and audit a least-squares model</h4><pre><code>rng = np.random.default_rng(7)
+X = rng.normal(size=(120, 4))
+y = X @ true_w + rng.normal(0, .2, 120)
+w, residuals, rank, singular = np.linalg.lstsq(
+    X, y, rcond=None
+)</code></pre><p>Use a local generator, solve the system directly, and inspect rank and singular values instead of computing an inverse.</p><button class="notebook-btn secondary" type="button" data-pytorch-example="numpy_linalg">Run numerical-model lab</button></article>
+                    </div>
+
+                    <div class="numpy-advanced-route"><strong>After the fundamentals</strong><span><b>Performance:</b> vectorize first, profile second, control temporaries with <code>out=</code>, and understand memory order.</span><span><b>Interoperability:</b> use the array protocol or DLPack for explicit sharing; C-API and F2PY connect compiled C/Fortran kernels.</span><span><b>Domain arrays:</b> fixed-width strings and structured dtypes solve specific storage problems; labeled business tables usually belong in a table library.</span></div>
+                </section>
+
+                <section class="python-depth-track pytorch-api-track" id="pytorch-api-tutorial" aria-labelledby="pytorchApiTutorialTitle">
+                    <div class="python-track-heading">
+                        <div><span class="python-track-number">03</span><span class="depth-kicker">PyTorch 2.13 · tensors to production execution</span><h3 id="pytorchApiTutorialTitle">Build a differentiable program with explicit state</h3></div>
+                        <p>A PyTorch model is ordinary Python whose tensor operations are recorded when gradients are enabled. Correctness depends on four simultaneous contracts: shape, dtype, device, and autograd history.</p>
+                    </div>
+
+                    <div class="python-manim-lesson pytorch-foundation-manim">
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/backpropagation-calculus.jpg">
+                            <source src="assets/manim/backpropagation-calculus.webm" type="video/webm">
+                            <source src="assets/manim/backpropagation-calculus.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Manim visual model</span><h4>Forward values create a graph; backward applies local derivatives in reverse</h4><p>Leaf tensors accumulate gradients. Non-leaf tensors remember the operation that created them. A training step must clear old gradients, run a fresh forward graph, call backward once per intended objective, and update without recording the optimizer itself.</p></div>
+                    </div>
+
+                    <div class="pytorch-foundation-sequence" aria-label="PyTorch learning sequence">
+                        <article><span>1</span><h4>Tensor contract</h4><p>Create with <code>torch.tensor</code> or factory functions; inspect <code>shape</code>, <code>dtype</code>, <code>device</code>, <code>layout</code>, and <code>stride()</code>. Use <code>as_tensor</code>/<code>from_numpy</code> when sharing is intended and <code>clone</code> when independence is intended.</p></article>
+                        <article><span>2</span><h4>Transform contract</h4><p>Index, broadcast, reduce, reshape, transpose, concatenate, and multiply with the same axis reasoning learned in NumPy. After a transpose, <code>reshape</code> may copy; use <code>contiguous()</code> only when an operator needs that layout.</p></article>
+                        <article><span>3</span><h4>Autograd contract</h4><p>Set <code>requires_grad=True</code> on floating or complex leaves. <code>loss.backward()</code> accumulates into <code>.grad</code>; <code>detach()</code> breaks history; <code>no_grad</code> and <code>inference_mode</code> disable recording for distinct use cases.</p></article>
+                        <article><span>4</span><h4>Module contract</h4><p>Subclass <code>nn.Module</code>, create child modules in <code>__init__</code>, define tensor computation in <code>forward</code>, and call the instance—not <code>forward</code> directly. Registered parameters and buffers move and serialize together.</p></article>
+                        <article><span>5</span><h4>Data contract</h4><p>A <code>Dataset</code> defines samples; a <code>DataLoader</code> batches, shuffles, and loads them. A transform changes one sample; <code>collate_fn</code> assembles a batch. Split before fitting data-dependent transforms.</p></article>
+                        <article><span>6</span><h4>Optimization contract</h4><p>Choose raw logits and a compatible loss, call <code>zero_grad</code>, forward, loss, backward, then <code>step</code>. Schedulers change the optimizer’s learning rate; AMP changes operation precision; gradient clipping bounds the update signal.</p></article>
+                        <article><span>7</span><h4>State contract</h4><p><code>state_dict</code> contains registered model state. A resumable checkpoint also needs optimizer, scheduler/scaler, step, architecture, preprocessing, and data identity. Load untrusted artifacts defensively.</p></article>
+                        <article><span>8</span><h4>Execution contract</h4><p><code>model.eval()</code> changes module behavior; <code>inference_mode()</code> changes autograd bookkeeping. Measure eager first, then evaluate <code>torch.compile</code>, export, quantization, distributed execution, and profiler evidence.</p></article>
+                    </div>
+
+                    <details class="python-tutorial-module pytorch-code-module" open>
+                        <summary><span>End-to-end</span><strong>A minimal training and inference program</strong><small>Dataset · DataLoader · Module · loss · optimizer · state_dict</small></summary>
+                        <div class="python-module-grid">
+                            <div><ol><li>Construct tensors with explicit float and integer dtypes.</li><li>Batch examples with a loader.</li><li>Return raw logits from the module.</li><li>Accumulate no unintended gradients.</li><li>Evaluate with both module state and autograd state correct.</li></ol><button class="notebook-btn secondary" type="button" data-pytorch-example="autograd">Build reverse-mode autodiff in Pyodide</button><button class="notebook-btn secondary" type="button" data-pytorch-example="mlp">Train the dependency-free MLP</button></div>
+                            <pre><code>import torch
+from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+
+X = torch.tensor(features, dtype=torch.float32)
+y = torch.tensor(labels, dtype=torch.long)
+loader = DataLoader(TensorDataset(X, y), batch_size=32,
+                    shuffle=True)
+
+model = nn.Sequential(nn.Linear(X.shape[1], 64), nn.ReLU(),
+                      nn.Linear(64, 2))
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+loss_fn = nn.CrossEntropyLoss()
+
+model.train()
+for xb, yb in loader:
+    optimizer.zero_grad(set_to_none=True)
+    loss = loss_fn(model(xb), yb)
+    loss.backward()
+    optimizer.step()
+
+torch.save(model.state_dict(), "model.pt")
+model.eval()
+with torch.inference_mode():
+    probabilities = model(X[:8]).softmax(dim=-1)</code></pre>
+                        </div>
+                    </details>
+
+                    <div class="pytorch-api-depth-table" role="region" aria-label="PyTorch API depth map" tabindex="0">
+                        <table><thead><tr><th>Area</th><th>Core APIs</th><th>Deep question to answer before moving on</th></tr></thead><tbody>
+                            <tr><td>Tensor system</td><td><code>torch</code>, <code>Tensor</code>, <code>linalg</code>, <code>fft</code>, sparse, nested, complex, random</td><td>Can you derive output shape, dtype promotion, device placement, storage sharing, and stride behavior?</td></tr>
+                            <tr><td>Differentiation</td><td><code>autograd</code>, <code>backward</code>, <code>grad</code>, <code>Function</code>, <code>torch.func</code>, hooks</td><td>Which leaves receive accumulated gradients, and which graph must be retained or recreated?</td></tr>
+                            <tr><td>Model building</td><td><code>nn.Module</code>, layers, activations, losses, initialization, parametrizations, <code>nn.functional</code></td><td>Which values are parameters, buffers, ephemeral activations, or plain Python attributes?</td></tr>
+                            <tr><td>Input pipeline</td><td><code>Dataset</code>, <code>IterableDataset</code>, <code>DataLoader</code>, samplers, transforms, domain libraries</td><td>Where are randomness, sharding, collation, padding, augmentation, and leakage controlled?</td></tr>
+                            <tr><td>Optimization</td><td><code>optim</code>, schedulers, <code>torch.amp</code>, gradient clipping, distributed optimizers</td><td>What is the effective batch, update order, precision policy, and parameter-group policy?</td></tr>
+                            <tr><td>Performance</td><td><code>compile</code>, compiler controls, profiler, checkpointing, benchmarking, CUDA/MPS/XPU backends</td><td>Is the bottleneck compute, memory, data loading, synchronization, recompilation, or launch overhead?</td></tr>
+                            <tr><td>Scale</td><td>DDP, FSDP, tensor/pipeline parallel, distributed checkpoint, RPC, DTensor</td><td>Which state is replicated, sharded, communicated, recomputed, and saved by each rank?</td></tr>
+                            <tr><td>Delivery</td><td><code>state_dict</code>, serialization, export, ONNX, ExecuTorch, quantization/torchao</td><td>What exact preprocessing, shape, device, numerical tolerance, trust boundary, and rollback contract ships?</td></tr>
+                        </tbody></table>
+                    </div>
+
+                    <p class="python-pyodide-boundary"><strong>Why the browser labs use Python + NumPy for the executable core:</strong> the official PyTorch binary and accelerator backends are not a practical payload for this static Pyodide page. The labs therefore implement the same tensor algebra, reverse-mode differentiation, modules, optimizers, attention, and sampling algorithms from first principles, while every tutorial shows the exact PyTorch API you would use in a local environment.</p>
+                </section>
+
+                <div class="python-depth-next"><strong>Continue in order</strong><a href="#python-course-lab">Run the editable Pyodide labs</a><a href="#python-zero-to-hero">Apply the foundations to real projects</a><a href="#pytorch-roadmap">Study the full PyTorch API roadmap</a><a href="#pytorch-autograd">Deep-dive tensors and autograd</a></div>
+
+                <p class="reference-strip"><strong>Primary documentation:</strong> <a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">Python 3.14 tutorial</a>, <a href="https://numpy.org/doc/stable/user/index.html" target="_blank" rel="noopener">NumPy 2.5 user guide</a>, <a href="https://docs.pytorch.org/docs/2.13/index.html" target="_blank" rel="noopener">PyTorch 2.13 documentation</a>, and the official <a href="https://docs.pytorch.org/tutorials/beginner/basics/intro.html" target="_blank" rel="noopener">PyTorch “Learn the Basics” path</a>. Examples and exercises are original.</p>
             </section>
 
             <section id="python-zero-to-hero" class="example-section zero-to-hero-section">
@@ -6838,17 +7063,265 @@ for token_ids, targets in train_loader:
                 <p class="reference-strip"><strong>Primary sources:</strong> <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Vaswani et al., <em>Attention Is All You Need</em></a>, <a href="https://openai.com/index/language-unsupervised/" target="_blank" rel="noopener">OpenAI's original GPT work</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html" target="_blank" rel="noopener">PyTorch scaled dot-product attention</a>, and <a href="https://docs.pytorch.org/tutorials/intermediate/transformer_building_blocks.html" target="_blank" rel="noopener">official Transformer building blocks tutorial</a>.</p>
             </section>
 
+            <section id="nanogpt-deep-dive" class="example-section pytorch-section nanogpt-section">
+                <span class="depth-kicker">nanoGPT source study · model.py → train.py → sample.py</span>
+                <h2>Understand a complete GPT training system, tensor by tensor</h2>
+                <p class="section-intro">nanoGPT compresses a GPT-2-style model, training loop, checkpoint path, and sampler into a small codebase. That makes it unusually good for systems study: every tensor shape, state transition, and performance choice remains visible. This tutorial follows the repository at commit <code>3adf61e154c3</code> and explains the current PyTorch equivalent where APIs have evolved.</p>
+
+                <div class="nanogpt-status-note">
+                    <strong>Historical source, current explanations</strong>
+                    <p>The repository now labels nanoGPT “very old and deprecated” and points new users to nanochat. We study nanoGPT because its compact design exposes the foundations clearly—not because it is the recommended 2026 production recipe. The original code uses an older CUDA GradScaler spelling and performs generation without a KV cache; both distinctions are called out below.</p>
+                </div>
+
+                <div class="nanogpt-scope-grid">
+                    <article><span>Exact source behavior</span><h3>What the code actually does</h3><p>Character or GPT-2 BPE IDs become random contiguous windows, pass through pre-normalized decoder blocks, train with next-token cross-entropy, and sample autoregressively.</p></article>
+                    <article><span>Transferable foundation</span><h3>What remains universal</h3><p>Shape contracts, causal masking, residual streams, teacher forcing, gradient accumulation, optimizer state, evaluation boundaries, and checkpoint reproducibility.</p></article>
+                    <article><span>Modern extension</span><h3>What a newer stack adds</h3><p>Current AMP APIs, richer compilation controls, sharded training, more advanced kernels, KV caching, production tokenization, evaluation, and serving safeguards.</p></article>
+                </div>
+
+                <div class="nanogpt-source-explorer" id="nanoGPTSourceExplorer">
+                    <div class="nanogpt-step-tabs" role="tablist" aria-label="nanoGPT execution path">
+                        <button type="button" role="tab" aria-selected="true" data-nanogpt-step="data">1 · Data</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="batch">2 · Batch</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="embed">3 · Embed</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="block">4 · Block</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="loss">5 · Loss</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="backward">6 · Backward</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="step">7 · Update</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="checkpoint">8 · Checkpoint</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="generate">9 · Generate</button>
+                    </div>
+                    <article class="nanogpt-step-detail" aria-live="polite">
+                        <span id="nanoGPTStepKicker">train.py · data preparation</span>
+                        <h3 id="nanoGPTStepTitle">Tokenize text into one contiguous integer stream</h3>
+                        <p id="nanoGPTStepConcept">The model never receives strings. A tokenizer maps text to integer IDs and writes training and validation streams separately.</p>
+                        <div class="nanogpt-tensor-transition">
+                            <div><small>Input</small><strong id="nanoGPTStepInput">UTF-8 text</strong></div>
+                            <i aria-hidden="true">→</i>
+                            <div><small>Operation</small><strong id="nanoGPTStepOperation">tokenizer.encode</strong></div>
+                            <i aria-hidden="true">→</i>
+                            <div><small>Output</small><strong id="nanoGPTStepOutput">uint16 token stream [N]</strong></div>
+                        </div>
+                        <dl class="nanogpt-step-contract">
+                            <div><dt>PyTorch / Python surface</dt><dd id="nanoGPTStepAPI">NumPy memmap · tokenizer metadata</dd></div>
+                            <div><dt>Invariant to test</dt><dd id="nanoGPTStepInvariant">Validation tokens never enter the training stream.</dd></div>
+                            <div><dt>Failure to recognize</dt><dd id="nanoGPTStepFailure">Changing the tokenizer changes every embedding index and invalidates a checkpoint.</dd></div>
+                            <div><dt>Source anchor</dt><dd id="nanoGPTStepSource">data/*/prepare.py → train.py:get_batch</dd></div>
+                        </dl>
+                    </article>
+                </div>
+
+                <div class="nanogpt-shape-spine" aria-label="nanoGPT tensor shape journey">
+                    <article><span>IDs</span><strong>[B, T]</strong><small>integer token indices</small></article><i>→</i>
+                    <article><span>Residual stream</span><strong>[B, T, C]</strong><small>token + position embeddings</small></article><i>→</i>
+                    <article><span>Q, K, V</span><strong>[B, H, T, D]</strong><small>C = H × D</small></article><i>→</i>
+                    <article><span>Logits</span><strong>[B, T, V]</strong><small>one vocabulary score vector per token</small></article><i>→</i>
+                    <article><span>Objective</span><strong>[]</strong><small>mean next-token cross-entropy</small></article>
+                </div>
+
+                <div class="nanogpt-manim-grid" aria-label="Animated nanoGPT system lessons">
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-tensor-journey.jpg">
+                            <source src="assets/manim/nanogpt-tensor-journey.webm" type="video/webm">
+                            <source src="assets/manim/nanogpt-tensor-journey.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Forward pass</span><h3>Follow every tensor contract</h3><p>Token IDs widen into the residual stream, split into attention heads, and project to vocabulary logits.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-training-loop.jpg">
+                            <source src="assets/manim/nanogpt-training-loop.webm" type="video/webm">
+                            <source src="assets/manim/nanogpt-training-loop.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Training system</span><h3>Accumulate, synchronize, clip, update</h3><p>Microbatches add scaled gradients; the final microstep synchronizes before AdamW changes parameters.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-inference-loop.jpg">
+                            <source src="assets/manim/nanogpt-inference-loop.webm" type="video/webm">
+                            <source src="assets/manim/nanogpt-inference-loop.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Inference</span><h3>Crop, score, filter, sample, append</h3><p>nanoGPT recomputes the cropped context each step; a KV cache is a later systems optimization, not part of this source loop.</p></div>
+                    </article>
+                </div>
+
+                <div class="nanogpt-anatomy">
+                    <article>
+                        <span>model.py · configuration</span>
+                        <h3>Configuration is an architectural contract</h3>
+                        <p><code>GPTConfig</code> fixes context length <code>T</code>, vocabulary <code>V</code>, layers <code>L</code>, heads <code>H</code>, width <code>C</code>, dropout, and bias behavior. <code>C % H == 0</code> must hold because each head receives <code>D=C/H</code> channels.</p>
+                        <pre><code>@dataclass
+class GPTConfig:
+    block_size: int = 1024
+    vocab_size: int = 50304
+    n_layer: int = 12
+    n_head: int = 12
+    n_embd: int = 768</code></pre>
+                    </article>
+                    <article>
+                        <span>model.py · state tree</span>
+                        <h3>Modules register every learnable object</h3>
+                        <p><code>ModuleDict</code> names the embedding, block stack, dropout, and final norm. <code>ModuleList</code> registers repeated blocks. Assigning the embedding weight to <code>lm_head.weight</code> ties input and output representations and removes a second <code>V×C</code> matrix.</p>
+                        <pre><code>self.transformer = nn.ModuleDict({
+    "wte": nn.Embedding(V, C),
+    "wpe": nn.Embedding(T, C),
+    "h": nn.ModuleList([Block(cfg) for _ in range(L)]),
+    "ln_f": LayerNorm(C, bias=cfg.bias),
+})
+self.lm_head.weight = self.transformer.wte.weight</code></pre>
+                    </article>
+                    <article>
+                        <span>model.py · pre-norm block</span>
+                        <h3>Each block learns two residual edits</h3>
+                        <p>LayerNorm prepares a stable view of the stream without replacing it. Attention adds a context-dependent edit; the MLP adds a position-wise feature edit. The identity path gives gradients and information a short route through deep stacks.</p>
+                        <pre><code>x = x + self.attn(self.ln_1(x))
+x = x + self.mlp(self.ln_2(x))</code></pre>
+                    </article>
+                    <article>
+                        <span>model.py · causal attention</span>
+                        <h3>One projection produces all Q, K, and V heads</h3>
+                        <p><code>Linear(C, 3C)</code> is split along channels, reshaped to <code>[B,T,H,D]</code>, and transposed to <code>[B,H,T,D]</code>. SDPA applies scaling, the triangular causal rule, softmax, dropout, and value aggregation with an eligible optimized kernel.</p>
+                        <pre><code>q, k, v = self.c_attn(x).split(C, dim=2)
+q = q.view(B, T, H, D).transpose(1, 2)
+y = F.scaled_dot_product_attention(
+    q, k, v, dropout_p=p if self.training else 0,
+    is_causal=True,
+)</code></pre>
+                    </article>
+                </div>
+
+                <h3 class="nanogpt-subheading">The PyTorch API atlas nanoGPT depends on</h3>
+                <div class="nanogpt-api-table" role="region" aria-label="nanoGPT PyTorch API reference" tabindex="0">
+                    <table>
+                        <thead><tr><th>API</th><th>Role in nanoGPT</th><th>Contract to understand</th><th>Common mistake / current note</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>nn.Module</code></td><td>Base for LayerNorm, attention, MLP, Block, and GPT.</td><td>Assign submodules and Parameters as attributes so traversal, device moves, modes, and serialization see them.</td><td>A plain Python list does not register contained modules; use <code>ModuleList</code>.</td></tr>
+                            <tr><td><code>nn.Parameter</code></td><td>Creates optional LayerNorm bias and cropped position weights.</td><td>A Tensor assigned as a Parameter becomes trainable module state.</td><td>Replacing a Parameter can invalidate optimizer references; surgery is safest before optimizer creation.</td></tr>
+                            <tr><td><code>ModuleDict</code> / <code>ModuleList</code></td><td>Names the Transformer tree and registers repeated blocks.</td><td>They behave like containers while preserving the module registry.</td><td>A container organizes state; it does not define data flow by itself.</td></tr>
+                            <tr><td><code>nn.Embedding(V,C)</code></td><td>Looks up token and position vectors.</td><td>Input is integer IDs; output appends an embedding dimension.</td><td>Token IDs must be in range and use an integer dtype such as <code>long</code>.</td></tr>
+                            <tr><td><code>nn.Linear</code></td><td>Implements QKV, attention output, MLP, and language head projections.</td><td>Transforms only the final dimension: <code>[...,in]→[...,out]</code>.</td><td>It accepts rank-3/4 tensors; manual flattening is usually unnecessary.</td></tr>
+                            <tr><td><code>F.layer_norm</code></td><td>Allows a custom LayerNorm with optional bias.</td><td>Normalizes the last <code>C</code> features per token, then applies learned scale/bias.</td><td>LayerNorm differs from BatchNorm: it does not accumulate batch statistics.</td></tr>
+                            <tr><td><code>nn.GELU</code></td><td>Nonlinearity inside the 4×-expanded MLP.</td><td>Preserves shape while gating values smoothly.</td><td>The MLP usually owns most block parameters because <code>C→4C→C</code>.</td></tr>
+                            <tr><td><code>nn.Dropout</code></td><td>Regularizes embeddings, attention, and residual projections.</td><td>Stochastic only in training mode; identity in evaluation mode.</td><td><code>model.eval()</code> changes behavior but does not disable gradient recording.</td></tr>
+                            <tr><td><code>Tensor.view</code>, <code>transpose</code>, <code>contiguous</code></td><td>Splits channels into heads and later reassembles them.</td><td>Transpose changes strides; contiguous materializes a layout that can be viewed safely.</td><td>Shape and memory layout are different concepts.</td></tr>
+                            <tr><td><code>F.scaled_dot_product_attention</code></td><td>Runs causal attention and selects eligible optimized backends.</td><td>Q/K/V are <code>[B,H,T,D]</code>; set <code>is_causal=True</code>; pass zero dropout during evaluation.</td><td>Its boolean mask semantics differ from some padding-mask APIs; nanoGPT passes no explicit mask.</td></tr>
+                            <tr><td><code>F.cross_entropy</code></td><td>Scores every next-token prediction.</td><td>Flatten logits to <code>[B·T,V]</code> and targets to <code>[B·T]</code>; input is raw logits.</td><td>Do not softmax first; cross-entropy performs stable log-softmax internally.</td></tr>
+                            <tr><td><code>torch.no_grad</code> / <code>inference_mode</code></td><td>Disables autograd during evaluation and generation.</td><td>Use together with <code>eval()</code>: one controls gradient bookkeeping, the other module behavior.</td><td><code>inference_mode</code> is the stronger current inference-only context.</td></tr>
+                            <tr><td><code>torch.optim.AdamW</code></td><td>Updates parameters with adaptive moments and decoupled weight decay.</td><td>nanoGPT decays rank-2+ matrix/embedding weights and excludes biases/norm vectors.</td><td>Weight decay is not the same as adding L2 to Adam's loss gradient.</td></tr>
+                            <tr><td><code>torch.amp.autocast</code></td><td>Runs eligible CUDA operations in fp16 or bf16 while preserving sensitive operations.</td><td>It changes operation precision, not parameter storage by itself.</td><td>Measure numerical behavior; bf16 usually avoids fp16's narrow exponent problem.</td></tr>
+                            <tr><td><code>torch.amp.GradScaler</code></td><td>Protects fp16 gradients before backward and unscales before clipping.</td><td>Scale loss → backward → unscale → clip → step → update.</td><td>Current code should prefer <code>torch.amp.GradScaler("cuda", ...)</code>; the repo uses the older CUDA namespace.</td></tr>
+                            <tr><td><code>clip_grad_norm_</code></td><td>Bounds the global gradient norm before AdamW.</td><td>It rescales all gradients together when the combined norm exceeds the limit.</td><td>Clip after unscaling fp16 gradients, never before.</td></tr>
+                            <tr><td><code>zero_grad(set_to_none=True)</code></td><td>Releases gradient buffers after the optimizer step.</td><td>Future backward creates fresh gradients instead of filling existing zeros.</td><td>Code must tolerate <code>parameter.grad is None</code>.</td></tr>
+                            <tr><td><code>torch.compile</code></td><td>Optimizes repeated model execution after eager construction.</td><td>Compilation specializes under guards and can recompile when assumptions change.</td><td>Validate eager correctness first and measure compile warm-up separately.</td></tr>
+                            <tr><td><code>DistributedDataParallel</code></td><td>Runs one replica per process and all-reduces gradients.</td><td>Each rank consumes different batches; gradients synchronize before the optimizer step.</td><td>nanoGPT suppresses sync until the final accumulation microstep; the public API is <code>no_sync()</code>.</td></tr>
+                            <tr><td><code>state_dict</code>, <code>torch.save/load</code></td><td>Persists model, optimizer, architecture, iteration, best loss, and config.</td><td>Resume requires architecture compatibility and device-aware loading.</td><td>Treat checkpoints as executable/trusted artifacts; prefer safer loading practices for untrusted files.</td></tr>
+                            <tr><td><code>topk</code>, <code>softmax</code>, <code>multinomial</code>, <code>cat</code></td><td>Filters the last-position logits, samples one token, and appends it.</td><td>Temperature rescales logits; top-k masks candidates; multinomial samples probabilities.</td><td>These APIs change decoding behavior, not the model's learned distribution.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="nanogpt-training-system">
+                    <div>
+                        <span class="depth-kicker">train.py · one optimizer iteration</span>
+                        <h3>Microbatches become one mathematically scaled update</h3>
+                        <ol>
+                            <li><strong>Schedule:</strong> set the warmup/cosine learning rate on every optimizer group.</li>
+                            <li><strong>Forward:</strong> run token windows under autocast and compute mean cross-entropy.</li>
+                            <li><strong>Normalize:</strong> divide the loss by accumulation steps before backward.</li>
+                            <li><strong>Accumulate:</strong> add gradients across microbatches; prefetch the next batch.</li>
+                            <li><strong>Synchronize:</strong> in DDP, all-reduce only on the final microstep.</li>
+                            <li><strong>Stabilize:</strong> unscale fp16 gradients, then clip their global norm.</li>
+                            <li><strong>Update:</strong> AdamW changes parameters; GradScaler adjusts its scale.</li>
+                            <li><strong>Release:</strong> set gradients to <code>None</code> and continue.</li>
+                        </ol>
+                    </div>
+                    <aside>
+                        <h3>Batch arithmetic</h3>
+                        <div class="math-formula math-mini">\[\text{tokens/update}=B\times T\times A\times W\]</div>
+                        <p><strong>B</strong> microbatch rows, <strong>T</strong> context tokens, <strong>A</strong> accumulation steps per rank, and <strong>W</strong> distributed ranks. The GPT-2 config uses (12×1024×5×8=491{,}520) tokens per optimizer update.</p>
+                        <p>Increasing accumulation preserves activation memory per microbatch, but changes update frequency, data order, communication, and sometimes optimization behavior.</p>
+                    </aside>
+                </div>
+
+                <div class="nanogpt-systems-grid">
+                    <article><span>Data movement</span><h3>Memmap → pinned CPU → asynchronous GPU copy</h3><p>Random offsets slice contiguous next-token windows. Casting to int64 satisfies embedding lookup. Pinned host memory plus <code>non_blocking=True</code> allows copy/compute overlap when the hardware path supports it.</p></article>
+                    <article><span>Numerics</span><h3>TF32, bf16/fp16, and loss scaling solve different problems</h3><p>TF32 accelerates eligible float32 matrix multiplications on supported NVIDIA hardware. Autocast chooses operation dtypes. GradScaler protects fp16's small gradients; it is a no-op when disabled.</p></article>
+                    <article><span>Evaluation</span><h3>Validation is a repeated estimate, not one batch</h3><p><code>estimate_loss</code> switches to eval mode, averages many random batches under no-grad, records train and validation separately, then restores training mode.</p></article>
+                    <article><span>Checkpoint</span><h3>Weights alone cannot reproduce training</h3><p>A resumable checkpoint includes model and optimizer state, architecture arguments, iteration, best validation loss, and run config. Reproducibility also needs data/tokenizer identity, code revision, environment, and random states.</p></article>
+                    <article><span>Compilation</span><h3>Compile around a stable repeated region</h3><p>nanoGPT compiles the model before DDP wrapping. Modern <code>torch.compile</code> may specialize and recompile under guard changes; static shapes and stable control flow improve reuse.</p></article>
+                    <article><span>Distributed training</span><h3>DDP replicates parameters and averages gradients</h3><p>Each rank owns a full model and optimizer. Different data creates different local gradients; all-reduce makes every replica apply the same update. This is data parallelism, not model-state sharding.</p></article>
+                </div>
+
+                <div class="nanogpt-inference-deep-dive">
+                    <div>
+                        <span class="depth-kicker">sample.py + GPT.generate</span>
+                        <h3>Training predicts every position; inference needs only the newest one</h3>
+                        <p>With targets present, nanoGPT projects all hidden positions to <code>[B,T,V]</code> because every position contributes to the loss. Without targets, it applies the language head only to <code>x[:,[-1],:]</code>, preserving a length-one time dimension and avoiding unnecessary vocabulary projection at earlier positions.</p>
+                        <ol>
+                            <li>Crop the growing prompt to the last <code>block_size</code> tokens.</li>
+                            <li>Recompute the model over that full cropped context.</li>
+                            <li>Select the final-position logits and divide by temperature.</li>
+                            <li>Keep only top-k candidates by setting other logits to negative infinity.</li>
+                            <li>Softmax, sample with <code>multinomial</code>, append, and repeat.</li>
+                        </ol>
+                    </div>
+                    <aside>
+                        <h3>The KV-cache boundary</h3>
+                        <p><strong>nanoGPT does not cache keys and values.</strong> At every new token it recomputes attention projections and block activations for the cropped prefix. That keeps the educational code tiny but repeats work.</p>
+                        <p>A cached decoder stores each layer's past K/V tensors and computes only the new query/key/value. Compute falls substantially during token-by-token decoding, while cache memory grows roughly with <code>2 × L × B × T × C × bytes</code>.</p>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_cache">Visualize recompute vs cache</button>
+                    </aside>
+                </div>
+
+                <div class="nanogpt-python-labs">
+                    <div><span class="depth-kicker">Runnable Python visualizations</span><h3>Change one assumption and redraw the system</h3></div>
+                    <div class="nanogpt-lab-buttons">
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_batch">Shifted token batches</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_parameters">Parameter budget</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_forward">Forward shapes + attention</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_loss">Token loss + perplexity</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_accumulation">Gradient accumulation</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_schedule">Warmup + cosine decay</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_optimizer">AdamW parameter groups</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_sampling">Temperature + top-k</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_cache">KV-cache compute</button>
+                    </div>
+                </div>
+
+                <div class="nanogpt-mastery-checklist">
+                    <h3>You understand nanoGPT when you can derive these without running it</h3>
+                    <ol>
+                        <li>Every intermediate shape from <code>[B,T]</code> IDs to scalar loss.</li>
+                        <li>Why the target stream is the input stream shifted by exactly one token.</li>
+                        <li>Why the causal mask is still required during parallel teacher-forced training.</li>
+                        <li>Why tied embeddings save <code>V×C</code> parameters and share gradients.</li>
+                        <li>Why loss is divided before accumulated backward calls.</li>
+                        <li>Why fp16 gradients are unscaled before clipping.</li>
+                        <li>Why DDP synchronization can wait until the final microstep.</li>
+                        <li>Why validation loss and training loss must be estimated separately.</li>
+                        <li>Why original nanoGPT generation gets slower as the uncached context grows.</li>
+                    </ol>
+                </div>
+
+                <p class="reference-strip"><strong>Primary sources:</strong> <a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noopener">karpathy/nanoGPT</a> (<a href="https://github.com/karpathy/nanoGPT/blob/master/model.py" target="_blank" rel="noopener"><code>model.py</code></a>, <a href="https://github.com/karpathy/nanoGPT/blob/master/train.py" target="_blank" rel="noopener"><code>train.py</code></a>, <a href="https://github.com/karpathy/nanoGPT/blob/master/sample.py" target="_blank" rel="noopener"><code>sample.py</code></a>), the official <a href="https://docs.pytorch.org/docs/stable/nn.html" target="_blank" rel="noopener"><code>torch.nn</code> reference</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html" target="_blank" rel="noopener">scaled dot-product attention</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.compile.html" target="_blank" rel="noopener"><code>torch.compile</code></a>, and <a href="https://docs.pytorch.org/docs/stable/distributed" target="_blank" rel="noopener">distributed training</a>. Explanations and runnable labs are original.</p>
+            </section>
+
             <section id="python-course-lab" class="example-section python-course-lab">
                 <span class="depth-kicker">Run it in the isolated browser Python session</span>
-                <h2>From micrograd to mini GPT: the runnable lab</h2>
-                <p class="section-intro">Each example is dependency-free Python or bundled NumPy, so it executes locally even though the full PyTorch binary is not practical inside this static WebAssembly lesson. The labs reproduce PyTorch's essential algorithms—tensor math, reverse-mode autodiff, modules, optimizers, causal attention, Transformer blocks, language-model training, and inference sampling—then show the direct PyTorch mapping.</p>
+                <h2>From Python syntax to mini GPT: the runnable Pyodide lab</h2>
+                <p class="section-intro">Begin with function contracts, protocols, generators, and handled failure. Continue through NumPy creation, indexing, dtypes, views, broadcasting, ufuncs, randomness, and linear algebra. Then reproduce PyTorch's essential algorithms—tensor math, reverse-mode autodiff, modules, optimizers, causal attention, Transformer blocks, language-model training, and inference sampling—before mapping each mechanism to its exact PyTorch API.</p>
                 <div class="python-course-lab__grid">
                     <div class="python-course-editor">
                         <label for="pythonCourseExample">Example</label>
                         <select id="pythonCourseExample">
-                            <optgroup label="Python + tensors">
+                            <optgroup label="Python language foundations">
                                 <option value="core">Names, types, and control flow</option>
-                                <option value="numpy">Tensor shapes, strides, and broadcasting</option>
+                                <option value="python_language">Functions, match, dataclasses, JSON, and errors</option>
+                                <option value="python_protocols">Classes, dataset protocols, and generators</option>
+                            </optgroup>
+                            <optgroup label="NumPy array computing">
+                                <option value="numpy">Shape algebra and matrix broadcasting</option>
+                                <option value="numpy_indexing">Array creation, dtypes, masks, and indexing</option>
+                                <option value="numpy_memory">Views, copies, strides, ufuncs, and broadcasting</option>
+                                <option value="numpy_linalg">Random generators and stable linear algebra</option>
                             </optgroup>
                             <optgroup label="Build autograd and networks">
                                 <option value="autograd">Micrograd scalar autograd engine</option>
@@ -6869,6 +7342,17 @@ for token_ids, targets in train_loader:
                                 <option value="diagnostics">Activation and gradient diagnostics</option>
                                 <option value="bpe">Byte-pair tokenizer from scratch</option>
                                 <option value="scaling">GPT parameter and memory budget</option>
+                            </optgroup>
+                            <optgroup label="nanoGPT source visualizations">
+                                <option value="nanogpt_batch">Shifted token batches</option>
+                                <option value="nanogpt_parameters">GPT-2 parameter budget</option>
+                                <option value="nanogpt_forward">Forward shapes and attention</option>
+                                <option value="nanogpt_loss">Per-token loss and perplexity</option>
+                                <option value="nanogpt_accumulation">Gradient accumulation equivalence</option>
+                                <option value="nanogpt_schedule">Warmup and cosine learning rate</option>
+                                <option value="nanogpt_optimizer">AdamW parameter grouping</option>
+                                <option value="nanogpt_sampling">Temperature and top-k sampling</option>
+                                <option value="nanogpt_cache">Uncached versus KV-cached decoding</option>
                             </optgroup>
                         </select>
                         <div class="python-example-guide" id="pythonCourseGuide" aria-live="polite">
@@ -6891,14 +7375,14 @@ for token_ids, targets in train_loader:
                     </div>
                     <div class="python-course-output">
                         <div class="python-course-output__header"><strong>Output</strong><span id="pythonCourseStatus" aria-live="polite">Ready</span></div>
-                        <pre id="pythonCourseOutput" aria-live="polite">Choose an example and run it.</pre>
+                        <div id="pythonCourseOutput" class="python-course-result" aria-live="polite">Choose an example and run it.</div>
                         <div class="python-lab-challenges">
                             <strong>Strengthen the experiment</strong>
                             <ol id="pythonCourseChallenges"><li>Predict the output before running.</li><li>Change one value and explain the result.</li><li>Restore the example and connect each line to the math.</li></ol>
                         </div>
                     </div>
                 </div>
-                <p class="reference-strip"><strong>References:</strong> the <a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">official Python tutorial</a>, <a href="https://numpy.org/doc/stable/user/" target="_blank" rel="noopener">NumPy user guide</a>, <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">micrograd source</a>, and <a href="https://karpathy.github.io/2026/02/12/microgpt/" target="_blank" rel="noopener">Karpathy's dependency-free microgpt walkthrough</a>.</p>
+                <p class="reference-strip"><strong>References:</strong> the <a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">official Python tutorial</a>, <a href="https://numpy.org/doc/stable/user/index.html" target="_blank" rel="noopener">NumPy user guide</a>, <a href="https://docs.pytorch.org/docs/2.13/index.html" target="_blank" rel="noopener">PyTorch 2.13 documentation</a>, <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">micrograd source</a>, and <a href="https://karpathy.github.io/2026/02/12/microgpt/" target="_blank" rel="noopener">Karpathy's dependency-free microgpt walkthrough</a>.</p>
             </section>
 
             <section id="pytorch-inference" class="example-section pytorch-section">
@@ -7521,7 +8005,7 @@ for step in range(8):
     </footer>
 
     <script src="python-sandbox-client.js?v=20260713-local-runtimes-8"></script>
-    <script src="script.js?v=20260714-a11y-1"></script>
+    <script src="script.js?v=20260715-nanogpt-3"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
@@ -7530,10 +8014,10 @@ for step in range(8):
     <script src="math-foundations-lab.js"></script>
     <script src="math-deep-dive.js"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
-    <script src="research-expansion.js?v=20260714-research-2"></script>
-    <script src="pytorch-course-data.js?v=20260715-practical-2"></script>
-    <script src="learning-depth.js?v=20260715-practical-2"></script>
-    <script src="pytorch-deep-dive.js?v=20260715-practical-2"></script>
+    <script src="research-expansion.js?v=20260716-manim-media-1"></script>
+    <script src="pytorch-course-data.js?v=20260716-python-depth-1"></script>
+    <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
+    <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>
     <script src="reasoning-planning-deep-dive.js?v=20260715-practical-2"></script>
 </body>
 </html>

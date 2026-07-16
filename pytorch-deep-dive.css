@@ -839,6 +839,394 @@
     font-size: 0.84rem;
 }
 
+.nanogpt-section {
+    --nanogpt-accent: #0f766e;
+    --nanogpt-wash: color-mix(in srgb, var(--nanogpt-accent) 8%, var(--paper));
+    border-color: color-mix(in srgb, var(--nanogpt-accent) 42%, var(--section-border));
+}
+
+.nanogpt-status-note {
+    margin: 1rem 0 1.3rem;
+    padding: 1rem 1.1rem;
+    background: var(--helper-bg);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, var(--section-border));
+    border-left: 5px solid var(--accent-2);
+    border-radius: 14px;
+}
+
+.nanogpt-status-note p {
+    margin: 0.35rem 0 0;
+}
+
+.nanogpt-scope-grid,
+.nanogpt-systems-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 1.2rem 0;
+}
+
+.nanogpt-scope-grid article,
+.nanogpt-systems-grid article,
+.nanogpt-anatomy article {
+    min-width: 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.nanogpt-scope-grid span,
+.nanogpt-systems-grid span,
+.nanogpt-anatomy article > span,
+.nanogpt-manim-grid article > div > span {
+    color: var(--nanogpt-accent);
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.nanogpt-scope-grid h3,
+.nanogpt-systems-grid h3,
+.nanogpt-anatomy h3,
+.nanogpt-manim-grid h3 {
+    margin: 0.3rem 0;
+}
+
+.nanogpt-scope-grid p,
+.nanogpt-systems-grid p,
+.nanogpt-anatomy p,
+.nanogpt-manim-grid p {
+    margin: 0;
+    color: var(--ink-soft);
+}
+
+.nanogpt-source-explorer {
+    display: grid;
+    grid-template-columns: minmax(185px, 0.34fr) minmax(0, 1.66fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.nanogpt-step-tabs {
+    display: grid;
+    gap: 0.38rem;
+    align-content: start;
+    padding: 0.7rem;
+    background: var(--nanogpt-wash);
+    border: 1px solid color-mix(in srgb, var(--nanogpt-accent) 28%, var(--section-border));
+    border-radius: 14px;
+}
+
+.nanogpt-step-tabs button {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 750;
+    text-align: left;
+}
+
+.nanogpt-step-tabs button:hover,
+.nanogpt-step-tabs button:focus-visible {
+    border-color: var(--nanogpt-accent);
+}
+
+.nanogpt-step-tabs button[aria-selected="true"] {
+    color: white;
+    background: var(--nanogpt-accent);
+}
+
+.nanogpt-step-detail {
+    min-width: 0;
+    padding: 1.1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 16px;
+}
+
+.nanogpt-step-detail > span {
+    color: var(--nanogpt-accent);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.nanogpt-step-detail > h3 {
+    margin: 0.3rem 0;
+}
+
+.nanogpt-tensor-transition,
+.nanogpt-shape-spine {
+    display: flex;
+    align-items: stretch;
+    gap: 0.45rem;
+    margin: 1rem 0;
+}
+
+.nanogpt-tensor-transition > div,
+.nanogpt-shape-spine article {
+    min-width: 0;
+    flex: 1;
+    display: grid;
+    gap: 0.18rem;
+    align-content: center;
+    padding: 0.75rem;
+    text-align: center;
+    background: var(--nanogpt-wash);
+    border: 1px solid color-mix(in srgb, var(--nanogpt-accent) 25%, var(--section-border));
+    border-radius: 11px;
+}
+
+.nanogpt-tensor-transition i,
+.nanogpt-shape-spine > i {
+    align-self: center;
+    color: var(--nanogpt-accent);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.nanogpt-tensor-transition small,
+.nanogpt-shape-spine span {
+    color: var(--nanogpt-accent);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.nanogpt-tensor-transition strong,
+.nanogpt-shape-spine strong {
+    overflow-wrap: anywhere;
+}
+
+.nanogpt-step-contract {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin: 0;
+}
+
+.nanogpt-step-contract div {
+    min-width: 0;
+    padding: 0.7rem;
+    background: var(--canvas-bg);
+    border-radius: 10px;
+}
+
+.nanogpt-step-contract dt {
+    color: var(--nanogpt-accent);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.nanogpt-step-contract dd {
+    margin: 0.2rem 0 0;
+    line-height: 1.4;
+}
+
+.nanogpt-shape-spine {
+    margin: 1.4rem 0;
+}
+
+.nanogpt-shape-spine article {
+    background: var(--paper);
+}
+
+.nanogpt-shape-spine small {
+    color: var(--ink-soft);
+}
+
+.nanogpt-manim-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 1.4rem 0;
+}
+
+.nanogpt-manim-grid article {
+    min-width: 0;
+    overflow: hidden;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.nanogpt-manim-grid video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #07111f;
+}
+
+.nanogpt-manim-grid article > div {
+    padding: 0.85rem;
+}
+
+.nanogpt-anatomy {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 1.4rem 0;
+}
+
+.nanogpt-anatomy pre {
+    max-height: 330px;
+    margin: 0.8rem 0 0;
+}
+
+.nanogpt-subheading {
+    margin-top: 1.7rem;
+}
+
+.nanogpt-api-table {
+    max-width: 100%;
+    margin: 1rem 0 1.5rem;
+    overflow-x: auto;
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.nanogpt-api-table:focus-visible {
+    outline: 3px solid var(--nanogpt-accent);
+    outline-offset: 3px;
+}
+
+.nanogpt-api-table table {
+    width: 100%;
+    min-width: 1040px;
+    border-collapse: collapse;
+    background: var(--paper);
+}
+
+.nanogpt-api-table th,
+.nanogpt-api-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--grid);
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.42;
+}
+
+.nanogpt-api-table th {
+    position: sticky;
+    top: 0;
+    color: var(--ink);
+    background: var(--nanogpt-wash);
+}
+
+.nanogpt-api-table td:first-child {
+    white-space: nowrap;
+}
+
+.nanogpt-training-system,
+.nanogpt-inference-deep-dive {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    gap: 1rem;
+    align-items: start;
+    margin: 1.4rem 0;
+}
+
+.nanogpt-training-system > div,
+.nanogpt-training-system aside,
+.nanogpt-inference-deep-dive > div,
+.nanogpt-inference-deep-dive aside {
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.nanogpt-training-system ol,
+.nanogpt-inference-deep-dive ol,
+.nanogpt-mastery-checklist ol {
+    margin: 0.7rem 0 0 1.2rem;
+}
+
+.nanogpt-training-system li,
+.nanogpt-inference-deep-dive li,
+.nanogpt-mastery-checklist li {
+    margin-bottom: 0.42rem;
+}
+
+.nanogpt-training-system aside,
+.nanogpt-inference-deep-dive aside {
+    background: var(--nanogpt-wash);
+    border-color: color-mix(in srgb, var(--nanogpt-accent) 28%, var(--section-border));
+}
+
+.nanogpt-inference-deep-dive aside .notebook-btn {
+    margin-top: 0.5rem;
+}
+
+.nanogpt-python-labs {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.38fr) minmax(0, 1.62fr);
+    gap: 1rem;
+    align-items: center;
+    margin: 1.4rem 0;
+    padding: 1rem;
+    background: var(--nanogpt-wash);
+    border: 1px solid color-mix(in srgb, var(--nanogpt-accent) 30%, var(--section-border));
+    border-radius: 15px;
+}
+
+.nanogpt-python-labs h3 {
+    margin: 0.28rem 0 0;
+}
+
+.nanogpt-lab-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.nanogpt-mastery-checklist {
+    margin: 1.4rem 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-left: 5px solid var(--nanogpt-accent);
+    border-radius: 14px;
+}
+
+.python-course-result {
+    min-height: 270px;
+    padding: 0.9rem;
+    overflow: auto;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+.python-course-result > pre {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    white-space: pre-wrap;
+    background: transparent;
+    border: 0;
+}
+
+.python-course-result .cell-output-figure {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--grid);
+}
+
 .inference-contract-grid pre {
     min-height: 128px;
     margin: 0.7rem 0;
@@ -846,6 +1234,17 @@
 }
 
 @media (max-width: 1050px) {
+    .nanogpt-manim-grid,
+    .nanogpt-systems-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nanogpt-training-system,
+    .nanogpt-inference-deep-dive,
+    .nanogpt-python-labs {
+        grid-template-columns: 1fr;
+    }
+
     .zth-protocol {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -878,6 +1277,31 @@
 }
 
 @media (max-width: 800px) {
+    .nanogpt-source-explorer,
+    .nanogpt-anatomy {
+        grid-template-columns: 1fr;
+    }
+
+    .nanogpt-step-tabs {
+        display: flex;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+    }
+
+    .nanogpt-step-tabs button {
+        flex: 0 0 auto;
+        width: auto;
+    }
+
+    .nanogpt-shape-spine {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .nanogpt-shape-spine > i {
+        display: none;
+    }
+
     .zth-project-grid,
     .zth-manim-gallery {
         grid-template-columns: 1fr;
@@ -915,6 +1339,24 @@
 }
 
 @media (max-width: 620px) {
+    .nanogpt-scope-grid,
+    .nanogpt-systems-grid,
+    .nanogpt-manim-grid,
+    .nanogpt-step-contract,
+    .nanogpt-shape-spine {
+        grid-template-columns: 1fr;
+    }
+
+    .nanogpt-tensor-transition {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .nanogpt-tensor-transition i {
+        justify-self: center;
+        transform: rotate(90deg);
+    }
+
     .zth-protocol,
     .zth-practice-contract,
     .python-lab-brief {

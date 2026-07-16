@@ -385,6 +385,41 @@ window.MathManimCatalog = {
       "scenes": [
         "plan-dependencies"
       ]
+    },
+    "nanogpt-tensor-journey": {
+      "class": "NanoGPTTensorJourney",
+      "title": "nanoGPT is a sequence of tensor contracts",
+      "scenes": [
+        "nanogpt-tensors"
+      ]
+    },
+    "nanogpt-training-loop": {
+      "class": "NanoGPTTrainingLoop",
+      "title": "One nanoGPT update is built from microsteps",
+      "scenes": [
+        "nanogpt-training"
+      ]
+    },
+    "nanogpt-inference-loop": {
+      "class": "NanoGPTInferenceLoop",
+      "title": "Autoregressive inference scores one new token at a time",
+      "scenes": [
+        "nanogpt-inference"
+      ]
+    },
+    "python-object-references": {
+      "class": "PythonObjectReferences",
+      "title": "Python assignment binds names to objects",
+      "scenes": [
+        "python-objects"
+      ]
+    },
+    "numpy-broadcast-strides": {
+      "class": "NumpyBroadcastStrides",
+      "title": "NumPy views and broadcasting follow memory metadata",
+      "scenes": [
+        "numpy-memory"
+      ]
     }
   },
   "scenes": {
@@ -441,6 +476,11 @@ window.MathManimCatalog = {
     "causal-intervention": "causal-intervention-flow",
     "agent-evidence": "multi-agent-evidence-flow",
     "saga": "saga-compensation-flow",
-    "plan-dependencies": "temporal-plan-dependencies"
+    "plan-dependencies": "temporal-plan-dependencies",
+    "nanogpt-tensors": "nanogpt-tensor-journey",
+    "nanogpt-training": "nanogpt-training-loop",
+    "nanogpt-inference": "nanogpt-inference-loop",
+    "python-objects": "python-object-references",
+    "numpy-memory": "numpy-broadcast-strides"
   }
 };

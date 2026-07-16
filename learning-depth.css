@@ -661,6 +661,402 @@
     line-height: 1.4;
 }
 
+.python-depth-course {
+    --python-track-accent: var(--accent-1);
+}
+
+.python-depth-roadmap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: stretch;
+    margin: 1.4rem 0 2rem;
+}
+
+.python-depth-roadmap > a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 1rem;
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--panel-bg);
+    border: 1px solid var(--section-border);
+    border-top: 4px solid var(--accent-1);
+    border-radius: 14px;
+}
+
+.python-depth-roadmap > a:nth-of-type(2) {
+    border-top-color: var(--accent-2);
+}
+
+.python-depth-roadmap > a:nth-of-type(3) {
+    border-top-color: var(--accent-3);
+}
+
+.python-depth-roadmap > a:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+}
+
+.python-depth-roadmap > a > span,
+.python-manim-lesson span,
+.numpy-tutorial-grid article > span {
+    color: var(--helper-text);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.python-depth-roadmap > a > small {
+    color: var(--ink-soft);
+    line-height: 1.4;
+}
+
+.python-depth-roadmap > i {
+    align-self: center;
+    color: var(--accent-1);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.python-depth-track {
+    margin-top: 2rem;
+    padding: clamp(1rem, 2.5vw, 1.6rem);
+    background: var(--panel-bg);
+    border: 1px solid var(--section-border);
+    border-left: 5px solid var(--python-track-accent);
+    border-radius: 18px;
+    scroll-margin-top: 120px;
+}
+
+.numpy-depth-track {
+    --python-track-accent: var(--accent-2);
+}
+
+.pytorch-api-track {
+    --python-track-accent: var(--accent-3);
+}
+
+.python-track-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: 1.25rem;
+    align-items: end;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--section-border);
+}
+
+.python-track-heading > div {
+    position: relative;
+    padding-left: 3.8rem;
+}
+
+.python-track-heading h3 {
+    margin: 0;
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+}
+
+.python-track-heading > p {
+    color: var(--ink-soft);
+}
+
+.python-track-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    color: var(--paper);
+    background: var(--python-track-accent);
+    border-radius: 50%;
+    font-weight: 700;
+}
+
+.python-topic-map,
+.pytorch-foundation-sequence {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+}
+
+.python-topic-map article,
+.pytorch-foundation-sequence article {
+    position: relative;
+    min-width: 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.python-topic-map article > span,
+.pytorch-foundation-sequence article > span {
+    display: grid;
+    width: 1.7rem;
+    height: 1.7rem;
+    margin-bottom: 0.45rem;
+    place-items: center;
+    color: var(--paper);
+    background: var(--python-track-accent);
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.python-topic-map h4,
+.pytorch-foundation-sequence h4,
+.numpy-tutorial-grid h4,
+.python-manim-lesson h4 {
+    margin: 0.3rem 0 0.4rem;
+}
+
+.python-topic-map p,
+.pytorch-foundation-sequence p,
+.numpy-tutorial-grid p,
+.python-manim-lesson p {
+    color: var(--ink-soft);
+    font-size: 0.91rem;
+}
+
+.python-topic-map article > code {
+    display: block;
+    margin-top: 0.65rem;
+    overflow-wrap: anywhere;
+    color: var(--helper-text);
+}
+
+.python-tutorial-module {
+    margin-top: 0.85rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 13px;
+    overflow: hidden;
+}
+
+.python-tutorial-module summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.7rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+}
+
+.python-tutorial-module summary > span {
+    padding: 0.22rem 0.5rem;
+    color: var(--helper-text);
+    background: var(--helper-bg);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.python-tutorial-module summary > small {
+    color: var(--ink-soft);
+}
+
+.python-tutorial-module[open] summary {
+    border-bottom: 1px solid var(--section-border);
+}
+
+.python-module-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.python-module-grid > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+}
+
+.python-module-grid > div > p,
+.python-module-grid > div > ol {
+    color: var(--ink-soft);
+}
+
+.python-module-grid > div > ol {
+    display: grid;
+    gap: 0.35rem;
+    margin-left: 1.2rem;
+}
+
+.python-module-grid pre,
+.numpy-tutorial-grid pre {
+    margin: 0;
+    padding: 0.9rem;
+    overflow: auto;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.python-runtime-checklist {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.python-runtime-checklist > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.9rem;
+    background: var(--helper-bg);
+    border-radius: 11px;
+}
+
+.python-runtime-checklist span,
+.numpy-advanced-route span {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.python-manim-lesson {
+    display: grid;
+    grid-template-columns: minmax(300px, 1.05fr) minmax(260px, 0.95fr);
+    gap: 1rem;
+    align-items: center;
+    margin: 1.2rem 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.python-manim-lesson video {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--grid);
+    border-radius: 11px;
+    background: var(--canvas-bg);
+}
+
+.numpy-contract-table,
+.pytorch-api-depth-table {
+    margin-top: 1rem;
+    overflow-x: auto;
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.numpy-contract-table table,
+.pytorch-api-depth-table table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+    background: var(--paper);
+}
+
+.numpy-contract-table th,
+.numpy-contract-table td,
+.pytorch-api-depth-table th,
+.pytorch-api-depth-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--section-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.numpy-contract-table th,
+.pytorch-api-depth-table th {
+    color: var(--ink);
+    background: var(--helper-bg);
+}
+
+.numpy-contract-table td,
+.pytorch-api-depth-table td {
+    color: var(--ink-soft);
+}
+
+.numpy-contract-table tbody tr:last-child td,
+.pytorch-api-depth-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.numpy-tutorial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: 1rem;
+}
+
+.numpy-tutorial-grid article {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    min-width: 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.numpy-tutorial-grid article > p {
+    flex: 1;
+}
+
+.numpy-advanced-route,
+.python-depth-next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: stretch;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--helper-bg);
+    border-radius: 12px;
+}
+
+.numpy-advanced-route > strong,
+.python-depth-next > strong {
+    flex-basis: 100%;
+}
+
+.numpy-advanced-route > span {
+    flex: 1 1 240px;
+}
+
+.python-pyodide-boundary {
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    color: var(--ink-soft);
+    background: var(--helper-bg);
+    border-left: 4px solid var(--accent-3);
+    border-radius: 10px;
+}
+
+.python-depth-next > a {
+    flex: 1 1 210px;
+    padding: 0.65rem 0.8rem;
+    color: var(--helper-text);
+    text-align: center;
+    text-decoration: none;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+.python-depth-next > a:hover {
+    border-color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
 .python-course-lab__grid {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
@@ -750,7 +1146,10 @@
     .mitchell-definition,
     .mitchell-definition--ml,
     .backprop-plain-language,
-    .python-course-lab__grid {
+    .python-course-lab__grid,
+    .python-track-heading,
+    .python-module-grid,
+    .python-manim-lesson {
         grid-template-columns: 1fr;
     }
 
@@ -773,6 +1172,15 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .python-topic-map,
+    .pytorch-foundation-sequence {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .numpy-tutorial-grid {
+        grid-template-columns: 1fr;
+    }
+
     .python-concept-grid > article > p {
         min-height: 0;
     }
@@ -784,8 +1192,13 @@
     .training-loop-visual,
     .python-pipeline,
     .data-shape-visual,
-    .library-workflow {
+    .library-workflow,
+    .python-depth-roadmap {
         flex-direction: column;
+    }
+
+    .python-depth-roadmap {
+        display: flex;
     }
 
     .etp-arrow,
@@ -797,13 +1210,28 @@
         transform: rotate(90deg);
     }
 
+    .python-depth-roadmap > i {
+        transform: rotate(90deg);
+    }
+
     .etp-example-grid,
     .ml-vocabulary,
     .algorithm-intuition-grid,
     .python-concept-grid,
     .python-traps,
-    .data-principles-grid {
+    .data-principles-grid,
+    .python-topic-map,
+    .pytorch-foundation-sequence,
+    .python-runtime-checklist {
         grid-template-columns: 1fr;
+    }
+
+    .python-tutorial-module summary {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .python-tutorial-module summary > small {
+        grid-column: 1 / -1;
     }
 
     .ml-vocabulary article,

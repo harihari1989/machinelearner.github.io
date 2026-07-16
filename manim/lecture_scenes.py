@@ -1306,3 +1306,223 @@ class TemporalPlanDependencies(BrowserLectureScene):
         self.play(FadeIn(commit), GrowArrow(dependencies[5]), GrowArrow(dependencies[6]), run_time=0.85)
         self.play(Indicate(commit, color=MINT), run_time=0.4)
         self.formula("schedule = partial order + durations + resources + invariants")
+
+
+class NanoGPTTensorJourney(BrowserLectureScene):
+    title = "nanoGPT is a sequence of tensor contracts"
+    subtitle = "Track meaning and shape from token IDs to one scalar objective"
+    accent = MINT
+
+    def shape_node(self, label, shape, color, x):
+        node = self.node(label, color, 1.9).move_to([x, 0.35, 0])
+        shape_label = self.text(shape, 18, color, BOLD).next_to(node, DOWN, buff=0.16)
+        return VGroup(node, shape_label)
+
+    def animate_concept(self):
+        stages = VGroup(
+            self.shape_node("token IDs", "[B, T]", CYAN, -5.25),
+            self.shape_node("residual", "[B, T, C]", BLUE, -2.65),
+            self.shape_node("Q · K · V", "[B, H, T, D]", VIOLET, 0),
+            self.shape_node("logits", "[B, T, V]", GOLD, 2.7),
+            self.shape_node("loss", "scalar [ ]", CORAL, 5.25),
+        )
+        operation_names = ["embed + position", "split heads", "LM head", "cross-entropy"]
+        arrows = VGroup()
+        operations = VGroup()
+        for index in range(len(stages) - 1):
+            arrow = Arrow(stages[index][0].get_right(), stages[index + 1][0].get_left(), buff=0.07)
+            arrow.set_color([BLUE, VIOLET, GOLD, CORAL][index])
+            arrows.add(arrow)
+            operations.add(self.text(operation_names[index], 14, MUTED, BOLD).next_to(arrow, UP, buff=0.05))
+
+        self.play(LaggedStartMap(FadeIn, stages, lag_ratio=0.13), run_time=0.85)
+        self.play(LaggedStartMap(GrowArrow, arrows, lag_ratio=0.13),
+                  LaggedStartMap(FadeIn, operations, lag_ratio=0.13), run_time=1.15)
+
+        pulse = Dot(stages[0][0].get_center(), radius=0.11).set_color(MINT)
+        self.add(pulse)
+        for stage in stages[1:]:
+            self.play(pulse.animate.move_to(stage[0].get_center()), Indicate(stage[0], color=MINT), run_time=0.5)
+
+        invariant = self.text("B=batch · T=time · C=width · H=heads · D=C/H · V=vocabulary", 18, MUTED, BOLD)
+        invariant.move_to([0, -1.65, 0])
+        self.play(FadeIn(invariant), run_time=0.5)
+        self.formula("shape is an interface contract — element count alone is not enough")
+
+
+class NanoGPTTrainingLoop(BrowserLectureScene):
+    title = "One nanoGPT update is built from microsteps"
+    subtitle = "Scale before backward; synchronize once; unscale before clipping"
+    accent = BLUE
+
+    def animate_concept(self):
+        micro_positions = [np.array([-5.25, 1.25 - 0.72 * index, 0]) for index in range(4)]
+        microbatches = VGroup(*[
+            self.node(f"micro {index + 1}", [CYAN, BLUE, VIOLET, GOLD][index], 1.65).move_to(position)
+            for index, position in enumerate(micro_positions)
+        ])
+        accumulator = self.node("Σ grad / A", VIOLET, 2.15).move_to([-1.9, 0.15, 0])
+        sync = self.node("DDP sync", GOLD, 1.9).move_to([0.75, 0.15, 0])
+        stabilize = self.node("unscale + clip", CORAL, 2.35).move_to([3.35, 0.15, 0])
+        update = self.node("AdamW step", MINT, 2.05).move_to([5.45, 0.15, 0])
+
+        incoming = VGroup(*[
+            Arrow(micro.get_right(), accumulator.get_left() + (0.78 - 0.52 * index) * UP, buff=0.06)
+            .set_color([CYAN, BLUE, VIOLET, GOLD][index])
+            for index, micro in enumerate(microbatches)
+        ])
+        forward = Arrow(accumulator.get_right(), sync.get_left(), buff=0.07).set_color(GOLD)
+        stable_arrow = Arrow(sync.get_right(), stabilize.get_left(), buff=0.07).set_color(CORAL)
+        step_arrow = Arrow(stabilize.get_right(), update.get_left(), buff=0.07).set_color(MINT)
+
+        self.play(LaggedStartMap(FadeIn, microbatches, lag_ratio=0.11), FadeIn(accumulator), run_time=0.8)
+        for index, arrow in enumerate(incoming):
+            label = self.text(f"loss / 4  →  backward {index + 1}", 15, arrow.get_color(), BOLD)
+            label.move_to([-3.55, 1.47 - 0.7 * index, 0])
+            self.play(GrowArrow(arrow), FadeIn(label), Indicate(accumulator, color=arrow.get_color()), run_time=0.5)
+            self.play(FadeOut(label), run_time=0.15)
+
+        final_only = self.text("communicate on final microstep", 16, GOLD, BOLD).next_to(forward, UP, buff=0.08)
+        self.play(FadeIn(sync), GrowArrow(forward), FadeIn(final_only), run_time=0.65)
+        self.play(FadeIn(stabilize), GrowArrow(stable_arrow), run_time=0.55)
+        self.play(FadeIn(update), GrowArrow(step_arrow), run_time=0.7)
+        self.play(Indicate(update, color=MINT), run_time=0.35)
+        self.formula("tokens/update = B × T × accumulation × world size")
+
+
+class NanoGPTInferenceLoop(BrowserLectureScene):
+    title = "Autoregressive inference scores one new token at a time"
+    subtitle = "nanoGPT recomputes the prefix; a KV cache reuses past keys and values"
+    accent = GOLD
+
+    def token_row(self, values, color, y):
+        row = VGroup()
+        for value in values:
+            box = RoundedRectangle(width=0.72, height=0.62, corner_radius=0.1)
+            box.set_fill(color, 0.1).set_stroke(color, 1.8)
+            label = self.text(value, 17, INK, BOLD).move_to(box)
+            row.add(VGroup(box, label))
+        row.arrange(RIGHT, buff=0.1).move_to([-3.35, y, 0])
+        return row
+
+    def animate_concept(self):
+        prompt = self.token_row(["the", "model", "can", "learn"], CYAN, 0.65)
+        prompt_label = self.text("cropped context", 17, CYAN, BOLD).next_to(prompt, UP, buff=0.14)
+        forward = self.node("forward", BLUE, 1.75).move_to([-0.65, 0.65, 0])
+        logits = self.node("last logits", VIOLET, 1.9).move_to([1.65, 0.65, 0])
+        policy = self.node("temp + top-k", GOLD, 2.1).move_to([4.15, 0.65, 0])
+        sample = self.node("sample", CORAL, 1.65).move_to([6.25, 0.65, 0])
+        nodes = VGroup(prompt, forward, logits, policy, sample)
+        arrows = VGroup(
+            Arrow(prompt.get_right(), forward.get_left(), buff=0.06).set_color(BLUE),
+            Arrow(forward.get_right(), logits.get_left(), buff=0.06).set_color(VIOLET),
+            Arrow(logits.get_right(), policy.get_left(), buff=0.06).set_color(GOLD),
+            Arrow(policy.get_right(), sample.get_left(), buff=0.06).set_color(CORAL),
+        )
+        self.play(FadeIn(prompt), FadeIn(prompt_label), run_time=0.5)
+        self.play(LaggedStartMap(FadeIn, VGroup(forward, logits, policy, sample), lag_ratio=0.12),
+                  LaggedStartMap(GrowArrow, arrows, lag_ratio=0.12), run_time=1.05)
+
+        next_token = self.node("next: s", MINT, 1.65).move_to([6.25, -0.55, 0])
+        append_arrow = CurvedArrow(sample.get_bottom(), next_token.get_top(), angle=-0.35).set_color(MINT)
+        self.play(ShowCreation(append_arrow), FadeIn(next_token), run_time=0.55)
+        extended = self.token_row(["the", "model", "can", "learn", "s"], MINT, -0.75)
+        self.play(Transform(prompt, extended), FadeOut(next_token), FadeOut(append_arrow), run_time=0.75)
+
+        recompute = self.text("nanoGPT: recompute prefix attention  T×T", 18, CORAL, BOLD).move_to([-2.85, -1.75, 0])
+        cache = self.text("KV cache: new query reads cached keys  1×T", 18, MINT, BOLD).move_to([2.9, -1.75, 0])
+        divider = Line([0, -1.35, 0], [0, -2.05, 0]).set_stroke(GRID, 2)
+        self.play(FadeIn(recompute), ShowCreation(divider), FadeIn(cache), run_time=0.8)
+        self.formula("crop → forward → final logits → filter → sample → append → repeat")
+
+
+class PythonObjectReferences(BrowserLectureScene):
+    title = "Python assignment binds names to objects"
+    subtitle = "Aliasing shares mutation; copying creates an independent object"
+    accent = BLUE
+
+    def list_object(self, values, color, center):
+        cells = VGroup()
+        for value in values:
+            box = RoundedRectangle(width=1.15, height=0.72, corner_radius=0.11)
+            box.set_fill(color, 0.1).set_stroke(color, 2)
+            label = self.text(str(value), 19, INK, BOLD).move_to(box)
+            cells.add(VGroup(box, label))
+        cells.arrange(RIGHT, buff=0.04).move_to(center)
+        identity = self.text("mutable list object", 16, color, BOLD).next_to(cells, DOWN, buff=0.14)
+        return VGroup(cells, identity)
+
+    def name_label(self, name, center, color):
+        label = self.node(name, color, 1.2).move_to(center)
+        return label
+
+    def animate_concept(self):
+        shared = self.list_object([0.8, -0.2, 1.5], CYAN, [1.8, 0.65, 0])
+        name_a = self.name_label("a", [-4.6, 1.15, 0], BLUE)
+        arrow_a = Arrow(name_a.get_right(), shared[0].get_left(), buff=0.08).set_color(BLUE)
+        bind_a = self.text("a = readings", 17, BLUE, BOLD).move_to([-2.0, 1.48, 0])
+        self.play(FadeIn(shared), FadeIn(name_a), GrowArrow(arrow_a), FadeIn(bind_a), run_time=0.85)
+
+        name_b = self.name_label("b", [-4.6, 0.05, 0], VIOLET)
+        arrow_b = Arrow(name_b.get_right(), shared[0].get_left() + 0.22 * DOWN, buff=0.08).set_color(VIOLET)
+        bind_b = self.text("b = a  ·  no copy", 17, VIOLET, BOLD).move_to([-2.0, 0.28, 0])
+        self.play(FadeIn(name_b), GrowArrow(arrow_b), FadeIn(bind_b), run_time=0.75)
+
+        changed = self.list_object([0.8, 2.4, 1.5], CORAL, [1.8, 0.65, 0])
+        mutation = self.text("b[1] = 2.4  ·  a observes the same mutation", 18, CORAL, BOLD)
+        mutation.move_to([0, -0.8, 0])
+        self.play(Transform(shared, changed), FadeIn(mutation), Indicate(shared[0][1], color=CORAL), run_time=1.0)
+
+        independent = self.list_object([0.8, 2.4, 1.5], MINT, [2.5, -1.55, 0])
+        new_arrow_b = Arrow(name_b.get_right(), independent[0].get_left(), buff=0.08).set_color(MINT)
+        copy_label = self.text("b = a.copy()  ·  new outer list", 17, MINT, BOLD).move_to([-0.9, -1.65, 0])
+        self.play(FadeOut(mutation), Transform(arrow_b, new_arrow_b), FadeIn(independent), FadeIn(copy_label), run_time=1.05)
+        self.formula("assignment changes bindings; mutation changes an object; copy policy defines independence")
+
+
+class NumpyBroadcastStrides(BrowserLectureScene):
+    title = "NumPy views change metadata, not the buffer"
+    subtitle = "Broadcasting aligns dimensions from the right without explicit tiling"
+    accent = VIOLET
+
+    def cell_grid(self, values, rows, cols, color, center, width=0.92):
+        cells = VGroup()
+        for value in values:
+            box = RoundedRectangle(width=width, height=0.66, corner_radius=0.08)
+            box.set_fill(color, 0.1).set_stroke(color, 1.8)
+            label = self.text(str(value), 17, INK, BOLD).move_to(box)
+            cells.add(VGroup(box, label))
+        cells.arrange_in_grid(n_rows=rows, n_cols=cols, buff=0.06).move_to(center)
+        return cells
+
+    def animate_concept(self):
+        buffer = self.cell_grid([0, 1, 2, 3, 4, 5], 1, 6, CYAN, [0, 0.85, 0])
+        buffer_label = self.text("one contiguous float32 buffer  ·  4 bytes/item", 18, CYAN, BOLD)
+        buffer_label.next_to(buffer, UP, buff=0.18)
+        offset = self.text("byte offsets:  0     4     8     12    16    20", 15, MUTED, BOLD)
+        offset.next_to(buffer, DOWN, buff=0.15)
+        self.play(LaggedStartMap(FadeIn, buffer, lag_ratio=0.1), FadeIn(buffer_label), FadeIn(offset), run_time=0.9)
+
+        matrix = self.cell_grid([0, 1, 2, 3, 4, 5], 2, 3, VIOLET, [-2.7, 0.2, 0])
+        matrix_label = self.text("X.shape = (2, 3)", 18, VIOLET, BOLD).next_to(matrix, UP, buff=0.16)
+        stride_label = self.text("X.strides = (12, 4) bytes", 16, MUTED, BOLD).next_to(matrix, DOWN, buff=0.15)
+        self.play(Transform(buffer, matrix), Transform(buffer_label, matrix_label), Transform(offset, stride_label), run_time=1.15)
+
+        bias = self.cell_grid([10, 20, 30], 1, 3, GOLD, [2.75, -1.15, 0])
+        bias_label = self.text("b.shape = (3,)", 18, GOLD, BOLD).next_to(bias, DOWN, buff=0.14)
+        result = self.cell_grid([10, 21, 32, 13, 24, 35], 2, 3, MINT, [3.15, 0.7, 0])
+        result_label = self.text("X + b  →  shape (2, 3)", 18, MINT, BOLD).next_to(result, UP, buff=0.16)
+        arrows = VGroup(*[
+            Arrow(bias[index].get_top(), result[index].get_bottom(), buff=0.06).set_color(GOLD)
+            for index in range(3)
+        ], *[
+            Arrow(bias[index].get_top(), result[index + 3].get_bottom(), buff=0.06).set_color(GOLD)
+            for index in range(3)
+        ])
+        self.play(FadeIn(bias), FadeIn(bias_label), FadeIn(result), FadeIn(result_label), run_time=0.85)
+        self.play(LaggedStartMap(GrowArrow, arrows, lag_ratio=0.08), run_time=1.05)
+
+        virtual = self.text("size-one / missing leading axes expand virtually", 17, VIOLET, BOLD)
+        virtual.move_to([1.4, -2.05, 0])
+        self.play(FadeIn(virtual), Indicate(bias, color=GOLD), run_time=0.65)
+        self.formula("(2, 3) + (3,)  →  align right  →  (2, 3) + (1, 3)  →  (2, 3)")

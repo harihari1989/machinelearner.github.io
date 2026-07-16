@@ -295,7 +295,23 @@ print(f"recall={recall:.3f}")`
                     output.textContent = result.stderr;
                     if (status) status.textContent = 'Needs attention';
                 } else {
-                    output.textContent = result.stdout || result.result || 'Code completed without printed output.';
+                    output.innerHTML = '';
+                    const printed = result.stdout || result.result;
+                    if (printed) {
+                        const textBlock = document.createElement('pre');
+                        textBlock.textContent = printed;
+                        output.appendChild(textBlock);
+                    }
+                    const plot = typeof window.buildMachineLearnerPlot === 'function'
+                        ? window.buildMachineLearnerPlot(result.plot)
+                        : null;
+                    if (plot) {
+                        const figure = document.createElement('div');
+                        figure.className = 'cell-output-figure';
+                        figure.appendChild(plot);
+                        output.appendChild(figure);
+                    }
+                    if (!printed && !plot) output.textContent = 'Code completed without printed output.';
                     if (status) status.textContent = 'Complete';
                 }
             } catch (error) {
