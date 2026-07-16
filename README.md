@@ -23,7 +23,9 @@ The reasoning and planning chapter is an independent, exercise-driven tutorial i
 
 The Python chapter now continues from language and NumPy fundamentals through PyTorch tensors, autograd, modules, data loading, optimizers, mixed precision, distributed training, compilation, export, and inference. Architecture guides cover MLPs, CNNs, ResNets, recurrent networks, autoencoders, U-Nets, graph neural networks, Transformers, and GPT-style models.
 
-An original ten-project companion path follows Andrej Karpathy's *Neural Networks: Zero to Hero* sequence from micrograd and makemore through tokenization and GPT-2 reproduction. Sixteen runnable browser labs connect the mechanics to churn classification, demand forecasting, cost-sensitive fraud review, training-health diagnostics, byte-pair tokenization, and model scaling. Each applied lab names the dataset, practitioner skill, deliverable, and failure mode, while Manim clips animate gradient health and token merging.
+An original ten-project companion path follows Andrej Karpathy's *Neural Networks: Zero to Hero* sequence from micrograd and makemore through tokenization and GPT-2 reproduction. A source-grounded nanoGPT study then traces data preparation, tensor shapes, causal attention, parameter accounting, cross-entropy, gradient accumulation, AdamW, mixed precision, DDP, checkpointing, sampling, and KV-cache trade-offs while distinguishing the archived implementation from current PyTorch APIs.
+
+Twenty-five runnable browser labs connect the mechanics to churn classification, demand forecasting, cost-sensitive fraud review, training-health diagnostics, byte-pair tokenization, model scaling, and nine nanoGPT visual experiments. Each applied lab names the dataset, practitioner skill, deliverable, and failure mode, while Python-generated plots and Manim clips animate tensor flow, training updates, decoding, gradient health, and token merging.
 
 Serve the repository as a static site; browser security prevents the isolated
 Python worker from running when `index.html` is opened with a `file://` URL.

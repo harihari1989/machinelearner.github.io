@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="math-foundations-lab.css">
     <link rel="stylesheet" href="learning-depth.css?v=20260714-theme-1">
     <link rel="stylesheet" href="research-expansion.css">
-    <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-practical-2">
+    <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
     <script>
@@ -6149,6 +6149,7 @@ actions(state) -&gt; action list
                 <a href="#pytorch-architectures">Architectures</a>
                 <a href="#pytorch-training">Train + infer</a>
                 <a href="#pytorch-transformer">Transformer + GPT</a>
+                <a href="#nanogpt-deep-dive">nanoGPT</a>
                 <a href="#python-course-lab">Python lab</a>
             </nav>
 
@@ -6838,6 +6839,247 @@ for token_ids, targets in train_loader:
                 <p class="reference-strip"><strong>Primary sources:</strong> <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Vaswani et al., <em>Attention Is All You Need</em></a>, <a href="https://openai.com/index/language-unsupervised/" target="_blank" rel="noopener">OpenAI's original GPT work</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html" target="_blank" rel="noopener">PyTorch scaled dot-product attention</a>, and <a href="https://docs.pytorch.org/tutorials/intermediate/transformer_building_blocks.html" target="_blank" rel="noopener">official Transformer building blocks tutorial</a>.</p>
             </section>
 
+            <section id="nanogpt-deep-dive" class="example-section pytorch-section nanogpt-section">
+                <span class="depth-kicker">nanoGPT source study · model.py → train.py → sample.py</span>
+                <h2>Understand a complete GPT training system, tensor by tensor</h2>
+                <p class="section-intro">nanoGPT compresses a GPT-2-style model, training loop, checkpoint path, and sampler into a small codebase. That makes it unusually good for systems study: every tensor shape, state transition, and performance choice remains visible. This tutorial follows the repository at commit <code>3adf61e154c3</code> and explains the current PyTorch equivalent where APIs have evolved.</p>
+
+                <div class="nanogpt-status-note">
+                    <strong>Historical source, current explanations</strong>
+                    <p>The repository now labels nanoGPT “very old and deprecated” and points new users to nanochat. We study nanoGPT because its compact design exposes the foundations clearly—not because it is the recommended 2026 production recipe. The original code uses an older CUDA GradScaler spelling and performs generation without a KV cache; both distinctions are called out below.</p>
+                </div>
+
+                <div class="nanogpt-scope-grid">
+                    <article><span>Exact source behavior</span><h3>What the code actually does</h3><p>Character or GPT-2 BPE IDs become random contiguous windows, pass through pre-normalized decoder blocks, train with next-token cross-entropy, and sample autoregressively.</p></article>
+                    <article><span>Transferable foundation</span><h3>What remains universal</h3><p>Shape contracts, causal masking, residual streams, teacher forcing, gradient accumulation, optimizer state, evaluation boundaries, and checkpoint reproducibility.</p></article>
+                    <article><span>Modern extension</span><h3>What a newer stack adds</h3><p>Current AMP APIs, richer compilation controls, sharded training, more advanced kernels, KV caching, production tokenization, evaluation, and serving safeguards.</p></article>
+                </div>
+
+                <div class="nanogpt-source-explorer" id="nanoGPTSourceExplorer">
+                    <div class="nanogpt-step-tabs" role="tablist" aria-label="nanoGPT execution path">
+                        <button type="button" role="tab" aria-selected="true" data-nanogpt-step="data">1 · Data</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="batch">2 · Batch</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="embed">3 · Embed</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="block">4 · Block</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="loss">5 · Loss</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="backward">6 · Backward</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="step">7 · Update</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="checkpoint">8 · Checkpoint</button>
+                        <button type="button" role="tab" aria-selected="false" data-nanogpt-step="generate">9 · Generate</button>
+                    </div>
+                    <article class="nanogpt-step-detail" aria-live="polite">
+                        <span id="nanoGPTStepKicker">train.py · data preparation</span>
+                        <h3 id="nanoGPTStepTitle">Tokenize text into one contiguous integer stream</h3>
+                        <p id="nanoGPTStepConcept">The model never receives strings. A tokenizer maps text to integer IDs and writes training and validation streams separately.</p>
+                        <div class="nanogpt-tensor-transition">
+                            <div><small>Input</small><strong id="nanoGPTStepInput">UTF-8 text</strong></div>
+                            <i aria-hidden="true">→</i>
+                            <div><small>Operation</small><strong id="nanoGPTStepOperation">tokenizer.encode</strong></div>
+                            <i aria-hidden="true">→</i>
+                            <div><small>Output</small><strong id="nanoGPTStepOutput">uint16 token stream [N]</strong></div>
+                        </div>
+                        <dl class="nanogpt-step-contract">
+                            <div><dt>PyTorch / Python surface</dt><dd id="nanoGPTStepAPI">NumPy memmap · tokenizer metadata</dd></div>
+                            <div><dt>Invariant to test</dt><dd id="nanoGPTStepInvariant">Validation tokens never enter the training stream.</dd></div>
+                            <div><dt>Failure to recognize</dt><dd id="nanoGPTStepFailure">Changing the tokenizer changes every embedding index and invalidates a checkpoint.</dd></div>
+                            <div><dt>Source anchor</dt><dd id="nanoGPTStepSource">data/*/prepare.py → train.py:get_batch</dd></div>
+                        </dl>
+                    </article>
+                </div>
+
+                <div class="nanogpt-shape-spine" aria-label="nanoGPT tensor shape journey">
+                    <article><span>IDs</span><strong>[B, T]</strong><small>integer token indices</small></article><i>→</i>
+                    <article><span>Residual stream</span><strong>[B, T, C]</strong><small>token + position embeddings</small></article><i>→</i>
+                    <article><span>Q, K, V</span><strong>[B, H, T, D]</strong><small>C = H × D</small></article><i>→</i>
+                    <article><span>Logits</span><strong>[B, T, V]</strong><small>one vocabulary score vector per token</small></article><i>→</i>
+                    <article><span>Objective</span><strong>[]</strong><small>mean next-token cross-entropy</small></article>
+                </div>
+
+                <div class="nanogpt-manim-grid" aria-label="Animated nanoGPT system lessons">
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-tensor-journey.jpg">
+                            <source src="assets/manim/nanogpt-tensor-journey.webm" type="video/webm">
+                            <source src="assets/manim/nanogpt-tensor-journey.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Forward pass</span><h3>Follow every tensor contract</h3><p>Token IDs widen into the residual stream, split into attention heads, and project to vocabulary logits.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-training-loop.jpg">
+                            <source src="assets/manim/nanogpt-training-loop.webm" type="video/webm">
+                            <source src="assets/manim/nanogpt-training-loop.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Training system</span><h3>Accumulate, synchronize, clip, update</h3><p>Microbatches add scaled gradients; the final microstep synchronizes before AdamW changes parameters.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-inference-loop.jpg">
+                            <source src="assets/manim/nanogpt-inference-loop.webm" type="video/webm">
+                            <source src="assets/manim/nanogpt-inference-loop.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Inference</span><h3>Crop, score, filter, sample, append</h3><p>nanoGPT recomputes the cropped context each step; a KV cache is a later systems optimization, not part of this source loop.</p></div>
+                    </article>
+                </div>
+
+                <div class="nanogpt-anatomy">
+                    <article>
+                        <span>model.py · configuration</span>
+                        <h3>Configuration is an architectural contract</h3>
+                        <p><code>GPTConfig</code> fixes context length <code>T</code>, vocabulary <code>V</code>, layers <code>L</code>, heads <code>H</code>, width <code>C</code>, dropout, and bias behavior. <code>C % H == 0</code> must hold because each head receives <code>D=C/H</code> channels.</p>
+                        <pre><code>@dataclass
+class GPTConfig:
+    block_size: int = 1024
+    vocab_size: int = 50304
+    n_layer: int = 12
+    n_head: int = 12
+    n_embd: int = 768</code></pre>
+                    </article>
+                    <article>
+                        <span>model.py · state tree</span>
+                        <h3>Modules register every learnable object</h3>
+                        <p><code>ModuleDict</code> names the embedding, block stack, dropout, and final norm. <code>ModuleList</code> registers repeated blocks. Assigning the embedding weight to <code>lm_head.weight</code> ties input and output representations and removes a second <code>V×C</code> matrix.</p>
+                        <pre><code>self.transformer = nn.ModuleDict({
+    "wte": nn.Embedding(V, C),
+    "wpe": nn.Embedding(T, C),
+    "h": nn.ModuleList([Block(cfg) for _ in range(L)]),
+    "ln_f": LayerNorm(C, bias=cfg.bias),
+})
+self.lm_head.weight = self.transformer.wte.weight</code></pre>
+                    </article>
+                    <article>
+                        <span>model.py · pre-norm block</span>
+                        <h3>Each block learns two residual edits</h3>
+                        <p>LayerNorm prepares a stable view of the stream without replacing it. Attention adds a context-dependent edit; the MLP adds a position-wise feature edit. The identity path gives gradients and information a short route through deep stacks.</p>
+                        <pre><code>x = x + self.attn(self.ln_1(x))
+x = x + self.mlp(self.ln_2(x))</code></pre>
+                    </article>
+                    <article>
+                        <span>model.py · causal attention</span>
+                        <h3>One projection produces all Q, K, and V heads</h3>
+                        <p><code>Linear(C, 3C)</code> is split along channels, reshaped to <code>[B,T,H,D]</code>, and transposed to <code>[B,H,T,D]</code>. SDPA applies scaling, the triangular causal rule, softmax, dropout, and value aggregation with an eligible optimized kernel.</p>
+                        <pre><code>q, k, v = self.c_attn(x).split(C, dim=2)
+q = q.view(B, T, H, D).transpose(1, 2)
+y = F.scaled_dot_product_attention(
+    q, k, v, dropout_p=p if self.training else 0,
+    is_causal=True,
+)</code></pre>
+                    </article>
+                </div>
+
+                <h3 class="nanogpt-subheading">The PyTorch API atlas nanoGPT depends on</h3>
+                <div class="nanogpt-api-table" role="region" aria-label="nanoGPT PyTorch API reference" tabindex="0">
+                    <table>
+                        <thead><tr><th>API</th><th>Role in nanoGPT</th><th>Contract to understand</th><th>Common mistake / current note</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>nn.Module</code></td><td>Base for LayerNorm, attention, MLP, Block, and GPT.</td><td>Assign submodules and Parameters as attributes so traversal, device moves, modes, and serialization see them.</td><td>A plain Python list does not register contained modules; use <code>ModuleList</code>.</td></tr>
+                            <tr><td><code>nn.Parameter</code></td><td>Creates optional LayerNorm bias and cropped position weights.</td><td>A Tensor assigned as a Parameter becomes trainable module state.</td><td>Replacing a Parameter can invalidate optimizer references; surgery is safest before optimizer creation.</td></tr>
+                            <tr><td><code>ModuleDict</code> / <code>ModuleList</code></td><td>Names the Transformer tree and registers repeated blocks.</td><td>They behave like containers while preserving the module registry.</td><td>A container organizes state; it does not define data flow by itself.</td></tr>
+                            <tr><td><code>nn.Embedding(V,C)</code></td><td>Looks up token and position vectors.</td><td>Input is integer IDs; output appends an embedding dimension.</td><td>Token IDs must be in range and use an integer dtype such as <code>long</code>.</td></tr>
+                            <tr><td><code>nn.Linear</code></td><td>Implements QKV, attention output, MLP, and language head projections.</td><td>Transforms only the final dimension: <code>[...,in]→[...,out]</code>.</td><td>It accepts rank-3/4 tensors; manual flattening is usually unnecessary.</td></tr>
+                            <tr><td><code>F.layer_norm</code></td><td>Allows a custom LayerNorm with optional bias.</td><td>Normalizes the last <code>C</code> features per token, then applies learned scale/bias.</td><td>LayerNorm differs from BatchNorm: it does not accumulate batch statistics.</td></tr>
+                            <tr><td><code>nn.GELU</code></td><td>Nonlinearity inside the 4×-expanded MLP.</td><td>Preserves shape while gating values smoothly.</td><td>The MLP usually owns most block parameters because <code>C→4C→C</code>.</td></tr>
+                            <tr><td><code>nn.Dropout</code></td><td>Regularizes embeddings, attention, and residual projections.</td><td>Stochastic only in training mode; identity in evaluation mode.</td><td><code>model.eval()</code> changes behavior but does not disable gradient recording.</td></tr>
+                            <tr><td><code>Tensor.view</code>, <code>transpose</code>, <code>contiguous</code></td><td>Splits channels into heads and later reassembles them.</td><td>Transpose changes strides; contiguous materializes a layout that can be viewed safely.</td><td>Shape and memory layout are different concepts.</td></tr>
+                            <tr><td><code>F.scaled_dot_product_attention</code></td><td>Runs causal attention and selects eligible optimized backends.</td><td>Q/K/V are <code>[B,H,T,D]</code>; set <code>is_causal=True</code>; pass zero dropout during evaluation.</td><td>Its boolean mask semantics differ from some padding-mask APIs; nanoGPT passes no explicit mask.</td></tr>
+                            <tr><td><code>F.cross_entropy</code></td><td>Scores every next-token prediction.</td><td>Flatten logits to <code>[B·T,V]</code> and targets to <code>[B·T]</code>; input is raw logits.</td><td>Do not softmax first; cross-entropy performs stable log-softmax internally.</td></tr>
+                            <tr><td><code>torch.no_grad</code> / <code>inference_mode</code></td><td>Disables autograd during evaluation and generation.</td><td>Use together with <code>eval()</code>: one controls gradient bookkeeping, the other module behavior.</td><td><code>inference_mode</code> is the stronger current inference-only context.</td></tr>
+                            <tr><td><code>torch.optim.AdamW</code></td><td>Updates parameters with adaptive moments and decoupled weight decay.</td><td>nanoGPT decays rank-2+ matrix/embedding weights and excludes biases/norm vectors.</td><td>Weight decay is not the same as adding L2 to Adam's loss gradient.</td></tr>
+                            <tr><td><code>torch.amp.autocast</code></td><td>Runs eligible CUDA operations in fp16 or bf16 while preserving sensitive operations.</td><td>It changes operation precision, not parameter storage by itself.</td><td>Measure numerical behavior; bf16 usually avoids fp16's narrow exponent problem.</td></tr>
+                            <tr><td><code>torch.amp.GradScaler</code></td><td>Protects fp16 gradients before backward and unscales before clipping.</td><td>Scale loss → backward → unscale → clip → step → update.</td><td>Current code should prefer <code>torch.amp.GradScaler("cuda", ...)</code>; the repo uses the older CUDA namespace.</td></tr>
+                            <tr><td><code>clip_grad_norm_</code></td><td>Bounds the global gradient norm before AdamW.</td><td>It rescales all gradients together when the combined norm exceeds the limit.</td><td>Clip after unscaling fp16 gradients, never before.</td></tr>
+                            <tr><td><code>zero_grad(set_to_none=True)</code></td><td>Releases gradient buffers after the optimizer step.</td><td>Future backward creates fresh gradients instead of filling existing zeros.</td><td>Code must tolerate <code>parameter.grad is None</code>.</td></tr>
+                            <tr><td><code>torch.compile</code></td><td>Optimizes repeated model execution after eager construction.</td><td>Compilation specializes under guards and can recompile when assumptions change.</td><td>Validate eager correctness first and measure compile warm-up separately.</td></tr>
+                            <tr><td><code>DistributedDataParallel</code></td><td>Runs one replica per process and all-reduces gradients.</td><td>Each rank consumes different batches; gradients synchronize before the optimizer step.</td><td>nanoGPT suppresses sync until the final accumulation microstep; the public API is <code>no_sync()</code>.</td></tr>
+                            <tr><td><code>state_dict</code>, <code>torch.save/load</code></td><td>Persists model, optimizer, architecture, iteration, best loss, and config.</td><td>Resume requires architecture compatibility and device-aware loading.</td><td>Treat checkpoints as executable/trusted artifacts; prefer safer loading practices for untrusted files.</td></tr>
+                            <tr><td><code>topk</code>, <code>softmax</code>, <code>multinomial</code>, <code>cat</code></td><td>Filters the last-position logits, samples one token, and appends it.</td><td>Temperature rescales logits; top-k masks candidates; multinomial samples probabilities.</td><td>These APIs change decoding behavior, not the model's learned distribution.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="nanogpt-training-system">
+                    <div>
+                        <span class="depth-kicker">train.py · one optimizer iteration</span>
+                        <h3>Microbatches become one mathematically scaled update</h3>
+                        <ol>
+                            <li><strong>Schedule:</strong> set the warmup/cosine learning rate on every optimizer group.</li>
+                            <li><strong>Forward:</strong> run token windows under autocast and compute mean cross-entropy.</li>
+                            <li><strong>Normalize:</strong> divide the loss by accumulation steps before backward.</li>
+                            <li><strong>Accumulate:</strong> add gradients across microbatches; prefetch the next batch.</li>
+                            <li><strong>Synchronize:</strong> in DDP, all-reduce only on the final microstep.</li>
+                            <li><strong>Stabilize:</strong> unscale fp16 gradients, then clip their global norm.</li>
+                            <li><strong>Update:</strong> AdamW changes parameters; GradScaler adjusts its scale.</li>
+                            <li><strong>Release:</strong> set gradients to <code>None</code> and continue.</li>
+                        </ol>
+                    </div>
+                    <aside>
+                        <h3>Batch arithmetic</h3>
+                        <div class="math-formula math-mini">\[\text{tokens/update}=B\times T\times A\times W\]</div>
+                        <p><strong>B</strong> microbatch rows, <strong>T</strong> context tokens, <strong>A</strong> accumulation steps per rank, and <strong>W</strong> distributed ranks. The GPT-2 config uses (12×1024×5×8=491{,}520) tokens per optimizer update.</p>
+                        <p>Increasing accumulation preserves activation memory per microbatch, but changes update frequency, data order, communication, and sometimes optimization behavior.</p>
+                    </aside>
+                </div>
+
+                <div class="nanogpt-systems-grid">
+                    <article><span>Data movement</span><h3>Memmap → pinned CPU → asynchronous GPU copy</h3><p>Random offsets slice contiguous next-token windows. Casting to int64 satisfies embedding lookup. Pinned host memory plus <code>non_blocking=True</code> allows copy/compute overlap when the hardware path supports it.</p></article>
+                    <article><span>Numerics</span><h3>TF32, bf16/fp16, and loss scaling solve different problems</h3><p>TF32 accelerates eligible float32 matrix multiplications on supported NVIDIA hardware. Autocast chooses operation dtypes. GradScaler protects fp16's small gradients; it is a no-op when disabled.</p></article>
+                    <article><span>Evaluation</span><h3>Validation is a repeated estimate, not one batch</h3><p><code>estimate_loss</code> switches to eval mode, averages many random batches under no-grad, records train and validation separately, then restores training mode.</p></article>
+                    <article><span>Checkpoint</span><h3>Weights alone cannot reproduce training</h3><p>A resumable checkpoint includes model and optimizer state, architecture arguments, iteration, best validation loss, and run config. Reproducibility also needs data/tokenizer identity, code revision, environment, and random states.</p></article>
+                    <article><span>Compilation</span><h3>Compile around a stable repeated region</h3><p>nanoGPT compiles the model before DDP wrapping. Modern <code>torch.compile</code> may specialize and recompile under guard changes; static shapes and stable control flow improve reuse.</p></article>
+                    <article><span>Distributed training</span><h3>DDP replicates parameters and averages gradients</h3><p>Each rank owns a full model and optimizer. Different data creates different local gradients; all-reduce makes every replica apply the same update. This is data parallelism, not model-state sharding.</p></article>
+                </div>
+
+                <div class="nanogpt-inference-deep-dive">
+                    <div>
+                        <span class="depth-kicker">sample.py + GPT.generate</span>
+                        <h3>Training predicts every position; inference needs only the newest one</h3>
+                        <p>With targets present, nanoGPT projects all hidden positions to <code>[B,T,V]</code> because every position contributes to the loss. Without targets, it applies the language head only to <code>x[:,[-1],:]</code>, preserving a length-one time dimension and avoiding unnecessary vocabulary projection at earlier positions.</p>
+                        <ol>
+                            <li>Crop the growing prompt to the last <code>block_size</code> tokens.</li>
+                            <li>Recompute the model over that full cropped context.</li>
+                            <li>Select the final-position logits and divide by temperature.</li>
+                            <li>Keep only top-k candidates by setting other logits to negative infinity.</li>
+                            <li>Softmax, sample with <code>multinomial</code>, append, and repeat.</li>
+                        </ol>
+                    </div>
+                    <aside>
+                        <h3>The KV-cache boundary</h3>
+                        <p><strong>nanoGPT does not cache keys and values.</strong> At every new token it recomputes attention projections and block activations for the cropped prefix. That keeps the educational code tiny but repeats work.</p>
+                        <p>A cached decoder stores each layer's past K/V tensors and computes only the new query/key/value. Compute falls substantially during token-by-token decoding, while cache memory grows roughly with <code>2 × L × B × T × C × bytes</code>.</p>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_cache">Visualize recompute vs cache</button>
+                    </aside>
+                </div>
+
+                <div class="nanogpt-python-labs">
+                    <div><span class="depth-kicker">Runnable Python visualizations</span><h3>Change one assumption and redraw the system</h3></div>
+                    <div class="nanogpt-lab-buttons">
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_batch">Shifted token batches</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_parameters">Parameter budget</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_forward">Forward shapes + attention</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_loss">Token loss + perplexity</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_accumulation">Gradient accumulation</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_schedule">Warmup + cosine decay</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_optimizer">AdamW parameter groups</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_sampling">Temperature + top-k</button>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="nanogpt_cache">KV-cache compute</button>
+                    </div>
+                </div>
+
+                <div class="nanogpt-mastery-checklist">
+                    <h3>You understand nanoGPT when you can derive these without running it</h3>
+                    <ol>
+                        <li>Every intermediate shape from <code>[B,T]</code> IDs to scalar loss.</li>
+                        <li>Why the target stream is the input stream shifted by exactly one token.</li>
+                        <li>Why the causal mask is still required during parallel teacher-forced training.</li>
+                        <li>Why tied embeddings save <code>V×C</code> parameters and share gradients.</li>
+                        <li>Why loss is divided before accumulated backward calls.</li>
+                        <li>Why fp16 gradients are unscaled before clipping.</li>
+                        <li>Why DDP synchronization can wait until the final microstep.</li>
+                        <li>Why validation loss and training loss must be estimated separately.</li>
+                        <li>Why original nanoGPT generation gets slower as the uncached context grows.</li>
+                    </ol>
+                </div>
+
+                <p class="reference-strip"><strong>Primary sources:</strong> <a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noopener">karpathy/nanoGPT</a> (<a href="https://github.com/karpathy/nanoGPT/blob/master/model.py" target="_blank" rel="noopener"><code>model.py</code></a>, <a href="https://github.com/karpathy/nanoGPT/blob/master/train.py" target="_blank" rel="noopener"><code>train.py</code></a>, <a href="https://github.com/karpathy/nanoGPT/blob/master/sample.py" target="_blank" rel="noopener"><code>sample.py</code></a>), the official <a href="https://docs.pytorch.org/docs/stable/nn.html" target="_blank" rel="noopener"><code>torch.nn</code> reference</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html" target="_blank" rel="noopener">scaled dot-product attention</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.compile.html" target="_blank" rel="noopener"><code>torch.compile</code></a>, and <a href="https://docs.pytorch.org/docs/stable/distributed" target="_blank" rel="noopener">distributed training</a>. Explanations and runnable labs are original.</p>
+            </section>
+
             <section id="python-course-lab" class="example-section python-course-lab">
                 <span class="depth-kicker">Run it in the isolated browser Python session</span>
                 <h2>From micrograd to mini GPT: the runnable lab</h2>
@@ -6870,6 +7112,17 @@ for token_ids, targets in train_loader:
                                 <option value="bpe">Byte-pair tokenizer from scratch</option>
                                 <option value="scaling">GPT parameter and memory budget</option>
                             </optgroup>
+                            <optgroup label="nanoGPT source visualizations">
+                                <option value="nanogpt_batch">Shifted token batches</option>
+                                <option value="nanogpt_parameters">GPT-2 parameter budget</option>
+                                <option value="nanogpt_forward">Forward shapes and attention</option>
+                                <option value="nanogpt_loss">Per-token loss and perplexity</option>
+                                <option value="nanogpt_accumulation">Gradient accumulation equivalence</option>
+                                <option value="nanogpt_schedule">Warmup and cosine learning rate</option>
+                                <option value="nanogpt_optimizer">AdamW parameter grouping</option>
+                                <option value="nanogpt_sampling">Temperature and top-k sampling</option>
+                                <option value="nanogpt_cache">Uncached versus KV-cached decoding</option>
+                            </optgroup>
                         </select>
                         <div class="python-example-guide" id="pythonCourseGuide" aria-live="polite">
                             <strong id="pythonCourseGoal">Goal: read Python as a data pipeline.</strong>
@@ -6891,7 +7144,7 @@ for token_ids, targets in train_loader:
                     </div>
                     <div class="python-course-output">
                         <div class="python-course-output__header"><strong>Output</strong><span id="pythonCourseStatus" aria-live="polite">Ready</span></div>
-                        <pre id="pythonCourseOutput" aria-live="polite">Choose an example and run it.</pre>
+                        <div id="pythonCourseOutput" class="python-course-result" aria-live="polite">Choose an example and run it.</div>
                         <div class="python-lab-challenges">
                             <strong>Strengthen the experiment</strong>
                             <ol id="pythonCourseChallenges"><li>Predict the output before running.</li><li>Change one value and explain the result.</li><li>Restore the example and connect each line to the math.</li></ol>
@@ -7521,7 +7774,7 @@ for step in range(8):
     </footer>
 
     <script src="python-sandbox-client.js?v=20260713-local-runtimes-8"></script>
-    <script src="script.js?v=20260714-a11y-1"></script>
+    <script src="script.js?v=20260715-nanogpt-3"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
@@ -7531,9 +7784,9 @@ for step in range(8):
     <script src="math-deep-dive.js"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
     <script src="research-expansion.js?v=20260714-research-2"></script>
-    <script src="pytorch-course-data.js?v=20260715-practical-2"></script>
-    <script src="learning-depth.js?v=20260715-practical-2"></script>
-    <script src="pytorch-deep-dive.js?v=20260715-practical-2"></script>
+    <script src="pytorch-course-data.js?v=20260715-nanogpt-3"></script>
+    <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
+    <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>
     <script src="reasoning-planning-deep-dive.js?v=20260715-practical-2"></script>
 </body>
 </html>

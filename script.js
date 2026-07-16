@@ -11038,6 +11038,8 @@ function buildNotebookPlot(spec) {
     return svg;
 }
 
+window.buildMachineLearnerPlot = buildNotebookPlot;
+
 async function runNotebookCode(code, outputEl, statusEl, sessionProvider = ensureNotebookSession) {
     if (!outputEl) return;
     const trimmed = code.trim();
