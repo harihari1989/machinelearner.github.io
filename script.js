@@ -11646,6 +11646,14 @@ function setupNotebookLab() {
     const runButtons = Array.from(lab.querySelectorAll('.cell-run'));
     const outputs = cells.map(cell => cell.querySelector('.cell-output')).filter(Boolean);
 
+    cells.forEach((cell, index) => {
+        const editor = cell.querySelector('.cell-editor');
+        const title = cell.querySelector('.cell-title')?.textContent.trim();
+        if (editor && !editor.getAttribute('aria-label')) {
+            editor.setAttribute('aria-label', title ? `${title} Python code` : `Notebook Python cell ${index + 1}`);
+        }
+    });
+
     const runCell = async (cell) => {
         const editor = cell.querySelector('.cell-editor');
         const output = cell.querySelector('.cell-output');

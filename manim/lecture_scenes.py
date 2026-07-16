@@ -1085,3 +1085,224 @@ class PolicyGradientGeometry(BrowserLectureScene):
         note.move_to([0, -2.32, 0])
         self.play(FadeIn(note), run_time=0.55)
         self.formula("∇θJ = E[ ∇θ log πθ(A|S) · Â ]")
+
+
+class ActivationGradientHealth(BrowserLectureScene):
+    title = "Training health is visible layer by layer"
+    subtitle = "Measure activations and gradients before changing the optimizer"
+    accent = CORAL
+
+    def meter(self, center, value, color):
+        track = RoundedRectangle(width=3.2, height=0.42, corner_radius=0.1)
+        track.set_fill("#FFFFFF", 1).set_stroke(GRID, 1.5).move_to(center)
+        width = max(0.08, 3.05 * value)
+        fill = RoundedRectangle(width=width, height=0.3, corner_radius=0.08)
+        fill.set_fill(color, 0.72).set_stroke(color, 1)
+        fill.move_to(track.get_left() + RIGHT * (width / 2 + 0.08))
+        value_label = self.text(f"{value:.0%}", 15, INK, BOLD).move_to(track.get_right() + 0.35 * RIGHT)
+        return VGroup(track, fill, value_label)
+
+    def meter_group(self, values, x, color):
+        meters = VGroup()
+        for index, value in enumerate(values):
+            meters.add(self.meter(np.array([x, 1.35 - 0.72 * index, 0]), value, color))
+        return meters
+
+    def animate_concept(self):
+        activation_label = self.text("activation saturation", 19, CORAL, BOLD).move_to([-2.25, 1.9, 0])
+        gradient_label = self.text("relative gradient", 19, VIOLET, BOLD).move_to([2.35, 1.9, 0])
+        layer_labels = VGroup(*[
+            self.text(f"L{index}", 16, MUTED, BOLD).move_to([-4.35, 1.35 - 0.72 * (index - 1), 0])
+            for index in range(1, 5)
+        ])
+        bad_activations = self.meter_group([0.98, 0.94, 0.89, 0.85], -2.2, CORAL)
+        bad_gradients = self.meter_group([0.04, 0.11, 0.36, 1.0], 2.25, VIOLET)
+        warning = self.text("overscaled weights  →  saturation + distorted gradient flow", 19, CORAL, BOLD)
+        warning.move_to([0, -1.8, 0])
+
+        self.play(FadeIn(activation_label), FadeIn(gradient_label), FadeIn(layer_labels), run_time=0.55)
+        self.play(LaggedStartMap(FadeIn, bad_activations, lag_ratio=0.1),
+                  LaggedStartMap(FadeIn, bad_gradients, lag_ratio=0.1), run_time=1.0)
+        self.play(FadeIn(warning), Indicate(bad_activations[0], color=CORAL),
+                  Indicate(bad_gradients[0], color=VIOLET), run_time=0.75)
+
+        healthy_activations = self.meter_group([0.08, 0.06, 0.05, 0.04], -2.2, MINT)
+        healthy_gradients = self.meter_group([0.62, 0.58, 0.54, 0.49], 2.25, BLUE)
+        healthy = self.text("scaled initialization  →  usable nonlinearities + balanced signal", 19, MINT, BOLD)
+        healthy.move_to(warning)
+        self.play(Transform(bad_activations, healthy_activations),
+                  Transform(bad_gradients, healthy_gradients),
+                  Transform(warning, healthy), run_time=1.4)
+        self.formula("inspect: mean · standard deviation · saturation · gradient norm")
+
+
+class BPETokenMerge(BrowserLectureScene):
+    title = "A tokenizer learns reusable text chunks"
+    subtitle = "Frequent adjacent symbols merge while base symbols preserve coverage"
+    accent = VIOLET
+
+    def token_row(self, tokens, color):
+        boxes = VGroup()
+        for token in tokens:
+            width = max(0.82, 0.44 * len(token) + 0.42)
+            box = RoundedRectangle(width=width, height=0.72, corner_radius=0.13)
+            box.set_fill(color, 0.1).set_stroke(color, 2)
+            label = self.text(token, 22, INK, BOLD).move_to(box)
+            boxes.add(VGroup(box, label))
+        boxes.arrange(RIGHT, buff=0.16).move_to([0, 0.18, 0])
+        return boxes
+
+    def animate_concept(self):
+        stages = [
+            (["r", "e", "s", "e", "t"], CYAN, "base symbols · 5 tokens"),
+            (["re", "s", "e", "t"], BLUE, "merge the most frequent pair · 4 tokens"),
+            (["res", "e", "t"], VIOLET, "apply the learned merge everywhere · 3 tokens"),
+            (["res", "et"], GOLD, "new chunks become candidates · 2 tokens"),
+            (["reset"], MINT, "domain word compressed · 1 token"),
+        ]
+        row = self.token_row(stages[0][0], stages[0][1])
+        caption = self.text(stages[0][2], 20, MUTED, BOLD).move_to([0, -1.05, 0])
+        frequency = self.text("count adjacent pairs across the training corpus", 18, CORAL, BOLD)
+        frequency.move_to([0, 1.55, 0])
+        self.play(FadeIn(frequency), LaggedStartMap(FadeIn, row, lag_ratio=0.1), FadeIn(caption), run_time=0.85)
+        for tokens, color, message in stages[1:]:
+            next_row = self.token_row(tokens, color)
+            next_caption = self.text(message, 20, color, BOLD).move_to(caption)
+            self.play(Transform(row, next_row), Transform(caption, next_caption), run_time=0.9)
+            self.play(Indicate(row, color=color), run_time=0.35)
+        self.formula("tokenizer = base vocabulary + ordered merge rules")
+
+
+class CausalInterventionFlow(BrowserLectureScene):
+    title = "Intervention breaks a causal assignment rule"
+    subtitle = "Observing treatment is different from deliberately setting treatment"
+    accent = GOLD
+
+    def animate_concept(self):
+        severity = self.node("severity", CORAL, 2.0).move_to([-4.2, 0.45, 0])
+        treatment = self.node("treatment", GOLD, 2.1).move_to([0, 0.45, 0])
+        recovery = self.node("recovery", MINT, 2.0).move_to([4.2, 0.45, 0])
+        confounded = Arrow(severity.get_right(), treatment.get_left(), buff=0.08).set_color(CORAL)
+        causal = Arrow(treatment.get_right(), recovery.get_left(), buff=0.08).set_color(MINT)
+        direct = CurvedArrow(severity.get_top(), recovery.get_top(), angle=-0.42).set_color(VIOLET)
+        direct_label = self.text("illness also affects outcome", 16, VIOLET, BOLD).next_to(direct, UP, buff=0.02)
+        observed = self.text("observed recovery among treated: 54.5%", 19, CORAL, BOLD).move_to([0, -1.05, 0])
+
+        self.play(LaggedStartMap(FadeIn, VGroup(severity, treatment, recovery), lag_ratio=0.13), run_time=0.7)
+        self.play(GrowArrow(confounded), GrowArrow(causal), ShowCreation(direct), FadeIn(direct_label), run_time=0.9)
+        self.play(FadeIn(observed), Indicate(severity, color=CORAL), run_time=0.65)
+
+        intervention = self.text("do(treatment = 1)", 22, GOLD, BOLD).move_to([0, 1.65, 0])
+        cut = VGroup(
+            Line([-0.35, 0.1, 0], [0.05, 0.8, 0]).set_stroke(CORAL, 4),
+            Line([-0.35, 0.8, 0], [0.05, 0.1, 0]).set_stroke(CORAL, 4),
+        ).move_to(confounded.get_center())
+        randomized = self.text("interventional recovery: 72.5%", 19, MINT, BOLD).move_to(observed)
+        self.play(FadeIn(intervention), FadeIn(cut), confounded.animate.set_opacity(0.18), run_time=0.75)
+        self.play(Transform(observed, randomized), Indicate(causal, color=MINT), run_time=0.8)
+        self.formula("do(X=x) removes the incoming causes of X")
+
+
+class MultiAgentEvidenceFlow(BrowserLectureScene):
+    title = "Independent agents should exchange typed evidence"
+    subtitle = "A validator promotes records, not persuasive prose"
+    accent = BLUE
+
+    def animate_concept(self):
+        agent_names = ["search", "simulate", "critique", "verify"]
+        agents = VGroup(*[self.node(name, [CYAN, VIOLET, CORAL, GOLD][index], 1.75)
+                          for index, name in enumerate(agent_names)])
+        agents.arrange(DOWN, buff=0.28).move_to([-4.6, 0.05, 0])
+
+        board = RoundedRectangle(width=4.5, height=3.3, corner_radius=0.18)
+        board.set_fill("#FFFFFF", 1).set_stroke(BLUE, 2.5).move_to([0.25, 0.05, 0])
+        board_title = self.text("evidence board", 20, BLUE, BOLD).next_to(board.get_top(), DOWN, buff=0.18)
+        records = VGroup(*[
+            self.text(value, 16, INK if index < 2 else MUTED, BOLD).move_to([0.25, 0.8 - 0.58 * index, 0])
+            for index, value in enumerate([
+                "claim · source · confidence",
+                "counterexample · scope · timestamp",
+                "simulation · seed · metric",
+                "status: proposed → checked",
+            ])
+        ])
+        validator = self.node("validator", MINT, 2.0).move_to([4.8, 0.45, 0])
+        commit = self.node("commit", MINT, 1.7).move_to([4.8, -1.0, 0])
+        incoming = VGroup(*[
+            Arrow(agent.get_right(), board.get_left() + (1.05 - 0.7 * index) * UP, buff=0.08).set_color(BLUE)
+            for index, agent in enumerate(agents)
+        ])
+        check_arrow = Arrow(board.get_right(), validator.get_left(), buff=0.08).set_color(MINT)
+        commit_arrow = Arrow(validator.get_bottom(), commit.get_top(), buff=0.08).set_color(MINT)
+
+        self.play(LaggedStartMap(FadeIn, agents, lag_ratio=0.1), FadeIn(board), FadeIn(board_title), run_time=0.75)
+        self.play(LaggedStartMap(GrowArrow, incoming, lag_ratio=0.1), LaggedStartMap(FadeIn, records, lag_ratio=0.1), run_time=1.0)
+        self.play(FadeIn(validator), GrowArrow(check_arrow), Indicate(records[1], color=CORAL), run_time=0.7)
+        self.play(FadeIn(commit), GrowArrow(commit_arrow), Indicate(records[3], color=MINT), run_time=0.7)
+        self.formula("shared state stores evidence · validation controls promotion")
+
+
+class SagaCompensationFlow(BrowserLectureScene):
+    title = "A saga makes partial failure recoverable"
+    subtitle = "Every external action needs a recorded compensating action"
+    accent = CORAL
+
+    def animate_concept(self):
+        labels = ["validate", "reserve", "clinic", "commit"]
+        colors = [CYAN, GOLD, VIOLET, MINT]
+        nodes = VGroup(*[self.node(label, color, 1.85) for label, color in zip(labels, colors)])
+        nodes.arrange(RIGHT, buff=0.72).move_to([0, 0.35, 0])
+        arrows = VGroup(*[
+            Arrow(nodes[index].get_right(), nodes[index + 1].get_left(), buff=0.08).set_color(colors[index + 1])
+            for index in range(3)
+        ])
+        log = self.text("transaction log: intent → receipt → state", 18, MUTED, BOLD).move_to([0, 1.7, 0])
+        self.play(FadeIn(log), LaggedStartMap(FadeIn, nodes, lag_ratio=0.11), run_time=0.75)
+        self.play(LaggedStartMap(GrowArrow, arrows, lag_ratio=0.12), run_time=0.9)
+
+        failure = self.text("clinic booking failed", 20, CORAL, BOLD).move_to([1.25, -0.85, 0])
+        cross = VGroup(
+            Line([-0.22, -0.22, 0], [0.22, 0.22, 0]),
+            Line([-0.22, 0.22, 0], [0.22, -0.22, 0]),
+        ).set_stroke(CORAL, 4).move_to(nodes[2])
+        self.play(FadeIn(failure), FadeIn(cross), Indicate(nodes[2], color=CORAL), run_time=0.65)
+
+        compensate = CurvedArrow(nodes[2].get_bottom(), nodes[1].get_bottom(), angle=-0.5).set_color(CORAL)
+        compensate_label = self.text("compensate: release vehicle hold", 18, CORAL, BOLD).next_to(compensate, DOWN, buff=0.1)
+        released = self.node("released", MINT, 1.85).move_to(nodes[1])
+        self.play(ShowCreation(compensate), FadeIn(compensate_label), run_time=0.75)
+        self.play(Transform(nodes[1], released), nodes[3].animate.set_opacity(0.2), run_time=0.75)
+        self.formula("forward action + durable receipt + idempotent compensation")
+
+
+class TemporalPlanDependencies(BrowserLectureScene):
+    title = "A temporal plan is a dependency graph"
+    subtitle = "Parallel work is safe only when preconditions and resources are explicit"
+    accent = MINT
+
+    def animate_concept(self):
+        clearance = self.node("clearance", CYAN, 1.9).move_to([-4.8, 1.25, 0])
+        uplink = self.node("uplink", VIOLET, 1.9).move_to([-4.8, -0.65, 0])
+        survey = self.node("drone survey", BLUE, 2.2).move_to([-1.35, 1.25, 0])
+        stream = self.node("data stream", VIOLET, 2.1).move_to([-1.35, -0.65, 0])
+        verify = self.node("verify zone", GOLD, 2.0).move_to([1.8, 1.25, 0])
+        crew = self.node("dispatch crew", CORAL, 2.2).move_to([1.8, -0.65, 0])
+        commit = self.node("mission ready", MINT, 2.2).move_to([5.0, 0.3, 0])
+        nodes = VGroup(clearance, uplink, survey, stream, verify, crew, commit)
+        dependencies = VGroup(
+            Arrow(clearance.get_right(), survey.get_left(), buff=0.08).set_color(CYAN),
+            Arrow(uplink.get_right(), stream.get_left(), buff=0.08).set_color(VIOLET),
+            Arrow(survey.get_right(), verify.get_left(), buff=0.08).set_color(GOLD),
+            Arrow(verify.get_bottom(), crew.get_top(), buff=0.08).set_color(CORAL),
+            Arrow(stream.get_right(), crew.get_left(), buff=0.08).set_color(VIOLET),
+            Arrow(verify.get_right(), commit.get_left() + 0.25 * UP, buff=0.08).set_color(MINT),
+            Arrow(crew.get_right(), commit.get_left() + 0.25 * DOWN, buff=0.08).set_color(MINT),
+        )
+
+        self.play(LaggedStartMap(FadeIn, VGroup(clearance, uplink), lag_ratio=0.2), run_time=0.55)
+        self.play(FadeIn(survey), FadeIn(stream), GrowArrow(dependencies[0]), GrowArrow(dependencies[1]), run_time=0.75)
+        self.play(FadeIn(verify), GrowArrow(dependencies[2]), run_time=0.55)
+        self.play(FadeIn(crew), GrowArrow(dependencies[3]), GrowArrow(dependencies[4]), run_time=0.75)
+        self.play(FadeIn(commit), GrowArrow(dependencies[5]), GrowArrow(dependencies[6]), run_time=0.85)
+        self.play(Indicate(commit, color=MINT), run_time=0.4)
+        self.formula("schedule = partial order + durations + resources + invariants")

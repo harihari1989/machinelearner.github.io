@@ -110,7 +110,7 @@ for job in "${MANIM_JOBS[@]}"; do
         -c:v libvpx-vp9 -crf 36 -b:v 0 -row-mt 1 -pix_fmt yuv420p \
         "${webm_file}"
     duration="$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "${raw_file}")"
-    poster_time="$(${PYTHON_BIN} -c 'import sys; print(max(2.4, float(sys.argv[1]) * 0.55))' "${duration}")"
+    poster_time="$(${PYTHON_BIN} -c 'import sys; print(max(2.4, float(sys.argv[1]) * 0.88))' "${duration}")"
     ffmpeg -y -loglevel error -ss "${poster_time}" -i "${raw_file}" -frames:v 1 -q:v 3 \
         "${poster_file}"
 

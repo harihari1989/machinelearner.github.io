@@ -1,0 +1,1152 @@
+.reasoning-planning-course {
+    --rp-accent: var(--accent-1);
+    --rp-accent-2: var(--accent-2);
+    --rp-wash: color-mix(in srgb, var(--accent-1) 9%, var(--card-bg));
+    --rp-line: color-mix(in srgb, var(--accent-1) 32%, var(--section-border));
+}
+
+.reasoning-planning-course .chapter-nav {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+}
+
+.reasoning-planning-course .chapter-nav a {
+    flex: 0 0 auto;
+}
+
+.rp-section {
+    border-color: var(--rp-line);
+}
+
+.rp-section h3,
+.rp-section h4,
+.rp-section b,
+.rp-section strong,
+.rp-section code {
+    color: var(--ink);
+}
+
+.rp-section p,
+.rp-section li,
+.rp-section small,
+.rp-section dd {
+    color: var(--ink-soft);
+}
+
+.rp-hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.rp-hero-section::before {
+    position: absolute;
+    top: -11rem;
+    right: -10rem;
+    width: 26rem;
+    height: 26rem;
+    content: '';
+    pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--rp-accent) 18%, transparent), transparent 66%);
+}
+
+.rp-hero-grid,
+.rp-agent-topology,
+.rp-planning-model {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.rp-scope-note {
+    margin-top: 1.1rem;
+    padding: 1rem 1.1rem;
+    background: var(--helper-bg);
+    border: 1px solid var(--rp-line);
+    border-left: 5px solid var(--rp-accent);
+    border-radius: 14px;
+}
+
+.rp-scope-note p {
+    margin: 0.35rem 0 0;
+}
+
+.rp-loop {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 1rem;
+    background: var(--rp-wash);
+    border: 1px solid var(--rp-line);
+    border-radius: 18px;
+}
+
+.rp-loop article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.65rem;
+    padding: 0.65rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.rp-loop article > span,
+.rp-module-path article > span,
+.rp-collaboration-principles article > span,
+.rp-saga-timeline article > span {
+    display: grid;
+    grid-row: 1 / 3;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    color: white;
+    background: var(--rp-accent);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.rp-loop article small {
+    grid-column: 2;
+}
+
+.rp-loop > i {
+    color: var(--rp-accent);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.rp-learning-objectives,
+.rp-calibration-grid,
+.rp-collaboration-principles,
+.rp-transaction-grid,
+.rp-plan-principles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 1.35rem 0;
+}
+
+.rp-learning-objectives article,
+.rp-calibration-grid article,
+.rp-collaboration-principles article,
+.rp-transaction-grid article,
+.rp-plan-principles article,
+.rp-memory-schema article,
+.rp-ladder-grid article {
+    min-width: 0;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.rp-learning-objectives p,
+.rp-calibration-grid p,
+.rp-collaboration-principles p,
+.rp-transaction-grid p,
+.rp-plan-principles p,
+.rp-memory-schema p,
+.rp-ladder-grid p {
+    margin: 0.35rem 0 0;
+}
+
+.rp-module-path {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(155px, 1fr));
+    gap: 0.75rem;
+    margin: 1.4rem 0;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+}
+
+.rp-module-path article {
+    min-width: 155px;
+    padding: 0.9rem;
+    background: var(--paper);
+    border-top: 4px solid var(--rp-accent);
+    border-radius: 12px;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+.rp-module-path article > span {
+    margin-bottom: 0.65rem;
+}
+
+.rp-module-path h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+}
+
+.rp-module-path p {
+    min-height: 4.4rem;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.rp-module-path small {
+    display: block;
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--section-border);
+}
+
+.rp-ladder-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 1.2rem 0;
+}
+
+.rp-ladder-grid article {
+    border-top: 5px solid var(--rp-accent);
+}
+
+.rp-ladder-grid article:nth-child(2) {
+    border-top-color: var(--rp-accent-2);
+}
+
+.rp-ladder-grid article:nth-child(3) {
+    border-top-color: var(--helper-text);
+}
+
+.rp-ladder-level,
+.rp-calibration-grid article > span,
+.rp-agent-topology article > span,
+.rp-quiz > span,
+.rp-exercise-card > div > span {
+    color: var(--helper-text);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.rp-ladder-grid h3 {
+    margin: 0.3rem 0;
+}
+
+.rp-ladder-grid code {
+    display: block;
+    margin: 0.7rem 0;
+    padding: 0.6rem;
+    background: var(--canvas-bg);
+    border-radius: 8px;
+}
+
+.rp-causal-lab,
+.rp-controller-lab,
+.rp-agent-lab,
+.rp-saga-lab,
+.rp-plan-builder {
+    margin: 1.4rem 0;
+    padding: 1.15rem;
+    background: var(--rp-wash);
+    border: 1px solid var(--rp-line);
+    border-radius: 18px;
+}
+
+.rp-lab-heading {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.rp-lab-heading h3 {
+    margin: 0.2rem 0 0;
+}
+
+.rp-lab-chip,
+.rp-response-mode {
+    display: inline-flex;
+    padding: 0.42rem 0.7rem;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--rp-line);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.rp-causal-diagram {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 0.55rem;
+    align-items: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+    text-align: center;
+}
+
+.rp-causal-diagram span {
+    padding: 0.7rem;
+    color: var(--ink);
+    background: var(--helper-bg);
+    border: 2px solid var(--rp-line);
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+.rp-causal-diagram i {
+    color: var(--rp-accent);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.rp-causal-diagram b {
+    grid-column: 1 / -1;
+    font-size: 0.85rem;
+}
+
+.rp-query-chooser {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.rp-query-chooser legend {
+    padding: 0 0.35rem;
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.rp-query-chooser label {
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+    color: var(--ink-soft);
+}
+
+.rp-query-chooser input {
+    margin-top: 0.27rem;
+    accent-color: var(--rp-accent);
+}
+
+.rp-causal-output {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-left: 5px solid var(--rp-accent);
+    border-radius: 12px;
+}
+
+.rp-causal-output div {
+    display: flex;
+    flex-direction: column;
+}
+
+.rp-causal-output div span {
+    color: var(--helper-text);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.rp-causal-output p {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+.rp-derivation,
+.rp-exercise-card details {
+    margin-top: 0.9rem;
+    padding: 0.8rem 0.95rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.rp-derivation summary,
+.rp-exercise-card summary {
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.rp-causal-table,
+.rp-evaluation-table {
+    margin: 0.9rem 0;
+    overflow-x: auto;
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.rp-causal-table:focus-visible,
+.rp-evaluation-table:focus-visible {
+    outline: 3px solid var(--rp-accent);
+    outline-offset: 3px;
+}
+
+.rp-causal-table table,
+.rp-evaluation-table table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    background: var(--card-bg);
+}
+
+.rp-causal-table th,
+.rp-causal-table td,
+.rp-evaluation-table th,
+.rp-evaluation-table td {
+    padding: 0.8rem;
+    color: var(--ink-soft);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--section-border);
+}
+
+.rp-causal-table th,
+.rp-evaluation-table th {
+    color: var(--ink);
+    background: var(--helper-bg);
+}
+
+.rp-exercise-card {
+    margin: 1.35rem 0;
+    padding: 1.1rem;
+    background: var(--paper);
+    border: 1px solid var(--rp-line);
+    border-left: 6px solid var(--rp-accent);
+    border-radius: 16px;
+}
+
+.rp-exercise-card h3 {
+    margin: 0.25rem 0 0.7rem;
+}
+
+.rp-exercise-card ol,
+.rp-exercise-card ul {
+    margin-bottom: 0;
+}
+
+.rp-calibration-grid article {
+    border-top: 5px solid var(--section-border);
+}
+
+.rp-calibration-grid article:nth-child(2) {
+    background: var(--rp-wash);
+    border-top-color: var(--rp-accent);
+}
+
+.rp-calibration-grid article b,
+.rp-calibration-grid article small {
+    display: block;
+}
+
+.rp-controller-controls {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.rp-controller-controls label {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    padding: 0.85rem;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+    font-weight: 800;
+}
+
+.rp-controller-controls output {
+    color: var(--rp-accent);
+}
+
+.rp-controller-controls input {
+    grid-column: 1 / -1;
+    width: 100%;
+    accent-color: var(--rp-accent);
+}
+
+.rp-controller-output {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 0.85rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.rp-controller-output h3 {
+    margin: 0.5rem 0 0.25rem;
+}
+
+.rp-controller-output p {
+    margin: 0;
+}
+
+.rp-gauge {
+    position: relative;
+    display: grid;
+    width: 7rem;
+    height: 7rem;
+    place-items: center;
+    border-radius: 50%;
+    isolation: isolate;
+}
+
+.rp-gauge::before {
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    content: '';
+    background: conic-gradient(var(--rp-accent) var(--rp-gauge, 0%), var(--section-border) 0);
+    border-radius: inherit;
+}
+
+.rp-gauge::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0.7rem;
+    content: '';
+    background: var(--card-bg);
+    border-radius: inherit;
+}
+
+.rp-gauge > span {
+    position: absolute;
+    inset: 0;
+    --rp-gauge: inherit;
+}
+
+.rp-gauge b {
+    margin-top: -0.4rem;
+    font-size: 1.65rem;
+}
+
+.rp-gauge small {
+    position: absolute;
+    bottom: 1.45rem;
+    font-size: 0.68rem;
+}
+
+.rp-socratic-protocol {
+    margin: 1.3rem 0;
+}
+
+.rp-socratic-protocol ol {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+    counter-reset: socratic;
+}
+
+.rp-socratic-protocol li {
+    padding: 0.9rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+    counter-increment: socratic;
+}
+
+.rp-socratic-protocol li::before {
+    display: inline-grid;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-right: 0.45rem;
+    place-items: center;
+    content: counter(socratic);
+    color: white;
+    background: var(--rp-accent);
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.rp-regret-formula {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+.rp-regret-formula code {
+    padding: 0.75rem;
+    background: var(--canvas-bg);
+    border-radius: 8px;
+}
+
+.rp-agent-tabs {
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 0.9rem;
+    overflow-x: auto;
+}
+
+.rp-agent-tabs button,
+.rp-plan-choices button,
+.rp-quiz button,
+.rp-saga-actions button,
+.rp-progress button {
+    min-height: 2.65rem;
+    padding: 0.65rem 0.85rem;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--rp-line);
+    border-radius: 10px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+}
+
+.rp-agent-tabs button[aria-selected="true"],
+.rp-plan-choices button.is-correct,
+.rp-quiz button.is-correct {
+    color: white;
+    background: var(--rp-accent);
+    border-color: var(--rp-accent);
+}
+
+.rp-agent-tabs button:focus-visible,
+.rp-plan-choices button:focus-visible,
+.rp-quiz button:focus-visible,
+.rp-saga-actions button:focus-visible,
+.rp-progress button:focus-visible {
+    outline: 3px solid var(--rp-accent);
+    outline-offset: 3px;
+}
+
+.rp-agent-visual {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.7rem;
+    min-height: 14rem;
+    align-content: center;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 16px;
+}
+
+.rp-agent-visual span,
+.rp-agent-visual b {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    justify-self: center;
+    background: var(--helper-bg);
+    border: 3px solid var(--rp-accent);
+    border-radius: 50%;
+}
+
+.rp-agent-visual b {
+    grid-column: 2 / 4;
+    width: auto;
+    min-width: 5.5rem;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+}
+
+.rp-agent-visual::before,
+.rp-agent-visual::after {
+    position: absolute;
+    inset: 49% 8% auto;
+    height: 3px;
+    content: '';
+    background: var(--rp-line);
+}
+
+.rp-agent-visual::after {
+    inset: 25% 50% 19%;
+    width: 3px;
+    height: auto;
+}
+
+.rp-agent-visual[data-mode="debate"]::before {
+    height: 8px;
+    background: repeating-linear-gradient(90deg, var(--rp-accent) 0 12px, transparent 12px 20px);
+}
+
+.rp-agent-visual[data-mode="blackboard"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box, linear-gradient(135deg, var(--rp-accent), var(--rp-accent-2)) border-box;
+    border-color: transparent;
+}
+
+.rp-agent-visual[data-mode="market"] span {
+    border-style: double;
+    border-width: 5px;
+}
+
+.rp-agent-topology article {
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 16px;
+}
+
+.rp-agent-topology article h3 {
+    margin: 0.25rem 0;
+}
+
+.rp-topology-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 0.9rem 0 0;
+}
+
+.rp-topology-metrics div {
+    padding: 0.65rem;
+    background: var(--helper-bg);
+    border-radius: 9px;
+}
+
+.rp-topology-metrics dt {
+    color: var(--helper-text);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.rp-topology-metrics dd {
+    margin: 0.2rem 0 0;
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.rp-collaboration-principles article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 0.65rem;
+}
+
+.rp-collaboration-principles article > span {
+    grid-row: 1 / 3;
+}
+
+.rp-collaboration-principles h3,
+.rp-collaboration-principles p {
+    grid-column: 2;
+    margin-top: 0;
+}
+
+.rp-memory-schema {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+}
+
+.rp-memory-schema article > span {
+    color: var(--helper-text);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.rp-memory-schema h3 {
+    margin: 0.25rem 0 0.65rem;
+}
+
+.rp-memory-schema code {
+    display: block;
+    padding: 0.55rem;
+    background: var(--canvas-bg);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+}
+
+.rp-saga-timeline {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.rp-saga-timeline article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.55rem;
+    padding: 0.75rem;
+    background: var(--card-bg);
+    border: 2px solid var(--section-border);
+    border-radius: 12px;
+}
+
+.rp-saga-timeline article > span {
+    grid-row: 1 / 3;
+}
+
+.rp-saga-timeline article small {
+    grid-column: 2;
+}
+
+.rp-saga-timeline article.is-active {
+    border-color: var(--rp-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--rp-accent) 14%, transparent);
+}
+
+.rp-saga-timeline article.is-done {
+    background: color-mix(in srgb, #22c55e 10%, var(--card-bg));
+    border-color: #22c55e;
+}
+
+.rp-saga-timeline article.is-rolled-back {
+    background: color-mix(in srgb, #f97316 12%, var(--card-bg));
+    border-color: #f97316;
+}
+
+.rp-saga-timeline > i {
+    color: var(--rp-accent);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.rp-saga-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.9rem;
+}
+
+.rp-saga-actions button:first-child {
+    color: white;
+    background: var(--rp-accent);
+}
+
+.rp-saga-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.rp-saga-log {
+    margin-top: 0.8rem;
+    padding: 0.85rem;
+    background: var(--canvas-bg);
+    border-radius: 10px;
+}
+
+.rp-saga-log ol {
+    max-height: 10rem;
+    margin-bottom: 0;
+    overflow-y: auto;
+}
+
+.rp-plan-code pre {
+    max-width: 100%;
+    margin: 0.6rem 0 0;
+    overflow: auto;
+    padding: 1rem;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.55;
+}
+
+.rp-plan-principles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.rp-plan-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.rp-plan-choices button {
+    text-align: left;
+}
+
+.rp-plan-choices button.is-wrong,
+.rp-quiz button.is-wrong {
+    color: var(--ink);
+    background: color-mix(in srgb, #ef4444 14%, var(--card-bg));
+    border-color: #ef4444;
+}
+
+#rpPlanFeedback {
+    margin: 0.8rem 0 0;
+    font-weight: 700;
+}
+
+.rp-progress {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto auto;
+    gap: 0.8rem;
+    align-items: center;
+    margin: 1rem 0;
+    padding: 0.9rem;
+    background: var(--rp-wash);
+    border: 1px solid var(--rp-line);
+    border-radius: 14px;
+}
+
+.rp-progress > div {
+    height: 0.75rem;
+    overflow: hidden;
+    background: var(--section-border);
+    border-radius: 999px;
+}
+
+.rp-progress > div span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--rp-accent), var(--rp-accent-2));
+    border-radius: inherit;
+    transition: width 240ms ease;
+}
+
+.rp-quiz-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.rp-quiz {
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.rp-quiz:last-child {
+    grid-column: 1 / -1;
+}
+
+.rp-quiz h3 {
+    margin: 0.35rem 0 0.8rem;
+    font-size: 1rem;
+}
+
+.rp-quiz > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.rp-quiz-feedback {
+    min-height: 2.7rem;
+    margin: 0.75rem 0 0;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--section-border);
+}
+
+.rp-capstone {
+    display: grid;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    gap: 1rem;
+    margin: 1.4rem 0;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, var(--rp-wash), var(--card-bg));
+    border: 2px solid var(--rp-line);
+    border-radius: 18px;
+}
+
+.rp-capstone h3 {
+    margin: 0.3rem 0;
+}
+
+.rp-capstone ol {
+    margin: 0;
+}
+
+.rp-reading-map {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.rp-reading-map h3 {
+    grid-column: 1 / -1;
+}
+
+.rp-reading-map a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.9rem;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+    text-decoration: none;
+}
+
+.rp-reading-map a:hover {
+    border-color: var(--rp-accent);
+    transform: translateY(-2px);
+}
+
+.rp-reading-map a span {
+    color: var(--ink-soft);
+}
+
+.rp-manim-lesson {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+    gap: 1rem;
+    align-items: center;
+    margin: 1.3rem 0;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--rp-line);
+    border-radius: 16px;
+}
+
+.rp-manim-lesson video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #07111f;
+}
+
+.rp-manim-lesson > div {
+    padding: 1rem 1.2rem 1rem 0.2rem;
+}
+
+.rp-manim-lesson span {
+    color: var(--rp-accent);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.rp-manim-lesson h3 {
+    margin: 0.28rem 0;
+}
+
+.rp-manim-lesson p {
+    margin: 0;
+}
+
+@media (max-width: 980px) {
+    .rp-hero-grid,
+    .rp-agent-topology,
+    .rp-planning-model,
+    .rp-manim-lesson {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-manim-lesson > div {
+        padding: 0.2rem 1rem 1rem;
+    }
+
+    .rp-learning-objectives,
+    .rp-calibration-grid,
+    .rp-collaboration-principles,
+    .rp-transaction-grid,
+    .rp-socratic-protocol ol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rp-controller-controls,
+    .rp-memory-schema {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rp-saga-timeline {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-saga-timeline > i {
+        justify-self: center;
+        transform: rotate(90deg);
+    }
+}
+
+@media (max-width: 700px) {
+    .rp-ladder-grid,
+    .rp-learning-objectives,
+    .rp-calibration-grid,
+    .rp-collaboration-principles,
+    .rp-transaction-grid,
+    .rp-plan-principles,
+    .rp-socratic-protocol ol,
+    .rp-controller-controls,
+    .rp-memory-schema,
+    .rp-quiz-list,
+    .rp-reading-map,
+    .rp-capstone,
+    .rp-plan-choices,
+    .rp-regret-formula {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-quiz:last-child,
+    .rp-reading-map h3 {
+        grid-column: auto;
+    }
+
+    .rp-loop {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-loop > i {
+        justify-self: center;
+        transform: rotate(90deg);
+    }
+
+    .rp-causal-diagram {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-causal-diagram i {
+        transform: rotate(90deg);
+    }
+
+    .rp-causal-diagram b {
+        grid-column: auto;
+    }
+
+    .rp-causal-output,
+    .rp-controller-output,
+    .rp-progress {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-gauge {
+        justify-self: center;
+    }
+
+    .rp-lab-heading {
+        flex-direction: column;
+    }
+
+    .rp-lab-chip {
+        white-space: normal;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-progress > div span,
+    .rp-reading-map a {
+        transition: none;
+    }
+}

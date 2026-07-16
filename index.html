@@ -13,13 +13,15 @@
             window.location.replace(localPreview.href);
         }
     </script>
-    <title>Artificial Intelligence Math Foundations</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Machine Learner · Interactive AI, PyTorch, and Math Lab</title>
+    <link rel="stylesheet" href="styles.css?v=20260714-theme-1">
     <link rel="stylesheet" href="math-deep-dive.css">
     <link rel="stylesheet" href="math-foundations-lab.css">
-    <link rel="stylesheet" href="learning-depth.css">
+    <link rel="stylesheet" href="learning-depth.css?v=20260714-theme-1">
     <link rel="stylesheet" href="research-expansion.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-practical-2">
+    <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
     <script>
         window.MathJax = {
             tex: {
@@ -34,8 +36,8 @@
 </head>
 <body data-theme="light">
     <header>
-        <h1>🧠 Artificial Intelligence Math Foundations</h1>
-        <p>Playful visuals and mini missions to explore the math behind neural networks</p>
+        <h1>🧠 Machine Learner: Interactive AI Lab</h1>
+        <p>Build the mathematics, algorithms, neural networks, and PyTorch systems behind modern AI</p>
         <div class="mode-switcher" role="group" aria-label="Theme mode">
             <span class="mode-label">Mode:</span>
             <button class="mode-btn is-active" data-theme="light" type="button">Light</button>
@@ -53,6 +55,7 @@
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="python">Python for ML</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reasoning-planning">Reasoning &amp; Planning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning">Reinforcement Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="notebook">Notebook Lab</button>
     </div>
@@ -550,21 +553,21 @@
                             </div>
                             <div class="slider-group">
                                 <span class="slider-title">Vector A (x)</span>
-                                <label>A.x <span id="vecAxVal">2.0</span></label>
+                                <label for="vecAx">A.x <span id="vecAxVal">2.0</span></label>
                                 <input type="range" id="vecAx" min="-4" max="4" step="0.1" value="2">
-                                <label>A.y <span id="vecAyVal">3.0</span></label>
+                                <label for="vecAy">A.y <span id="vecAyVal">3.0</span></label>
                                 <input type="range" id="vecAy" min="-4" max="4" step="0.1" value="3">
                             </div>
                             <div class="slider-group">
                                 <span class="slider-title">Vector B (w)</span>
-                                <label>B.x <span id="vecBxVal">1.0</span></label>
+                                <label for="vecBx">B.x <span id="vecBxVal">1.0</span></label>
                                 <input type="range" id="vecBx" min="-4" max="4" step="0.1" value="1">
-                                <label>B.y <span id="vecByVal">4.0</span></label>
+                                <label for="vecBy">B.y <span id="vecByVal">4.0</span></label>
                                 <input type="range" id="vecBy" min="-4" max="4" step="0.1" value="4">
                             </div>
                             <div class="slider-group">
                                 <span class="slider-title">Zoom</span>
-                                <label>Zoom <span id="vecScaleVal">1.0</span></label>
+                                <label for="vecScale">Zoom <span id="vecScaleVal">1.0</span></label>
                                 <input type="range" id="vecScale" min="0.5" max="2" step="0.1" value="1">
                             </div>
                             <button type="button" id="vectorAnimateButton" onclick="animateVectorAddition()">Animate Addition</button>
@@ -734,13 +737,13 @@
                             <div class="matrix-transform-controls" id="matrixTransformControls" hidden>
                                 <div class="slider-group" data-matrix-control="scale" hidden>
                                     <span class="slider-title">Scaling factors</span>
-                                    <label>sx <span id="matrixScaleXVal">1.50</span></label>
+                                    <label for="matrixScaleX">sx <span id="matrixScaleXVal">1.50</span></label>
                                     <input type="range" id="matrixScaleX" min="0.3" max="2.5" step="0.05" value="1.5">
-                                    <label>sy <span id="matrixScaleYVal">0.70</span></label>
+                                    <label for="matrixScaleY">sy <span id="matrixScaleYVal">0.70</span></label>
                                     <input type="range" id="matrixScaleY" min="0.3" max="2.5" step="0.05" value="0.7">
                                 </div>
                                 <div class="slider-group" data-matrix-control="shear" hidden>
-                                    <label>k (x-shear) <span id="matrixShearVal">0.80</span></label>
+                                    <label for="matrixShear">k (x-shear) <span id="matrixShearVal">0.80</span></label>
                                     <input type="range" id="matrixShear" min="-1.2" max="1.2" step="0.05" value="0.8">
                                 </div>
                             </div>
@@ -974,7 +977,7 @@
                         <div class="spam-controls">
                             <div class="slider-group">
                                 <span class="slider-title">Prior</span>
-                                <label>\(P(\text{spam})\) <span id="spamPriorVal">0.30</span></label>
+                                <label for="spamPrior">\(P(\text{spam})\) <span id="spamPriorVal">0.30</span></label>
                                 <input type="range" id="spamPrior" min="0.05" max="0.9" step="0.01" value="0.3">
                             </div>
                             <div class="word-chip-group" role="group" aria-label="Message words">
@@ -1207,17 +1210,17 @@
                                 <p class="example-note" id="llPresetNote"></p>
                                 <div class="slider-group">
                                     <span class="slider-title">Trials (N)</span>
-                                    <label>N <span id="llTrialsVal">10</span></label>
+                                    <label for="llTrials">N <span id="llTrialsVal">10</span></label>
                                     <input type="range" id="llTrials" min="2" max="20" step="1" value="10">
                                 </div>
                                 <div class="slider-group">
                                     <span class="slider-title">Successes (k)</span>
-                                    <label>k <span id="llSuccessesVal">5</span></label>
+                                    <label for="llSuccesses">k <span id="llSuccessesVal">5</span></label>
                                     <input type="range" id="llSuccesses" min="0" max="10" step="1" value="5">
                                 </div>
                                 <div class="slider-group">
                                     <span class="slider-title">Guess \(p\)</span>
-                                    <label>p <span id="llGuessVal">0.50</span></label>
+                                    <label for="llGuess">p <span id="llGuessVal">0.50</span></label>
                                     <input type="range" id="llGuess" min="0.01" max="0.99" step="0.01" value="0.5">
                                 </div>
                                 <button type="button" id="llNextPreset">Next example</button>
@@ -1238,12 +1241,12 @@
                         <div class="sample-controls">
                             <div class="slider-group">
                                 <span class="slider-title">Event A width</span>
-                                <label>\(P(A)\) <span id="sampleAVal">0.60</span></label>
+                                <label for="sampleA">\(P(A)\) <span id="sampleAVal">0.60</span></label>
                                 <input type="range" id="sampleA" min="0.1" max="0.9" step="0.01" value="0.6">
                             </div>
                             <div class="slider-group">
                                 <span class="slider-title">Event B height</span>
-                                <label>\(P(B)\) <span id="sampleBVal">0.50</span></label>
+                                <label for="sampleB">\(P(B)\) <span id="sampleBVal">0.50</span></label>
                                 <input type="range" id="sampleB" min="0.1" max="0.9" step="0.01" value="0.5">
                             </div>
                             <button class="toggle-btn" type="button" id="sampleReseed">Resample points</button>
@@ -2954,7 +2957,7 @@
                         <div class="controls">
                             <div class="slider-group">
                                 <span class="slider-title">Depth</span>
-                                <label>Layers <span id="deepDepthVal">5</span></label>
+                                <label for="deepDepth">Layers <span id="deepDepthVal">5</span></label>
                                 <input type="range" id="deepDepth" min="3" max="7" step="1" value="5">
                             </div>
                             <button type="button" id="deepRun">Run signal</button>
@@ -4828,6 +4831,436 @@ Return JSON with owner, task, and due.</pre>
             </section>
         </section>
 
+        <section class="chapter reasoning-planning-course" data-chapter="reasoning-planning">
+            <nav class="chapter-nav" aria-label="Reasoning and planning sections">
+                <a href="#rp-roadmap">Course map</a>
+                <a href="#rp-causality">Causality</a>
+                <a href="#rp-calibration">Calibrated reasoning</a>
+                <a href="#rp-collaboration">Multi-agent systems</a>
+                <a href="#rp-memory">Memory + transactions</a>
+                <a href="#rp-planning">Temporal planning</a>
+                <a href="#rp-exercise-studio">Exercise studio</a>
+            </nav>
+
+            <section id="rp-roadmap" class="example-section rp-section rp-hero-section">
+                <div class="rp-hero-grid">
+                    <div>
+                        <span class="depth-kicker">Reasoning, planning, and decision making · CS372-inspired deep dive</span>
+                        <h2>Build LLM systems that propose, test, remember, and recover</h2>
+                        <p class="section-intro">A fluent answer is not automatically a justified answer. This course turns the Stanford CS372 themes into an engineering workflow: make the claim explicit, identify the causal question, seek disconfirming evidence, coordinate independent roles, validate state changes, and revise the plan when the world disagrees.</p>
+                        <div class="rp-scope-note">
+                            <strong>A necessary scientific distinction</strong>
+                            <p>“System 1,” “System 2,” “consciousness,” AGI, and ASI are useful course lenses, not proof that an LLM has human cognition or subjective experience. Here, <em>deliberative reasoning</em> means an observable procedure with intermediate hypotheses, checks, tools, memory, and stopping rules.</p>
+                        </div>
+                    </div>
+                    <div class="rp-loop" aria-label="A reasoning loop from question to decision">
+                        <article><span>1</span><b>Frame</b><small>claim, goal, constraints</small></article>
+                        <i aria-hidden="true">→</i>
+                        <article><span>2</span><b>Propose</b><small>candidate explanations or plans</small></article>
+                        <i aria-hidden="true">→</i>
+                        <article><span>3</span><b>Challenge</b><small>counterexample, intervention, critic</small></article>
+                        <i aria-hidden="true">→</i>
+                        <article><span>4</span><b>Verify</b><small>evidence, invariants, tools</small></article>
+                        <i aria-hidden="true">→</i>
+                        <article><span>5</span><b>Act</b><small>commit, observe, compensate</small></article>
+                        <i aria-hidden="true">↺</i>
+                    </div>
+                </div>
+
+                <div class="rp-learning-objectives">
+                    <article><b>Reason causally</b><p>Separate association, intervention, and counterfactual questions; expose confounders and assumptions.</p></article>
+                    <article><b>Calibrate disagreement</b><p>Avoid automatic agreement and reflexive doubt by matching confidence to evidence and stakes.</p></article>
+                    <article><b>Design collaboration</b><p>Use independent proposals, explicit roles, bounded debate, and evidence-based aggregation.</p></article>
+                    <article><b>Manage durable state</b><p>Give memories provenance, validation status, versioning, expiry, and conflict rules.</p></article>
+                    <article><b>Plan across time</b><p>Represent goals, preconditions, effects, resources, deadlines, contingencies, and re-planning triggers.</p></article>
+                    <article><b>Engineer recoverability</b><p>Wrap consequential actions in prepare, validate, commit, observe, and compensate stages.</p></article>
+                </div>
+
+                <div class="rp-module-path" aria-label="Seven-module reasoning and planning learning path">
+                    <article><span>01</span><h3>From answers to arguments</h3><p>Operationalize deliberate reasoning as a testable process.</p><small>Deliverable: claim–evidence table</small></article>
+                    <article><span>02</span><h3>Causal questions</h3><p>Climb from seeing to doing to imagining alternatives.</p><small>Deliverable: causal graph + estimand</small></article>
+                    <article><span>03</span><h3>Socratic calibration</h3><p>Probe assumptions without drifting into endless skepticism.</p><small>Deliverable: calibrated critique</small></article>
+                    <article><span>04</span><h3>Collaborative intelligence</h3><p>Compose agents so diversity survives long enough to be useful.</p><small>Deliverable: orchestration protocol</small></article>
+                    <article><span>05</span><h3>Memory + validation</h3><p>Track what is known, why it is believed, and when it expires.</p><small>Deliverable: memory schema</small></article>
+                    <article><span>06</span><h3>Planning + transactions</h3><p>Make actions explicit, monitored, and reversible where possible.</p><small>Deliverable: executable plan</small></article>
+                    <article><span>07</span><h3>Evaluation + governance</h3><p>Measure outcomes, failure modes, uncertainty, and human control.</p><small>Deliverable: adversarial capstone</small></article>
+                </div>
+
+                <p class="reference-strip"><strong>Course source:</strong> <a href="http://infolab.stanford.edu/~echang/cs372/cs372-syllabus.html#resources" target="_blank" rel="noopener">Stanford CS372: AI for Reasoning, Planning, and Decision Making (Winter 2026)</a>. This independent tutorial synthesizes the public syllabus topics; it is not an official Stanford course page.</p>
+            </section>
+
+            <section id="rp-causality" class="example-section rp-section">
+                <span class="depth-kicker">Module 2 · Pearl's causal hierarchy</span>
+                <h2>Ask which world the question belongs to</h2>
+                <p class="section-intro">A model can summarize correlations without knowing what would happen after an action. Causal reasoning begins by naming the query before calculating an answer.</p>
+
+                <div class="rp-manim-lesson">
+                    <video controls muted playsinline preload="metadata" poster="assets/manim/causal-intervention-flow.jpg">
+                        <source src="assets/manim/causal-intervention-flow.webm" type="video/webm">
+                        <source src="assets/manim/causal-intervention-flow.mp4" type="video/mp4">
+                    </video>
+                    <div><span>Visual reasoning</span><h3>Intervention cuts an assignment mechanism</h3><p>Severity can influence both who receives treatment and who recovers. Setting treatment deliberately removes its incoming causes, which is why an interventional estimate can differ from a raw observed rate.</p></div>
+                </div>
+
+                <div class="rp-ladder-grid">
+                    <article>
+                        <span class="rp-ladder-level">L1 · Association</span>
+                        <h3>Seeing</h3>
+                        <p>What is true among cases we observed?</p>
+                        <code>P(Y | X=x)</code>
+                        <small>Prediction and diagnosis</small>
+                    </article>
+                    <article>
+                        <span class="rp-ladder-level">L2 · Intervention</span>
+                        <h3>Doing</h3>
+                        <p>What happens if we force a variable to a value?</p>
+                        <code>P(Y | do(X=x))</code>
+                        <small>Policy and treatment effects</small>
+                    </article>
+                    <article>
+                        <span class="rp-ladder-level">L3 · Counterfactual</span>
+                        <h3>Imagining</h3>
+                        <p>For this case, what would have happened under another action?</p>
+                        <code>P(Y_x | X=x', Y=y')</code>
+                        <small>Explanation and responsibility</small>
+                    </article>
+                </div>
+
+                <div class="rp-causal-lab" id="rpCausalLab">
+                    <div class="rp-lab-heading">
+                        <div><span class="depth-kicker">Interactive lab</span><h3>Why association can reverse the action effect</h3></div>
+                        <span class="rp-lab-chip">Treatment + severity confounding</span>
+                    </div>
+                    <p>Sicker patients are more likely to receive treatment. Within each severity group, treatment improves recovery—but the raw treated group contains more severe cases.</p>
+                    <div class="rp-causal-diagram" aria-label="Severity affects both treatment and recovery, while treatment also affects recovery">
+                        <span>Severity</span><i>→</i><span>Treatment</span><i>→</i><span>Recovery</span>
+                        <b aria-hidden="true">Severity ─────────────────→ Recovery</b>
+                    </div>
+                    <fieldset class="rp-query-chooser">
+                        <legend>Choose the question</legend>
+                        <label><input type="radio" name="rpCausalQuery" value="observe" checked> Observe: how often did treated patients recover?</label>
+                        <label><input type="radio" name="rpCausalQuery" value="intervene"> Intervene: what if everyone were assigned treatment?</label>
+                        <label><input type="radio" name="rpCausalQuery" value="counterfactual"> Counterfactual: would this recovered patient have recovered untreated?</label>
+                    </fieldset>
+                    <div class="rp-causal-output" aria-live="polite">
+                        <div><span>Question type</span><strong id="rpCausalType">Association</strong></div>
+                        <div><span>Illustrative estimate</span><strong id="rpCausalEstimate">54.5% recovered</strong></div>
+                        <p id="rpCausalExplanation">This is a property of the observed groups, not the effect of assigning treatment. Severity creates a backdoor path.</p>
+                    </div>
+                    <details class="rp-derivation">
+                        <summary>Show the numbers and adjustment</summary>
+                        <div class="rp-causal-table" role="region" aria-label="Recovery rates by severity and treatment" tabindex="0">
+                            <table>
+                                <thead><tr><th>Severity</th><th>Treated share</th><th>Recovery if treated</th><th>Recovery if untreated</th></tr></thead>
+                                <tbody><tr><td>Mild (50% of population)</td><td>10%</td><td>95%</td><td>85%</td></tr><tr><td>Severe (50% of population)</td><td>90%</td><td>50%</td><td>20%</td></tr></tbody>
+                            </table>
+                        </div>
+                        <p>Among 50 treated patients, 5 are mild and 45 are severe, so observed recovery is <code>(5 × 0.95 + 45 × 0.50) / 50 = 54.5%</code>. Among 50 untreated patients, 45 are mild and 5 are severe, so observed recovery is 78.5%. Standardizing both actions to the full population gives 72.5% recovery under treatment and 52.5% without treatment.</p>
+                    </details>
+                </div>
+
+                <div class="rp-exercise-card">
+                    <div><span>Exercise 2.1 · 20 minutes</span><h3>Write the estimand before the prompt</h3></div>
+                    <ol>
+                        <li>Choose a decision: enable a feature, prescribe a treatment, change a price, or issue an alert.</li>
+                        <li>Write one association question, one intervention question, and one unit-level counterfactual.</li>
+                        <li>Draw a directed graph with exposure, outcome, at least one cause of each, and any mediator.</li>
+                        <li>Mark which variables should be adjusted for—and which are colliders or mediators that should not be naively controlled.</li>
+                        <li>State one assumption that cannot be verified from observational data alone.</li>
+                    </ol>
+                    <details><summary>Self-check rubric</summary><p>A strong answer names the population, action, comparison, outcome, and horizon; separates prediction from intervention; and treats the graph as an assumption to criticize, not a fact inferred automatically from correlations.</p></details>
+                </div>
+
+                <p class="reference-strip"><strong>Foundation:</strong> <a href="https://doi.org/10.1214/19-STS721" target="_blank" rel="noopener">Judea Pearl, “The Seven Tools of Causal Inference, with Reflections on Machine Learning”</a>.</p>
+            </section>
+
+            <section id="rp-calibration" class="example-section rp-section">
+                <span class="depth-kicker">Modules 1 + 3 · skepticism, sycophancy, and the Socratic method</span>
+                <h2>Make doubt proportional to evidence and stakes</h2>
+                <p class="section-intro">Sycophancy accepts a user's framing too readily. Unbounded skepticism rejects or delays everything. A useful reasoner holds a claim at a calibrated confidence, asks the most informative question, and knows what evidence would change its mind.</p>
+
+                <div class="rp-calibration-grid">
+                    <article><span>Too agreeable</span><h3>Sycophancy</h3><p>Echoes the user's claim, suppresses contrary evidence, or changes conclusions when only the stated opinion changes.</p><b>Test:</b><small>Paraphrase the same facts with an opposing user belief.</small></article>
+                    <article><span>Productive zone</span><h3>Calibrated critique</h3><p>Separates facts from assumptions, matches confidence to support, and escalates verification when consequences are larger.</p><b>Test:</b><small>Track accuracy by confidence bucket and decision cost.</small></article>
+                    <article><span>Too doubtful</span><h3>Reflexive skepticism</h3><p>Invents remote objections, refuses falsifiable conclusions, or consumes more verification cost than the decision warrants.</p><b>Test:</b><small>Measure useful decisions per unit of evidence cost.</small></article>
+                </div>
+
+                <div class="rp-controller-lab" id="rpControllerLab">
+                    <div class="rp-lab-heading"><div><span class="depth-kicker">Controller lab</span><h3>Tune the response policy</h3></div><span class="rp-lab-chip">Control-system analogy</span></div>
+                    <p>These controls are an instructional analogy—not a reproduction of a particular published PID architecture. Use them to see why confidence, dissent, and stakes should affect the verification budget.</p>
+                    <div class="rp-controller-controls">
+                        <label for="rpEvidence">Evidence strength <output id="rpEvidenceValue">62</output><input id="rpEvidence" type="range" min="0" max="100" value="62"></label>
+                        <label for="rpDissent">Independent dissent <output id="rpDissentValue">38</output><input id="rpDissent" type="range" min="0" max="100" value="38"></label>
+                        <label for="rpStakes">Decision stakes <output id="rpStakesValue">70</output><input id="rpStakes" type="range" min="0" max="100" value="70"></label>
+                        <label for="rpTime">Time available <output id="rpTimeValue">55</output><input id="rpTime" type="range" min="0" max="100" value="55"></label>
+                    </div>
+                    <div class="rp-controller-output" aria-live="polite">
+                        <div class="rp-gauge"><span id="rpVerificationGauge" style="--rp-gauge: 64%"></span><b id="rpVerificationScore">64</b><small>verification budget</small></div>
+                        <div><span class="rp-response-mode" id="rpResponseMode">Verify before acting</span><h3 id="rpResponseTitle">Run a targeted external check</h3><p id="rpResponseExplanation">The stakes and dissent justify one strong check. Name the unresolved assumption, choose evidence that could falsify it, and time-box the investigation.</p></div>
+                    </div>
+                </div>
+
+                <div class="rp-socratic-protocol">
+                    <h3>A six-move Socratic protocol</h3>
+                    <ol>
+                        <li><b>Claim:</b> What exactly is being asserted or decided?</li>
+                        <li><b>Terms:</b> Which words hide ambiguity, measurement choices, or thresholds?</li>
+                        <li><b>Grounds:</b> What observations, sources, or rules support the claim?</li>
+                        <li><b>Alternatives:</b> What rival explanation or plan fits the evidence?</li>
+                        <li><b>Falsifier:</b> What result would materially lower confidence?</li>
+                        <li><b>Action:</b> What reversible next step has the highest information value?</li>
+                    </ol>
+                </div>
+
+                <div class="rp-exercise-card">
+                    <div><span>Exercise 3.1 · 25 minutes</span><h3>Run an epistemic regret audit</h3></div>
+                    <p>Choose an answer you feel confident about. Record your initial probability of being correct, one attractive alternative, and one decisive test. After the test, record the updated probability and the cost of checking.</p>
+                    <div class="rp-regret-formula"><code>decision regret = loss(chosen action) − loss(best action in hindsight)</code><code>epistemic value = expected decision improvement − verification cost</code></div>
+                    <details><summary>Stretch version</summary><p>Create five variants that change only the user's stated opinion. The conclusion should respond to evidence, not social pressure. Compare calibration and contradiction rates across variants.</p></details>
+                </div>
+            </section>
+
+            <section id="rp-collaboration" class="example-section rp-section">
+                <span class="depth-kicker">Module 4 · multi-LLM collaborative intelligence</span>
+                <h2>Collaboration works only when agents add independent information</h2>
+                <p class="section-intro">More agents do not automatically create more intelligence. Shared prompts, shared training, early anchoring, and prestige effects can produce correlated errors. The architecture must preserve diversity, route useful evidence, and stop debate from becoming an expensive echo chamber.</p>
+
+                <div class="rp-manim-lesson">
+                    <video controls muted playsinline preload="metadata" poster="assets/manim/multi-agent-evidence-flow.jpg">
+                        <source src="assets/manim/multi-agent-evidence-flow.webm" type="video/webm">
+                        <source src="assets/manim/multi-agent-evidence-flow.mp4" type="video/mp4">
+                    </video>
+                    <div><span>Visual architecture</span><h3>Exchange evidence through a validated blackboard</h3><p>Independent roles contribute typed claims, sources, confidence, and counterexamples. A validator controls promotion into shared state so agreement is not mistaken for verification.</p></div>
+                </div>
+
+                <div class="rp-agent-lab" id="rpAgentLab">
+                    <div class="rp-lab-heading"><div><span class="depth-kicker">Architecture explorer</span><h3>Choose an interaction topology</h3></div><span class="rp-lab-chip">quality · diversity · cost</span></div>
+                    <div class="rp-agent-tabs" role="tablist" aria-label="Multi-agent topology">
+                        <button type="button" role="tab" aria-selected="true" data-rp-topology="independent">Independent proposals</button>
+                        <button type="button" role="tab" aria-selected="false" data-rp-topology="debate">Round-robin debate</button>
+                        <button type="button" role="tab" aria-selected="false" data-rp-topology="blackboard">Validated blackboard</button>
+                        <button type="button" role="tab" aria-selected="false" data-rp-topology="market">Confidence market</button>
+                    </div>
+                    <div class="rp-agent-topology">
+                        <div class="rp-agent-visual" id="rpAgentVisual" aria-hidden="true">
+                            <span>A</span><span>B</span><span>C</span><span>D</span><b>Judge</b>
+                        </div>
+                        <article aria-live="polite">
+                            <span id="rpTopologyKicker">Parallel before contact</span>
+                            <h3 id="rpTopologyTitle">Independent proposals preserve diversity</h3>
+                            <p id="rpTopologyDescription">Agents solve the same task without seeing one another, then a judge compares claims and evidence. This reduces anchoring but may duplicate work.</p>
+                            <dl class="rp-topology-metrics">
+                                <div><dt>Diversity</dt><dd id="rpTopologyDiversity">High</dd></div>
+                                <div><dt>Contamination</dt><dd id="rpTopologyContamination">Low</dd></div>
+                                <div><dt>Latency</dt><dd id="rpTopologyLatency">Low</dd></div>
+                                <div><dt>Best use</dt><dd id="rpTopologyUse">Generate rival hypotheses</dd></div>
+                            </dl>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="rp-collaboration-principles">
+                    <article><span>01</span><h3>Different roles, not different names</h3><p>Give agents distinct evidence, tools, objectives, or failure models. Cosmetic personas rarely create useful independence.</p></article>
+                    <article><span>02</span><h3>Claims carry provenance</h3><p>Every contribution should identify its source, confidence, assumptions, and whether another agent verified it.</p></article>
+                    <article><span>03</span><h3>Exchange information, not prose volume</h3><p>Route high-surprise, decision-relevant evidence. Summarize repeated agreement instead of amplifying it.</p></article>
+                    <article><span>04</span><h3>Aggregation is a decision rule</h3><p>Majority vote helps only under useful error independence. Weight evidence quality, calibration, and domain fit.</p></article>
+                    <article><span>05</span><h3>Bound the conversation</h3><p>Stop after convergence, repeated arguments, budget exhaustion, or when further discussion cannot change the action.</p></article>
+                    <article><span>06</span><h3>Keep an external verifier</h3><p>Agents can mutually reinforce a false premise. Tests, retrieval, tools, simulations, or human review must ground the group.</p></article>
+                </div>
+
+                <div class="rp-exercise-card">
+                    <div><span>Exercise 4.1 · 40 minutes</span><h3>Design a four-agent decision protocol</h3></div>
+                    <p>For a supply-chain disruption, define a planner, a constraint checker, a red-team critic, and an evidence verifier. Specify:</p>
+                    <ul><li>the private input and allowed tools for each role;</li><li>the typed message each role returns;</li><li>which facts may enter shared memory;</li><li>the aggregation and tie-breaking rule;</li><li>the stop condition and human escalation threshold.</li></ul>
+                    <details><summary>Failure injection</summary><p>Make two agents share the same false supplier lead-time assumption. Your protocol should surface the common dependency instead of counting it as two independent votes.</p></details>
+                </div>
+            </section>
+
+            <section id="rp-memory" class="example-section rp-section">
+                <span class="depth-kicker">Module 5 · context, persistent memory, and transaction guarantees</span>
+                <h2>Memory is a governed database, not a longer prompt</h2>
+                <p class="section-intro">An agent that remembers without provenance accumulates confident errors. Durable memory needs a schema, write policy, validation state, conflict resolution, and expiry.</p>
+
+                <div class="rp-manim-lesson">
+                    <video controls muted playsinline preload="metadata" poster="assets/manim/saga-compensation-flow.jpg">
+                        <source src="assets/manim/saga-compensation-flow.webm" type="video/webm">
+                        <source src="assets/manim/saga-compensation-flow.mp4" type="video/mp4">
+                    </video>
+                    <div><span>Visual transaction</span><h3>Move forward with a recorded way back</h3><p>When the clinic step fails after a vehicle hold, the system uses the durable receipt to release that hold. Compensation restores a valid business state when atomic rollback is impossible.</p></div>
+                </div>
+
+                <div class="rp-memory-schema">
+                    <article><span>Identity</span><h3>What is this record?</h3><code>id · subject · predicate · value</code><p>Use normalized claims or task state, not an unstructured transcript alone.</p></article>
+                    <article><span>Evidence</span><h3>Why believe it?</h3><code>source · observed_at · confidence</code><p>Keep original evidence addressable and distinguish observation from inference.</p></article>
+                    <article><span>Lifecycle</span><h3>Is it still valid?</h3><code>status · version · expires_at</code><p>Represent proposed, verified, disputed, superseded, and expired states explicitly.</p></article>
+                    <article><span>Scope</span><h3>Where may it be used?</h3><code>tenant · task · sensitivity · ACL</code><p>Prevent cross-user leakage and over-broad retrieval.</p></article>
+                </div>
+
+                <div class="rp-saga-lab" id="rpSagaLab">
+                    <div class="rp-lab-heading"><div><span class="depth-kicker">Transactional planning lab</span><h3>Book a medical transport with compensation</h3></div><span class="rp-lab-chip" id="rpSagaStatus">Ready</span></div>
+                    <div class="rp-saga-timeline" aria-label="Saga transaction steps">
+                        <article data-rp-saga-step="0"><span>1</span><b>Validate request</b><small>patient, time, authorization</small></article>
+                        <i>→</i><article data-rp-saga-step="1"><span>2</span><b>Reserve vehicle</b><small>hold capacity</small></article>
+                        <i>→</i><article data-rp-saga-step="2"><span>3</span><b>Reserve clinic</b><small>confirm arrival slot</small></article>
+                        <i>→</i><article data-rp-saga-step="3"><span>4</span><b>Commit itinerary</b><small>publish + notify</small></article>
+                    </div>
+                    <div class="rp-saga-actions">
+                        <button type="button" id="rpSagaNext">Execute next step</button>
+                        <button type="button" id="rpSagaFail">Inject clinic failure</button>
+                        <button type="button" id="rpSagaReset" class="secondary">Reset</button>
+                    </div>
+                    <div class="rp-saga-log" aria-live="polite"><strong>Event log</strong><ol id="rpSagaLog"><li>Plan created. No external state has changed.</li></ol></div>
+                </div>
+
+                <div class="rp-transaction-grid">
+                    <article><h3>Prepare</h3><p>Resolve identifiers, permissions, constraints, idempotency keys, and expected versions before side effects.</p></article>
+                    <article><h3>Validate</h3><p>Check preconditions against authoritative systems; reject stale assumptions and conflicting reservations.</p></article>
+                    <article><h3>Commit</h3><p>Make the smallest safe state change, record what happened, and return a durable receipt.</p></article>
+                    <article><h3>Observe</h3><p>Confirm the intended outcome, not merely a successful API response. Watch deadlines and downstream effects.</p></article>
+                    <article><h3>Compensate</h3><p>If atomic rollback is impossible, execute a business-level undo such as releasing a hold or issuing a cancellation.</p></article>
+                    <article><h3>Reconcile</h3><p>Detect partial completion, duplicate execution, and uncertain outcomes; route irreducible ambiguity to a human.</p></article>
+                </div>
+
+                <div class="rp-exercise-card">
+                    <div><span>Exercise 5.1 · 35 minutes</span><h3>Turn a chat plan into a recoverable workflow</h3></div>
+                    <ol><li>Choose a multi-step workflow with at least two external systems.</li><li>For each step, define preconditions, effect, idempotency key, receipt, timeout, and compensating action.</li><li>Inject failure after every possible step and write the desired recovered state.</li><li>Identify one effect that cannot be safely reversed; place a human approval directly before it.</li></ol>
+                </div>
+
+                <p class="reference-strip"><strong>Course-linked topic:</strong> <a href="https://www.researchgate.net/publication/389855859_SagaLLM_Context_Management_Validation_and_Transaction_Guarantees_for_Multi-Agent_LLM_Planning" target="_blank" rel="noopener">SagaLLM: Context Management, Validation, and Transaction Guarantees for Multi-Agent LLM Planning</a>.</p>
+            </section>
+
+            <section id="rp-planning" class="example-section rp-section">
+                <span class="depth-kicker">Module 6 · temporal reasoning and orchestration</span>
+                <h2>A plan is a monitored partial order of state changes</h2>
+                <p class="section-intro">A plausible list of steps is not yet a plan. Executable planning makes state, preconditions, effects, resources, deadlines, concurrency, uncertainty, and recovery explicit.</p>
+
+                <div class="rp-manim-lesson">
+                    <video controls muted playsinline preload="metadata" poster="assets/manim/temporal-plan-dependencies.jpg">
+                        <source src="assets/manim/temporal-plan-dependencies.webm" type="video/webm">
+                        <source src="assets/manim/temporal-plan-dependencies.mp4" type="video/mp4">
+                    </video>
+                    <div><span>Visual plan</span><h3>Dependencies reveal safe parallelism</h3><p>Clearance and uplink preparation can proceed in parallel. Dispatch waits for both a verified zone and a live data path, and the mission commits only after every required branch succeeds.</p></div>
+                </div>
+
+                <div class="rp-planning-model">
+                    <div class="rp-plan-code">
+                        <span class="depth-kicker">Action schema</span>
+                        <pre><code>Action ReserveVehicle(request):
+    preconditions:
+        request.authorized
+        vehicle.available(request.window)
+    effects:
+        hold = vehicle.reserve(request.window)
+    invariant:
+        hold.expires_at > clinic.confirm_by
+    on_failure:
+        return typed_error + alternatives
+    compensate:
+        vehicle.release(hold.id)</code></pre>
+                    </div>
+                    <div class="rp-plan-principles">
+                        <article><b>State</b><p>Which facts are authoritative now, and which are inferred or cached?</p></article>
+                        <article><b>Order</b><p>Which actions must precede others, and which can safely run in parallel?</p></article>
+                        <article><b>Time</b><p>What starts, ends, expires, or must happen within a window?</p></article>
+                        <article><b>Resources</b><p>What capacity, money, people, tools, and rate limits are consumed?</p></article>
+                        <article><b>Uncertainty</b><p>Which result branches the plan, and what observation resolves it?</p></article>
+                        <article><b>Control</b><p>Who may approve, pause, override, compensate, and terminate?</p></article>
+                    </div>
+                </div>
+
+                <div class="rp-plan-builder" id="rpPlanBuilder">
+                    <div class="rp-lab-heading"><div><span class="depth-kicker">Planning exercise</span><h3>Find the unsafe dependency</h3></div><span class="rp-lab-chip" id="rpPlanScore">0 / 3 constraints found</span></div>
+                    <p>A disaster-response team proposes this plan: dispatch a drone, request airspace clearance, verify the landing zone, send a medical crew, and reserve the only satellite uplink. Select every dependency that must be enforced.</p>
+                    <div class="rp-plan-choices">
+                        <button type="button" data-rp-constraint="clearance">Clearance → drone dispatch</button>
+                        <button type="button" data-rp-constraint="landing">Landing-zone verification → crew dispatch</button>
+                        <button type="button" data-rp-constraint="uplink">Uplink reservation → drone video stream</button>
+                        <button type="button" data-rp-constraint="cosmetic">Medical crew → clearance request</button>
+                        <button type="button" data-rp-constraint="cosmetic">Drone dispatch → landing-zone verification</button>
+                    </div>
+                    <p id="rpPlanFeedback" aria-live="polite">Hint: identify safety gates and scarce resources before optimizing speed.</p>
+                </div>
+
+                <div class="rp-evaluation-table" role="region" aria-label="Evaluation dimensions for reasoning and planning systems" tabindex="0">
+                    <table>
+                        <thead><tr><th>Dimension</th><th>Metric</th><th>Adversarial test</th><th>Do not substitute</th></tr></thead>
+                        <tbody>
+                            <tr><td>Reasoning validity</td><td>Claim support, contradiction, counterexample survival</td><td>Change irrelevant wording and user opinion</td><td>Long chain-of-thought appearance</td></tr>
+                            <tr><td>Calibration</td><td>Accuracy by confidence; selective risk</td><td>Ambiguous and out-of-distribution cases</td><td>Average accuracy alone</td></tr>
+                            <tr><td>Causal judgment</td><td>Correct query, graph assumptions, effect direction</td><td>Confounding, collider, and transport shifts</td><td>Predictive fit</td></tr>
+                            <tr><td>Planning</td><td>Goal completion, constraint violations, recovery cost</td><td>Delay, stale state, partial failure, resource conflict</td><td>Plan plausibility judged from text</td></tr>
+                            <tr><td>Collaboration</td><td>Marginal gain over best single agent per cost</td><td>Shared false premise and copied evidence</td><td>Agent count or message volume</td></tr>
+                            <tr><td>Governance</td><td>Unauthorized actions, reversibility, audit coverage</td><td>Prompt injection and privilege boundary tests</td><td>A generic safety prompt</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="rp-exercise-studio" class="example-section rp-section rp-studio">
+                <span class="depth-kicker">Module 7 · retrieval practice and capstone</span>
+                <h2>Exercise studio: decide, explain, and defend</h2>
+                <p class="section-intro">Answer from memory first. Then reveal feedback, revise the reasoning, and record which misconception changed. Progress is stored only in this browser.</p>
+
+                <div class="rp-progress" aria-label="Reasoning exercise progress">
+                    <div><span id="rpProgressBar" style="width: 0%"></span></div>
+                    <strong id="rpProgressText">0 of 5 checks completed</strong>
+                    <button type="button" id="rpProgressReset" class="secondary">Reset progress</button>
+                </div>
+
+                <div class="rp-quiz-list">
+                    <article class="rp-quiz" data-rp-answer="intervention">
+                        <span>Check 1 · causal query</span><h3>“Would recovery improve if every eligible patient received the treatment?”</h3>
+                        <div role="group" aria-label="Choose the causal query type"><button type="button" data-rp-choice="association">Association</button><button type="button" data-rp-choice="intervention">Intervention</button><button type="button" data-rp-choice="counterfactual">Counterfactual</button></div>
+                        <p class="rp-quiz-feedback" aria-live="polite"></p>
+                    </article>
+                    <article class="rp-quiz" data-rp-answer="independent">
+                        <span>Check 2 · collaboration</span><h3>Which first step best protects hypothesis diversity?</h3>
+                        <div role="group" aria-label="Choose the collaboration approach"><button type="button" data-rp-choice="shared">Let every agent read the first answer</button><button type="button" data-rp-choice="independent">Collect independent proposals</button><button type="button" data-rp-choice="vote">Vote before collecting evidence</button></div>
+                        <p class="rp-quiz-feedback" aria-live="polite"></p>
+                    </article>
+                    <article class="rp-quiz" data-rp-answer="provenance">
+                        <span>Check 3 · memory</span><h3>A retrieved fact conflicts with the current API. What is the first debugging question?</h3>
+                        <div role="group" aria-label="Choose the memory debugging step"><button type="button" data-rp-choice="longer">Can the prompt include more memory?</button><button type="button" data-rp-choice="provenance">What source, timestamp, version, and validation state produced it?</button><button type="button" data-rp-choice="majority">Do more agents remember it?</button></div>
+                        <p class="rp-quiz-feedback" aria-live="polite"></p>
+                    </article>
+                    <article class="rp-quiz" data-rp-answer="compensate">
+                        <span>Check 4 · transactions</span><h3>The clinic reservation fails after a vehicle hold succeeds. What should the workflow do?</h3>
+                        <div role="group" aria-label="Choose the transaction recovery"><button type="button" data-rp-choice="retry">Repeat every step without an idempotency key</button><button type="button" data-rp-choice="ignore">Keep the hold and report success</button><button type="button" data-rp-choice="compensate">Release the hold, log the failure, and re-plan</button></div>
+                        <p class="rp-quiz-feedback" aria-live="polite"></p>
+                    </article>
+                    <article class="rp-quiz" data-rp-answer="outcomes">
+                        <span>Check 5 · evaluation</span><h3>What is the strongest evidence that a multi-agent planner improved?</h3>
+                        <div role="group" aria-label="Choose the evaluation evidence"><button type="button" data-rp-choice="length">Its plans are longer</button><button type="button" data-rp-choice="agents">It uses more agents</button><button type="button" data-rp-choice="outcomes">It raises task success under failures at acceptable cost</button></div>
+                        <p class="rp-quiz-feedback" aria-live="polite"></p>
+                    </article>
+                </div>
+
+                <div class="rp-capstone">
+                    <div>
+                        <span class="depth-kicker">Capstone · 4–8 hours</span>
+                        <h3>Build an auditable emergency-room coordination planner</h3>
+                        <p>Given incoming patients, beds, clinicians, imaging capacity, transport, and uncertain arrival times, propose and continually revise a schedule. The model may recommend; a simulated human controller authorizes irreversible actions.</p>
+                    </div>
+                    <ol>
+                        <li><b>Representation:</b> typed state, goals, constraints, action schemas, and time windows.</li>
+                        <li><b>Reasoning:</b> at least two independent proposals and one causal or counterfactual question.</li>
+                        <li><b>Collaboration:</b> explicit roles, evidence provenance, aggregation, and stop conditions.</li>
+                        <li><b>Execution:</b> idempotent actions, validation, receipts, compensation, and reconciliation.</li>
+                        <li><b>Evaluation:</b> normal cases plus delays, stale memory, tool failure, shared false premises, and prompt injection.</li>
+                        <li><b>Report:</b> outcome metrics, calibration, cost, failure analysis, unresolved risks, and human-control boundaries.</li>
+                    </ol>
+                </div>
+
+                <div class="rp-reading-map">
+                    <h3>Reading map from the public syllabus</h3>
+                    <a href="https://dl.acm.org/doi/book/10.1145/3749421" target="_blank" rel="noopener"><b>Multi-LLM Collaborative Intelligence</b><span>Course text · collaboration, planning, system architecture</span></a>
+                    <a href="https://www.amazon.com/dp/1962463222" target="_blank" rel="noopener"><b>System-2 Reasoning: From Semantic Anchoring to Causal Intelligence</b><span>Course text · causality, calibration, temporal reasoning</span></a>
+                    <a href="https://socrasynth.com" target="_blank" rel="noopener"><b>SocraSynth supplementary materials</b><span>Additional readings linked by CS372</span></a>
+                    <a href="http://infolab.stanford.edu/~echang/SocraSynth.html" target="_blank" rel="noopener"><b>Epistemic Regret Minimization</b><span>Course-linked reasoning topic</span></a>
+                </div>
+            </section>
+        </section>
+
         <section class="chapter" data-chapter="reinforcement-learning">
             <nav class="chapter-nav" aria-label="Reinforcement learning sections">
                 <a href="#rl-fundamentals">Fundamentals</a>
@@ -5710,6 +6143,12 @@ actions(state) -&gt; action list
                 <a href="#python-core">Core language</a>
                 <a href="#python-data">Data thinking</a>
                 <a href="#python-libraries">Libraries</a>
+                <a href="#python-zero-to-hero">Project path</a>
+                <a href="#pytorch-roadmap">PyTorch map</a>
+                <a href="#pytorch-autograd">Tensor + autograd</a>
+                <a href="#pytorch-architectures">Architectures</a>
+                <a href="#pytorch-training">Train + infer</a>
+                <a href="#pytorch-transformer">Transformer + GPT</a>
                 <a href="#python-course-lab">Python lab</a>
             </nav>
 
@@ -5830,20 +6269,619 @@ except KeyError:
                 </div>
             </section>
 
+            <section id="python-zero-to-hero" class="example-section zero-to-hero-section">
+                <span class="depth-kicker">Python for ML · exercise-first project path</span>
+                <h2>Turn “Neural Networks: Zero to Hero” into ten working systems</h2>
+                <p class="section-intro">The playlist builds neural networks from scalar derivatives through GPT-2. This companion path keeps that conceptual order, but every stage asks you to diagnose or deliver something a practitioner would recognize: a churn model, a demand forecast, a tokenizer, a support assistant, or a scaling plan. The examples and exercises here are original; use the videos for instruction and this site for deliberate practice.</p>
+
+                <div class="zth-protocol" aria-label="Practical machine learning experiment protocol">
+                    <article><span>01</span><strong>Frame</strong><small>Who acts on the prediction, and what error is expensive?</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>02</span><strong>Baseline</strong><small>Beat a simple rule before increasing model complexity.</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>03</span><strong>Split</strong><small>Choose a boundary that matches how future data arrives.</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>04</span><strong>Diagnose</strong><small>Inspect loss, activations, gradients, and failure slices.</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>05</span><strong>Decide</strong><small>Evaluate cost, document evidence, and define monitoring.</small></article>
+                </div>
+
+                <div class="zth-project-grid">
+                    <article>
+                        <span class="zth-number">01 · micrograd</span>
+                        <h3>Audit a risk score</h3>
+                        <p>Build scalar autodiff, trace the chain rule, and explain which input most changed a decision.</p>
+                        <strong>Deliver:</strong><small>a gradient check and responsibility report</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="autograd">Launch autodiff lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">02 · makemore</span>
+                        <h3>Prototype ticket autocomplete</h3>
+                        <p>Count transitions, estimate a next-character baseline, and measure cross-entropy on held-out text.</p>
+                        <strong>Deliver:</strong><small>a baseline with known context limitations</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="minigpt">Launch language lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">03 · MLP</span>
+                        <h3>Predict customer churn</h3>
+                        <p>Standardize training features, fit logistic regression, and connect the loop to a dense neural network.</p>
+                        <strong>Deliver:</strong><small>held-out precision, recall, and intervention notes</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="churn">Launch churn lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">04 · activations</span>
+                        <h3>Run a training health check</h3>
+                        <p>Compare unstable initialization with a scaled alternative by inspecting layer activations and gradients.</p>
+                        <strong>Deliver:</strong><small>a diagnosis backed by layerwise statistics</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="diagnostics">Launch diagnostics</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">05 · backprop ninja</span>
+                        <h3>Verify a pricing gradient</h3>
+                        <p>Derive one update by hand, compare it with autodiff and finite differences, then explain any mismatch.</p>
+                        <strong>Deliver:</strong><small>a three-way gradient audit</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="neuron">Launch neuron lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">06 · WaveNet</span>
+                        <h3>Forecast service demand</h3>
+                        <p>Start with lagged features and a chronological split before reasoning about wider, dilated context.</p>
+                        <strong>Deliver:</strong><small>a leakage-safe forecast and residual review</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="demand">Launch forecast lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">07 · GPT</span>
+                        <h3>Build a support assistant core</h3>
+                        <p>Follow information through causal attention, residual updates, logits, and a deliberate decoding policy.</p>
+                        <strong>Deliver:</strong><small>a tiny decoder plus behavior tests</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="transformer">Launch Transformer lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">08 · state of GPT</span>
+                        <h3>Evaluate the whole product</h3>
+                        <p>Treat data, model, retrieval, policy, user experience, and monitoring as one accountable system.</p>
+                        <strong>Deliver:</strong><small>a failure taxonomy and release gate</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="fraud">Launch decision-cost lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">09 · tokenizer</span>
+                        <h3>Compress support language</h3>
+                        <p>Perform byte-pair merges, inspect domain-specific chunks, and test an unseen multilingual request.</p>
+                        <strong>Deliver:</strong><small>a tokenizer card with compression trade-offs</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="bpe">Launch BPE lab</button>
+                    </article>
+                    <article>
+                        <span class="zth-number">10 · GPT-2</span>
+                        <h3>Plan a reproducible training run</h3>
+                        <p>Estimate parameters and memory, match a known configuration, and record every assumption behind parity.</p>
+                        <strong>Deliver:</strong><small>a scaling budget and reproducibility report</small>
+                        <button class="notebook-btn secondary" type="button" data-pytorch-example="scaling">Launch scaling lab</button>
+                    </article>
+                </div>
+
+                <div class="zth-manim-gallery" aria-label="Animated neural network concept lessons">
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/backpropagation-flow.jpg">
+                            <source src="assets/manim/backpropagation-flow.webm" type="video/webm">
+                            <source src="assets/manim/backpropagation-flow.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Reason about responsibility</span><h3>Backpropagation</h3><p>Watch local derivatives pass influence from the loss back to every parameter.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/activation-gradient-health.jpg">
+                            <source src="assets/manim/activation-gradient-health.webm" type="video/webm">
+                            <source src="assets/manim/activation-gradient-health.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Diagnose before tuning</span><h3>Activation and gradient health</h3><p>See exploding and vanishing signals become measurable layer statistics.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/bpe-token-merge.jpg">
+                            <source src="assets/manim/bpe-token-merge.webm" type="video/webm">
+                            <source src="assets/manim/bpe-token-merge.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Build the vocabulary</span><h3>Byte-pair merging</h3><p>Repeated adjacent symbols become reusable chunks without losing the base byte vocabulary.</p></div>
+                    </article>
+                    <article>
+                        <video controls muted playsinline preload="metadata" poster="assets/manim/transformer-flow.jpg">
+                            <source src="assets/manim/transformer-flow.webm" type="video/webm">
+                            <source src="assets/manim/transformer-flow.mp4" type="video/mp4">
+                        </video>
+                        <div><span>Track information</span><h3>Transformer residual flow</h3><p>Attention routes context and the MLP writes features into a shared residual stream.</p></div>
+                    </article>
+                </div>
+
+                <div class="zth-practice-contract">
+                    <div><strong>Before coding</strong><p>Write the input shape, target, baseline, split rule, and one expensive mistake.</p></div>
+                    <div><strong>While training</strong><p>Log a seed, loss, simple metric, activation scale, gradient scale, and one failure slice.</p></div>
+                    <div><strong>Before shipping</strong><p>Test distribution shift, set a decision threshold, document limitations, and name a monitoring signal.</p></div>
+                </div>
+                <p class="reference-strip"><strong>Learning source:</strong> Andrej Karpathy's <a href="https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ" target="_blank" rel="noopener">Neural Networks: Zero to Hero playlist</a> and the accompanying <a href="https://github.com/karpathy/nn-zero-to-hero" target="_blank" rel="noopener">MIT-licensed exercise repository</a>. This project path adds original scenarios, code, evaluation tasks, and visual explanations.</p>
+            </section>
+
+            <section id="pytorch-roadmap" class="example-section pytorch-section">
+                <span class="depth-kicker">PyTorch deep dive · from first tensor to production</span>
+                <h2>One mental model for the whole framework</h2>
+                <p class="section-intro">PyTorch is an eager tensor runtime with automatic differentiation, a composable neural-network library, training utilities, compiler paths, and a broad ecosystem. The same Python objects move through the entire loop: data becomes tensors, modules transform tensors, autograd records the executed graph, optimizers update parameters, and inference reuses the forward computation without gradient bookkeeping.</p>
+
+                <div class="pytorch-runtime-flow" aria-label="PyTorch workflow from data through tensors, modules, gradients, optimization, and inference">
+                    <article><span>01</span><strong>Data</strong><small><code>Dataset</code> + <code>DataLoader</code></small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>02</span><strong>Tensors</strong><small>shape · dtype · device</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>03</span><strong><code>nn.Module</code></strong><small>registered parameters + forward</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>04</span><strong>Autograd</strong><small>dynamic graph + chain rule</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>05</span><strong>Optimizer</strong><small>update parameter values</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>06</span><strong>Inference</strong><small><code>eval</code> + <code>inference_mode</code></small></article>
+                </div>
+
+                <div class="pytorch-principles-grid">
+                    <article><b>Tensor = data + metadata</b><p>A tensor owns or views storage and describes it with a shape, strides, dtype, layout, and device. Shape errors are interface errors; dtype and device errors are execution errors.</p></article>
+                    <article><b>Autograd records what ran</b><p>Operations on tensors requiring gradients create a directed acyclic graph. Each training iteration builds a fresh graph, so ordinary Python branches and loops can change the computation.</p></article>
+                    <article><b>Modules organize state</b><p><code>nn.Module</code> registers nested submodules, parameters, and buffers. <code>state_dict()</code>, <code>to(device)</code>, <code>train()</code>, and <code>eval()</code> work across that tree.</p></article>
+                    <article><b>Loss creates one objective</b><p>A scalar loss measures the prediction error. <code>loss.backward()</code> accumulates gradients into leaf parameters; it does not update weights.</p></article>
+                    <article><b>The optimizer owns the update rule</b><p><code>step()</code> reads parameter gradients and its own state—such as momentum or second moments—to update values. <code>zero_grad()</code> clears accumulated gradients.</p></article>
+                    <article><b>Inference is a distinct mode</b><p><code>model.eval()</code> changes stateful layer behavior; <code>torch.inference_mode()</code> disables autograd overhead. Production also considers batching, compilation, export, precision, and serving.</p></article>
+                </div>
+
+                <div class="pytorch-namespace-table" role="region" aria-label="PyTorch namespace map" tabindex="0">
+                    <table>
+                        <thead><tr><th>Namespace</th><th>Owns</th><th>Reach for it when</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>torch</code></td><td>Tensor creation, indexing, math, random, devices, serialization</td><td>You need the numerical operation itself.</td></tr>
+                            <tr><td><code>torch.nn</code></td><td>Modules, layers, activations, losses, attention, containers</td><td>The operation has learnable state or belongs in a model tree.</td></tr>
+                            <tr><td><code>torch.nn.functional</code></td><td>Stateless functions such as activations, losses, pooling, SDPA</td><td>You already own the weights or want functional composition.</td></tr>
+                            <tr><td><code>torch.autograd</code></td><td>Reverse/forward AD, Jacobians, custom <code>Function</code></td><td>You need gradients, higher derivatives, or a custom backward.</td></tr>
+                            <tr><td><code>torch.optim</code></td><td>Optimization algorithms and learning-rate schedulers</td><td>You are turning gradients into parameter updates.</td></tr>
+                            <tr><td><code>torch.utils.data</code></td><td><code>Dataset</code>, <code>DataLoader</code>, sampling and batching</td><td>You need repeatable, parallel input pipelines.</td></tr>
+                            <tr><td><code>torch.amp</code></td><td>Automatic mixed precision and gradient scaling</td><td>You want lower-precision throughput with numerical safeguards.</td></tr>
+                            <tr><td><code>torch.compile</code></td><td>Graph capture and compiler optimization</td><td>Eager correctness is established and profiling shows framework overhead.</td></tr>
+                            <tr><td><code>torch.distributed</code></td><td>Collectives, DDP, FSDP2, tensor and pipeline parallelism</td><td>One process or accelerator cannot meet the training target.</td></tr>
+                            <tr><td><code>torch.export</code> / <code>torch.onnx</code></td><td>Ahead-of-time graphs and interoperable export</td><td>The model must leave the eager Python runtime.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="reference-strip"><strong>Authoritative starting points:</strong> <a href="https://docs.pytorch.org/docs/stable/index.html" target="_blank" rel="noopener">PyTorch documentation</a>, <a href="https://docs.pytorch.org/tutorials/beginner/basics/" target="_blank" rel="noopener">official Learn the Basics path</a>, and <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html" target="_blank" rel="noopener"><code>nn.Module</code> reference</a>.</p>
+            </section>
+
+            <section id="pytorch-ecosystem" class="example-section pytorch-section">
+                <span class="depth-kicker">Built-ins, algorithms, and libraries</span>
+                <h2>Know what PyTorch already gives you</h2>
+                <p class="section-intro">The useful map is layered: tensor operators at the bottom; model, differentiation, optimization, and data APIs in core; then domain libraries for vision, audio, recommendation, reinforcement learning, LLM tuning, mobile execution, and model optimization.</p>
+
+                <div class="pytorch-ecosystem-grid">
+                    <article><span>Core vision</span><h3>torchvision</h3><p>Datasets, transforms, image/video operators, detection utilities, and pretrained classification, detection, segmentation, and video models.</p></article>
+                    <article><span>Audio + video</span><h3>TorchCodec + torchaudio</h3><p>Use TorchCodec for current media decoding and encoding. TorchAudio is in maintenance mode but retains signal processing, datasets, pipelines, and speech/audio model components.</p></article>
+                    <article><span>Generative AI training</span><h3>TorchTitan</h3><p>PyTorch-native large-scale training with composable FSDP2, tensor, pipeline, and context parallelism. Torchtune remains useful reference code, but active development wound down in 2025.</p></article>
+                    <article><span>On-device</span><h3>ExecuTorch</h3><p>Export and runtime infrastructure for phones, embedded devices, wearables, and edge accelerators.</p></article>
+                    <article><span>Recommendation</span><h3>TorchRec</h3><p>Embedding tables, sharding planners, distributed primitives, and recommender-system modules.</p></article>
+                    <article><span>Reinforcement learning</span><h3>TorchRL + TensorDict</h3><p>Environments, collectors, replay buffers, objectives, transforms, and structured tensor batches.</p></article>
+                    <article><span>Quantization + sparsity</span><h3>torchao</h3><p>Low-precision data types, quantization, sparsity, and training/inference optimization primitives.</p></article>
+                    <article><span>Accelerators</span><h3>PyTorch/XLA</h3><p>Execution on XLA devices such as TPUs with graph compilation and distributed support.</p></article>
+                </div>
+
+                <div class="pytorch-algorithm-columns">
+                    <article class="pytorch-catalog-card">
+                        <h3>Built-in optimizers</h3>
+                        <p>All current <code>torch.optim</code> algorithms, grouped by the idea that drives their update.</p>
+                        <dl class="pytorch-catalog-list">
+                            <div><dt>Gradient + momentum</dt><dd><code>SGD</code>, <code>ASGD</code>, <code>Rprop</code></dd></div>
+                            <div><dt>Adaptive scale</dt><dd><code>Adagrad</code>, <code>Adadelta</code>, <code>RMSprop</code>, <code>Adafactor</code></dd></div>
+                            <div><dt>Adam family</dt><dd><code>Adam</code>, <code>AdamW</code>, <code>Adamax</code>, <code>NAdam</code>, <code>RAdam</code>, <code>SparseAdam</code></dd></div>
+                            <div><dt>Curvature / matrix-aware</dt><dd><code>LBFGS</code>, <code>Muon</code></dd></div>
+                        </dl>
+                    </article>
+                    <article class="pytorch-catalog-card">
+                        <h3>Loss families</h3>
+                        <p>Choose the loss from the prediction contract, not from habit.</p>
+                        <dl class="pytorch-catalog-list">
+                            <div><dt>Regression</dt><dd><code>L1</code>, <code>MSE</code>, <code>SmoothL1</code>, <code>Huber</code>, <code>PoissonNLL</code>, <code>GaussianNLL</code></dd></div>
+                            <div><dt>Classification</dt><dd><code>CrossEntropy</code>, <code>NLL</code>, <code>BCE</code>, <code>BCEWithLogits</code>, <code>MultiLabelMargin</code></dd></div>
+                            <div><dt>Embedding / ranking</dt><dd><code>CosineEmbedding</code>, <code>TripletMargin</code>, <code>MarginRanking</code>, <code>MultiMargin</code></dd></div>
+                            <div><dt>Sequence / distribution</dt><dd><code>CTC</code>, <code>KLDiv</code></dd></div>
+                        </dl>
+                    </article>
+                    <article class="pytorch-catalog-card">
+                        <h3>Schedule families</h3>
+                        <p>A scheduler changes the optimizer learning rate; it does not replace the optimizer.</p>
+                        <dl class="pytorch-catalog-list">
+                            <div><dt>Fixed decay</dt><dd><code>StepLR</code>, <code>MultiStepLR</code>, <code>ExponentialLR</code></dd></div>
+                            <div><dt>Smooth decay</dt><dd><code>CosineAnnealingLR</code>, <code>PolynomialLR</code>, <code>LinearLR</code></dd></div>
+                            <div><dt>Cyclic</dt><dd><code>CyclicLR</code>, <code>OneCycleLR</code>, warm restarts</dd></div>
+                            <div><dt>Metric-driven / composition</dt><dd><code>ReduceLROnPlateau</code>, <code>LambdaLR</code>, <code>SequentialLR</code>, <code>ChainedScheduler</code></dd></div>
+                        </dl>
+                    </article>
+                </div>
+
+                <p class="reference-strip"><strong>Official catalogs:</strong> <a href="https://docs.pytorch.org/docs/stable/nn.html" target="_blank" rel="noopener"><code>torch.nn</code> layers and losses</a>, <a href="https://docs.pytorch.org/docs/stable/optim.html" target="_blank" rel="noopener"><code>torch.optim</code> algorithms</a>, <a href="https://docs.pytorch.org/pytorch-domains" target="_blank" rel="noopener">PyTorch domain libraries</a>, <a href="https://docs.pytorch.org/torchcodec/stable/" target="_blank" rel="noopener">TorchCodec</a>, and <a href="https://github.com/pytorch/torchtitan" target="_blank" rel="noopener">TorchTitan</a>.</p>
+            </section>
+
+            <section id="pytorch-autograd" class="example-section pytorch-section">
+                <span class="depth-kicker">Tensor mechanics + reverse-mode differentiation</span>
+                <h2>See the graph that training creates</h2>
+                <p class="section-intro">A forward pass computes tensor values and records local derivative rules. Backward traverses that graph in reverse topological order, multiplying upstream gradients by each local derivative and summing contributions where paths meet.</p>
+
+                <div class="autograd-equation" aria-label="A small scalar computation graph">
+                    <div class="autograd-node"><span>leaf</span><b>x = 2</b><small>requires_grad</small></div>
+                    <i>→</i>
+                    <div class="autograd-node"><span>multiply</span><b>u = 3x</b><small>∂u/∂x = 3</small></div>
+                    <i>→</i>
+                    <div class="autograd-node"><span>tanh</span><b>y = tanh(u)</b><small>∂y/∂u = 1-y²</small></div>
+                    <i class="autograd-backward">← gradient = chain rule ←</i>
+                </div>
+
+                <div class="pytorch-autograd-grid">
+                    <article>
+                        <h3>Forward: values + graph</h3>
+                        <pre><code>x = torch.tensor(2.0, requires_grad=True)
+u = 3 * x
+y = torch.tanh(u)
+print(y.grad_fn)  # operation that created y</code></pre>
+                        <p>The leaves are user-created tensors requiring gradients. Non-leaf outputs carry <code>grad_fn</code> links into the recorded graph.</p>
+                    </article>
+                    <article>
+                        <h3>Backward: vector–Jacobian products</h3>
+                        <pre><code>y.backward()      # seed dy/dy = 1
+print(x.grad)     # dy/dx, accumulated at leaf x
+x.grad = None     # clear before the next step</code></pre>
+                        <p><code>backward()</code> accumulates into <code>.grad</code>. For non-scalar outputs, provide the upstream vector or reduce to a scalar loss.</p>
+                    </article>
+                    <article>
+                        <h3>Detach and no-grad</h3>
+                        <pre><code>feature = encoder(x).detach()
+with torch.no_grad():
+    target.copy_(source)
+with torch.inference_mode():
+    prediction = model(batch)</code></pre>
+                        <p>Detaching creates a graph boundary. No-grad allows later reuse in grad mode; inference mode removes more overhead and is intentionally more restrictive.</p>
+                    </article>
+                </div>
+
+                <div class="micrograd-callout">
+                    <div>
+                        <span class="depth-kicker">Why build micrograd?</span>
+                        <h3>It exposes the exact contract PyTorch scales up</h3>
+                        <p>A tiny <code>Value</code> object stores data, a gradient, parents, and a local backward function. Operator overloading builds a dynamic DAG; a topological traversal applies the chain rule. PyTorch repeats this idea over multidimensional tensors with optimized kernels, views, devices, and a much larger operator system.</p>
+                    </div>
+                    <button class="notebook-btn" type="button" data-pytorch-example="autograd">Load scalar autograd lab</button>
+                </div>
+
+                <p class="reference-strip"><strong>Primary references:</strong> <a href="https://docs.pytorch.org/docs/stable/notes/autograd.html" target="_blank" rel="noopener">PyTorch autograd mechanics</a>, <a href="https://docs.pytorch.org/docs/stable/autograd.html" target="_blank" rel="noopener"><code>torch.autograd</code> reference</a>, and <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">Andrej Karpathy's MIT-licensed micrograd</a>.</p>
+            </section>
+
+            <section id="pytorch-architectures" class="example-section pytorch-section">
+                <span class="depth-kicker">Architecture atlas</span>
+                <h2>Choose an inductive bias, then compose modules</h2>
+                <p class="section-intro">An architecture says which information may interact, which parameters are shared, and which symmetries the model should respect. Use the explorer to compare the major families and see their PyTorch skeletons.</p>
+
+                <div class="architecture-explorer" id="pytorchArchitectureExplorer">
+                    <div class="architecture-tabs" role="tablist" aria-label="Neural network architecture families" id="pytorchArchitectureTabs">
+                        <button type="button" role="tab" aria-selected="true" data-architecture="mlp">MLP</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="cnn">CNN</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="resnet">ResNet</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="rnn">RNN / LSTM</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="autoencoder">Autoencoder</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="unet">U-Net</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="gnn">GNN</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="transformer">Transformer</button>
+                        <button type="button" role="tab" aria-selected="false" data-architecture="gpt">GPT</button>
+                    </div>
+                    <article class="architecture-detail" role="tabpanel" id="pytorchArchitectureDetail" aria-live="polite">
+                        <div class="architecture-copy">
+                            <span id="architectureFamily">Dense feed-forward</span>
+                            <h3 id="architectureTitle">Multilayer perceptron (MLP)</h3>
+                            <p id="architectureIntuition">Every output feature can mix every input feature. Nonlinear activations let stacked affine maps form curved decision boundaries.</p>
+                            <dl>
+                                <div><dt>Input → output</dt><dd id="architectureShape">[batch, features] → [batch, classes]</dd></div>
+                                <div><dt>Best fit</dt><dd id="architectureUse">Tabular baselines, projections, heads, and feature mixing.</dd></div>
+                                <div><dt>Core blocks</dt><dd id="architectureBlocks">Linear · GELU/ReLU · normalization · dropout</dd></div>
+                                <div><dt>Main watch-out</dt><dd id="architectureCaution">Dense mixing ignores spatial and sequential structure unless features encode it.</dd></div>
+                            </dl>
+                        </div>
+                        <pre><code id="architectureCode">class MLP(nn.Module):
+    def __init__(self, d_in, d_hidden, d_out):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(d_in, d_hidden),
+            nn.GELU(),
+            nn.Linear(d_hidden, d_out),
+        )
+
+    def forward(self, x):
+        return self.net(x)</code></pre>
+                    </article>
+                </div>
+
+                <div class="architecture-selection-guide">
+                    <h3>A practical selection rule</h3>
+                    <div><b>Independent feature vector?</b><span>Start with an MLP or tree baseline.</span></div>
+                    <div><b>Local spatial structure?</b><span>CNN/ResNet; U-Net when dense output needs detail.</span></div>
+                    <div><b>Ordered stream with compact state?</b><span>GRU/LSTM for recurrent state and streaming constraints.</span></div>
+                    <div><b>Long-range token interaction?</b><span>Transformer; encoder for representations, decoder for generation.</span></div>
+                    <div><b>Nodes and relations?</b><span>Graph neural network with message passing.</span></div>
+                    <div><b>Generate complex signals?</b><span>Autoregressive, VAE, GAN, or diffusion objective depending on likelihood, fidelity, and sampling needs.</span></div>
+                </div>
+
+                <p class="reference-strip"><strong>Framework reference:</strong> the official <a href="https://docs.pytorch.org/docs/stable/nn.html" target="_blank" rel="noopener"><code>torch.nn</code> catalog</a> includes convolution, pooling, recurrent, Transformer, normalization, dropout, sparse, distance, and loss modules.</p>
+            </section>
+
+            <section id="pytorch-training" class="example-section pytorch-section">
+                <span class="depth-kicker">Training, evaluation, and scale</span>
+                <h2>The complete learning loop—and why every line exists</h2>
+                <div class="training-loop-deep-dive">
+                    <pre><code>device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = Model().to(device)
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+loss_fn = torch.nn.CrossEntropyLoss()
+
+for epoch in range(epochs):
+    model.train()
+    for inputs, targets in train_loader:
+        inputs, targets = inputs.to(device), targets.to(device)
+        optimizer.zero_grad(set_to_none=True)
+        logits = model(inputs)
+        loss = loss_fn(logits, targets)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        optimizer.step()
+
+    model.eval()
+    with torch.inference_mode():
+        validation_metrics = evaluate(model, validation_loader)</code></pre>
+                    <ol class="training-loop-annotations">
+                        <li><b>Place state together.</b><span>Parameters, buffers, inputs, and targets involved in an operation must use compatible devices and dtypes.</span></li>
+                        <li><b>Switch behavior.</b><span><code>train()</code> enables training behavior; <code>eval()</code> changes modules such as dropout and batch normalization.</span></li>
+                        <li><b>Clear accumulated gradients.</b><span>Gradients add by default, enabling gradient accumulation but requiring an intentional reset.</span></li>
+                        <li><b>Forward defines the graph.</b><span>The executed tensor operations produce logits and record the differentiable path.</span></li>
+                        <li><b>Loss defines the task.</b><span>Its input contract—logits vs probabilities, class index vs distribution—must match model outputs and targets.</span></li>
+                        <li><b>Backward assigns credit.</b><span>Reverse-mode AD computes gradients of the scalar loss with respect to every reachable leaf parameter.</span></li>
+                        <li><b>Step changes values.</b><span>The optimizer applies SGD, AdamW, or another update; clipping bounds a global norm before that update.</span></li>
+                        <li><b>Evaluate without graph overhead.</b><span>Measure validation data separately and never tune on the final test set.</span></li>
+                    </ol>
+                </div>
+
+                <div class="pytorch-scaling-grid">
+                    <article><h3>Mixed precision</h3><p><code>torch.autocast</code> selects lower precision for eligible operations. <code>torch.amp.GradScaler</code> protects small fp16 gradients; bf16 often does not need scaling.</p></article>
+                    <article><h3>Gradient accumulation</h3><p>Divide loss by accumulation steps, call backward repeatedly, then step and zero. This changes optimizer-step frequency, not true activation memory inside one microbatch.</p></article>
+                    <article><h3>Compilation</h3><p><code>torch.compile(model)</code> attempts graph capture and optimized kernels. Establish eager correctness, profile, then measure warm-up and steady-state performance.</p></article>
+                    <article><h3>Data parallel</h3><p>DDP keeps a model replica per process and synchronizes gradients. Use <code>DistributedSampler</code> so workers receive different examples.</p></article>
+                    <article><h3>Fully sharded data parallel</h3><p>FSDP2 shards parameters, gradients, and optimizer state across workers, trading communication for lower per-device memory.</p></article>
+                    <article><h3>Tensor / sequence parallel</h3><p>Partition individual large operations or activations across a device mesh when a layer itself is too large or communication patterns favor model parallelism.</p></article>
+                </div>
+
+                <div class="pytorch-debug-checklist">
+                    <h3>When training fails, inspect in this order</h3>
+                    <ol>
+                        <li>Can one tiny batch overfit? If not, suspect the model, labels, loss contract, or update path.</li>
+                        <li>Are shapes, dtypes, devices, ranges, masks, and padding semantics exactly what the layer expects?</li>
+                        <li>Are gradients finite, nonzero, and reaching the intended parameters? Did an accidental <code>detach</code> cut the graph?</li>
+                        <li>Do train/eval modes, normalization statistics, augmentation, and data splits behave consistently?</li>
+                        <li>Does a simple baseline beat chance? Are metrics computed from the correct dimension and threshold?</li>
+                    </ol>
+                </div>
+
+                <p class="reference-strip"><strong>Official guides:</strong> <a href="https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html" target="_blank" rel="noopener">optimizing model parameters</a>, <a href="https://docs.pytorch.org/docs/stable/amp.html" target="_blank" rel="noopener">automatic mixed precision</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.compile.html" target="_blank" rel="noopener"><code>torch.compile</code></a>, and <a href="https://docs.pytorch.org/docs/stable/distributed.html" target="_blank" rel="noopener">distributed training</a>.</p>
+            </section>
+
+            <section id="pytorch-transformer" class="example-section pytorch-section">
+                <span class="depth-kicker">Transformer and GPT from first principles</span>
+                <h2>Build a decoder-only language model one operation at a time</h2>
+                <p class="section-intro">A GPT-style model repeatedly lets each token read earlier tokens, mixes the retrieved information through an MLP, and predicts the next token. Training uses teacher forcing: all positions predict their next token in parallel under a causal mask. Generation runs that same forward pass repeatedly, sampling one new token at a time.</p>
+
+                <div class="transformer-equation-grid">
+                    <article><span>1 · Represent</span><h3>Token + position</h3><div class="math-formula math-mini">\[X=E_{token}[t]+E_{pos}[0{:}T]\]</div><p>Token embeddings identify symbols; position embeddings distinguish order.</p></article>
+                    <article><span>2 · Route</span><h3>Causal self-attention</h3><div class="math-formula math-mini">\[A=\operatorname{softmax}(QK^\top/\sqrt{d_k}+M)V\]</div><p>The triangular mask (M) prevents a prediction from reading future answers.</p></article>
+                    <article><span>3 · Compute</span><h3>Residual MLP</h3><div class="math-formula math-mini">\[H\leftarrow H+\operatorname{MLP}(\operatorname{LN}(H))\]</div><p>Attention moves information; the position-wise MLP transforms it.</p></article>
+                    <article><span>4 · Predict</span><h3>Next-token loss</h3><div class="math-formula math-mini">\[L=-\sum_t\log p_\theta(x_{t+1}\mid x_{\le t})\]</div><p>The language-model head maps hidden states to vocabulary logits.</p></article>
+                </div>
+
+                <section class="pytorch-media-carousel" id="pytorchManimCarousel" aria-label="Manim-guided Transformer concepts" aria-roledescription="carousel" tabindex="0">
+                    <div class="pytorch-carousel-heading">
+                        <div><span>MANIM CONCEPT CAROUSEL</span><h3>Watch information and gradients move</h3></div>
+                        <strong id="pytorchManimCounter" aria-live="polite">1 / 4</strong>
+                    </div>
+                    <div class="pytorch-carousel-viewport">
+                        <div class="pytorch-carousel-track" id="pytorchManimTrack">
+                            <article class="pytorch-carousel-slide" aria-label="Slide 1 of 4">
+                                <video muted loop playsinline preload="metadata" poster="assets/manim/backpropagation-flow.jpg">
+                                    <source src="assets/manim/backpropagation-flow.webm" type="video/webm">
+                                    <source src="assets/manim/backpropagation-flow.mp4" type="video/mp4">
+                                </video>
+                                <div><span>Micrograd → autograd</span><h4>Local derivatives become global credit</h4><p>Every edge contributes a local rule; reverse traversal accumulates responsibility at shared parameters.</p></div>
+                            </article>
+                            <article class="pytorch-carousel-slide" aria-label="Slide 2 of 4" aria-hidden="true">
+                                <video muted loop playsinline preload="metadata" poster="assets/manim/attention-routing.jpg">
+                                    <source src="assets/manim/attention-routing.webm" type="video/webm">
+                                    <source src="assets/manim/attention-routing.mp4" type="video/mp4">
+                                </video>
+                                <div><span>Scaled dot-product attention</span><h4>Queries choose where to read</h4><p>Query–key compatibility becomes a probability distribution; its weighted value sum retrieves context.</p></div>
+                            </article>
+                            <article class="pytorch-carousel-slide" aria-label="Slide 3 of 4" aria-hidden="true">
+                                <video muted loop playsinline preload="metadata" poster="assets/manim/transformer-flow.jpg">
+                                    <source src="assets/manim/transformer-flow.webm" type="video/webm">
+                                    <source src="assets/manim/transformer-flow.mp4" type="video/mp4">
+                                </video>
+                                <div><span>Residual stream</span><h4>Attention reads; MLPs write</h4><p>Pre-normalized blocks repeatedly add routed context and transformed features to the token stream.</p></div>
+                            </article>
+                            <article class="pytorch-carousel-slide" aria-label="Slide 4 of 4" aria-hidden="true">
+                                <video muted loop playsinline preload="metadata" poster="assets/manim/token-probability-flow.jpg">
+                                    <source src="assets/manim/token-probability-flow.webm" type="video/webm">
+                                    <source src="assets/manim/token-probability-flow.mp4" type="video/mp4">
+                                </video>
+                                <div><span>Autoregressive generation</span><h4>One distribution, one sampled token, repeat</h4><p>Temperature and top-k/top-p change sampling; they do not retrain the model or add new knowledge.</p></div>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="pytorch-carousel-controls">
+                        <button type="button" id="pytorchManimPrev">← Previous</button>
+                        <div id="pytorchManimDots" class="pytorch-carousel-dots" aria-label="Choose a Transformer concept slide"></div>
+                        <button type="button" id="pytorchManimNext">Next →</button>
+                    </div>
+                </section>
+
+                <div class="gpt-blueprint">
+                    <div class="gpt-blueprint-copy">
+                        <span class="depth-kicker">Minimal PyTorch blueprint</span>
+                        <h3>A decoder-only Transformer core</h3>
+                        <p>This intentionally small model keeps the essential GPT path: token and position embeddings, pre-normalized causal self-attention, an MLP, residual connections, a vocabulary projection, cross-entropy training, and autoregressive sampling.</p>
+                        <ul>
+                            <li><strong>Tensor contract:</strong> token IDs <code>[B,T]</code> become hidden states <code>[B,T,C]</code>.</li>
+                            <li><strong>Head split:</strong> <code>C = H × D</code>; attention runs over <code>[B,H,T,D]</code>.</li>
+                            <li><strong>Causal guarantee:</strong> <code>is_causal=True</code> blocks future keys.</li>
+                            <li><strong>Training target:</strong> each position predicts the following token.</li>
+                        </ul>
+                    </div>
+                    <details class="pytorch-code-details">
+                        <summary>Open the complete compact model</summary>
+                        <pre><code>import torch
+from torch import nn
+from torch.nn import functional as F
+
+class CausalSelfAttention(nn.Module):
+    def __init__(self, width, heads, dropout=0.0):
+        super().__init__()
+        assert width % heads == 0
+        self.heads = heads
+        self.dropout = dropout
+        self.qkv = nn.Linear(width, 3 * width, bias=False)
+        self.out = nn.Linear(width, width, bias=False)
+
+    def forward(self, x):
+        batch, time, width = x.shape
+        q, k, v = self.qkv(x).chunk(3, dim=-1)
+        shape = (batch, time, self.heads, width // self.heads)
+        q, k, v = (z.view(shape).transpose(1, 2) for z in (q, k, v))
+        y = F.scaled_dot_product_attention(
+            q, k, v,
+            dropout_p=self.dropout if self.training else 0.0,
+            is_causal=True,
+        )
+        y = y.transpose(1, 2).contiguous().view(batch, time, width)
+        return self.out(y)
+
+class Block(nn.Module):
+    def __init__(self, width, heads, dropout=0.0):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(width)
+        self.attn = CausalSelfAttention(width, heads, dropout)
+        self.ln2 = nn.LayerNorm(width)
+        self.mlp = nn.Sequential(
+            nn.Linear(width, 4 * width), nn.GELU(),
+            nn.Linear(4 * width, width), nn.Dropout(dropout),
+        )
+
+    def forward(self, x):
+        x = x + self.attn(self.ln1(x))
+        return x + self.mlp(self.ln2(x))
+
+class MiniGPT(nn.Module):
+    def __init__(self, vocab, context=128, width=192, heads=6, layers=4):
+        super().__init__()
+        self.context = context
+        self.token = nn.Embedding(vocab, width)
+        self.position = nn.Embedding(context, width)
+        self.blocks = nn.Sequential(*[
+            Block(width, heads, dropout=0.1) for _ in range(layers)
+        ])
+        self.norm = nn.LayerNorm(width)
+        self.lm_head = nn.Linear(width, vocab, bias=False)
+        self.lm_head.weight = self.token.weight
+
+    def forward(self, token_ids, targets=None):
+        _, time = token_ids.shape
+        pos = torch.arange(time, device=token_ids.device)
+        x = self.token(token_ids) + self.position(pos)
+        logits = self.lm_head(self.norm(self.blocks(x)))
+        loss = None if targets is None else F.cross_entropy(
+            logits.flatten(0, 1), targets.flatten()
+        )
+        return logits, loss
+
+    @torch.inference_mode()
+    def generate(self, token_ids, new_tokens, temperature=0.8, top_k=40):
+        self.eval()
+        for _ in range(new_tokens):
+            logits, _ = self(token_ids[:, -self.context:])
+            logits = logits[:, -1] / max(temperature, 1e-5)
+            k = min(top_k, logits.shape[-1])
+            cutoff = torch.topk(logits, k).values[:, -1, None]
+            logits = logits.masked_fill(logits &lt; cutoff, float("-inf"))
+            next_token = torch.multinomial(logits.softmax(-1), 1)
+            token_ids = torch.cat((token_ids, next_token), dim=1)
+        return token_ids
+
+model = MiniGPT(vocab=vocab_size).to(device)
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+
+for token_ids, targets in train_loader:
+    optimizer.zero_grad(set_to_none=True)
+    _, loss = model(token_ids.to(device), targets.to(device))
+    loss.backward()
+    optimizer.step()</code></pre>
+                    </details>
+                </div>
+
+                <div class="chatgpt-reality-check">
+                    <h3>GPT foundation is not the whole ChatGPT system</h3>
+                    <div class="chatgpt-stage-grid">
+                        <article><b>1 · Pretraining</b><p>Learn next-token prediction from a large, filtered text/code mixture. This creates broad language and reasoning capabilities.</p></article>
+                        <article><b>2 · Instruction tuning</b><p>Fine-tune on demonstrations that map user instructions to useful assistant responses.</p></article>
+                        <article><b>3 · Preference optimization</b><p>Use human or AI preference signals with methods such as reward modeling plus RL, or direct preference objectives.</p></article>
+                        <article><b>4 · Product system</b><p>Add safety policies, evaluation, moderation, retrieval/tools, memory/context management, serving, monitoring, and continual improvement.</p></article>
+                    </div>
+                    <p>The runnable labs below build the algorithmic spine at toy scale. Reproducing a frontier chat system also requires enormous datasets and compute, careful post-training, safety work, and production infrastructure.</p>
+                </div>
+
+                <p class="reference-strip"><strong>Primary sources:</strong> <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Vaswani et al., <em>Attention Is All You Need</em></a>, <a href="https://openai.com/index/language-unsupervised/" target="_blank" rel="noopener">OpenAI's original GPT work</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html" target="_blank" rel="noopener">PyTorch scaled dot-product attention</a>, and <a href="https://docs.pytorch.org/tutorials/intermediate/transformer_building_blocks.html" target="_blank" rel="noopener">official Transformer building blocks tutorial</a>.</p>
+            </section>
+
             <section id="python-course-lab" class="example-section python-course-lab">
-                <span class="depth-kicker">Run it in the browser</span>
-                <h2>Python concept lab</h2>
-                <p class="section-intro">Predict the result, run the example, then change one line. Every run starts with a fresh Python namespace inside a dedicated browser worker with no page-DOM or external-network bridge; Python, NumPy, and their runtime files are bundled with the lesson.</p>
+                <span class="depth-kicker">Run it in the isolated browser Python session</span>
+                <h2>From micrograd to mini GPT: the runnable lab</h2>
+                <p class="section-intro">Each example is dependency-free Python or bundled NumPy, so it executes locally even though the full PyTorch binary is not practical inside this static WebAssembly lesson. The labs reproduce PyTorch's essential algorithms—tensor math, reverse-mode autodiff, modules, optimizers, causal attention, Transformer blocks, language-model training, and inference sampling—then show the direct PyTorch mapping.</p>
                 <div class="python-course-lab__grid">
                     <div class="python-course-editor">
                         <label for="pythonCourseExample">Example</label>
                         <select id="pythonCourseExample">
-                            <option value="core">Names, types, and control flow</option>
-                            <option value="collections">Collections and functions</option>
-                            <option value="numpy">NumPy shapes and broadcasting</option>
-                            <option value="gradient">Gradient descent from scratch</option>
-                            <option value="metrics">Classification metrics</option>
+                            <optgroup label="Python + tensors">
+                                <option value="core">Names, types, and control flow</option>
+                                <option value="numpy">Tensor shapes, strides, and broadcasting</option>
+                            </optgroup>
+                            <optgroup label="Build autograd and networks">
+                                <option value="autograd">Micrograd scalar autograd engine</option>
+                                <option value="neuron">A differentiable neuron from scratch</option>
+                                <option value="mlp">Train a micrograd MLP on XOR</option>
+                                <option value="optimizers">SGD, momentum, and Adam compared</option>
+                            </optgroup>
+                            <optgroup label="Build a Transformer and language model">
+                                <option value="attention">Causal self-attention from NumPy</option>
+                                <option value="transformer">Transformer block from NumPy</option>
+                                <option value="minigpt">Train a character language model</option>
+                                <option value="sampling">Temperature, top-k, and top-p inference</option>
+                            </optgroup>
+                            <optgroup label="Real-world project labs">
+                                <option value="churn">Customer churn classification</option>
+                                <option value="demand">Leakage-safe demand forecasting</option>
+                                <option value="fraud">Fraud threshold and decision cost</option>
+                                <option value="diagnostics">Activation and gradient diagnostics</option>
+                                <option value="bpe">Byte-pair tokenizer from scratch</option>
+                                <option value="scaling">GPT parameter and memory budget</option>
+                            </optgroup>
                         </select>
+                        <div class="python-example-guide" id="pythonCourseGuide" aria-live="polite">
+                            <strong id="pythonCourseGoal">Goal: read Python as a data pipeline.</strong>
+                            <span id="pythonCourseBridge">PyTorch bridge: these same language rules organize every training script.</span>
+                            <dl class="python-lab-brief">
+                                <div><dt>Project</dt><dd id="pythonCourseProject">Concept rehearsal</dd></div>
+                                <div><dt>Data</dt><dd id="pythonCourseDataset">Small synthetic sample</dd></div>
+                                <div><dt>Skill</dt><dd id="pythonCourseSkill">Reason from code and output</dd></div>
+                                <div><dt>Deliverable</dt><dd id="pythonCourseDeliverable">An explained experiment</dd></div>
+                            </dl>
+                            <p class="python-lab-watch"><strong>Watch for:</strong> <span id="pythonCourseWatchFor">shape, split, and evaluation assumptions</span></p>
+                        </div>
                         <label class="sr-only" for="pythonCourseEditor">Editable Python code</label>
                         <textarea id="pythonCourseEditor" spellcheck="false" aria-label="Editable Python code"></textarea>
                         <div class="python-course-actions">
@@ -5854,10 +6892,56 @@ except KeyError:
                     <div class="python-course-output">
                         <div class="python-course-output__header"><strong>Output</strong><span id="pythonCourseStatus" aria-live="polite">Ready</span></div>
                         <pre id="pythonCourseOutput" aria-live="polite">Choose an example and run it.</pre>
-                        <p><strong>Debugging loop:</strong> read the final error line, locate the referenced line, inspect the value and type, make the smallest correction, and rerun.</p>
+                        <div class="python-lab-challenges">
+                            <strong>Strengthen the experiment</strong>
+                            <ol id="pythonCourseChallenges"><li>Predict the output before running.</li><li>Change one value and explain the result.</li><li>Restore the example and connect each line to the math.</li></ol>
+                        </div>
                     </div>
                 </div>
-                <p class="reference-strip"><strong>References:</strong> the <a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">official Python tutorial</a> and <a href="https://numpy.org/doc/stable/user/" target="_blank" rel="noopener">NumPy user guide</a>.</p>
+                <p class="reference-strip"><strong>References:</strong> the <a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">official Python tutorial</a>, <a href="https://numpy.org/doc/stable/user/" target="_blank" rel="noopener">NumPy user guide</a>, <a href="https://github.com/karpathy/micrograd" target="_blank" rel="noopener">micrograd source</a>, and <a href="https://karpathy.github.io/2026/02/12/microgpt/" target="_blank" rel="noopener">Karpathy's dependency-free microgpt walkthrough</a>.</p>
+            </section>
+
+            <section id="pytorch-inference" class="example-section pytorch-section">
+                <span class="depth-kicker">Inference, export, and deployment</span>
+                <h2>Turn a trained module into a reliable prediction service</h2>
+                <div class="inference-contract-grid">
+                    <article><span>Correct state</span><h3>Load safely</h3><pre><code>state = torch.load(path, map_location=device, weights_only=True)
+model.load_state_dict(state)
+model.to(device).eval()</code></pre><p>Prefer state dictionaries, match the architecture, validate metadata, and treat untrusted serialized files as unsafe.</p></article>
+                    <article><span>Correct execution</span><h3>Disable training work</h3><pre><code>with torch.inference_mode():
+    logits = model(batch)
+    probs = logits.softmax(dim=-1)</code></pre><p><code>eval()</code> and inference mode solve different problems; use both. Keep preprocessing identical to validation.</p></article>
+                    <article><span>Correct interface</span><h3>Batch and postprocess</h3><pre><code>batch = collate(requests).to(device)
+predictions = decode(logits, metadata)
+return attach_model_version(predictions)</code></pre><p>Define shapes, dtypes, padding, thresholds, tokenization, error handling, timeouts, and versioned outputs.</p></article>
+                </div>
+
+                <div class="deployment-paths" role="region" aria-label="PyTorch deployment path comparison" tabindex="0">
+                    <table>
+                        <thead><tr><th>Path</th><th>Best when</th><th>Key trade-off</th></tr></thead>
+                        <tbody>
+                            <tr><td>Eager Python</td><td>Server has Python/PyTorch and model logic is dynamic</td><td>Fast iteration; Python runtime remains part of production.</td></tr>
+                            <tr><td><code>torch.compile</code></td><td>You want optimized execution while keeping PyTorch semantics</td><td>Warm-up, guards, graph breaks, and backend support must be measured.</td></tr>
+                            <tr><td><code>torch.export</code></td><td>You need an ahead-of-time, tensor-focused PyTorch graph</td><td>Input constraints and unsupported Python behavior must be explicit.</td></tr>
+                            <tr><td>ONNX</td><td>You need an interoperable model for another compatible runtime</td><td>Operator coverage, dynamic shapes, and numerical parity require verification.</td></tr>
+                            <tr><td>ExecuTorch</td><td>You target mobile or edge devices</td><td>Backend-specific delegation, size, memory, and device validation matter.</td></tr>
+                            <tr><td>Quantized / sparse with torchao</td><td>Memory bandwidth, latency, or device constraints dominate</td><td>Accuracy and kernel support depend on model, dtype, and hardware.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="production-checklist">
+                    <h3>Production definition of “works”</h3>
+                    <ul>
+                        <li>Golden test inputs match eager validation outputs within a documented tolerance.</li>
+                        <li>Latency is measured as a distribution after warm-up, at realistic batch sizes and concurrency.</li>
+                        <li>Memory, throughput, timeouts, fallbacks, and out-of-memory behavior are bounded.</li>
+                        <li>Model, tokenizer, preprocessing, feature schema, and thresholds share one version contract.</li>
+                        <li>Monitoring covers input drift, output quality proxies, failures, resource saturation, and rollback.</li>
+                    </ul>
+                </div>
+
+                <p class="reference-strip"><strong>Official deployment references:</strong> <a href="https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html" target="_blank" rel="noopener"><code>inference_mode</code></a>, <a href="https://docs.pytorch.org/docs/stable/notes/serialization.html" target="_blank" rel="noopener">serialization semantics</a>, <a href="https://docs.pytorch.org/docs/stable/onnx.html" target="_blank" rel="noopener">ONNX export</a>, and <a href="https://docs.pytorch.org/executorch/stable/" target="_blank" rel="noopener">ExecuTorch</a>.</p>
             </section>
         </section>
 
@@ -6437,7 +7521,7 @@ for step in range(8):
     </footer>
 
     <script src="python-sandbox-client.js?v=20260713-local-runtimes-8"></script>
-    <script src="script.js?v=20260713-local-runtimes-8"></script>
+    <script src="script.js?v=20260714-a11y-1"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
@@ -6447,6 +7531,9 @@ for step in range(8):
     <script src="math-deep-dive.js"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
     <script src="research-expansion.js?v=20260714-research-2"></script>
-    <script src="learning-depth.js?v=20260713-local-runtimes-8"></script>
+    <script src="pytorch-course-data.js?v=20260715-practical-2"></script>
+    <script src="learning-depth.js?v=20260715-practical-2"></script>
+    <script src="pytorch-deep-dive.js?v=20260715-practical-2"></script>
+    <script src="reasoning-planning-deep-dive.js?v=20260715-practical-2"></script>
 </body>
 </html>

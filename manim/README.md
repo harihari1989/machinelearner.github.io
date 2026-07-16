@@ -2,10 +2,10 @@
 
 ManimGL is a Python/OpenGL animation renderer; it cannot execute directly inside a static browser page. This project integrates it as a deterministic asset pipeline:
 
-1. `lecture_scenes.py` defines original white-theme mathematical animations using `3b1b/manim`.
-2. `scene-manifest.json` maps all 45 catalogued lectures one-to-one to 45 focused Manim scenes.
+1. `lecture_scenes.py` defines original white-theme mathematical, machine-learning, and reasoning animations using `3b1b/manim`.
+2. `scene-manifest.json` maps 54 catalogued concepts to 54 focused Manim scenes.
 3. `scripts/render-manim-lectures.sh` renders MP4 files with ManimGL and creates optimized MP4/WebM/poster assets with FFmpeg.
-4. The browser carousel selects the unique asset for each of the 45 catalogued lectures, while retaining the interactive JavaScript canvas as a fallback.
+4. The browser course surfaces each asset beside the concept it explains, while retaining interactive JavaScript labs for exploration.
 
 The ManimGL dependency is pinned to commit `e61ad5c3f9c9ac96cba7a46dffc665c0ec13beea` in `requirements.txt`.
 
