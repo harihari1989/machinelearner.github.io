@@ -459,6 +459,7 @@
         let paperIndex = 0;
         let step = 0;
         let frameHandle = null;
+        let activeManim = null;
 
         function typeset(...targets) {
             if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise(targets.filter(Boolean)).catch(() => {});
@@ -468,25 +469,39 @@
             if (!elements.motion || !elements.video) return;
             if (!paper.manim) {
                 elements.video.pause();
-                elements.video.removeAttribute('src');
-                elements.video.innerHTML = '';
+                elements.video.removeAttribute('poster');
+                elements.video.replaceChildren();
+                elements.video.load();
+                activeManim = null;
                 elements.motion.hidden = true;
                 return;
             }
             elements.motion.hidden = false;
-            elements.video.pause();
-            elements.video.innerHTML = '';
-            const webm = document.createElement('source');
-            webm.src = `assets/manim/${paper.manim}.webm`;
-            webm.type = 'video/webm';
-            const mp4 = document.createElement('source');
-            mp4.src = `assets/manim/${paper.manim}.mp4`;
-            mp4.type = 'video/mp4';
-            elements.video.append(webm, mp4);
-            elements.video.poster = `assets/manim/${paper.manim}.jpg`;
-            elements.video.load();
+            if (activeManim !== paper.manim) {
+                elements.video.pause();
+                elements.video.poster = `assets/manim/${paper.manim}.jpg`;
+                const webm = document.createElement('source');
+                webm.src = `assets/manim/${paper.manim}.webm`;
+                webm.type = 'video/webm';
+                const mp4 = document.createElement('source');
+                mp4.src = `assets/manim/${paper.manim}.mp4`;
+                mp4.type = 'video/mp4';
+                elements.video.replaceChildren(webm, mp4);
+                elements.video.load();
+                activeManim = paper.manim;
+            }
             elements.videoCaption.textContent = `Motion study: ${shortConcept(paper.concepts[Math.min(step, paper.concepts.length - 1)])}`;
         }
+
+        const motionObserver = typeof IntersectionObserver === 'function'
+            ? new IntersectionObserver(entries => {
+                const isVisible = entries.some(entry => entry.isIntersecting);
+                if (isVisible && activeManim && elements.video.readyState === 0) {
+                    elements.video.load();
+                }
+            }, { rootMargin: '240px 0px' })
+            : null;
+        if (motionObserver && elements.motion) motionObserver.observe(elements.motion);
 
         function animate() {
             if (frameHandle) cancelAnimationFrame(frameHandle);
