@@ -162,6 +162,99 @@ for hour in range(3):
 print("types:", type(readings).__name__, type(readings[0]).__name__)
 print("mean:", sum(readings) / len(readings))`
         },
+        python_language: {
+            goal: 'Goal: combine modern function signatures, pattern matching, dataclasses, comprehensions, JSON, and handled failure in one small pipeline.',
+            bridge: 'PyTorch bridge: training code is still Python—clear function boundaries and immutable experiment records make tensor programs easier to test and reproduce.',
+            project: 'Route transaction events into an operations queue',
+            dataset: 'Typed event records with valid, ordinary, and malformed cases',
+            skill: 'Function contracts, structural matching, dataclasses, comprehensions, and exceptions',
+            deliverable: 'A JSON summary plus an explicit rejected-record report',
+            watchFor: 'catch only the exception you can handle; do not silently convert malformed data into valid zeros',
+            challenges: [
+                'Add a refund case whose amount must be negative.',
+                'Make high_value positional-or-keyword and explain how that weakens the call-site signal.',
+                'Add a frozen dataclass field and observe the error raised by mutation.'
+            ],
+            code: `from dataclasses import dataclass, asdict
+from statistics import fmean
+import json
+
+@dataclass(frozen=True)
+class Decision:
+    event_id: str
+    label: str
+    amount: float
+
+def classify(event, /, *, high_value=500.0):
+    match event:
+        case {"id": event_id, "kind": "sale", "amount": amount} if amount >= high_value:
+            return Decision(event_id, "priority", float(amount))
+        case {"id": event_id, "kind": "sale", "amount": amount}:
+            return Decision(event_id, "standard", float(amount))
+        case _:
+            raise ValueError(f"unsupported event: {event!r}")
+
+events = [
+    {"id": "A1", "kind": "sale", "amount": 920},
+    {"id": "B2", "kind": "sale", "amount": 180},
+    {"id": "C3", "kind": "heartbeat"},
+]
+
+accepted, rejected = [], []
+for event in events:
+    try:
+        accepted.append(classify(event, high_value=750))
+    except ValueError as error:
+        rejected.append(str(error))
+
+summary = {
+    "accepted": [asdict(item) for item in accepted],
+    "mean_amount": fmean(item.amount for item in accepted),
+    "rejected": rejected,
+}
+print(json.dumps(summary, indent=2))`
+        },
+        python_protocols: {
+            goal: 'Goal: implement the small Python protocols that data pipelines and PyTorch datasets rely on.',
+            bridge: 'PyTorch bridge: torch.utils.data.Dataset uses the same __len__/__getitem__ contract, while DataLoader turns samples into batches.',
+            project: 'Batch a tiny sensor dataset without materializing a second dataset',
+            dataset: 'Five immutable feature/label pairs',
+            skill: 'Classes, sequence protocol, generators, slicing, and explicit boundary errors',
+            deliverable: 'Lazy batches with preserved feature/label alignment',
+            watchFor: 'a generator is consumed once; store source data, not a half-consumed generator, when repeatable epochs are required',
+            challenges: [
+                'Add __iter__ and compare direct iteration with indexed batching.',
+                'Yield tuples instead of lists and explain the mutability difference.',
+                'Raise a custom EmptyDatasetError when no rows are supplied.'
+            ],
+            code: `class SensorDataset:
+    def __init__(self, rows):
+        self._rows = tuple(rows)
+
+    def __len__(self):
+        return len(self._rows)
+
+    def __getitem__(self, index):
+        return self._rows[index]
+
+def batches(dataset, size):
+    if size <= 0:
+        raise ValueError("batch size must be positive")
+    for start in range(0, len(dataset), size):
+        stop = min(start + size, len(dataset))
+        yield [dataset[index] for index in range(start, stop)]
+
+rows = [
+    ((0.2, 1.1), 0), ((0.4, 0.9), 0), ((1.8, 2.4), 1),
+    ((1.4, 2.1), 1), ((0.7, 1.3), 0),
+]
+dataset = SensorDataset(rows)
+
+print("samples:", len(dataset), "last:", dataset[-1])
+for batch_number, batch in enumerate(batches(dataset, 2), start=1):
+    features, labels = zip(*batch)
+    print(f"batch {batch_number}: shape=({len(features)}, 2) labels={labels}")`
+        },
         numpy: {
             goal: 'Goal: reason about tensor shape, strides, dtype, views, and broadcasting.',
             bridge: 'PyTorch bridge: torch.Tensor follows the same shape algebra while adding devices and automatic differentiation.',
@@ -189,6 +282,103 @@ print("W shape:", W.shape)
 print("scores shape:", scores.shape)
 print("broadcast result:\\n", np.round(scores, 3))
 print("slice is a view:", np.shares_memory(X, view))`
+        },
+        numpy_indexing: {
+            goal: 'Goal: create a typed ndarray, filter valid rows, and predict when selection returns a view or a copy.',
+            bridge: 'PyTorch bridge: tensor indexing uses the same basic versus advanced distinction, with device placement and gradient history added.',
+            project: 'Clean a compact feature matrix before modeling',
+            dataset: 'Six rows × four columns with one missing measurement',
+            skill: 'Creation, dtype, axes, boolean masks, slicing, reshape, and reductions',
+            deliverable: 'A float32 feature matrix and target vector with explicit shapes',
+            watchFor: 'basic slices usually share memory; boolean and integer-array indexing gather into a copy',
+            challenges: [
+                'Select columns 0 and 2 with integer indexing and inspect the result shape.',
+                'Replace the boolean mask with np.where and compare the index representation.',
+                'Accumulate the column mean in float64 and explain why.'
+            ],
+            code: `import numpy as np
+
+raw = np.array([
+    [10, 0.2, 1.1, 0], [11, 0.4, 0.9, 0],
+    [12, np.nan, 2.4, 1], [13, 1.4, 2.1, 1],
+    [14, 0.7, 1.3, 0], [15, 1.9, 2.8, 1],
+], dtype=np.float64)
+
+valid = np.isfinite(raw).all(axis=1)
+clean = raw[valid].astype(np.float32)  # boolean gather, then dtype copy
+features = clean[:, 1:3]              # basic slice: view
+target = clean[:, 3].astype(np.int64)
+
+print("raw / clean:", raw.shape, clean.shape)
+print("features:", features.shape, features.dtype)
+print("target:", target.shape, target.dtype, target.tolist())
+print("features share clean storage:", np.shares_memory(clean, features))
+print("clean shares raw storage:", np.shares_memory(raw, clean))
+print("feature means:", features.mean(axis=0, dtype=np.float64).round(3))`
+        },
+        numpy_memory: {
+            goal: 'Goal: explain views, copies, strides, broadcasting, and ufunc output buffers from memory behavior.',
+            bridge: 'PyTorch bridge: transpose/permute also produce strided views, expand performs broadcast-style viewing, and contiguous/clone materialize storage.',
+            project: 'Standardize a batch without explicit tiling',
+            dataset: 'Four examples × three features in contiguous float32 storage',
+            skill: 'Strides, views, advanced-index copies, keepdims broadcasting, and ufunc out=',
+            deliverable: 'A standardized matrix plus a memory-sharing audit',
+            watchFor: 'broadcasted values can be virtual, but compound expressions may still allocate large temporaries',
+            challenges: [
+                'Transpose X and derive its byte strides.',
+                'Replace keepdims=True and repair the broadcast shape explicitly.',
+                'Use np.subtract and np.divide with out= to reuse one output buffer.'
+            ],
+            code: `import numpy as np
+
+X = np.arange(12, dtype=np.float32).reshape(4, 3)
+columns = X[:, ::2]          # view with a larger column stride
+rows = X[[0, 2]]             # advanced-index copy
+
+mean = X.mean(axis=0, keepdims=True)
+scale = X.std(axis=0, keepdims=True)
+standardized = np.empty_like(X)
+np.subtract(X, mean, out=standardized)
+np.divide(standardized, np.maximum(scale, 1e-6), out=standardized)
+
+print("X shape / strides:", X.shape, X.strides)
+print("column view shape / strides:", columns.shape, columns.strides)
+print("columns share memory:", np.shares_memory(X, columns))
+print("gathered rows share memory:", np.shares_memory(X, rows))
+print("broadcast operands:", X.shape, mean.shape, scale.shape)
+print("standardized means:", standardized.mean(axis=0).round(6))
+print("standardized stds:", standardized.std(axis=0).round(6))`
+        },
+        numpy_linalg: {
+            goal: 'Goal: fit least squares with a local random generator and diagnose rank instead of forming a matrix inverse.',
+            bridge: 'PyTorch bridge: torch.linalg.lstsq and torch.linalg.svd follow the same matrix contract and can participate in autograd where supported.',
+            project: 'Estimate four coefficients from noisy observations',
+            dataset: '120 reproducible Gaussian rows with controlled observation noise',
+            skill: 'Generator-based randomness, matrix multiplication, least squares, residuals, rank, and singular values',
+            deliverable: 'Coefficient error and conditioning evidence',
+            watchFor: 'never solve least squares with inv(X.T @ X) unless you have a specific numerical reason and understand the conditioning cost',
+            challenges: [
+                'Make one column almost dependent on another and inspect the smallest singular value.',
+                'Compare float32 and float64 coefficient error.',
+                'Split the final 20 rows and report held-out RMSE.'
+            ],
+            code: `import numpy as np
+
+rng = np.random.default_rng(7)
+true_w = np.array([1.4, -0.8, 0.0, 2.2])
+X = rng.normal(size=(120, 4))
+y = X @ true_w + rng.normal(0, 0.2, size=120)
+
+estimated, residuals, rank, singular = np.linalg.lstsq(X, y, rcond=None)
+prediction = X @ estimated
+rmse = np.sqrt(np.mean((prediction - y) ** 2))
+
+print("estimated:", estimated.round(3))
+print("absolute error:", np.abs(estimated - true_w).round(3))
+print("rank:", rank)
+print("singular values:", singular.round(3))
+print("condition estimate:", round(float(singular[0] / singular[-1]), 3))
+print("training RMSE:", round(float(rmse), 4))`
         },
         autograd: {
             goal: 'Goal: build a dynamic computation graph and run reverse-mode autodiff.',

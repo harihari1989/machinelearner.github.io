@@ -406,6 +406,20 @@ window.MathManimCatalog = {
       "scenes": [
         "nanogpt-inference"
       ]
+    },
+    "python-object-references": {
+      "class": "PythonObjectReferences",
+      "title": "Python assignment binds names to objects",
+      "scenes": [
+        "python-objects"
+      ]
+    },
+    "numpy-broadcast-strides": {
+      "class": "NumpyBroadcastStrides",
+      "title": "NumPy views and broadcasting follow memory metadata",
+      "scenes": [
+        "numpy-memory"
+      ]
     }
   },
   "scenes": {
@@ -465,6 +479,8 @@ window.MathManimCatalog = {
     "plan-dependencies": "temporal-plan-dependencies",
     "nanogpt-tensors": "nanogpt-tensor-journey",
     "nanogpt-training": "nanogpt-training-loop",
-    "nanogpt-inference": "nanogpt-inference-loop"
+    "nanogpt-inference": "nanogpt-inference-loop",
+    "python-objects": "python-object-references",
+    "numpy-memory": "numpy-broadcast-strides"
   }
 };

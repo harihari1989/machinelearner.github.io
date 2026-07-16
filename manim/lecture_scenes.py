@@ -1434,3 +1434,95 @@ class NanoGPTInferenceLoop(BrowserLectureScene):
         divider = Line([0, -1.35, 0], [0, -2.05, 0]).set_stroke(GRID, 2)
         self.play(FadeIn(recompute), ShowCreation(divider), FadeIn(cache), run_time=0.8)
         self.formula("crop → forward → final logits → filter → sample → append → repeat")
+
+
+class PythonObjectReferences(BrowserLectureScene):
+    title = "Python assignment binds names to objects"
+    subtitle = "Aliasing shares mutation; copying creates an independent object"
+    accent = BLUE
+
+    def list_object(self, values, color, center):
+        cells = VGroup()
+        for value in values:
+            box = RoundedRectangle(width=1.15, height=0.72, corner_radius=0.11)
+            box.set_fill(color, 0.1).set_stroke(color, 2)
+            label = self.text(str(value), 19, INK, BOLD).move_to(box)
+            cells.add(VGroup(box, label))
+        cells.arrange(RIGHT, buff=0.04).move_to(center)
+        identity = self.text("mutable list object", 16, color, BOLD).next_to(cells, DOWN, buff=0.14)
+        return VGroup(cells, identity)
+
+    def name_label(self, name, center, color):
+        label = self.node(name, color, 1.2).move_to(center)
+        return label
+
+    def animate_concept(self):
+        shared = self.list_object([0.8, -0.2, 1.5], CYAN, [1.8, 0.65, 0])
+        name_a = self.name_label("a", [-4.6, 1.15, 0], BLUE)
+        arrow_a = Arrow(name_a.get_right(), shared[0].get_left(), buff=0.08).set_color(BLUE)
+        bind_a = self.text("a = readings", 17, BLUE, BOLD).move_to([-2.0, 1.48, 0])
+        self.play(FadeIn(shared), FadeIn(name_a), GrowArrow(arrow_a), FadeIn(bind_a), run_time=0.85)
+
+        name_b = self.name_label("b", [-4.6, 0.05, 0], VIOLET)
+        arrow_b = Arrow(name_b.get_right(), shared[0].get_left() + 0.22 * DOWN, buff=0.08).set_color(VIOLET)
+        bind_b = self.text("b = a  ·  no copy", 17, VIOLET, BOLD).move_to([-2.0, 0.28, 0])
+        self.play(FadeIn(name_b), GrowArrow(arrow_b), FadeIn(bind_b), run_time=0.75)
+
+        changed = self.list_object([0.8, 2.4, 1.5], CORAL, [1.8, 0.65, 0])
+        mutation = self.text("b[1] = 2.4  ·  a observes the same mutation", 18, CORAL, BOLD)
+        mutation.move_to([0, -0.8, 0])
+        self.play(Transform(shared, changed), FadeIn(mutation), Indicate(shared[0][1], color=CORAL), run_time=1.0)
+
+        independent = self.list_object([0.8, 2.4, 1.5], MINT, [2.5, -1.55, 0])
+        new_arrow_b = Arrow(name_b.get_right(), independent[0].get_left(), buff=0.08).set_color(MINT)
+        copy_label = self.text("b = a.copy()  ·  new outer list", 17, MINT, BOLD).move_to([-0.9, -1.65, 0])
+        self.play(FadeOut(mutation), Transform(arrow_b, new_arrow_b), FadeIn(independent), FadeIn(copy_label), run_time=1.05)
+        self.formula("assignment changes bindings; mutation changes an object; copy policy defines independence")
+
+
+class NumpyBroadcastStrides(BrowserLectureScene):
+    title = "NumPy views change metadata, not the buffer"
+    subtitle = "Broadcasting aligns dimensions from the right without explicit tiling"
+    accent = VIOLET
+
+    def cell_grid(self, values, rows, cols, color, center, width=0.92):
+        cells = VGroup()
+        for value in values:
+            box = RoundedRectangle(width=width, height=0.66, corner_radius=0.08)
+            box.set_fill(color, 0.1).set_stroke(color, 1.8)
+            label = self.text(str(value), 17, INK, BOLD).move_to(box)
+            cells.add(VGroup(box, label))
+        cells.arrange_in_grid(n_rows=rows, n_cols=cols, buff=0.06).move_to(center)
+        return cells
+
+    def animate_concept(self):
+        buffer = self.cell_grid([0, 1, 2, 3, 4, 5], 1, 6, CYAN, [0, 0.85, 0])
+        buffer_label = self.text("one contiguous float32 buffer  ·  4 bytes/item", 18, CYAN, BOLD)
+        buffer_label.next_to(buffer, UP, buff=0.18)
+        offset = self.text("byte offsets:  0     4     8     12    16    20", 15, MUTED, BOLD)
+        offset.next_to(buffer, DOWN, buff=0.15)
+        self.play(LaggedStartMap(FadeIn, buffer, lag_ratio=0.1), FadeIn(buffer_label), FadeIn(offset), run_time=0.9)
+
+        matrix = self.cell_grid([0, 1, 2, 3, 4, 5], 2, 3, VIOLET, [-2.7, 0.2, 0])
+        matrix_label = self.text("X.shape = (2, 3)", 18, VIOLET, BOLD).next_to(matrix, UP, buff=0.16)
+        stride_label = self.text("X.strides = (12, 4) bytes", 16, MUTED, BOLD).next_to(matrix, DOWN, buff=0.15)
+        self.play(Transform(buffer, matrix), Transform(buffer_label, matrix_label), Transform(offset, stride_label), run_time=1.15)
+
+        bias = self.cell_grid([10, 20, 30], 1, 3, GOLD, [2.75, -1.15, 0])
+        bias_label = self.text("b.shape = (3,)", 18, GOLD, BOLD).next_to(bias, DOWN, buff=0.14)
+        result = self.cell_grid([10, 21, 32, 13, 24, 35], 2, 3, MINT, [3.15, 0.7, 0])
+        result_label = self.text("X + b  →  shape (2, 3)", 18, MINT, BOLD).next_to(result, UP, buff=0.16)
+        arrows = VGroup(*[
+            Arrow(bias[index].get_top(), result[index].get_bottom(), buff=0.06).set_color(GOLD)
+            for index in range(3)
+        ], *[
+            Arrow(bias[index].get_top(), result[index + 3].get_bottom(), buff=0.06).set_color(GOLD)
+            for index in range(3)
+        ])
+        self.play(FadeIn(bias), FadeIn(bias_label), FadeIn(result), FadeIn(result_label), run_time=0.85)
+        self.play(LaggedStartMap(GrowArrow, arrows, lag_ratio=0.08), run_time=1.05)
+
+        virtual = self.text("size-one / missing leading axes expand virtually", 17, VIOLET, BOLD)
+        virtual.move_to([1.4, -2.05, 0])
+        self.play(FadeIn(virtual), Indicate(bias, color=GOLD), run_time=0.65)
+        self.formula("(2, 3) + (3,)  →  align right  →  (2, 3) + (1, 3)  →  (2, 3)")

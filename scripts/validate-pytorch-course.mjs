@@ -15,11 +15,21 @@ if (!data?.examples || !data?.architectures) {
     throw new Error('PyTorchCourseData did not expose examples and architectures.');
 }
 
+const optionIds = new Set(
+    [...html.matchAll(/<option\s+value="([^"]+)"/g)].map(match => match[1])
+);
+const launchIds = new Set(
+    [...html.matchAll(/data-pytorch-example="([^"]+)"/g)].map(match => match[1])
+);
+
 const localPython = new URL('../.venv-manim/bin/python', import.meta.url).pathname;
 const python = process.env.PYTORCH_LAB_PYTHON || (existsSync(localPython) ? localPython : 'python3');
 let failures = 0;
 
 for (const marker of [
+    'Python, NumPy, and PyTorch: a working tutorial',
+    '<optgroup label="Python language foundations">',
+    '<optgroup label="NumPy array computing">',
     'id="python-zero-to-hero"',
     'Neural Networks: Zero to Hero playlist',
     '<optgroup label="Real-world project labs">',
@@ -35,7 +45,34 @@ for (const marker of [
     }
 }
 
+for (const id of launchIds) {
+    if (!data.examples[id]) {
+        failures += 1;
+        console.error(`FAIL tutorial launch ${id}: missing example data`);
+    } else if (!optionIds.has(id)) {
+        failures += 1;
+        console.error(`FAIL tutorial launch ${id}: missing lab selector option`);
+    } else {
+        console.log(`PASS tutorial launch ${id}`);
+    }
+}
+
 const requiredBriefFields = ['project', 'dataset', 'skill', 'deliverable', 'watchFor'];
+const foundationLabs = [
+    'python_language', 'python_protocols', 'numpy_indexing',
+    'numpy_memory', 'numpy_linalg'
+];
+for (const id of foundationLabs) {
+    const example = data.examples[id];
+    const missingFields = requiredBriefFields.filter(field => !example?.[field]);
+    if (!example || missingFields.length || !Array.isArray(example.challenges) || example.challenges.length < 3) {
+        failures += 1;
+        console.error(`FAIL foundation lab ${id}: ${missingFields.join(', ') || 'fewer than 3 challenges'}`);
+    } else {
+        console.log(`PASS foundation lab ${id}`);
+    }
+}
+
 const nanoGPTLabs = [
     'nanogpt_batch', 'nanogpt_parameters', 'nanogpt_forward',
     'nanogpt_loss', 'nanogpt_accumulation', 'nanogpt_schedule',
@@ -69,7 +106,10 @@ for (const id of appliedLabs) {
     }
 }
 
-for (const slug of ['activation-gradient-health', 'bpe-token-merge']) {
+for (const slug of [
+    'activation-gradient-health', 'bpe-token-merge',
+    'python-object-references', 'numpy-broadcast-strides'
+]) {
     for (const extension of ['jpg', 'mp4', 'webm']) {
         const asset = new URL(`../assets/manim/${slug}.${extension}`, import.meta.url).pathname;
         if (existsSync(asset)) console.log(`PASS visual ${slug}.${extension}`);
@@ -118,8 +158,8 @@ for (const id of requiredArchitectures) {
 }
 
 console.log(`${Object.keys(data.examples).length} runnable labs; ${Object.keys(data.architectures).length} architecture guides.`);
-if (Object.keys(data.examples).length !== 25) {
+if (Object.keys(data.examples).length !== 30) {
     failures += 1;
-    console.error(`FAIL expected 25 runnable labs, found ${Object.keys(data.examples).length}`);
+    console.error(`FAIL expected 30 runnable labs, found ${Object.keys(data.examples).length}`);
 }
 if (failures) process.exit(1);
