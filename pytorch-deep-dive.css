@@ -1,0 +1,1007 @@
+.python-course .chapter-nav {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+}
+
+.python-course .chapter-nav a {
+    flex: 0 0 auto;
+}
+
+.pytorch-section {
+    --pytorch-accent: var(--accent-1);
+    border-color: color-mix(in srgb, var(--pytorch-accent) 38%, var(--section-border));
+}
+
+.pytorch-section h3,
+.pytorch-section h4 {
+    color: var(--ink);
+}
+
+.pytorch-section p,
+.pytorch-section li,
+.pytorch-section dd,
+.pytorch-section small {
+    color: var(--ink-soft);
+}
+
+.pytorch-section pre,
+.gpt-blueprint pre,
+.inference-contract-grid pre {
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem;
+    color: var(--ink);
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    tab-size: 4;
+}
+
+.pytorch-runtime-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0.45rem;
+    margin: 1.4rem 0;
+}
+
+.pytorch-runtime-flow article {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.85rem 0.45rem;
+    text-align: center;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 13px;
+}
+
+.pytorch-runtime-flow article > span {
+    display: grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    place-items: center;
+    color: white;
+    background: var(--accent-1);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.pytorch-runtime-flow strong {
+    color: var(--ink);
+}
+
+.pytorch-runtime-flow small {
+    line-height: 1.35;
+}
+
+.pytorch-runtime-flow > i {
+    align-self: center;
+    color: var(--accent-1);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.pytorch-principles-grid,
+.pytorch-ecosystem-grid,
+.pytorch-autograd-grid,
+.pytorch-scaling-grid,
+.transformer-equation-grid,
+.chatgpt-stage-grid,
+.inference-contract-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 1.2rem 0;
+}
+
+.pytorch-principles-grid article,
+.pytorch-ecosystem-grid article,
+.pytorch-autograd-grid article,
+.pytorch-scaling-grid article,
+.transformer-equation-grid article,
+.chatgpt-stage-grid article,
+.inference-contract-grid article {
+    min-width: 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.pytorch-principles-grid b,
+.pytorch-scaling-grid h3,
+.inference-contract-grid h3 {
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.pytorch-principles-grid p,
+.pytorch-ecosystem-grid p,
+.pytorch-scaling-grid p,
+.inference-contract-grid p {
+    margin: 0;
+}
+
+.pytorch-ecosystem-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pytorch-ecosystem-grid article > span,
+.transformer-equation-grid article > span,
+.inference-contract-grid article > span,
+.pytorch-carousel-slide div > span {
+    color: var(--helper-text);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.pytorch-ecosystem-grid h3,
+.transformer-equation-grid h3,
+.inference-contract-grid h3 {
+    margin: 0.3rem 0;
+}
+
+.pytorch-namespace-table,
+.deployment-paths {
+    max-width: 100%;
+    margin: 1.3rem 0;
+    overflow-x: auto;
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.pytorch-namespace-table:focus-visible,
+.deployment-paths:focus-visible,
+.pytorch-media-carousel:focus-visible {
+    outline: 3px solid var(--accent-1);
+    outline-offset: 3px;
+}
+
+.pytorch-namespace-table table,
+.deployment-paths table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    background: var(--paper);
+}
+
+.pytorch-namespace-table th,
+.pytorch-namespace-table td,
+.deployment-paths th,
+.deployment-paths td {
+    padding: 0.8rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--section-border);
+}
+
+.pytorch-namespace-table th,
+.deployment-paths th {
+    color: var(--ink);
+    background: var(--helper-bg);
+}
+
+.pytorch-namespace-table tr:last-child td,
+.deployment-paths tr:last-child td {
+    border-bottom: 0;
+}
+
+.pytorch-algorithm-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.35rem;
+}
+
+.pytorch-catalog-card {
+    min-width: 0;
+    padding: 1rem;
+    background: var(--helper-bg);
+    border-radius: 15px;
+}
+
+.pytorch-catalog-card > p {
+    margin: 0.35rem 0 0.8rem;
+}
+
+.pytorch-catalog-list {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.pytorch-catalog-list div {
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--section-border);
+}
+
+.pytorch-catalog-list dt {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.pytorch-catalog-list dd {
+    margin-top: 0.2rem;
+}
+
+.autograd-equation {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr) auto minmax(140px, 1fr);
+    gap: 0.55rem;
+    align-items: center;
+    margin: 1.25rem 0;
+}
+
+.autograd-node {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.9rem;
+    text-align: center;
+    background: var(--paper);
+    border: 2px solid var(--accent-1);
+    border-radius: 14px;
+}
+
+.autograd-node span {
+    color: var(--helper-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.autograd-equation > i {
+    color: var(--accent-1);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.autograd-equation .autograd-backward {
+    grid-column: 1 / -1;
+    justify-self: center;
+    color: var(--helper-text);
+}
+
+.pytorch-autograd-grid article {
+    display: flex;
+    flex-direction: column;
+}
+
+.pytorch-autograd-grid pre {
+    flex: 1;
+    margin: 0.7rem 0;
+}
+
+.micrograd-callout,
+.chatgpt-reality-check,
+.pytorch-debug-checklist,
+.production-checklist {
+    margin-top: 1.25rem;
+    padding: 1.1rem;
+    background: var(--helper-bg);
+    border-radius: 15px;
+}
+
+.micrograd-callout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.micrograd-callout p {
+    margin-top: 0.3rem;
+}
+
+.micrograd-callout .notebook-btn {
+    flex: 0 0 auto;
+}
+
+.architecture-explorer {
+    display: grid;
+    grid-template-columns: minmax(175px, 0.3fr) minmax(0, 1.7fr);
+    gap: 1rem;
+    margin-top: 1.2rem;
+}
+
+.architecture-tabs {
+    display: grid;
+    align-content: start;
+    gap: 0.4rem;
+}
+
+.architecture-tabs button,
+.pytorch-carousel-controls button {
+    border: 1px solid var(--section-border);
+    border-radius: 10px;
+    padding: 0.55rem 0.75rem;
+    color: var(--ink);
+    background: var(--paper);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+}
+
+.architecture-tabs button:hover,
+.pytorch-carousel-controls button:hover {
+    border-color: var(--accent-1);
+    background: var(--helper-bg);
+}
+
+.architecture-tabs button[aria-selected="true"] {
+    color: white;
+    background: var(--accent-1);
+    border-color: var(--accent-1);
+}
+
+.architecture-detail {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 1rem;
+    padding: 1.1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 16px;
+}
+
+.architecture-copy > span {
+    color: var(--helper-text);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.architecture-copy h3 {
+    margin: 0.3rem 0;
+}
+
+.architecture-copy dl {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 0.9rem;
+}
+
+.architecture-copy dl div {
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--section-border);
+}
+
+.architecture-copy dt {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.architecture-detail pre {
+    margin: 0;
+}
+
+.architecture-selection-guide {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 1.2rem;
+    overflow: hidden;
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.architecture-selection-guide h3 {
+    grid-column: 1 / -1;
+    padding: 0.9rem 1rem;
+    background: var(--helper-bg);
+}
+
+.architecture-selection-guide div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.85rem;
+    background: var(--paper);
+    border-top: 1px solid var(--section-border);
+    border-right: 1px solid var(--section-border);
+}
+
+.architecture-selection-guide div:nth-child(3n + 1) {
+    border-right: 0;
+}
+
+.training-loop-deep-dive {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 1rem;
+}
+
+.training-loop-deep-dive > pre {
+    margin: 0;
+}
+
+.training-loop-annotations {
+    display: grid;
+    gap: 0.55rem;
+    counter-reset: training-step;
+    list-style: none;
+}
+
+.training-loop-annotations li {
+    position: relative;
+    padding: 0.65rem 0.7rem 0.65rem 2.6rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 11px;
+    counter-increment: training-step;
+}
+
+.training-loop-annotations li::before {
+    content: counter(training-step);
+    position: absolute;
+    top: 0.65rem;
+    left: 0.7rem;
+    display: grid;
+    width: 1.35rem;
+    height: 1.35rem;
+    place-items: center;
+    color: white;
+    background: var(--accent-1);
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.training-loop-annotations b,
+.training-loop-annotations span {
+    display: block;
+}
+
+.training-loop-annotations span {
+    margin-top: 0.15rem;
+}
+
+.pytorch-scaling-grid h3 {
+    font-size: 1rem;
+}
+
+.pytorch-debug-checklist ol,
+.production-checklist ul,
+.gpt-blueprint-copy ul {
+    margin: 0.6rem 0 0 1.25rem;
+}
+
+.pytorch-debug-checklist li,
+.production-checklist li,
+.gpt-blueprint-copy li {
+    margin-bottom: 0.35rem;
+}
+
+.transformer-equation-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.transformer-equation-grid .math-formula {
+    min-height: 90px;
+    display: grid;
+    place-items: center;
+    margin: 0.65rem 0;
+    overflow-x: auto;
+}
+
+.pytorch-media-carousel {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 17px;
+}
+
+.pytorch-carousel-heading,
+.pytorch-carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.pytorch-carousel-heading > div > span {
+    color: var(--helper-text);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+}
+
+.pytorch-carousel-heading h3 {
+    margin-top: 0.2rem;
+}
+
+.pytorch-carousel-heading > strong {
+    flex: 0 0 auto;
+    padding: 0.3rem 0.65rem;
+    color: var(--helper-text);
+    background: var(--helper-bg);
+    border-radius: 999px;
+}
+
+.pytorch-carousel-viewport {
+    margin: 1rem 0;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+.pytorch-carousel-track {
+    display: flex;
+    transform: translateX(0);
+    transition: transform 320ms ease;
+}
+
+.pytorch-carousel-slide {
+    min-width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+    gap: 1rem;
+    align-items: center;
+    padding: 0.9rem;
+    background: var(--canvas-bg);
+}
+
+.pytorch-carousel-slide video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--canvas-bg);
+    border: 1px solid var(--grid);
+    border-radius: 12px;
+}
+
+.pytorch-carousel-slide h4 {
+    margin: 0.35rem 0;
+    font-size: 1.2rem;
+}
+
+.pytorch-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.pytorch-carousel-dots button {
+    width: 0.75rem;
+    height: 0.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--grid);
+    cursor: pointer;
+}
+
+.pytorch-carousel-dots button[aria-current="true"] {
+    background: var(--accent-1);
+}
+
+.gpt-blueprint {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.65fr) minmax(0, 1.35fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.gpt-blueprint-copy,
+.pytorch-code-details {
+    min-width: 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+}
+
+.pytorch-code-details summary {
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.pytorch-code-details[open] summary {
+    margin-bottom: 0.8rem;
+}
+
+.pytorch-code-details pre {
+    max-height: 690px;
+    margin: 0;
+}
+
+.chatgpt-stage-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 0.7rem;
+}
+
+.chatgpt-reality-check > p {
+    margin: 0;
+}
+
+.python-example-guide,
+.python-lab-challenges {
+    padding: 0.8rem;
+    background: var(--helper-bg);
+    border-radius: 10px;
+}
+
+.python-example-guide {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.python-example-guide span {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+}
+
+.python-lab-challenges ol {
+    margin: 0.45rem 0 0 1.2rem;
+}
+
+.python-lab-challenges li {
+    margin-bottom: 0.25rem;
+    color: var(--ink-soft);
+}
+
+.zero-to-hero-section {
+    --zth-accent: var(--accent-2);
+    border-color: color-mix(in srgb, var(--zth-accent) 40%, var(--section-border));
+}
+
+.zth-protocol {
+    display: flex;
+    align-items: stretch;
+    gap: 0.45rem;
+    margin: 1.35rem 0;
+}
+
+.zth-protocol article {
+    min-width: 0;
+    flex: 1;
+    display: grid;
+    gap: 0.22rem;
+    align-content: start;
+    padding: 0.9rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 13px;
+}
+
+.zth-protocol article > span,
+.zth-number {
+    color: var(--zth-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.zth-protocol small,
+.zth-project-grid p,
+.zth-project-grid small,
+.zth-manim-gallery p,
+.zth-practice-contract p {
+    color: var(--ink-soft);
+}
+
+.zth-protocol > i {
+    align-self: center;
+    color: var(--zth-accent);
+    font-style: normal;
+    font-weight: 800;
+}
+
+.zth-project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 1.2rem 0 1.5rem;
+}
+
+.zth-project-grid article {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 0.9rem;
+    align-items: start;
+    min-width: 0;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-left: 4px solid var(--zth-accent);
+    border-radius: 14px;
+}
+
+.zth-project-grid h3,
+.zth-project-grid p,
+.zth-project-grid strong,
+.zth-project-grid small {
+    grid-column: 1;
+    margin: 0;
+}
+
+.zth-project-grid strong {
+    margin-top: 0.25rem;
+    color: var(--ink);
+    font-size: 0.82rem;
+}
+
+.zth-project-grid .notebook-btn {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    align-self: center;
+    max-width: 11rem;
+}
+
+.zth-manim-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.zth-manim-gallery article {
+    min-width: 0;
+    overflow: hidden;
+    background: var(--paper);
+    border: 1px solid var(--section-border);
+    border-radius: 15px;
+}
+
+.zth-manim-gallery video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #07111f;
+}
+
+.zth-manim-gallery article > div {
+    padding: 0.9rem 1rem 1rem;
+}
+
+.zth-manim-gallery span {
+    color: var(--zth-accent);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.zth-manim-gallery h3 {
+    margin: 0.25rem 0;
+}
+
+.zth-manim-gallery p {
+    margin: 0;
+}
+
+.zth-practice-contract {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin: 1.25rem 0;
+}
+
+.zth-practice-contract > div {
+    padding: 0.9rem;
+    background: var(--helper-bg);
+    border-radius: 12px;
+}
+
+.zth-practice-contract p {
+    margin: 0.3rem 0 0;
+}
+
+.python-lab-brief {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin: 0.55rem 0 0;
+}
+
+.python-lab-brief div {
+    min-width: 0;
+    padding: 0.55rem;
+    background: color-mix(in srgb, var(--paper) 72%, transparent);
+    border-radius: 8px;
+}
+
+.python-lab-brief dt {
+    color: var(--helper-text);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.python-lab-brief dd {
+    margin: 0.12rem 0 0;
+    color: var(--ink);
+    font-size: 0.83rem;
+    line-height: 1.35;
+}
+
+.python-lab-watch {
+    margin: 0.2rem 0 0;
+    color: var(--ink-soft);
+    font-size: 0.84rem;
+}
+
+.inference-contract-grid pre {
+    min-height: 128px;
+    margin: 0.7rem 0;
+    font-size: 0.76rem;
+}
+
+@media (max-width: 1050px) {
+    .zth-protocol {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .zth-protocol > i {
+        display: none;
+    }
+
+    .pytorch-runtime-flow {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pytorch-runtime-flow > i {
+        display: none;
+    }
+
+    .pytorch-ecosystem-grid,
+    .transformer-equation-grid,
+    .chatgpt-stage-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pytorch-algorithm-columns,
+    .training-loop-deep-dive,
+    .gpt-blueprint {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 800px) {
+    .zth-project-grid,
+    .zth-manim-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .pytorch-principles-grid,
+    .pytorch-autograd-grid,
+    .pytorch-scaling-grid,
+    .inference-contract-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .architecture-explorer,
+    .architecture-detail {
+        grid-template-columns: 1fr;
+    }
+
+    .architecture-tabs {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 0.3rem;
+    }
+
+    .architecture-tabs button {
+        flex: 0 0 auto;
+    }
+
+    .pytorch-carousel-slide {
+        grid-template-columns: 1fr;
+    }
+
+    .pytorch-carousel-slide video {
+        max-height: 360px;
+    }
+}
+
+@media (max-width: 620px) {
+    .zth-protocol,
+    .zth-practice-contract,
+    .python-lab-brief {
+        grid-template-columns: 1fr;
+    }
+
+    .zth-project-grid article {
+        grid-template-columns: 1fr;
+    }
+
+    .zth-project-grid .notebook-btn {
+        grid-column: 1;
+        grid-row: auto;
+        width: 100%;
+        max-width: none;
+        margin-top: 0.45rem;
+    }
+
+    .pytorch-runtime-flow,
+    .pytorch-ecosystem-grid,
+    .transformer-equation-grid,
+    .chatgpt-stage-grid,
+    .architecture-selection-guide {
+        grid-template-columns: 1fr;
+    }
+
+    .autograd-equation {
+        grid-template-columns: 1fr;
+    }
+
+    .autograd-equation > i {
+        justify-self: center;
+        transform: rotate(90deg);
+    }
+
+    .autograd-equation .autograd-backward {
+        grid-column: 1;
+        transform: none;
+    }
+
+    .micrograd-callout,
+    .pytorch-carousel-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .micrograd-callout .notebook-btn {
+        width: 100%;
+    }
+
+    .architecture-selection-guide h3 {
+        grid-column: 1;
+    }
+
+    .architecture-selection-guide div,
+    .architecture-selection-guide div:nth-child(3n + 1) {
+        border-right: 0;
+    }
+
+    .pytorch-carousel-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .pytorch-carousel-dots {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+}
+
+@media (max-width: 520px) {
+    .pytorch-section pre,
+    .gpt-blueprint pre,
+    .inference-contract-grid pre {
+        font-size: 0.74rem;
+    }
+
+    .pytorch-code-details,
+    .gpt-blueprint-copy,
+    .pytorch-media-carousel,
+    .architecture-detail {
+        padding: 0.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pytorch-carousel-track {
+        transition: none;
+    }
+}

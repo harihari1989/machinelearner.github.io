@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const pythonExamples = {
+    const fallbackPythonExamples = {
         core: `temperature = 21.5
 is_warm = temperature > 20
 label = "warm" if is_warm else "cool"
@@ -74,6 +74,19 @@ print(f"accuracy={accuracy:.3f}")
 print(f"precision={precision:.3f}")
 print(f"recall={recall:.3f}")`
     };
+
+    const pythonExamples = window.PyTorchCourseData?.examples || Object.fromEntries(
+        Object.entries(fallbackPythonExamples).map(([id, code]) => [id, {
+            code,
+            goal: 'Goal: predict the result, run it, then change one assumption.',
+            bridge: 'PyTorch bridge: the same Python and numerical ideas organize tensor programs.',
+            challenges: [
+                'Predict the output before running.',
+                'Change one value and explain the result.',
+                'Reset the example and connect each line to the math.'
+            ]
+        }])
+    );
 
     function cssColor(name, fallback) {
         const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -218,6 +231,14 @@ print(f"recall={recall:.3f}")`
         const resetButton = document.getElementById('pythonCourseReset');
         const output = document.getElementById('pythonCourseOutput');
         const status = document.getElementById('pythonCourseStatus');
+        const goal = document.getElementById('pythonCourseGoal');
+        const bridge = document.getElementById('pythonCourseBridge');
+        const project = document.getElementById('pythonCourseProject');
+        const dataset = document.getElementById('pythonCourseDataset');
+        const skill = document.getElementById('pythonCourseSkill');
+        const deliverable = document.getElementById('pythonCourseDeliverable');
+        const watchFor = document.getElementById('pythonCourseWatchFor');
+        const challenges = document.getElementById('pythonCourseChallenges');
         if (!select || !editor || !runButton || !output) return;
         let sandboxSession = null;
 
@@ -227,7 +248,23 @@ print(f"recall={recall:.3f}")`
         }
 
         function loadSelectedExample() {
-            editor.value = pythonExamples[select.value] || pythonExamples.core;
+            const example = pythonExamples[select.value] || pythonExamples.core;
+            editor.value = typeof example === 'string' ? example : example.code;
+            if (goal) goal.textContent = example.goal || 'Goal: predict the result, then inspect the evidence.';
+            if (bridge) bridge.textContent = example.bridge || 'PyTorch bridge: connect the numerical operations to tensor APIs.';
+            if (project) project.textContent = example.project || 'Concept rehearsal';
+            if (dataset) dataset.textContent = example.dataset || 'Small synthetic sample';
+            if (skill) skill.textContent = example.skill || 'Reason from code and output';
+            if (deliverable) deliverable.textContent = example.deliverable || 'An explained experiment';
+            if (watchFor) watchFor.textContent = example.watchFor || 'shape, split, and evaluation assumptions';
+            if (challenges) {
+                challenges.innerHTML = '';
+                (example.challenges || []).forEach(text => {
+                    const item = document.createElement('li');
+                    item.textContent = text;
+                    challenges.appendChild(item);
+                });
+            }
             output.textContent = 'Predict the result, then run the code.';
             if (status) status.textContent = 'Ready';
         }

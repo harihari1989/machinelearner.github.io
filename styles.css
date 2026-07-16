@@ -2693,14 +2693,16 @@ canvas {
     padding: 0.8rem 0.9rem;
     font-family: 'Courier New', monospace;
     font-size: 0.92rem;
-    background: #f8fafc;
+    color: var(--ink);
+    background: var(--canvas-bg);
 }
 
 .python-output {
     margin-top: 0.7rem;
     flex: 1;
     min-height: 300px;
-    background: #f8fafc;
+    color: var(--ink);
+    background: var(--canvas-bg);
     border-radius: 12px;
     border: 2px dashed var(--section-border);
     padding: 0.8rem 0.9rem;
@@ -2869,6 +2871,7 @@ body[data-theme="dark"] {
     --header-bg: rgba(15, 23, 42, 0.85);
     --nav-bg: rgba(15, 23, 42, 0.9);
     --section-bg: rgba(15, 23, 42, 0.78);
+    --paper: #111827;
     --section-border: rgba(56, 189, 248, 0.35);
     --section-shadow: 0 20px 40px rgba(2, 6, 23, 0.6);
     --panel-bg: rgba(30, 41, 59, 0.85);
@@ -3383,7 +3386,7 @@ body[data-theme="holiday"] .snow-layer {
 }
 
 .markdown-cell {
-    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+    background: var(--card-bg);
     margin-top: 0;
 }
 
@@ -3421,7 +3424,8 @@ body[data-theme="holiday"] .snow-layer {
     padding: 0.9rem 1rem;
     font-family: 'Courier New', monospace;
     font-size: 0.92rem;
-    background: #f8fafc;
+    color: var(--ink);
+    background: var(--canvas-bg);
 }
 
 .cell-actions {
@@ -3530,7 +3534,8 @@ body[data-theme="holiday"] .snow-layer {
     padding: 0.6rem 0.8rem;
     font-family: 'Courier New', monospace;
     font-size: 0.9rem;
-    background: #f8fafc;
+    color: var(--ink);
+    background: var(--canvas-bg);
 }
 
 .onnx-demo-actions {

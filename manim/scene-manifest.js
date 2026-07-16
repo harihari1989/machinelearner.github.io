@@ -343,6 +343,48 @@ window.MathManimCatalog = {
       "scenes": [
         "policy-gradient"
       ]
+    },
+    "activation-gradient-health": {
+      "class": "ActivationGradientHealth",
+      "title": "Training health is visible layer by layer",
+      "scenes": [
+        "training-health"
+      ]
+    },
+    "bpe-token-merge": {
+      "class": "BPETokenMerge",
+      "title": "A tokenizer learns reusable text chunks",
+      "scenes": [
+        "bpe"
+      ]
+    },
+    "causal-intervention-flow": {
+      "class": "CausalInterventionFlow",
+      "title": "Intervention breaks a causal assignment rule",
+      "scenes": [
+        "causal-intervention"
+      ]
+    },
+    "multi-agent-evidence-flow": {
+      "class": "MultiAgentEvidenceFlow",
+      "title": "Independent agents should exchange typed evidence",
+      "scenes": [
+        "agent-evidence"
+      ]
+    },
+    "saga-compensation-flow": {
+      "class": "SagaCompensationFlow",
+      "title": "A saga makes partial failure recoverable",
+      "scenes": [
+        "saga"
+      ]
+    },
+    "temporal-plan-dependencies": {
+      "class": "TemporalPlanDependencies",
+      "title": "A temporal plan is a dependency graph",
+      "scenes": [
+        "plan-dependencies"
+      ]
     }
   },
   "scenes": {
@@ -393,6 +435,12 @@ window.MathManimCatalog = {
     "diffusion": "diffusion-denoising",
     "bellman-backup": "bellman-backup",
     "temporal-credit": "temporal-credit-assignment",
-    "policy-gradient": "policy-gradient-geometry"
+    "policy-gradient": "policy-gradient-geometry",
+    "training-health": "activation-gradient-health",
+    "bpe": "bpe-token-merge",
+    "causal-intervention": "causal-intervention-flow",
+    "agent-evidence": "multi-agent-evidence-flow",
+    "saga": "saga-compensation-flow",
+    "plan-dependencies": "temporal-plan-dependencies"
   }
 };
