@@ -25,7 +25,13 @@ The Python chapter now continues from language and NumPy fundamentals through Py
 
 An original ten-project companion path follows Andrej Karpathy's *Neural Networks: Zero to Hero* sequence from micrograd and makemore through tokenization and GPT-2 reproduction. A source-grounded nanoGPT study then traces data preparation, tensor shapes, causal attention, parameter accounting, cross-entropy, gradient accumulation, AdamW, mixed precision, DDP, checkpointing, sampling, and KV-cache trade-offs while distinguishing the archived implementation from current PyTorch APIs.
 
-Twenty-five runnable browser labs connect the mechanics to churn classification, demand forecasting, cost-sensitive fraud review, training-health diagnostics, byte-pair tokenization, model scaling, and nine nanoGPT visual experiments. Each applied lab names the dataset, practitioner skill, deliverable, and failure mode, while Python-generated plots and Manim clips animate tensor flow, training updates, decoding, gradient health, and token merging.
+Thirty runnable browser labs connect the mechanics to churn classification, demand forecasting, cost-sensitive fraud review, training-health diagnostics, byte-pair tokenization, model scaling, and nine nanoGPT visual experiments. Each applied lab names the dataset, practitioner skill, deliverable, and failure mode, while Python-generated plots and Manim clips animate tensor flow, training updates, decoding, gradient health, and token merging.
+
+## Kaggle Intro ML Lab
+
+The dedicated Kaggle ML chapter is an independent, hands-on companion to Kaggle's *Intro to Machine Learning* course. Its seven projects cover decision-tree prediction paths, pandas data audits, feature and target contracts, held-out validation with MAE, capacity sweeps, random-forest comparison, and schema-safe competition submissions.
+
+Every lesson pairs a visual experiment with an editable browser notebook. The lab runs real pandas and scikit-learn APIs inside the isolated Python worker, uses embedded housing data, includes concrete change-and-observe challenges, and finishes with assertions that check the practical deliverable.
 
 Serve the repository as a static site; browser security prevents the isolated
 Python worker from running when `index.html` is opened with a `file://` URL.

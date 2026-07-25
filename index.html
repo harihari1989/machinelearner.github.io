@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="math-foundations-lab.css">
     <link rel="stylesheet" href="learning-depth.css?v=20260716-python-depth-1">
     <link rel="stylesheet" href="research-expansion.css">
+    <link rel="stylesheet" href="kaggle-ml-course.css?v=20260725-kaggle-1">
     <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
@@ -52,6 +53,7 @@
         <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations">Foundations</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="math-deep-dive">Math Deep Dive</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml">Machine Learning</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="kaggle-ml">Kaggle ML Lab</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="python">Python for ML</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
@@ -2559,6 +2561,378 @@
                         </div>
                     </div>
                 </div>
+            </section>
+        </section>
+
+        <section class="chapter kaggle-ml-course" data-chapter="kaggle-ml">
+            <nav class="chapter-nav kaggle-ml-nav" aria-label="Kaggle introductory machine learning deep-dive sections">
+                <a href="#kaggle-ml-roadmap">Roadmap</a>
+                <a href="#kaggle-how-models-work">Models</a>
+                <a href="#kaggle-data-exploration">Explore data</a>
+                <a href="#kaggle-first-model">First model</a>
+                <a href="#kaggle-model-validation">Validation</a>
+                <a href="#kaggle-under-overfit">Model capacity</a>
+                <a href="#kaggle-random-forests">Random forests</a>
+                <a href="#kaggle-competitions">Competitions</a>
+                <a href="#kaggle-ml-lab">Python lab</a>
+            </nav>
+
+            <section id="kaggle-ml-roadmap" class="example-section kaggle-ml-hero">
+                <div class="kaggle-hero-copy">
+                    <span class="kaggle-eyebrow">Seven lessons · seven experiments · one complete workflow</span>
+                    <h2>Intro to machine learning, from a row of data to a trustworthy submission</h2>
+                    <p class="section-intro">This independent companion deepens every topic in Kaggle’s <a href="https://www.kaggle.com/learn/intro-to-machine-learning" target="_blank" rel="noopener">Intro to Machine Learning course</a>. Follow one housing-price problem through inspection, decision trees, honest validation, capacity control, random forests, and a competition-ready prediction file.</p>
+                    <div class="kaggle-hero-actions">
+                        <a class="kaggle-primary-link" href="#kaggle-how-models-work">Begin lesson 1</a>
+                        <a class="kaggle-secondary-link" href="#kaggle-ml-lab">Open the Python lab</a>
+                    </div>
+                </div>
+                <div class="kaggle-cycle" role="img" aria-label="Machine learning workflow: frame the prediction, inspect data, split, fit, validate, improve, and submit">
+                    <div><span>01</span><strong>Frame</strong><small>What must be predicted?</small></div>
+                    <i aria-hidden="true">→</i>
+                    <div><span>02</span><strong>Inspect</strong><small>What evidence is available?</small></div>
+                    <i aria-hidden="true">→</i>
+                    <div><span>03</span><strong>Learn</strong><small>Which pattern fits training data?</small></div>
+                    <i aria-hidden="true">→</i>
+                    <div><span>04</span><strong>Test</strong><small>Does it transfer to unseen rows?</small></div>
+                    <i aria-hidden="true">→</i>
+                    <div><span>05</span><strong>Deliver</strong><small>Are predictions shaped correctly?</small></div>
+                </div>
+                <ol class="kaggle-lesson-index" aria-label="Course lessons">
+                    <li><a href="#kaggle-how-models-work"><b>1</b><span>How models work<small>Rules, leaves, and prediction paths</small></span></a></li>
+                    <li><a href="#kaggle-data-exploration"><b>2</b><span>Basic data exploration<small>Rows, columns, distributions, missingness</small></span></a></li>
+                    <li><a href="#kaggle-first-model"><b>3</b><span>Your first model<small>Target, features, fit, predict</small></span></a></li>
+                    <li><a href="#kaggle-model-validation"><b>4</b><span>Model validation<small>Holdout data and mean absolute error</small></span></a></li>
+                    <li><a href="#kaggle-under-overfit"><b>5</b><span>Underfitting and overfitting<small>Capacity and the validation curve</small></span></a></li>
+                    <li><a href="#kaggle-random-forests"><b>6</b><span>Random forests<small>Diverse trees, averaged predictions</small></span></a></li>
+                    <li><a href="#kaggle-competitions"><b>7</b><span>Machine learning competitions<small>Test predictions and submission contracts</small></span></a></li>
+                </ol>
+            </section>
+
+            <section id="kaggle-how-models-work" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 1 · How models work</span>
+                    <h2>A decision tree turns questions into regions of similar outcomes</h2>
+                    <p class="section-intro">A supervised model learns a function \(f:X\rightarrow y\) from examples whose answers are already known. A regression tree learns a sequence of feature thresholds. Each split sends a row left or right; the reached leaf predicts the mean target of its training rows.</p>
+                </header>
+                <div class="kaggle-lesson-layout">
+                    <div class="kaggle-concept-copy">
+                        <h3>Trace one prediction</h3>
+                        <ol class="kaggle-reasoning-steps">
+                            <li><strong>Features are evidence.</strong> A house becomes a row such as <code>[living_area, quality, age]</code>. Feature order and units are part of the model’s input contract.</li>
+                            <li><strong>Training chooses questions.</strong> The tree tests candidate feature thresholds and prefers the split that most reduces within-leaf squared error.</li>
+                            <li><strong>A leaf stores an estimate.</strong> For squared-error regression, that estimate is the mean sale price of the training rows in the leaf.</li>
+                            <li><strong>Inference only follows rules.</strong> No parameters change during <code>predict</code>; a new row traverses the learned tree.</li>
+                        </ol>
+                        <div class="kaggle-equation">\[\operatorname{SSE}(R)=\sum_{i\in R}(y_i-\bar y_R)^2,\qquad \hat y(x)=\bar y_{\operatorname{leaf}(x)}\]</div>
+                        <p class="kaggle-watch"><strong>Reasoning check:</strong> a tree does not “understand” houses. It partitions the measured feature space and transfers averages from nearby training regions.</p>
+                    </div>
+                    <div class="kaggle-interactive-panel">
+                        <div class="kaggle-control-row">
+                            <label>Living area <output id="kaggleAreaValue">1,850 ft²</output><input id="kaggleArea" type="range" min="700" max="3600" step="50" value="1850"></label>
+                            <label>Quality <output id="kaggleQualityValue">7 / 10</output><input id="kaggleQuality" type="range" min="1" max="10" step="1" value="7"></label>
+                            <label>Age <output id="kaggleAgeValue">24 yr</output><input id="kaggleAge" type="range" min="0" max="100" step="2" value="24"></label>
+                        </div>
+                        <canvas id="kaggleTreeCanvas" width="720" height="390" role="img" aria-label="Interactive decision tree showing the active path for a house prediction"></canvas>
+                        <p id="kaggleTreeReadout" class="kaggle-live-readout" aria-live="polite"></p>
+                    </div>
+                </div>
+                <div class="kaggle-api-contract">
+                    <h3>The estimator API</h3>
+                    <div class="kaggle-api-grid">
+                        <article><code>DecisionTreeRegressor(max_leaf_nodes=…)</code><p>Constructs an unfitted estimator and stores hyperparameters. <code>max_leaf_nodes</code> limits structural capacity.</p></article>
+                        <article><code>model.fit(X, y)</code><p>Learns split features, thresholds, and leaf values from aligned feature rows \(X\) and targets \(y\). Returns the fitted estimator.</p></article>
+                        <article><code>model.predict(X_new)</code><p>Returns one numeric estimate per new row. The input must preserve the feature schema used during fitting.</p></article>
+                        <article><code>model.tree_</code><p>Exposes the fitted low-level tree: node features, thresholds, children, sample counts, and values.</p></article>
+                    </div>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> change the house until each of the four leaves becomes active. Explain which question changed the route and why the estimate jumps rather than moving smoothly.</p><button type="button" data-kaggle-lab="models">Run the decision-path lab</button></div>
+            </section>
+
+            <section id="kaggle-data-exploration" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 2 · Basic data exploration</span>
+                    <h2>Before modeling, audit what every row and column means</h2>
+                    <p class="section-intro">Exploration is a contract check, not decoration. Confirm the unit of observation, target definition, feature types, ranges, missing-value patterns, duplicates, and whether any column could reveal the answer after the moment of prediction.</p>
+                </header>
+                <div class="kaggle-lesson-layout">
+                    <div class="kaggle-concept-copy">
+                        <h3>A disciplined first pass</h3>
+                        <ol class="kaggle-reasoning-steps">
+                            <li><strong>Load intentionally:</strong> <code>pd.read_csv(path)</code> parses a CSV into a two-dimensional <code>DataFrame</code>. Inspect parsing assumptions such as headers, missing tokens, and dtypes.</li>
+                            <li><strong>Establish dimensions:</strong> <code>df.shape</code> gives <code>(rows, columns)</code>; <code>df.columns</code> names the schema; <code>df.dtypes</code> reveals inferred representation.</li>
+                            <li><strong>Sample records:</strong> <code>df.head()</code> catches shifted columns, unexpected units, identifiers accidentally read as numbers, and obvious target leakage.</li>
+                            <li><strong>Summarize distributions:</strong> <code>df.describe()</code> reports count, center, spread, and quantiles for numeric columns. Compare count with total rows to detect missingness.</li>
+                            <li><strong>Ask causal timing:</strong> would this feature exist when the prediction must be made? A post-sale field can be predictive and still be invalid.</li>
+                        </ol>
+                        <p class="kaggle-watch"><strong>Watch for:</strong> impossible values, duplicated IDs, mixed units, a target stored as text, and a feature that encodes the target or future information.</p>
+                    </div>
+                    <div class="kaggle-interactive-panel">
+                        <div class="kaggle-view-switcher" role="group" aria-label="Choose a dataset inspection view">
+                            <button class="is-active" type="button" data-kaggle-data-view="head">Head</button>
+                            <button type="button" data-kaggle-data-view="describe">Describe</button>
+                            <button type="button" data-kaggle-data-view="missing">Missingness</button>
+                        </div>
+                        <div id="kaggleDataView" class="kaggle-data-view" aria-live="polite"></div>
+                        <canvas id="kaggleDataCanvas" width="720" height="250" role="img" aria-label="Data distribution or missing-value visualization"></canvas>
+                    </div>
+                </div>
+                <div class="kaggle-api-contract">
+                    <h3>pandas API map</h3>
+                    <div class="table-responsive">
+                        <table class="kaggle-api-table">
+                            <thead><tr><th>Expression</th><th>Returns</th><th>Question answered</th><th>Common mistake</th></tr></thead>
+                            <tbody>
+                                <tr><td><code>pd.read_csv(path)</code></td><td><code>DataFrame</code></td><td>Can the source be parsed into rows and columns?</td><td>Trusting inferred dtypes without inspection.</td></tr>
+                                <tr><td><code>df.head(n)</code></td><td>first \(n\) rows</td><td>Do records and units look plausible?</td><td>Assuming the first rows represent the full distribution.</td></tr>
+                                <tr><td><code>df.describe()</code></td><td>summary table</td><td>What are the numeric ranges, center, and spread?</td><td>Ignoring skew and missing counts.</td></tr>
+                                <tr><td><code>df.isna().sum()</code></td><td>count per column</td><td>Where is information absent?</td><td>Replacing missing values with zero without a reason.</td></tr>
+                                <tr><td><code>df.drop(columns=[…])</code></td><td>new frame</td><td>Which fields should be excluded?</td><td>Forgetting that the default does not mutate <code>df</code>.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> inspect the embedded housing table. Identify the likely target, one identifier, one missing feature, and one field that would be unavailable before a sale.</p><button type="button" data-kaggle-lab="explore">Run the exploration lab</button></div>
+            </section>
+
+            <section id="kaggle-first-model" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 3 · Your first machine learning model</span>
+                    <h2>Separate the answer from the evidence, then fit one reproducible baseline</h2>
+                    <p class="section-intro">The target \(y\) contains the value to predict. The feature matrix \(X\) contains only evidence available at prediction time. A baseline model creates a measurable reference point for every later improvement.</p>
+                </header>
+                <div class="kaggle-pipeline" role="list" aria-label="Select target, select features, create model, fit model, and predict">
+                    <button class="is-active" type="button" data-kaggle-pipeline-step="0"><span>1</span><strong>Select target</strong><code>y = df["SalePrice"]</code></button>
+                    <i aria-hidden="true">→</i>
+                    <button type="button" data-kaggle-pipeline-step="1"><span>2</span><strong>Select features</strong><code>X = df[feature_names]</code></button>
+                    <i aria-hidden="true">→</i>
+                    <button type="button" data-kaggle-pipeline-step="2"><span>3</span><strong>Construct</strong><code>model = DecisionTreeRegressor(...)</code></button>
+                    <i aria-hidden="true">→</i>
+                    <button type="button" data-kaggle-pipeline-step="3"><span>4</span><strong>Fit</strong><code>model.fit(X, y)</code></button>
+                    <i aria-hidden="true">→</i>
+                    <button type="button" data-kaggle-pipeline-step="4"><span>5</span><strong>Predict</strong><code>model.predict(X_new)</code></button>
+                </div>
+                <div id="kagglePipelineReadout" class="kaggle-pipeline-readout" aria-live="polite"></div>
+                <div class="kaggle-code-explainer">
+                    <pre><code>features = ["LotArea", "YearBuilt", "FirstFloorSF",
+            "SecondFloorSF", "FullBath", "BedroomAbvGr",
+            "TotRmsAbvGrd"]
+
+y = home_data["SalePrice"]       # shape: (n_rows,)
+X = home_data[features]          # shape: (n_rows, 7)
+
+model = DecisionTreeRegressor(random_state=1)
+model.fit(X, y)
+predictions = model.predict(X)</code></pre>
+                    <div>
+                        <h3>What the objects mean</h3>
+                        <dl class="kaggle-definition-list">
+                            <div><dt><code>features</code></dt><dd>A schema, not merely a list: it fixes column names and ordering.</dd></div>
+                            <div><dt><code>X</code></dt><dd>Two-dimensional rows-by-features evidence. One row must align with one target.</dd></div>
+                            <div><dt><code>y</code></dt><dd>One-dimensional regression answers in the same row order as \(X\).</dd></div>
+                            <div><dt><code>random_state=1</code></dt><dd>A reproducibility control for randomized choices; it is not a quality knob.</dd></div>
+                            <div><dt><code>predictions</code></dt><dd>A numeric array with one output per supplied feature row.</dd></div>
+                        </dl>
+                    </div>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> remove one feature, refit the model, and compare the first five predictions. Then add it back and explain why training predictions alone cannot tell you which version is better.</p><button type="button" data-kaggle-lab="first-model">Run the first-model lab</button></div>
+            </section>
+
+            <section id="kaggle-model-validation" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 4 · Model validation</span>
+                    <h2>Measure the model on rows it could not memorize</h2>
+                    <p class="section-intro">Training error answers “how well did the model fit its examples?” Validation error asks the deployment question: “how accurately does the fitted procedure predict unseen rows from the same process?” Keep validation targets completely outside <code>fit</code>.</p>
+                </header>
+                <div class="kaggle-lesson-layout">
+                    <div class="kaggle-concept-copy">
+                        <h3>The holdout protocol</h3>
+                        <ol class="kaggle-reasoning-steps">
+                            <li>Split aligned \(X,y\) rows into training and validation subsets.</li>
+                            <li>Fit the estimator using <strong>only</strong> <code>train_X, train_y</code>.</li>
+                            <li>Predict <code>val_X</code>; compare predictions with untouched <code>val_y</code>.</li>
+                            <li>Use the metric to compare modeling choices, then preserve a final test set for the last unbiased estimate when stakes justify it.</li>
+                        </ol>
+                        <div class="kaggle-equation">\[\operatorname{MAE}(y,\hat y)=\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat y_i|\]</div>
+                        <p>MAE has the target’s units. An MAE of $18,000 means the prediction misses by $18,000 on average in absolute value; it does not reveal whether a few catastrophic errors dominate.</p>
+                        <p class="kaggle-watch"><strong>Leakage rule:</strong> fit preprocessing, feature selection, and models on training data only. “Looking” at validation labels repeatedly also turns the validation set into training feedback.</p>
+                    </div>
+                    <div class="kaggle-interactive-panel">
+                        <label class="kaggle-range-label" for="kaggleValidationSize">Validation fraction <output id="kaggleValidationValue">20%</output></label>
+                        <input id="kaggleValidationSize" type="range" min="10" max="50" step="5" value="20">
+                        <canvas id="kaggleValidationCanvas" width="720" height="330" role="img" aria-label="Interactive training and validation split with held-out prediction errors"></canvas>
+                        <p id="kaggleValidationReadout" class="kaggle-live-readout" aria-live="polite"></p>
+                    </div>
+                </div>
+                <div class="kaggle-api-contract">
+                    <h3>Validation API contract</h3>
+                    <div class="kaggle-api-grid">
+                        <article><code>train_test_split(X, y, test_size=.2, random_state=1)</code><p>Shuffles aligned inputs and returns <code>train_X, val_X, train_y, val_y</code>. The seed makes the split repeatable.</p></article>
+                        <article><code>model.fit(train_X, train_y)</code><p>Mutates the estimator by learning from the training partition. Validation rows must not enter this call.</p></article>
+                        <article><code>model.predict(val_X)</code><p>Runs inference on held-out features. Output length equals <code>len(val_X)</code>.</p></article>
+                        <article><code>mean_absolute_error(val_y, val_predictions)</code><p>Averages absolute residuals. Lower is better; zero is perfect.</p></article>
+                    </div>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> change the validation fraction and seed. Explain why the score moves, why a tiny validation set is noisy, and why repeatedly choosing the luckiest seed is invalid.</p><button type="button" data-kaggle-lab="validation">Run the validation lab</button></div>
+            </section>
+
+            <section id="kaggle-under-overfit" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 5 · Underfitting and overfitting</span>
+                    <h2>Model capacity must be large enough to learn signal and small enough to ignore accidents</h2>
+                    <p class="section-intro">A shallow tree groups unlike cases together and underfits. A huge tree can isolate individual training rows and overfit. Select capacity using validation performance—not training accuracy and not visual complexity alone.</p>
+                </header>
+                <div class="kaggle-lesson-layout">
+                    <div class="kaggle-concept-copy">
+                        <h3>Read the two error curves together</h3>
+                        <ul class="kaggle-signal-list">
+                            <li><strong>Too few leaves:</strong> training and validation error are both high. The representation is too coarse.</li>
+                            <li><strong>Useful capacity:</strong> validation error reaches its minimum. Added structure is capturing repeatable signal.</li>
+                            <li><strong>Too many leaves:</strong> training error keeps falling while validation error rises. The gap is evidence of memorizing sample-specific noise.</li>
+                        </ul>
+                        <pre><code>def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
+    model = DecisionTreeRegressor(
+        max_leaf_nodes=max_leaf_nodes,
+        random_state=1
+    )
+    model.fit(train_X, train_y)
+    return mean_absolute_error(val_y, model.predict(val_X))</code></pre>
+                        <p class="kaggle-watch"><strong>Important:</strong> hyperparameters such as <code>max_leaf_nodes</code>, <code>max_depth</code>, and <code>min_samples_leaf</code> control learning behavior; fitted split thresholds and leaf values are learned parameters.</p>
+                    </div>
+                    <div class="kaggle-interactive-panel">
+                        <label class="kaggle-range-label" for="kaggleLeafCount">Maximum leaves <output id="kaggleLeafValue">8</output></label>
+                        <input id="kaggleLeafCount" type="range" min="2" max="32" step="2" value="8">
+                        <canvas id="kaggleCapacityCanvas" width="720" height="390" role="img" aria-label="Training and validation mean absolute error as decision-tree leaf count changes"></canvas>
+                        <p id="kaggleCapacityReadout" class="kaggle-live-readout" aria-live="polite"></p>
+                    </div>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> evaluate several leaf counts and choose the smallest model within roughly 2% of the best validation MAE. Defend the choice using both error and complexity.</p><button type="button" data-kaggle-lab="capacity">Run the capacity sweep</button></div>
+            </section>
+
+            <section id="kaggle-random-forests" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 6 · Random forests</span>
+                    <h2>Average diverse trees to reduce unstable mistakes</h2>
+                    <p class="section-intro">A random forest trains many decision trees on bootstrapped rows while considering random feature subsets at splits. Their individual errors are imperfectly correlated, so averaging usually reduces variance without requiring you to find one perfect tree.</p>
+                </header>
+                <div class="kaggle-lesson-layout">
+                    <div class="kaggle-concept-copy">
+                        <div class="kaggle-equation">\[\hat y_{\text{forest}}(x)=\frac{1}{T}\sum_{t=1}^{T}\hat y_t(x),\qquad \operatorname{Var}(\bar y)\downarrow\ \text{when tree errors differ}\]</div>
+                        <ol class="kaggle-reasoning-steps">
+                            <li><strong>Bootstrap rows:</strong> each tree receives a same-sized sample drawn with replacement, so some rows repeat and others are left out.</li>
+                            <li><strong>Randomize features:</strong> each split considers only a subset, preventing one dominant feature from making all trees identical.</li>
+                            <li><strong>Grow independent structures:</strong> the resampled evidence produces different thresholds and leaves.</li>
+                            <li><strong>Aggregate:</strong> regressors average; classifiers vote or average class probabilities.</li>
+                        </ol>
+                        <p class="kaggle-watch"><strong>Trade-off:</strong> more trees generally stabilize the estimate but cost memory and computation. Forests still inherit data leakage, invalid validation, and feature-timing problems.</p>
+                    </div>
+                    <div class="kaggle-interactive-panel">
+                        <label class="kaggle-range-label" for="kaggleTreeCount">Trees in the ensemble <output id="kaggleTreeCountValue">12</output></label>
+                        <input id="kaggleTreeCount" type="range" min="1" max="50" step="1" value="12">
+                        <canvas id="kaggleForestCanvas" width="720" height="390" role="img" aria-label="Individual tree predictions and their random-forest average"></canvas>
+                        <p id="kaggleForestReadout" class="kaggle-live-readout" aria-live="polite"></p>
+                    </div>
+                </div>
+                <div class="kaggle-api-contract">
+                    <h3>Random forest API</h3>
+                    <div class="kaggle-api-grid">
+                        <article><code>RandomForestRegressor(n_estimators=100, random_state=1)</code><p><code>n_estimators</code> is the number of trees. The seed controls bootstrap and feature-sampling randomness.</p></article>
+                        <article><code>max_depth</code> / <code>min_samples_leaf</code><p>Limit each component tree. Larger leaves smooth predictions and reduce memory.</p></article>
+                        <article><code>n_jobs=-1</code><p>Uses available CPU workers in a desktop Python environment. Browser labs use a single isolated worker.</p></article>
+                        <article><code>feature_importances_</code><p>Reports impurity-based split importance. Treat it as a model diagnostic, not causal evidence.</p></article>
+                    </div>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> compare one decision tree with forests of 5, 25, and 100 trees. Record validation MAE and decide when extra trees stop being worth the cost.</p><button type="button" data-kaggle-lab="forest">Run the forest comparison</button></div>
+            </section>
+
+            <section id="kaggle-competitions" class="example-section kaggle-lesson">
+                <header class="kaggle-lesson-heading">
+                    <span>Lesson 7 · Machine learning competitions</span>
+                    <h2>A submission is a data contract, not just an array of good guesses</h2>
+                    <p class="section-intro">Competition test data contains the same input schema but hides the target. Train with labeled rows, generate predictions for every test ID in its original order, and write exactly the columns required by the sample submission.</p>
+                </header>
+                <div class="kaggle-competition-flow" aria-label="Competition workflow from labeled train data and unlabeled test data to a submission">
+                    <article><span>train.csv</span><strong>Features + target</strong><small>fit and validate locally</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>fitted model</span><strong>Frozen rules</strong><small>chosen before test scoring</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>test.csv</span><strong>Same features, no target</strong><small>preserve row order and ID</small></article>
+                    <i aria-hidden="true">→</i>
+                    <article><span>submission.csv</span><strong>ID + prediction</strong><small>one prediction per test row</small></article>
+                </div>
+                <div class="kaggle-code-explainer">
+                    <pre><code>test_X = test_data[features]
+test_predictions = final_model.predict(test_X)
+
+submission = pd.DataFrame({
+    "Id": test_data["Id"],
+    "SalePrice": test_predictions
+})
+submission.to_csv("submission.csv", index=False)</code></pre>
+                    <div>
+                        <h3>Preflight checklist</h3>
+                        <ol class="kaggle-submission-checks">
+                            <li><button type="button" data-kaggle-check="0" aria-pressed="false"><span aria-hidden="true">○</span>Feature names and order match training.</button></li>
+                            <li><button type="button" data-kaggle-check="1" aria-pressed="false"><span aria-hidden="true">○</span>Prediction count equals test row count.</button></li>
+                            <li><button type="button" data-kaggle-check="2" aria-pressed="false"><span aria-hidden="true">○</span>IDs remain aligned with original test rows.</button></li>
+                            <li><button type="button" data-kaggle-check="3" aria-pressed="false"><span aria-hidden="true">○</span>Column names match the sample submission.</button></li>
+                            <li><button type="button" data-kaggle-check="4" aria-pressed="false"><span aria-hidden="true">○</span><code>index=False</code> prevents an extra unnamed column.</button></li>
+                        </ol>
+                        <p id="kaggleSubmissionReadout" class="kaggle-live-readout" aria-live="polite">Complete the five checks before exporting.</p>
+                    </div>
+                </div>
+                <div class="kaggle-competition-notes">
+                    <article><h3>Public vs private leaderboard</h3><p>A public score measures only part of the hidden labels and can reward repeated leaderboard tuning by chance. Prefer disciplined local validation; use the public board as a delivery check, not your sole model-selection loop.</p></article>
+                    <article><h3>Reproducible experiments</h3><p>Record features, split seed, model class, hyperparameters, validation metric, and output filename. Change one justified variable at a time so improvements remain explainable.</p></article>
+                    <article><h3>Final training</h3><p>After choosing the procedure, refit on all available labeled data before predicting the hidden test rows. Do not change the procedure in response to test labels—you do not have them.</p></article>
+                </div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> generate a submission string, assert its row count and columns, then deliberately enable the index to see why the file contract fails.</p><button type="button" data-kaggle-lab="competition">Run the submission lab</button></div>
+            </section>
+
+            <section id="kaggle-ml-lab" class="example-section kaggle-browser-lab">
+                <header class="kaggle-lesson-heading">
+                    <span>Isolated browser notebook · pandas + NumPy + scikit-learn</span>
+                    <h2>Run every lesson with the real Python APIs</h2>
+                    <p class="section-intro">Choose a lab, edit the code, and run it locally in this page. The first run loads the bundled scientific Python packages; later runs reuse the private session. Network access and browser APIs remain unavailable inside the Python worker.</p>
+                </header>
+                <div class="kaggle-lab-toolbar">
+                    <label for="kaggleLabSelect">Lesson
+                        <select id="kaggleLabSelect">
+                            <option value="models">1 · How models work</option>
+                            <option value="explore">2 · Basic data exploration</option>
+                            <option value="first-model">3 · Your first model</option>
+                            <option value="validation">4 · Model validation</option>
+                            <option value="capacity">5 · Underfitting and overfitting</option>
+                            <option value="forest">6 · Random forests</option>
+                            <option value="competition">7 · Competition submission</option>
+                        </select>
+                    </label>
+                    <div>
+                        <button id="kaggleLabRun" type="button">Run Python</button>
+                        <button id="kaggleLabReset" class="secondary" type="button">Reset code</button>
+                    </div>
+                </div>
+                <div class="kaggle-lab-brief">
+                    <div><span>Goal</span><strong id="kaggleLabGoal"></strong></div>
+                    <div><span>APIs</span><strong id="kaggleLabApis"></strong></div>
+                    <div><span>Experiment</span><strong id="kaggleLabChallenge"></strong></div>
+                </div>
+                <div class="kaggle-lab-workspace">
+                    <div>
+                        <label for="kaggleLabEditor">Editable Python</label>
+                        <textarea id="kaggleLabEditor" spellcheck="false" aria-label="Editable Python course code"></textarea>
+                    </div>
+                    <div>
+                        <div class="kaggle-output-heading"><span>Output</span><strong id="kaggleLabStatus">Ready</strong></div>
+                        <pre id="kaggleLabOutput" aria-live="polite">Choose a lesson and run the cell.</pre>
+                        <div id="kaggleLabPlot" class="kaggle-lab-plot" hidden></div>
+                    </div>
+                </div>
+                <div class="kaggle-lab-boundary">
+                    <strong>Browser lab vs Kaggle notebook</strong>
+                    <p>The estimator and dataframe APIs are genuine pandas/scikit-learn calls. The datasets are small and embedded so execution stays fast and private. On Kaggle, replace the embedded records with <code>pd.read_csv("/kaggle/input/...")</code>, keep the same feature/target/fit/predict structure, and save the final CSV to the notebook’s working directory.</p>
+                </div>
+                <p class="reference-strip"><strong>Continue with the primary material:</strong> <a href="https://www.kaggle.com/learn/intro-to-machine-learning" target="_blank" rel="noopener">Kaggle Intro to Machine Learning</a>, <a href="https://pandas.pydata.org/docs/user_guide/" target="_blank" rel="noopener">pandas user guide</a>, and <a href="https://scikit-learn.org/stable/user_guide.html" target="_blank" rel="noopener">scikit-learn user guide</a>.</p>
             </section>
         </section>
 
@@ -8004,7 +8378,7 @@ for step in range(8):
         <p>All visualizations are interactive - click buttons to see animations!</p>
     </footer>
 
-    <script src="python-sandbox-client.js?v=20260713-local-runtimes-8"></script>
+    <script src="python-sandbox-client.js?v=20260725-kaggle-ml-1"></script>
     <script src="script.js?v=20260715-nanogpt-3"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
@@ -8015,6 +8389,7 @@ for step in range(8):
     <script src="math-deep-dive.js"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
     <script src="research-expansion.js?v=20260716-manim-media-1"></script>
+    <script src="kaggle-ml-course.js?v=20260725-kaggle-1"></script>
     <script src="pytorch-course-data.js?v=20260716-python-depth-1"></script>
     <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
     <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>

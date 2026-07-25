@@ -1,7 +1,7 @@
 (() => {
     'use strict';
 
-    const RUNTIME_CACHE_KEY = '20260713-local-runtimes-8';
+    const RUNTIME_CACHE_KEY = '20260725-kaggle-ml-1';
     let activeSession = null;
 
     class PythonSandboxSession {

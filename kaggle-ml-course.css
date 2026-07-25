@@ -1,0 +1,860 @@
+.kaggle-ml-course {
+    --kaggle-accent: #0f766e;
+    --kaggle-accent-soft: rgba(15, 118, 110, 0.1);
+    --kaggle-gold: #d97706;
+    --kaggle-blue: #0369a1;
+    --kaggle-code: #10231f;
+}
+
+.kaggle-ml-course .example-section {
+    scroll-margin-top: 5.5rem;
+}
+
+.kaggle-ml-nav {
+    border-bottom-color: var(--kaggle-accent);
+}
+
+.kaggle-ml-hero {
+    overflow: hidden;
+    position: relative;
+    background:
+        radial-gradient(circle at 92% 10%, rgba(45, 212, 191, 0.2), transparent 32%),
+        radial-gradient(circle at 8% 100%, rgba(56, 189, 248, 0.14), transparent 30%),
+        var(--section-bg);
+}
+
+.kaggle-ml-hero::after {
+    content: "";
+    position: absolute;
+    width: 16rem;
+    height: 16rem;
+    right: -7rem;
+    bottom: -8rem;
+    border: 2.5rem solid var(--kaggle-accent-soft);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.kaggle-hero-copy {
+    max-width: 850px;
+    position: relative;
+    z-index: 1;
+}
+
+.kaggle-eyebrow,
+.kaggle-lesson-heading > span {
+    display: inline-block;
+    color: var(--kaggle-accent);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    margin-bottom: 0.7rem;
+}
+
+.kaggle-ml-hero h2,
+.kaggle-lesson-heading h2 {
+    border-color: var(--kaggle-accent);
+}
+
+.kaggle-ml-hero h2 {
+    max-width: 780px;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1.08;
+}
+
+.kaggle-hero-actions,
+.kaggle-lab-toolbar > div {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.kaggle-hero-actions {
+    margin-top: 1.2rem;
+}
+
+.kaggle-primary-link,
+.kaggle-secondary-link,
+.kaggle-lesson-action button,
+.kaggle-lab-toolbar button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--kaggle-accent);
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.kaggle-primary-link,
+.kaggle-lesson-action button,
+.kaggle-lab-toolbar button:not(.secondary) {
+    color: #fff;
+    background: var(--kaggle-accent);
+    box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22);
+}
+
+.kaggle-secondary-link,
+.kaggle-lab-toolbar button.secondary {
+    color: var(--kaggle-accent);
+    background: var(--section-bg);
+}
+
+.kaggle-primary-link:hover,
+.kaggle-secondary-link:hover,
+.kaggle-lesson-action button:hover,
+.kaggle-lab-toolbar button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 11px 22px rgba(15, 118, 110, 0.24);
+}
+
+.kaggle-cycle {
+    display: grid;
+    grid-template-columns: repeat(9, max-content);
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    margin: 2rem 0 1.5rem;
+    padding: 1.1rem;
+    border: 2px solid var(--section-border);
+    border-radius: 20px;
+    background: var(--panel-bg);
+    position: relative;
+    z-index: 1;
+}
+
+.kaggle-cycle div {
+    min-width: 8.5rem;
+    text-align: center;
+}
+
+.kaggle-cycle span {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    margin: 0 auto 0.4rem;
+    border-radius: 50%;
+    background: var(--kaggle-accent);
+    color: #fff;
+    font-weight: 800;
+    line-height: 2rem;
+}
+
+.kaggle-cycle strong,
+.kaggle-cycle small {
+    display: block;
+}
+
+.kaggle-cycle small {
+    color: var(--ink-soft);
+    line-height: 1.35;
+}
+
+.kaggle-cycle i,
+.kaggle-pipeline > i,
+.kaggle-competition-flow > i {
+    color: var(--kaggle-accent);
+    font-style: normal;
+    font-size: 1.45rem;
+    font-weight: 800;
+}
+
+.kaggle-lesson-index {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.65rem;
+    position: relative;
+    z-index: 1;
+}
+
+.kaggle-lesson-index a {
+    min-height: 8.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.9rem;
+    color: var(--ink);
+    text-decoration: none;
+    border: 2px solid var(--section-border);
+    border-radius: 16px;
+    background: var(--section-bg);
+    transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.kaggle-lesson-index a:hover {
+    transform: translateY(-3px);
+    border-color: var(--kaggle-accent);
+}
+
+.kaggle-lesson-index b {
+    flex: 0 0 auto;
+    color: var(--kaggle-accent);
+    font-size: 1.35rem;
+}
+
+.kaggle-lesson-index span,
+.kaggle-lesson-index small {
+    display: block;
+}
+
+.kaggle-lesson-index span {
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.kaggle-lesson-index small {
+    margin-top: 0.35rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.kaggle-lesson-heading {
+    max-width: 920px;
+    margin-bottom: 1.5rem;
+}
+
+.kaggle-lesson-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.kaggle-concept-copy h3,
+.kaggle-api-contract h3,
+.kaggle-code-explainer h3,
+.kaggle-competition-notes h3 {
+    margin-bottom: 0.75rem;
+}
+
+.kaggle-reasoning-steps,
+.kaggle-signal-list {
+    display: grid;
+    gap: 0.7rem;
+    padding-left: 1.3rem;
+}
+
+.kaggle-reasoning-steps li,
+.kaggle-signal-list li {
+    padding-left: 0.3rem;
+}
+
+.kaggle-equation {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    overflow-x: auto;
+    color: var(--ink);
+    background: var(--formula-bg);
+    border-left: 4px solid var(--kaggle-accent);
+    border-radius: 0 12px 12px 0;
+}
+
+.kaggle-watch {
+    margin-top: 1rem;
+    padding: 0.8rem 0.95rem;
+    color: var(--ink);
+    background: var(--helper-bg);
+    border-radius: 12px;
+}
+
+.kaggle-interactive-panel {
+    min-width: 0;
+    padding: 1rem;
+    border: 2px solid var(--section-border);
+    border-radius: 18px;
+    background: var(--panel-bg);
+}
+
+.kaggle-interactive-panel canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 0.8rem;
+    border: 1px solid var(--grid);
+    border-radius: 14px;
+    background: var(--canvas-bg);
+}
+
+.kaggle-control-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.kaggle-control-row label,
+.kaggle-range-label {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.kaggle-control-row output,
+.kaggle-range-label output {
+    color: var(--kaggle-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.kaggle-control-row input,
+.kaggle-interactive-panel > input[type="range"] {
+    width: 100%;
+    accent-color: var(--kaggle-accent);
+}
+
+.kaggle-live-readout {
+    min-height: 2.2rem;
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    color: var(--ink);
+    background: var(--section-bg);
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.kaggle-api-contract {
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 2px dashed var(--section-border);
+}
+
+.kaggle-api-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.kaggle-api-grid article,
+.kaggle-competition-notes article {
+    padding: 0.9rem;
+    border-left: 4px solid var(--kaggle-accent);
+    background: var(--panel-bg);
+    border-radius: 0 12px 12px 0;
+}
+
+.kaggle-api-grid code {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--kaggle-accent);
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.kaggle-api-grid p,
+.kaggle-competition-notes p {
+    margin: 0;
+}
+
+.kaggle-lesson-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.2rem;
+    padding: 0.85rem 1rem;
+    border: 2px dashed var(--kaggle-accent);
+    border-radius: 14px;
+    background: var(--kaggle-accent-soft);
+}
+
+.kaggle-lesson-action p {
+    margin: 0;
+}
+
+.kaggle-lesson-action button {
+    flex: 0 0 auto;
+}
+
+.kaggle-view-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.kaggle-view-switcher button {
+    border: 2px solid var(--section-border);
+    border-radius: 999px;
+    padding: 0.4rem 0.8rem;
+    color: var(--ink);
+    background: var(--section-bg);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.kaggle-view-switcher button.is-active {
+    color: #fff;
+    background: var(--kaggle-accent);
+    border-color: var(--kaggle-accent);
+}
+
+.kaggle-data-view {
+    min-height: 10.5rem;
+    margin-top: 0.8rem;
+    overflow-x: auto;
+}
+
+.kaggle-data-view table,
+.kaggle-api-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.kaggle-data-view th,
+.kaggle-data-view td,
+.kaggle-api-table th,
+.kaggle-api-table td {
+    padding: 0.55rem 0.65rem;
+    text-align: left;
+    border-bottom: 1px solid var(--grid);
+}
+
+.kaggle-data-view th,
+.kaggle-api-table th {
+    color: var(--kaggle-accent);
+    font-weight: 800;
+}
+
+.kaggle-data-view td:not(:first-child),
+.kaggle-api-table td:first-child {
+    font-variant-numeric: tabular-nums;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.kaggle-pipeline,
+.kaggle-competition-flow {
+    display: grid;
+    align-items: stretch;
+    gap: 0.55rem;
+}
+
+.kaggle-pipeline {
+    grid-template-columns: repeat(9, max-content);
+    justify-content: center;
+}
+
+.kaggle-pipeline button {
+    min-width: 9.5rem;
+    display: grid;
+    justify-items: start;
+    gap: 0.25rem;
+    padding: 0.8rem;
+    color: var(--ink);
+    text-align: left;
+    border: 2px solid var(--section-border);
+    border-radius: 14px;
+    background: var(--panel-bg);
+    font: inherit;
+    cursor: pointer;
+}
+
+.kaggle-pipeline button.is-active {
+    border-color: var(--kaggle-accent);
+    box-shadow: 0 0 0 3px var(--kaggle-accent-soft);
+}
+
+.kaggle-pipeline button span {
+    display: inline-grid;
+    place-items: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    color: #fff;
+    background: var(--kaggle-accent);
+    border-radius: 50%;
+    font-weight: 800;
+}
+
+.kaggle-pipeline button code {
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+}
+
+.kaggle-pipeline-readout {
+    max-width: 850px;
+    min-height: 5rem;
+    margin: 1rem auto 1.4rem;
+    padding: 0.85rem 1rem;
+    text-align: center;
+    border-radius: 14px;
+    background: var(--helper-bg);
+}
+
+.kaggle-pipeline-readout strong {
+    display: block;
+    color: var(--kaggle-accent);
+}
+
+.kaggle-code-explainer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.2rem;
+    align-items: start;
+}
+
+.kaggle-code-explainer pre,
+.kaggle-concept-copy pre {
+    margin: 0;
+    padding: 1rem;
+    overflow: auto;
+    color: #e6fffb;
+    background: var(--kaggle-code);
+    border-radius: 14px;
+    line-height: 1.55;
+}
+
+.kaggle-definition-list {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.kaggle-definition-list div {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.35fr) 1fr;
+    gap: 0.7rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--grid);
+}
+
+.kaggle-definition-list dt {
+    color: var(--kaggle-accent);
+    font-weight: 800;
+}
+
+.kaggle-competition-flow {
+    grid-template-columns: repeat(7, max-content);
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.kaggle-competition-flow article {
+    min-width: 12rem;
+    padding: 0.9rem;
+    text-align: center;
+    border: 2px solid var(--section-border);
+    border-radius: 14px;
+    background: var(--panel-bg);
+}
+
+.kaggle-competition-flow article span,
+.kaggle-competition-flow article strong,
+.kaggle-competition-flow article small {
+    display: block;
+}
+
+.kaggle-competition-flow article span {
+    color: var(--kaggle-accent);
+    font-family: monospace;
+    font-weight: 800;
+}
+
+.kaggle-competition-flow article small {
+    color: var(--ink-soft);
+}
+
+.kaggle-submission-checks {
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.kaggle-submission-checks button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.7rem;
+    color: var(--ink);
+    text-align: left;
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    background: var(--section-bg);
+    font: inherit;
+    cursor: pointer;
+}
+
+.kaggle-submission-checks button[aria-pressed="true"] {
+    border-color: var(--kaggle-accent);
+    background: var(--kaggle-accent-soft);
+}
+
+.kaggle-submission-checks button[aria-pressed="true"] span {
+    color: var(--kaggle-accent);
+}
+
+.kaggle-competition-notes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+}
+
+.kaggle-browser-lab {
+    background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.06), transparent 35%),
+        var(--section-bg);
+}
+
+.kaggle-lab-toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem;
+    border: 2px solid var(--section-border);
+    border-radius: 16px;
+    background: var(--panel-bg);
+}
+
+.kaggle-lab-toolbar label {
+    min-width: min(100%, 25rem);
+    display: grid;
+    gap: 0.35rem;
+    font-weight: 800;
+}
+
+.kaggle-lab-toolbar select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    color: var(--ink);
+    border: 2px solid var(--section-border);
+    border-radius: 10px;
+    background: var(--section-bg);
+    font: inherit;
+}
+
+.kaggle-lab-brief {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin: 0.8rem 0;
+}
+
+.kaggle-lab-brief div {
+    padding: 0.75rem;
+    border-top: 3px solid var(--kaggle-accent);
+    background: var(--panel-bg);
+    border-radius: 0 0 10px 10px;
+}
+
+.kaggle-lab-brief span,
+.kaggle-lab-brief strong {
+    display: block;
+}
+
+.kaggle-lab-brief span {
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.kaggle-lab-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 0.8rem;
+}
+
+.kaggle-lab-workspace > div {
+    min-width: 0;
+}
+
+.kaggle-lab-workspace label,
+.kaggle-output-heading {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    color: var(--ink-soft);
+    font-weight: 800;
+}
+
+#kaggleLabEditor,
+#kaggleLabOutput {
+    width: 100%;
+    min-height: 34rem;
+    margin: 0;
+    padding: 0.9rem 1rem;
+    color: #e6fffb;
+    border: 2px solid rgba(45, 212, 191, 0.45);
+    border-radius: 14px;
+    background: var(--kaggle-code);
+    font: 0.85rem/1.55 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    tab-size: 4;
+}
+
+#kaggleLabEditor {
+    resize: vertical;
+}
+
+#kaggleLabOutput {
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+#kaggleLabStatus {
+    color: var(--kaggle-accent);
+}
+
+#kaggleLabOutput.has-error {
+    color: #fecaca;
+    border-color: var(--accent-danger);
+}
+
+.kaggle-lab-plot {
+    margin-top: 0.8rem;
+    padding: 0.7rem;
+    border: 2px solid var(--section-border);
+    border-radius: 14px;
+    background: var(--canvas-bg);
+}
+
+.kaggle-lab-plot canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.kaggle-lab-boundary {
+    margin-top: 0.9rem;
+    padding: 0.8rem 0.95rem;
+    border-left: 4px solid var(--kaggle-gold);
+    border-radius: 0 12px 12px 0;
+    background: var(--formula-bg);
+}
+
+.kaggle-lab-boundary p {
+    margin: 0.25rem 0 0;
+}
+
+body[data-theme="dark"] .kaggle-ml-course {
+    --kaggle-accent: #2dd4bf;
+    --kaggle-accent-soft: rgba(45, 212, 191, 0.12);
+    --kaggle-code: #071714;
+}
+
+body[data-theme="adult"] .kaggle-ml-course {
+    --kaggle-accent: #0f766e;
+    --kaggle-accent-soft: rgba(15, 118, 110, 0.09);
+}
+
+@media (max-width: 1100px) {
+    .kaggle-lesson-index {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .kaggle-cycle,
+    .kaggle-pipeline,
+    .kaggle-competition-flow {
+        grid-template-columns: 1fr;
+        justify-items: stretch;
+    }
+
+    .kaggle-cycle i,
+    .kaggle-pipeline > i,
+    .kaggle-competition-flow > i {
+        transform: rotate(90deg);
+        justify-self: center;
+        line-height: 1;
+    }
+
+    .kaggle-cycle div,
+    .kaggle-pipeline button,
+    .kaggle-competition-flow article {
+        width: 100%;
+    }
+
+    .kaggle-pipeline button {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+    }
+
+    .kaggle-pipeline button code {
+        grid-column: 2;
+    }
+
+    .kaggle-api-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .kaggle-lesson-layout,
+    .kaggle-code-explainer,
+    .kaggle-lab-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .kaggle-competition-notes,
+    .kaggle-lab-brief {
+        grid-template-columns: 1fr;
+    }
+
+    #kaggleLabEditor,
+    #kaggleLabOutput {
+        min-height: 27rem;
+    }
+}
+
+@media (max-width: 680px) {
+    .kaggle-ml-course .example-section {
+        padding: 1.1rem;
+    }
+
+    .kaggle-lesson-index,
+    .kaggle-api-grid,
+    .kaggle-control-row {
+        grid-template-columns: 1fr;
+    }
+
+    .kaggle-lesson-index a {
+        min-height: 0;
+    }
+
+    .kaggle-lesson-action,
+    .kaggle-lab-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .kaggle-lesson-action button,
+    .kaggle-lab-toolbar button {
+        width: 100%;
+    }
+
+    .kaggle-lab-toolbar > div {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .kaggle-definition-list div {
+        grid-template-columns: 1fr;
+        gap: 0.2rem;
+    }
+
+    #kaggleLabEditor,
+    #kaggleLabOutput {
+        min-height: 24rem;
+        font-size: 0.78rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kaggle-primary-link,
+    .kaggle-secondary-link,
+    .kaggle-lesson-index a,
+    .kaggle-lesson-action button,
+    .kaggle-lab-toolbar button {
+        transition: none;
+    }
+}

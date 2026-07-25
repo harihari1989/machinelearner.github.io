@@ -1,6 +1,6 @@
 const PYODIDE_BASE_URL = new URL('../vendor/pyodide/', self.location.href).href;
 const PYODIDE_MODULE_URL = new URL('../vendor/pyodide/pyodide.mjs', self.location.href).href;
-const SUPPORTED_PACKAGES = new Set(['numpy']);
+const SUPPORTED_PACKAGES = new Set(['numpy', 'pandas', 'scikit-learn']);
 const runtimeFetch = self.fetch.bind(self);
 const blockedFetch = () => Promise.reject(new TypeError('Network access is disabled inside this Python session.'));
 
