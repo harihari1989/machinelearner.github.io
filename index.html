@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="math-foundations-lab.css">
     <link rel="stylesheet" href="learning-depth.css?v=20260716-python-depth-1">
     <link rel="stylesheet" href="research-expansion.css">
-    <link rel="stylesheet" href="kaggle-ml-course.css?v=20260725-kaggle-1">
+    <link rel="stylesheet" href="kaggle-ml-course.css?v=20260725-kaggle-2">
     <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
@@ -2918,11 +2918,34 @@ submission.to_csv("submission.csv", index=False)</code></pre>
                     <div><span>Experiment</span><strong id="kaggleLabChallenge"></strong></div>
                 </div>
                 <div class="kaggle-lab-workspace">
-                    <div>
+                    <div class="kaggle-lab-editor-pane">
                         <label for="kaggleLabEditor">Editable Python</label>
                         <textarea id="kaggleLabEditor" spellcheck="false" aria-label="Editable Python course code"></textarea>
                     </div>
-                    <div>
+                    <aside class="kaggle-lab-sidecar" aria-label="Dataset and formula guide">
+                        <section class="kaggle-lab-data-panel">
+                            <div class="kaggle-sidecar-heading">
+                                <div><span>Data loaded with this lab</span><strong id="kaggleDataName"></strong></div>
+                                <b id="kaggleDataShape"></b>
+                            </div>
+                            <div id="kaggleDataRoles" class="kaggle-data-roles" aria-label="Dataset column roles"></div>
+                            <div class="kaggle-side-table-wrap">
+                                <table id="kaggleLabDataTable" aria-label="Preview of the selected lab dataset"></table>
+                            </div>
+                            <p id="kaggleDataNote" class="kaggle-side-note"></p>
+                        </section>
+                        <section class="kaggle-formula-panel">
+                            <div class="kaggle-sidecar-heading">
+                                <div><span>Formula lens</span><strong id="kaggleFormulaTitle"></strong></div>
+                                <b id="kaggleFormulaUnit"></b>
+                            </div>
+                            <div id="kaggleFormulaExpression" class="kaggle-formula-expression" aria-label="Formula for the selected lab"></div>
+                            <canvas id="kaggleFormulaCanvas" width="620" height="300" role="img" aria-label="Visual explanation of the selected lab formula"></canvas>
+                            <div id="kaggleFormulaTerms" class="kaggle-formula-terms"></div>
+                            <ol id="kaggleFormulaDerivation" class="kaggle-formula-derivation"></ol>
+                        </section>
+                    </aside>
+                    <div class="kaggle-lab-output-pane">
                         <div class="kaggle-output-heading"><span>Output</span><strong id="kaggleLabStatus">Ready</strong></div>
                         <pre id="kaggleLabOutput" aria-live="polite">Choose a lesson and run the cell.</pre>
                         <div id="kaggleLabPlot" class="kaggle-lab-plot" hidden></div>
@@ -8389,7 +8412,7 @@ for step in range(8):
     <script src="math-deep-dive.js"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
     <script src="research-expansion.js?v=20260716-manim-media-1"></script>
-    <script src="kaggle-ml-course.js?v=20260725-kaggle-1"></script>
+    <script src="kaggle-ml-course.js?v=20260725-kaggle-2"></script>
     <script src="pytorch-course-data.js?v=20260716-python-depth-1"></script>
     <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
     <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>

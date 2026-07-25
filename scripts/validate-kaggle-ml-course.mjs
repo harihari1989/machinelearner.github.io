@@ -40,6 +40,7 @@ const context = {
 vm.createContext(context);
 vm.runInContext(javascript, context, { filename: 'kaggle-ml-course.js' });
 const labs = context.window.KaggleMLCourseData?.labs;
+const labContexts = context.window.KaggleMLCourseData?.contexts;
 
 check(
     html.includes('data-chapter="kaggle-ml"') &&
@@ -72,6 +73,7 @@ for (const marker of [
 }
 
 check(css.includes('.kaggle-lesson-layout'), 'course layout styling');
+check(css.includes('.kaggle-lab-sidecar'), 'side-by-side dataset and formula styling');
 check(css.includes('@media (max-width: 680px)'), 'mobile course styling');
 check(css.includes('prefers-reduced-motion'), 'reduced-motion styling');
 check(
@@ -102,6 +104,7 @@ const expectedLabs = [
 check(labs && Object.keys(labs).length === expectedLabs.length, 'seven runnable lesson labs');
 for (const id of expectedLabs) {
     const lab = labs?.[id];
+    const labContext = labContexts?.[id];
     check(
         Boolean(lab?.goal && lab?.apis && lab?.challenge && lab?.code),
         `complete practical brief for ${id}`
@@ -109,6 +112,24 @@ for (const id of expectedLabs) {
     check(
         html.includes(`value="${id}"`) && html.includes(`data-kaggle-lab="${id}"`),
         `selector and lesson launch for ${id}`
+    );
+    check(
+        Boolean(
+            labContext?.dataset?.name &&
+            labContext.dataset.headers?.length >= 4 &&
+            labContext.dataset.rows?.length >= 5 &&
+            labContext.dataset.roles?.length >= 2
+        ),
+        `loaded side-panel dataset for ${id}`
+    );
+    check(
+        Boolean(
+            labContext?.formula?.expression &&
+            labContext.formula.terms?.length >= 4 &&
+            labContext.formula.derivation?.length >= 4 &&
+            labContext.formula.type
+        ),
+        `visual formula derivation for ${id}`
     );
 }
 
