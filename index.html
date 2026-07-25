@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="math-foundations-lab.css">
     <link rel="stylesheet" href="learning-depth.css?v=20260716-python-depth-1">
     <link rel="stylesheet" href="research-expansion.css">
-    <link rel="stylesheet" href="kaggle-ml-course.css?v=20260725-kaggle-2">
+    <link rel="stylesheet" href="kaggle-ml-course.css?v=20260725-kaggle-3">
     <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
@@ -2573,15 +2573,15 @@
                 <a href="#kaggle-model-validation">Validation</a>
                 <a href="#kaggle-under-overfit">Model capacity</a>
                 <a href="#kaggle-random-forests">Random forests</a>
-                <a href="#kaggle-competitions">Competitions</a>
+                <a href="#kaggle-capstone">Capstone</a>
                 <a href="#kaggle-ml-lab">Python lab</a>
             </nav>
 
             <section id="kaggle-ml-roadmap" class="example-section kaggle-ml-hero">
                 <div class="kaggle-hero-copy">
                     <span class="kaggle-eyebrow">Seven lessons · seven experiments · one complete workflow</span>
-                    <h2>Intro to machine learning, from a row of data to a trustworthy submission</h2>
-                    <p class="section-intro">This independent companion deepens every topic in Kaggle’s <a href="https://www.kaggle.com/learn/intro-to-machine-learning" target="_blank" rel="noopener">Intro to Machine Learning course</a>. Follow one housing-price problem through inspection, decision trees, honest validation, capacity control, random forests, and a competition-ready prediction file.</p>
+                    <h2>Intro to machine learning, from a row of data to a model you can explain</h2>
+                    <p class="section-intro">This independent companion builds practical foundations around Kaggle’s <a href="https://www.kaggle.com/learn/intro-to-machine-learning" target="_blank" rel="noopener">Intro to Machine Learning course</a>. Follow one housing-price problem through inspection, decision trees, honest validation, capacity control, random forests, and a final explain-it-back project.</p>
                     <div class="kaggle-hero-actions">
                         <a class="kaggle-primary-link" href="#kaggle-how-models-work">Begin lesson 1</a>
                         <a class="kaggle-secondary-link" href="#kaggle-ml-lab">Open the Python lab</a>
@@ -2605,7 +2605,7 @@
                     <li><a href="#kaggle-model-validation"><b>4</b><span>Model validation<small>Holdout data and mean absolute error</small></span></a></li>
                     <li><a href="#kaggle-under-overfit"><b>5</b><span>Underfitting and overfitting<small>Capacity and the validation curve</small></span></a></li>
                     <li><a href="#kaggle-random-forests"><b>6</b><span>Random forests<small>Diverse trees, averaged predictions</small></span></a></li>
-                    <li><a href="#kaggle-competitions"><b>7</b><span>Machine learning competitions<small>Test predictions and submission contracts</small></span></a></li>
+                    <li><a href="#kaggle-capstone"><b>7</b><span>Put it all together<small>Build, evaluate, and explain one model</small></span></a></li>
                 </ol>
             </section>
 
@@ -2845,48 +2845,57 @@ predictions = model.predict(X)</code></pre>
                 <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> compare one decision tree with forests of 5, 25, and 100 trees. Record validation MAE and decide when extra trees stop being worth the cost.</p><button type="button" data-kaggle-lab="forest">Run the forest comparison</button></div>
             </section>
 
-            <section id="kaggle-competitions" class="example-section kaggle-lesson">
+            <section id="kaggle-capstone" class="example-section kaggle-lesson">
                 <header class="kaggle-lesson-heading">
-                    <span>Lesson 7 · Machine learning competitions</span>
-                    <h2>A submission is a data contract, not just an array of good guesses</h2>
-                    <p class="section-intro">Competition test data contains the same input schema but hides the target. Train with labeled rows, generate predictions for every test ID in its original order, and write exactly the columns required by the sample submission.</p>
+                    <span>Lesson 7 · Put it all together</span>
+                    <h2>Build a model, test it honestly, and explain what it learned</h2>
+                    <p class="section-intro">The final learning goal is not merely producing a number. You should be able to state what the model predicts, which evidence it receives, how well it performs on unseen rows, why you selected it, and where its answer may be unreliable.</p>
                 </header>
-                <div class="kaggle-competition-flow" aria-label="Competition workflow from labeled train data and unlabeled test data to a submission">
-                    <article><span>train.csv</span><strong>Features + target</strong><small>fit and validate locally</small></article>
+                <div class="kaggle-capstone-flow" aria-label="Learning workflow from a question to an explained prediction">
+                    <article><span>question</span><strong>Define target</strong><small>predict sale price before the sale</small></article>
                     <i aria-hidden="true">→</i>
-                    <article><span>fitted model</span><strong>Frozen rules</strong><small>chosen before test scoring</small></article>
+                    <article><span>evidence</span><strong>Choose features</strong><small>use only information available in time</small></article>
                     <i aria-hidden="true">→</i>
-                    <article><span>test.csv</span><strong>Same features, no target</strong><small>preserve row order and ID</small></article>
+                    <article><span>experiment</span><strong>Fit + validate</strong><small>compare unseen-row MAE</small></article>
                     <i aria-hidden="true">→</i>
-                    <article><span>submission.csv</span><strong>ID + prediction</strong><small>one prediction per test row</small></article>
+                    <article><span>explanation</span><strong>Interpret carefully</strong><small>connect prediction, evidence, and limits</small></article>
                 </div>
                 <div class="kaggle-code-explainer">
-                    <pre><code>test_X = test_data[features]
-test_predictions = final_model.predict(test_X)
+                    <pre><code>baseline.fit(train_X, train_y)
+forest.fit(train_X, train_y)
 
-submission = pd.DataFrame({
-    "Id": test_data["Id"],
-    "SalePrice": test_predictions
-})
-submission.to_csv("submission.csv", index=False)</code></pre>
+baseline_mae = mean_absolute_error(
+    val_y, baseline.predict(val_X)
+)
+forest_mae = mean_absolute_error(
+    val_y, forest.predict(val_X)
+)
+
+new_home = pd.DataFrame([{
+    "LivingArea": 1850,
+    "Quality": 7,
+    "Age": 24,
+    "GarageCars": 2
+}])
+prediction = forest.predict(new_home)[0]</code></pre>
                     <div>
-                        <h3>Preflight checklist</h3>
-                        <ol class="kaggle-submission-checks">
-                            <li><button type="button" data-kaggle-check="0" aria-pressed="false"><span aria-hidden="true">○</span>Feature names and order match training.</button></li>
-                            <li><button type="button" data-kaggle-check="1" aria-pressed="false"><span aria-hidden="true">○</span>Prediction count equals test row count.</button></li>
-                            <li><button type="button" data-kaggle-check="2" aria-pressed="false"><span aria-hidden="true">○</span>IDs remain aligned with original test rows.</button></li>
-                            <li><button type="button" data-kaggle-check="3" aria-pressed="false"><span aria-hidden="true">○</span>Column names match the sample submission.</button></li>
-                            <li><button type="button" data-kaggle-check="4" aria-pressed="false"><span aria-hidden="true">○</span><code>index=False</code> prevents an extra unnamed column.</button></li>
+                        <h3>Explain-it-back checklist</h3>
+                        <ol class="kaggle-capstone-checks">
+                            <li><button type="button" data-kaggle-check="0" aria-pressed="false"><span aria-hidden="true">○</span>I can state the target and its unit.</button></li>
+                            <li><button type="button" data-kaggle-check="1" aria-pressed="false"><span aria-hidden="true">○</span>I know why every feature is available at prediction time.</button></li>
+                            <li><button type="button" data-kaggle-check="2" aria-pressed="false"><span aria-hidden="true">○</span>I kept validation rows outside <code>fit</code>.</button></li>
+                            <li><button type="button" data-kaggle-check="3" aria-pressed="false"><span aria-hidden="true">○</span>I can compare the baseline and forest using MAE.</button></li>
+                            <li><button type="button" data-kaggle-check="4" aria-pressed="false"><span aria-hidden="true">○</span>I can name one limitation of this prediction.</button></li>
                         </ol>
-                        <p id="kaggleSubmissionReadout" class="kaggle-live-readout" aria-live="polite">Complete the five checks before exporting.</p>
+                        <p id="kaggleCapstoneReadout" class="kaggle-live-readout" aria-live="polite">Complete the five checks, then explain the model without reading the code.</p>
                     </div>
                 </div>
-                <div class="kaggle-competition-notes">
-                    <article><h3>Public vs private leaderboard</h3><p>A public score measures only part of the hidden labels and can reward repeated leaderboard tuning by chance. Prefer disciplined local validation; use the public board as a delivery check, not your sole model-selection loop.</p></article>
-                    <article><h3>Reproducible experiments</h3><p>Record features, split seed, model class, hyperparameters, validation metric, and output filename. Change one justified variable at a time so improvements remain explainable.</p></article>
-                    <article><h3>Final training</h3><p>After choosing the procedure, refit on all available labeled data before predicting the hidden test rows. Do not change the procedure in response to test labels—you do not have them.</p></article>
+                <div class="kaggle-capstone-notes">
+                    <article><h3>Tell the model’s story</h3><p>“This model estimates sale price in dollars from four pre-sale house attributes. It learned patterns from labeled homes and was evaluated on rows it did not see during fitting.”</p></article>
+                    <article><h3>Show honest evidence</h3><p>Report the validation MAE for both the simple tree and the forest. Prefer the model with better held-out evidence, not the one with the lowest training error.</p></article>
+                    <article><h3>Name the boundary</h3><p>The estimate assumes future homes resemble the training distribution. Unmeasured renovations, location details, or market shifts can make the answer unreliable.</p></article>
                 </div>
-                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> generate a submission string, assert its row count and columns, then deliberately enable the index to see why the file contract fails.</p><button type="button" data-kaggle-lab="competition">Run the submission lab</button></div>
+                <div class="kaggle-lesson-action"><p><strong>Exercise:</strong> run the full project, choose the better model from validation evidence, and write a three-sentence explanation of one prediction plus one limitation.</p><button type="button" data-kaggle-lab="capstone">Run the explain-it-back lab</button></div>
             </section>
 
             <section id="kaggle-ml-lab" class="example-section kaggle-browser-lab">
@@ -2904,7 +2913,7 @@ submission.to_csv("submission.csv", index=False)</code></pre>
                             <option value="validation">4 · Model validation</option>
                             <option value="capacity">5 · Underfitting and overfitting</option>
                             <option value="forest">6 · Random forests</option>
-                            <option value="competition">7 · Competition submission</option>
+                            <option value="capstone">7 · Explain-it-back capstone</option>
                         </select>
                     </label>
                     <div>
@@ -8412,7 +8421,7 @@ for step in range(8):
     <script src="math-deep-dive.js"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
     <script src="research-expansion.js?v=20260716-manim-media-1"></script>
-    <script src="kaggle-ml-course.js?v=20260725-kaggle-2"></script>
+    <script src="kaggle-ml-course.js?v=20260725-kaggle-3"></script>
     <script src="pytorch-course-data.js?v=20260716-python-depth-1"></script>
     <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
     <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>

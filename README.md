@@ -29,7 +29,7 @@ Thirty runnable browser labs connect the mechanics to churn classification, dema
 
 ## Kaggle Intro ML Lab
 
-The dedicated Kaggle ML chapter is an independent, hands-on companion to Kaggle's *Intro to Machine Learning* course. Its seven projects cover decision-tree prediction paths, pandas data audits, feature and target contracts, held-out validation with MAE, capacity sweeps, random-forest comparison, and schema-safe competition submissions.
+The dedicated Kaggle ML chapter is an independent, hands-on companion to Kaggle's *Intro to Machine Learning* course. Its seven projects cover decision-tree prediction paths, pandas data audits, feature and target contracts, held-out validation with MAE, capacity sweeps, random-forest comparison, and an explain-it-back capstone.
 
 Every lesson pairs a visual experiment with an editable browser notebook. The lab runs real pandas and scikit-learn APIs inside the isolated Python worker, uses embedded housing data, includes concrete change-and-observe challenges, and finishes with assertions that check the practical deliverable.
 

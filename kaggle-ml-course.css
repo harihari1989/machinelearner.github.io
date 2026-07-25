@@ -158,7 +158,7 @@
 
 .kaggle-cycle i,
 .kaggle-pipeline > i,
-.kaggle-competition-flow > i {
+.kaggle-capstone-flow > i {
     color: var(--kaggle-accent);
     font-style: normal;
     font-size: 1.45rem;
@@ -231,7 +231,7 @@
 .kaggle-concept-copy h3,
 .kaggle-api-contract h3,
 .kaggle-code-explainer h3,
-.kaggle-competition-notes h3 {
+.kaggle-capstone-notes h3 {
     margin-bottom: 0.75rem;
 }
 
@@ -332,7 +332,7 @@
 }
 
 .kaggle-api-grid article,
-.kaggle-competition-notes article {
+.kaggle-capstone-notes article {
     padding: 0.9rem;
     border-left: 4px solid var(--kaggle-accent);
     background: var(--panel-bg);
@@ -348,7 +348,7 @@
 }
 
 .kaggle-api-grid p,
-.kaggle-competition-notes p {
+.kaggle-capstone-notes p {
     margin: 0;
 }
 
@@ -433,7 +433,7 @@
 }
 
 .kaggle-pipeline,
-.kaggle-competition-flow {
+.kaggle-capstone-flow {
     display: grid;
     align-items: stretch;
     gap: 0.55rem;
@@ -531,13 +531,13 @@
     font-weight: 800;
 }
 
-.kaggle-competition-flow {
+.kaggle-capstone-flow {
     grid-template-columns: repeat(7, max-content);
     justify-content: center;
     margin-bottom: 1.5rem;
 }
 
-.kaggle-competition-flow article {
+.kaggle-capstone-flow article {
     min-width: 12rem;
     padding: 0.9rem;
     text-align: center;
@@ -546,29 +546,29 @@
     background: var(--panel-bg);
 }
 
-.kaggle-competition-flow article span,
-.kaggle-competition-flow article strong,
-.kaggle-competition-flow article small {
+.kaggle-capstone-flow article span,
+.kaggle-capstone-flow article strong,
+.kaggle-capstone-flow article small {
     display: block;
 }
 
-.kaggle-competition-flow article span {
+.kaggle-capstone-flow article span {
     color: var(--kaggle-accent);
     font-family: monospace;
     font-weight: 800;
 }
 
-.kaggle-competition-flow article small {
+.kaggle-capstone-flow article small {
     color: var(--ink-soft);
 }
 
-.kaggle-submission-checks {
+.kaggle-capstone-checks {
     list-style: none;
     display: grid;
     gap: 0.5rem;
 }
 
-.kaggle-submission-checks button {
+.kaggle-capstone-checks button {
     width: 100%;
     display: flex;
     align-items: center;
@@ -583,16 +583,16 @@
     cursor: pointer;
 }
 
-.kaggle-submission-checks button[aria-pressed="true"] {
+.kaggle-capstone-checks button[aria-pressed="true"] {
     border-color: var(--kaggle-accent);
     background: var(--kaggle-accent-soft);
 }
 
-.kaggle-submission-checks button[aria-pressed="true"] span {
+.kaggle-capstone-checks button[aria-pressed="true"] span {
     color: var(--kaggle-accent);
 }
 
-.kaggle-competition-notes {
+.kaggle-capstone-notes {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.8rem;
@@ -960,14 +960,14 @@ body[data-theme="adult"] .kaggle-ml-course {
 
     .kaggle-cycle,
     .kaggle-pipeline,
-    .kaggle-competition-flow {
+    .kaggle-capstone-flow {
         grid-template-columns: 1fr;
         justify-items: stretch;
     }
 
     .kaggle-cycle i,
     .kaggle-pipeline > i,
-    .kaggle-competition-flow > i {
+    .kaggle-capstone-flow > i {
         transform: rotate(90deg);
         justify-self: center;
         line-height: 1;
@@ -975,7 +975,7 @@ body[data-theme="adult"] .kaggle-ml-course {
 
     .kaggle-cycle div,
     .kaggle-pipeline button,
-    .kaggle-competition-flow article {
+    .kaggle-capstone-flow article {
         width: 100%;
     }
 
@@ -1007,7 +1007,7 @@ body[data-theme="adult"] .kaggle-ml-course {
         grid-column: 1 / -1;
     }
 
-    .kaggle-competition-notes,
+    .kaggle-capstone-notes,
     .kaggle-lab-brief {
         grid-template-columns: 1fr;
     }

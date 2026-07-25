@@ -314,71 +314,102 @@ _lesson_plot = {
 
 assert len(final_forest.estimators_) == 100`,
         },
-        competition: {
-            goal: 'Train on all labeled rows and generate a schema-safe submission for unseen test rows.',
-            apis: 'RandomForestRegressor · DataFrame · predict · to_csv · assert',
-            challenge: 'Break one contract assertion deliberately, read the failure, then repair the submission.',
-            code: `from io import StringIO
-import numpy as np
+        capstone: {
+            goal: 'Complete the full learning loop and explain one prediction with evidence and limits.',
+            apis: 'train_test_split · DecisionTreeRegressor · RandomForestRegressor · MAE · feature_importances_',
+            challenge: 'Change the new home’s Quality from 7 to 5. Explain why the estimate moves and which evidence makes the explanation incomplete.',
+            code: `import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
 
 rng = np.random.default_rng(23)
-train_rows = 140
-test_rows = 8
-
-train = pd.DataFrame({
-    "Id": np.arange(1001, 1001 + train_rows),
-    "LivingArea": rng.uniform(700, 3500, train_rows),
-    "Quality": rng.integers(3, 11, train_rows),
-    "Age": rng.uniform(0, 100, train_rows)
+n = 240
+homes = pd.DataFrame({
+    "LivingArea": rng.uniform(700, 3500, n),
+    "Quality": rng.integers(3, 11, n),
+    "Age": rng.uniform(0, 100, n),
+    "GarageCars": rng.integers(0, 4, n)
 })
-train["SalePrice"] = (
+homes["SalePrice"] = (
     45000
-    + 82 * train["LivingArea"]
-    + 20500 * train["Quality"]
-    - 640 * train["Age"]
-    + rng.normal(0, 20000, train_rows)
+    + 82 * homes["LivingArea"]
+    + 20500 * homes["Quality"]
+    - 640 * homes["Age"]
+    + 14500 * homes["GarageCars"]
+    + rng.normal(0, 22000, n)
 )
 
-test = pd.DataFrame({
-    "Id": np.arange(9001, 9001 + test_rows),
-    "LivingArea": rng.uniform(700, 3500, test_rows),
-    "Quality": rng.integers(3, 11, test_rows),
-    "Age": rng.uniform(0, 100, test_rows)
-})
+features = ["LivingArea", "Quality", "Age", "GarageCars"]
+X = homes[features]
+y = homes["SalePrice"]
+train_X, val_X, train_y, val_y = train_test_split(
+    X, y, test_size=0.25, random_state=4
+)
 
-features = ["LivingArea", "Quality", "Age"]
-final_model = RandomForestRegressor(
-    n_estimators=80,
+baseline = DecisionTreeRegressor(max_leaf_nodes=16, random_state=1)
+forest = RandomForestRegressor(
+    n_estimators=100,
     min_samples_leaf=2,
     random_state=1
 )
-final_model.fit(train[features], train["SalePrice"])
-test_predictions = final_model.predict(test[features])
+baseline.fit(train_X, train_y)
+forest.fit(train_X, train_y)
 
-submission = pd.DataFrame({
-    "Id": test["Id"],
-    "SalePrice": test_predictions
-})
+scores = {
+    "Decision tree": mean_absolute_error(val_y, baseline.predict(val_X)),
+    "Random forest": mean_absolute_error(val_y, forest.predict(val_X))
+}
+chosen_name = min(scores, key=scores.get)
+chosen_model = forest if chosen_name == "Random forest" else baseline
 
-# Submission contract tests
-assert submission.columns.tolist() == ["Id", "SalePrice"]
-assert len(submission) == len(test)
-assert submission["Id"].equals(test["Id"])
-assert submission["SalePrice"].notna().all()
-assert submission["Id"].is_unique
+new_home = pd.DataFrame([{
+    "LivingArea": 1850,
+    "Quality": 7,
+    "Age": 24,
+    "GarageCars": 2
+}])
+prediction = chosen_model.predict(new_home)[0]
 
-csv_text = submission.to_csv(index=False)
-round_trip = pd.read_csv(StringIO(csv_text))
-assert round_trip.columns.tolist() == ["Id", "SalePrice"]
-assert len(round_trip) == test_rows
+# Global model diagnostic: where the forest spent split-gain.
+importance = pd.Series(
+    forest.feature_importances_,
+    index=features
+).sort_values(ascending=False)
 
-print("Submission preview")
-print(submission.round({"SalePrice": 0}).to_string(index=False))
-print("\\nCSV contract passed:", submission.shape)
-print("\\nFirst four CSV lines")
-print("\\n".join(csv_text.splitlines()[:4]))`,
+# Local context: the three closest training homes after scaling each feature.
+scale = train_X.std().replace(0, 1)
+distance = (((train_X - new_home.iloc[0]) / scale) ** 2).sum(axis=1) ** 0.5
+neighbors = homes.loc[distance.nsmallest(3).index, features + ["SalePrice"]]
+
+print("MODEL EXPLANATION")
+print("-----------------")
+print("Target: SalePrice in dollars")
+print("Evidence:", ", ".join(features))
+for name, score in scores.items():
+    print(f"{name:14s} validation MAE = \${score:,.0f}")
+print(f"Chosen model: {chosen_name}")
+print(f"New-home estimate: \${prediction:,.0f}")
+print("\\nGlobal feature importance (not causal evidence)")
+print(importance.round(3).to_string())
+print("\\nThree nearby training examples")
+print(neighbors.round(0).to_string(index=False))
+print("\\nLimitation: location, renovations, and market timing are not measured.")
+
+_lesson_plot = {
+    "type": "bars",
+    "title": "Held-out error: lower is better",
+    "labels": list(scores.keys()),
+    "values": [float(value) for value in scores.values()],
+    "unit": "$"
+}
+
+assert set(train_X.index).isdisjoint(set(val_X.index))
+assert len(importance) == len(features)
+assert np.isfinite(prediction)
+assert len(neighbors) == 3`,
         },
     };
 
@@ -621,45 +652,44 @@ print("\\n".join(csv_text.splitlines()[:4]))`,
                 values: [276, 298, 265, 291, 283, 302, 274, 287],
             },
         },
-        competition: {
+        capstone: {
             dataset: {
-                name: 'Competition train + test',
-                shape: '140 labeled + 8 test rows',
-                headers: ['split', 'Id', 'LivingArea', 'Quality', 'Age', 'SalePrice'],
+                name: 'End-to-end learning project',
+                shape: '240 rows × 5 columns',
+                headers: ['row', 'LivingArea', 'Quality', 'Age', 'GarageCars', 'SalePrice', 'role'],
                 rows: [
-                    ['train', '1001', '1,528', '6', '38', '$275,410'],
-                    ['train', '1002', '2,741', '8', '17', '$443,922'],
-                    ['train', '1003', '978', '4', '74', '$127,506'],
-                    ['test', '9001', '1,864', '7', '29', 'hidden'],
-                    ['test', '9002', '3,012', '9', '8', 'hidden'],
+                    ['0', '1,528', '6', '38', '2', '$275,410', 'train'],
+                    ['1', '2,741', '8', '17', '3', '$443,922', 'train'],
+                    ['2', '978', '4', '74', '1', '$127,506', 'train'],
+                    ['3', '1,864', '7', '29', '2', '$321,085', 'validation'],
+                    ['4', '3,012', '9', '8', '3', '$510,240', 'validation'],
                 ],
                 roles: [
-                    ['id', 'Id alignment key'],
-                    ['feature', 'three shared features'],
-                    ['target', 'train-only SalePrice'],
-                    ['split', 'labeled / hidden split'],
+                    ['feature', 'four pre-sale features'],
+                    ['target', 'SalePrice target'],
+                    ['split', '180 train / 60 validation'],
                 ],
-                note: 'Test rows intentionally omit SalePrice. The submission must preserve every test Id and attach exactly one prediction without reordering the rows.',
+                note: 'The same labeled table supports the entire capstone. Training rows teach both models; validation rows compare them. A new home is explained using held-out error, global importance, nearby examples, and an explicit limitation.',
             },
             formula: {
-                title: 'Submission correctness is a set of invariants',
-                unit: '8 test rows',
-                expression: '|submission| = |test|  ∧  Idᵢsub = Idᵢtest  ∧  ŷᵢ ≠ NA',
-                type: 'submission-contract',
+                title: 'Feature importance normalizes accumulated split-gain',
+                unit: 'shares sum to 1',
+                expression: 'Iⱼ = Δⱼ / Σₖ Δₖ',
+                type: 'feature-importance',
                 terms: [
-                    ['|·|', 'Number of rows in a table.'],
-                    ['Idᵢsub', 'Identifier written to submission row i.'],
-                    ['Idᵢtest', 'Identifier from the original test row i.'],
-                    ['ŷᵢ ≠ NA', 'Every test row receives a finite prediction.'],
+                    ['Iⱼ', 'Global importance assigned to feature j.'],
+                    ['Δⱼ', 'Weighted impurity reduction from splits using feature j.'],
+                    ['Σₖ Δₖ', 'Total reduction accumulated across all features.'],
+                    ['Σⱼ Iⱼ = 1', 'Normalization turns reductions into comparable shares.'],
                 ],
                 derivation: [
-                    'Select test features using the same ordered feature contract.',
-                    'Predict once per test row without sorting or dropping rows.',
-                    'Build the submission from original Id plus prediction.',
-                    'Assert row count, column names, Id alignment, uniqueness, and non-missing estimates before export.',
+                    'Every tree split reduces target variation inside its child regions.',
+                    'Credit that weighted reduction to the feature used at the split.',
+                    'Add credit across all nodes and all trees for each feature.',
+                    'Normalize by total credit—but treat the result as a model diagnostic, not a causal explanation.',
                 ],
-                ids: ['9001', '9002', '9003', '9004'],
-                predictions: [312, 481, 226, 367],
+                labels: ['Living area', 'Quality', 'Age', 'Garage cars'],
+                values: [0.47, 0.34, 0.13, 0.06],
             },
         },
     };
@@ -1030,39 +1060,31 @@ print("\\n".join(csv_text.splitlines()[:4]))`,
             return;
         }
 
-        if (formula.type === 'submission-contract') {
-            context.font = '800 12px Nunito, sans-serif';
-            context.fillStyle = theme.soft;
-            context.fillText('test.csv', 135, 28);
-            context.fillText('submission.csv', 485, 28);
-            formula.ids.forEach((id, index) => {
-                const y = 62 + index * 50;
-                roundedRect(context, 55, y, 165, 36, 8);
-                context.fillStyle = theme.accent;
+        if (formula.type === 'feature-importance') {
+            const left = 150;
+            const top = 42;
+            const maxWidth = 390;
+            formula.labels.forEach((label, index) => {
+                const y = top + index * 54;
+                const width = formula.values[index] * maxWidth / 0.5;
+                context.fillStyle = theme.ink;
+                context.font = '800 12px Nunito, sans-serif';
+                context.textAlign = 'right';
+                context.fillText(label, left - 12, y + 15);
+                roundedRect(context, left, y, maxWidth, 30, 7);
+                context.fillStyle = theme.grid;
                 context.fill();
-                context.fillStyle = '#ffffff';
-                context.fillText(`Id ${id} · features`, 137, y + 18);
-                context.strokeStyle = theme.grid;
-                context.lineWidth = 3;
-                context.beginPath();
-                context.moveTo(220, y + 18);
-                context.lineTo(400, y + 18);
-                context.stroke();
-                context.fillStyle = theme.fourth;
-                context.beginPath();
-                context.arc(388, y + 18, 10, 0, Math.PI * 2);
+                roundedRect(context, left, y, width, 30, 7);
+                context.fillStyle = index === 0 ? theme.accent : index === 1 ? theme.second : theme.fourth;
                 context.fill();
-                context.fillStyle = '#ffffff';
-                context.fillText('✓', 388, y + 18);
-                roundedRect(context, 400, y, 170, 36, 8);
-                context.fillStyle = theme.second;
-                context.fill();
-                context.fillStyle = '#ffffff';
-                context.fillText(`Id ${id} · $${formula.predictions[index]}k`, 485, y + 18);
+                context.fillStyle = theme.ink;
+                context.textAlign = 'left';
+                context.fillText(`${(formula.values[index] * 100).toFixed(0)}%`, left + width + 10, y + 15);
             });
-            context.fillStyle = theme.ink;
-            context.font = '800 13px Nunito, sans-serif';
-            context.fillText('same row count · same Id order · no missing predictions', 310, 278);
+            context.fillStyle = theme.soft;
+            context.textAlign = 'center';
+            context.font = '700 12px Nunito, sans-serif';
+            context.fillText('The bars describe where this fitted forest split—not what causes price.', 310, 274);
         }
     }
 
@@ -1443,15 +1465,15 @@ print("\\n".join(csv_text.splitlines()[:4]))`,
         byId('kaggleForestReadout').textContent = `${count} tree${count === 1 ? '' : 's'} · average $${mean.toFixed(1)}k · individual-tree spread $${standardDeviation.toFixed(1)}k · averaging uncertainty ≈ $${standardError.toFixed(1)}k.`;
     }
 
-    function setupSubmissionChecks() {
+    function setupCapstoneChecks() {
         const buttons = [...document.querySelectorAll('[data-kaggle-check]')];
         const update = () => {
             const complete = buttons.filter(button => button.getAttribute('aria-pressed') === 'true').length;
-            const readout = byId('kaggleSubmissionReadout');
+            const readout = byId('kaggleCapstoneReadout');
             if (readout) {
                 readout.textContent = complete === buttons.length
-                    ? 'All five contracts checked. The file is ready for a dry-run export.'
-                    : `${complete} of ${buttons.length} contracts checked.`;
+                    ? 'All five ideas checked. Explain the model in your own words, including one limitation.'
+                    : `${complete} of ${buttons.length} learning checks complete.`;
             }
         };
         buttons.forEach(button => {
@@ -1684,7 +1706,7 @@ print("\\n".join(csv_text.splitlines()[:4]))`,
         byId('kaggleValidationSize')?.addEventListener('input', drawValidation);
         byId('kaggleLeafCount')?.addEventListener('input', drawCapacity);
         byId('kaggleTreeCount')?.addEventListener('input', drawForest);
-        setupSubmissionChecks();
+        setupCapstoneChecks();
         setupLab();
         setPipelineStep(0);
         redrawAll();

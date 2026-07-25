@@ -55,7 +55,7 @@ const lessonIds = [
     'kaggle-model-validation',
     'kaggle-under-overfit',
     'kaggle-random-forests',
-    'kaggle-competitions',
+    'kaggle-capstone',
     'kaggle-ml-lab',
 ];
 lessonIds.forEach(id => check(html.includes(`id="${id}"`), `lesson section ${id}`));
@@ -66,10 +66,11 @@ for (const marker of [
     'train_test_split(X, y',
     'mean_absolute_error(val_y, val_predictions)',
     'RandomForestRegressor(n_estimators=100',
-    'submission.to_csv("submission.csv", index=False)',
+    'MODEL EXPLANATION',
+    'Explain-it-back checklist',
     'The estimator and dataframe APIs are genuine pandas/scikit-learn calls',
 ]) {
-    check(html.includes(marker), `tutorial marker ${marker}`);
+    check(`${html}\n${javascript}`.includes(marker), `tutorial marker ${marker}`);
 }
 
 check(css.includes('.kaggle-lesson-layout'), 'course layout styling');
@@ -99,9 +100,15 @@ const expectedLabs = [
     'validation',
     'capacity',
     'forest',
-    'competition',
+    'capstone',
 ];
 check(labs && Object.keys(labs).length === expectedLabs.length, 'seven runnable lesson labs');
+const kaggleChapter = html.slice(
+    html.indexOf('<section class="chapter kaggle-ml-course"'),
+    html.indexOf('<section class="chapter" data-chapter="neural">')
+);
+check(!/\bcompetition(s)?\b/i.test(kaggleChapter), 'no competitive framing in the learning chapter');
+check(!/\bsubmission\b/i.test(kaggleChapter), 'no submission workflow in the learning chapter');
 for (const id of expectedLabs) {
     const lab = labs?.[id];
     const labContext = labContexts?.[id];
