@@ -1,0 +1,84 @@
+plugins {
+    id "com.android.application"
+}
+
+def generatedWebAssets = layout.buildDirectory.dir("generated/webAssets")
+def webRoot = rootProject.projectDir.parentFile
+
+tasks.register("syncWebContent", Sync) {
+    group = "machine learner"
+    description = "Copies the canonical learning website into the Android app assets."
+    from(webRoot) {
+        include "index.html"
+        include "*.css"
+        include "*.js"
+        include "assets/**"
+        include "manim/scene-manifest.json"
+        include "manim/scene-manifest.js"
+        exclude "assets/**/*.md"
+    }
+    into(generatedWebAssets.map { it.dir("site") })
+}
+
+android {
+    namespace "io.github.machinelearner"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "io.github.machinelearner"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig true
+        viewBinding true
+    }
+
+    sourceSets {
+        main.assets.srcDir(generatedWebAssets)
+    }
+
+    androidResources {
+        noCompress += ["wasm", "mjs", "whl", "onnx", "webm", "mp4", "zip"]
+    }
+
+    lint {
+        abortOnError true
+        checkReleaseBuilds true
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(tasks.named("syncWebContent"))
+}
+
+dependencies {
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.8.22")
+    implementation "androidx.appcompat:appcompat:1.7.1"
+    implementation "androidx.webkit:webkit:1.16.0"
+
+    testImplementation "junit:junit:4.13.2"
+}

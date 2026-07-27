@@ -33,6 +33,12 @@ The dedicated Kaggle ML chapter is an independent, hands-on companion to Kaggle'
 
 Every lesson pairs a visual experiment with an editable browser notebook. The lab runs real pandas and scikit-learn APIs inside the isolated Python worker, uses embedded housing data, includes concrete change-and-observe challenges, and finishes with assertions that check the practical deliverable.
 
+## Android app
+
+The [`android`](android/) project packages the complete learning website as an offline-first native Android experience. It adds a chapter navigator, previous/next controls, reading progress, resume support, fullscreen lesson media, safe external-reference handling, and an HTTPS-backed local asset origin for Web Workers, WebAssembly, ONNX, and the bundled Python labs.
+
+Android builds synchronize the canonical root website automatically, so the app and website do not maintain separate lesson copies. See [`android/README.md`](android/README.md) for Android Studio and command-line build instructions.
+
 Serve the repository as a static site; browser security prevents the isolated
 Python worker from running when `index.html` is opened with a `file://` URL.
 

@@ -1,0 +1,109 @@
+html {
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+}
+
+body.android-app {
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+}
+
+body.android-app > header {
+    padding: 0.8rem 1rem;
+}
+
+body.android-app > header h1 {
+    margin: 0;
+    font-size: clamp(1.35rem, 5vw, 1.8rem);
+}
+
+body.android-app > header > p {
+    display: none;
+}
+
+body.android-app .mode-switcher {
+    display: flex;
+    max-width: 100%;
+    margin-top: 0.65rem;
+    padding-bottom: 0.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+body.android-app .mode-switcher::-webkit-scrollbar,
+body.android-app .chapter-nav::-webkit-scrollbar {
+    display: none;
+}
+
+body.android-app .chapter-switcher {
+    display: none;
+}
+
+body.android-app .chapter-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+}
+
+body.android-app .chapter-nav a {
+    flex: 0 0 auto;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    scroll-snap-align: start;
+}
+
+body.android-app button,
+body.android-app select,
+body.android-app input[type='range'] {
+    min-height: 44px;
+}
+
+body.android-app textarea,
+body.android-app pre,
+body.android-app code {
+    font-size: max(0.86rem, 14px);
+}
+
+body.android-app textarea {
+    line-height: 1.55;
+}
+
+body.android-app canvas,
+body.android-app video,
+body.android-app img,
+body.android-app svg {
+    max-width: 100%;
+}
+
+body.android-app video {
+    background: #07111f;
+}
+
+body.android-app footer {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 680px) {
+    body.android-app main {
+        width: min(100%, 46rem);
+    }
+
+    body.android-app .example-section {
+        scroll-margin-top: 4.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}

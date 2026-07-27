@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="surface">#0F172A</color>
+    <color name="surface_raised">#172033</color>
+    <color name="surface_blue">#172554</color>
+    <color name="ink">#F8FAFC</color>
+    <color name="ink_soft">#CBD5E1</color>
+</resources>

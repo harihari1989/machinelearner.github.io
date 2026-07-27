@@ -469,30 +469,33 @@
     function setupPythonLab() {
         const editor = $('#pythonEditor'); if (!editor) return;
         const example = $('#pythonExample'), run = $('#pythonRun'), reset = $('#pythonReset'), status = $('#pythonStatus'), output = $('#pythonOutput');
-        let runtimePromise = null;
+        let sandboxSession = null;
         const loadExample = () => { editor.value = pythonExamples[example.value]; output.textContent = 'Run the code to inspect the numerical experiment.'; status.textContent = 'Ready'; };
-        async function runtime() {
-            if (!window.loadPyodide) throw new Error('The Python runtime could not be loaded. Check the network connection and try again.');
-            if (!runtimePromise) {
-                status.textContent = 'Loading Python…';
-                runtimePromise = window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v314.0.2/full/' });
+        function runtime() {
+            if (typeof window.createMachineLearnerPythonSession !== 'function') {
+                throw new Error('The bundled Python sandbox could not be loaded. Reload the lesson and try again.');
             }
-            return runtimePromise;
+            if (!sandboxSession) sandboxSession = window.createMachineLearnerPythonSession('math-foundations');
+            return sandboxSession;
         }
         run.addEventListener('click', async () => {
             run.disabled = true; output.textContent = ''; status.textContent = 'Running…';
             try {
-                const pyodide = await runtime(); const lines = [];
-                pyodide.setStdout({ batched: text => lines.push(text) }); pyodide.setStderr({ batched: text => lines.push(text) });
-                const result = await pyodide.runPythonAsync(editor.value);
-                if (result !== undefined && result !== null) lines.push(String(result));
-                output.textContent = lines.join('\n').trim() || 'Code completed without printed output.'; status.textContent = 'Complete';
-                if (result?.destroy) result.destroy();
+                const result = await runtime().run(editor.value, { reset: true });
+                output.textContent = [result.stdout, result.stderr, result.result].filter(Boolean).join('\n').trim()
+                    || 'Code completed without printed output.';
+                status.textContent = result.stderr ? 'Needs attention' : 'Complete';
             } catch (error) {
                 output.textContent = `${error.name || 'Python error'}: ${error.message || error}`; status.textContent = 'Needs attention';
             } finally { run.disabled = false; }
         });
-        example.addEventListener('change', loadExample); reset.addEventListener('click', loadExample); loadExample();
+        example.addEventListener('change', loadExample);
+        reset.addEventListener('click', () => {
+            sandboxSession?.destroy('The math playground was reset.');
+            sandboxSession = null;
+            loadExample();
+        });
+        loadExample();
     }
 
     function drawProbabilityLecture(ctx, canvas, lecture, time) {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Machine Learner</string>
+    <string name="app_tagline">Interactive AI learning lab</string>
+    <string name="open_contents">Open learning chapters</string>
+    <string name="choose_chapter">Choose a learning chapter</string>
+    <string name="previous_chapter">Previous chapter</string>
+    <string name="next_chapter">Next chapter</string>
+    <string name="chapter_position">%1$d of %2$d</string>
+    <string name="reading_progress">%1$d%% read</string>
+    <string name="reading_progress_initial">0% read</string>
+    <string name="load_error_title">The lesson could not open</string>
+    <string name="load_error_default">The app’s bundled learning content is temporarily unavailable.</string>
+    <string name="load_error_detail">The bundled lesson could not be read: %1$s</string>
+    <string name="retry">Try again</string>
+    <string name="unsupported_link">This type of link is not supported.</string>
+    <string name="no_link_handler">No app is available to open this reference.</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_navy">#0B1633</color>
+    <color name="brand_blue">#2457D6</color>
+    <color name="brand_cyan">#2DD4BF</color>
+    <color name="brand_pale">#CDE9FF</color>
+    <color name="surface">#F7F9FC</color>
+    <color name="surface_raised">#FFFFFFFF</color>
+    <color name="surface_blue">#EEF4FF</color>
+    <color name="ink">#111827</color>
+    <color name="ink_soft">#64748B</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
