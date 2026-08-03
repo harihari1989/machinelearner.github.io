@@ -16,6 +16,10 @@
         android:theme="@style/Theme.MachineLearner"
         android:usesCleartextTraffic="false">
 
+        <meta-data
+            android:name="android.webkit.WebView.MetricsOptOut"
+            android:value="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

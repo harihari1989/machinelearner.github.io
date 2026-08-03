@@ -9,26 +9,11 @@ body.android-app {
 }
 
 body.android-app > header {
-    padding: 0.8rem 1rem;
-}
-
-body.android-app > header h1 {
-    margin: 0;
-    font-size: clamp(1.35rem, 5vw, 1.8rem);
-}
-
-body.android-app > header > p {
     display: none;
 }
 
 body.android-app .mode-switcher {
-    display: flex;
-    max-width: 100%;
-    margin-top: 0.65rem;
-    padding-bottom: 0.25rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
+    display: none;
 }
 
 body.android-app .mode-switcher::-webkit-scrollbar,
@@ -55,7 +40,7 @@ body.android-app .chapter-nav {
 
 body.android-app .chapter-nav a {
     flex: 0 0 auto;
-    min-height: 44px;
+    min-height: 48px;
     display: inline-flex;
     align-items: center;
     scroll-snap-align: start;
@@ -64,7 +49,7 @@ body.android-app .chapter-nav a {
 body.android-app button,
 body.android-app select,
 body.android-app input[type='range'] {
-    min-height: 44px;
+    min-height: 48px;
 }
 
 body.android-app textarea,
@@ -89,7 +74,7 @@ body.android-app video {
 }
 
 body.android-app footer {
-    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    display: none;
 }
 
 @media (max-width: 680px) {

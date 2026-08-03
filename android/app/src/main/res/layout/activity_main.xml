@@ -8,16 +8,20 @@
         android:id="@+id/appChromeContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/brand_navy"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="wrap_content"
+            android:minHeight="64dp"
             android:background="@color/brand_navy"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="16dp"
-            android:paddingEnd="8dp">
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp">
 
             <ImageView
                 android:layout_width="38dp"
@@ -36,6 +40,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/app_name"
                     android:textColor="@color/white"
                     android:textSize="19sp"
@@ -44,6 +50,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:text="@string/app_tagline"
                     android:textColor="@color/brand_pale"
                     android:textSize="12sp" />
@@ -129,7 +137,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="78dp"
+            android:layout_height="wrap_content"
+            android:minHeight="78dp"
             android:background="@drawable/bottom_bar_background"
             android:elevation="12dp"
             android:gravity="center_vertical"
@@ -142,7 +151,7 @@
             <ImageButton
                 android:id="@+id/previousChapterButton"
                 android:layout_width="52dp"
-                android:layout_height="match_parent"
+                android:layout_height="52dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/previous_chapter"
                 android:padding="14dp"
@@ -152,7 +161,8 @@
             <LinearLayout
                 android:id="@+id/currentChapterCard"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="68dp"
                 android:layout_marginHorizontal="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/chapter_card_background"
@@ -231,7 +241,7 @@
             <ImageButton
                 android:id="@+id/nextChapterButton"
                 android:layout_width="52dp"
-                android:layout_height="match_parent"
+                android:layout_height="52dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/next_chapter"
                 android:padding="14dp"

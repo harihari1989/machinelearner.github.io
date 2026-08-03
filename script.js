@@ -8957,67 +8957,30 @@ function setupMatrixDeepControls() {
     drawMatrixDeepCanvas();
 }
 
-function setupHolidayParade() {
-    const parade = document.querySelector('.holiday-parade');
-    if (!parade) return;
-
-    const santaRide = parade.querySelector('.santa-ride');
-    if (!santaRide) return;
-
-    let hasPlayed = false;
-
-    const playRideOnce = () => {
-        if (document.body.dataset.theme !== 'holiday') return;
-        if (hasPlayed) return;
-        hasPlayed = true;
-        santaRide.classList.remove('is-active');
-        void santaRide.offsetWidth;
-        santaRide.classList.add('is-active');
-    };
-
-    const resetRide = () => {
-        hasPlayed = false;
-        santaRide.classList.remove('is-active');
-    };
-
-    santaRide.addEventListener('animationend', () => {
-        santaRide.classList.remove('is-active');
-    });
-
-    document.addEventListener('mlmath:theme-change', (event) => {
-        const theme = event.detail?.theme;
-        if (theme === 'holiday') {
-            resetRide();
-            playRideOnce();
-        } else {
-            resetRide();
-        }
-    });
-
-    if (document.body.dataset.theme === 'holiday') {
-        playRideOnce();
-    }
-}
-
 function setupThemeSwitcher() {
     const buttons = document.querySelectorAll('.mode-btn');
     if (!buttons.length) return;
 
+    const allowedThemes = new Set([...buttons].map(button => button.dataset.theme));
+
     const applyTheme = (theme, shouldRedraw = true) => {
-        document.body.dataset.theme = theme;
-        localStorage.setItem('mlmath-theme', theme);
+        const safeTheme = allowedThemes.has(theme) ? theme : 'light';
+        document.body.dataset.theme = safeTheme;
+        localStorage.setItem('mlmath-theme', safeTheme);
         buttons.forEach(btn => {
-            btn.classList.toggle('is-active', btn.dataset.theme === theme);
-            btn.setAttribute('aria-pressed', btn.dataset.theme === theme ? 'true' : 'false');
+            btn.classList.toggle('is-active', btn.dataset.theme === safeTheme);
+            btn.setAttribute('aria-pressed', btn.dataset.theme === safeTheme ? 'true' : 'false');
         });
         if (shouldRedraw) {
             refreshAllVisuals();
         }
-        document.dispatchEvent(new CustomEvent('mlmath:theme-change', { detail: { theme } }));
+        document.dispatchEvent(new CustomEvent('mlmath:theme-change', { detail: { theme: safeTheme } }));
     };
 
     const savedTheme = localStorage.getItem('mlmath-theme');
-    const initialTheme = savedTheme || document.body.dataset.theme || 'light';
+    const initialTheme = allowedThemes.has(savedTheme)
+        ? savedTheme
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     applyTheme(initialTheme, false);
 
     buttons.forEach(btn => {
@@ -9030,15 +8993,23 @@ function setActiveChapter(chapterId) {
     const buttons = document.querySelectorAll('.chapter-btn');
     if (!chapters.length || !buttons.length) return;
 
+    const requestedButton = [...buttons].find(button => button.dataset.chapter === chapterId);
+    const safeChapterId = requestedButton ? chapterId : buttons[0].dataset.chapter;
+
     chapters.forEach(chapter => {
-        chapter.classList.toggle('is-active', chapter.dataset.chapter === chapterId);
+        const isActive = chapter.dataset.chapter === safeChapterId;
+        chapter.classList.toggle('is-active', isActive);
+        chapter.setAttribute('aria-hidden', isActive ? 'false' : 'true');
     });
 
     buttons.forEach(button => {
-        const isActive = button.dataset.chapter === chapterId;
+        const isActive = button.dataset.chapter === safeChapterId;
         button.classList.toggle('is-active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.tabIndex = isActive ? 0 : -1;
     });
+
+    return safeChapterId;
 }
 
 function setupChapterSwitcher() {
@@ -9052,6 +9023,19 @@ function setupChapterSwitcher() {
             setActiveChapter(button.dataset.chapter);
             refreshAllVisuals();
         });
+    });
+
+    document.querySelector('.chapter-switcher').addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const currentIndex = [...buttons].indexOf(document.activeElement);
+        let nextIndex = currentIndex < 0 ? 0 : currentIndex;
+        if (event.key === 'ArrowRight') nextIndex = (nextIndex + 1) % buttons.length;
+        if (event.key === 'ArrowLeft') nextIndex = (nextIndex - 1 + buttons.length) % buttons.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = buttons.length - 1;
+        buttons[nextIndex].focus();
+        buttons[nextIndex].click();
     });
 
     const hash = window.location.hash.substring(1);
@@ -11998,7 +11982,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupControl();
     setupNotebookLab();
     setupOnnxDemo();
-    setupHolidayParade();
     setupVisualizationMeta();
     refreshAllVisuals();
     

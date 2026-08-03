@@ -6,16 +6,13 @@ import java.util.List;
 
 public final class LearningCatalog {
     private static final List<LearningDestination> DESTINATIONS = Collections.unmodifiableList(Arrays.asList(
-            new LearningDestination("foundations", "ai-categories", "Foundations", "AI, vectors, probability, and optimization"),
-            new LearningDestination("math-deep-dive", "math-atlas", "Math Deep Dive", "Calculus, algebra, probability, and proofs"),
-            new LearningDestination("ml", "ml-intro", "Machine Learning", "Algorithms, workflows, and evaluation"),
-            new LearningDestination("kaggle-ml", "kaggle-ml-roadmap", "Practical ML Lab", "Seven guided pandas and scikit-learn projects"),
-            new LearningDestination("neural", "neural-network", "Neural Networks", "Backpropagation and transformer intuition"),
-            new LearningDestination("python", "python-mental-model", "Python for ML", "Python, NumPy, PyTorch, and nanoGPT"),
-            new LearningDestination("llm-foundations", "llm-tutorial", "Large Language Models", "Transformers, prompting, retrieval, and agents"),
-            new LearningDestination("reasoning-planning", "rp-roadmap", "Reasoning & Planning", "Causality, calibration, memory, and plans"),
-            new LearningDestination("reinforcement-learning", "rl-fundamentals", "Reinforcement Learning", "Bandits, value methods, and deep RL"),
-            new LearningDestination("notebook", "ipython-notebook", "Notebook Lab", "Editable Python exercises and ONNX inference")
+            new LearningDestination("foundations", "learning-roadmap", "Start Here", "The seven-step learning path"),
+            new LearningDestination("math-deep-dive", "math-atlas", "Math Foundations", "Vectors, gradients, probability, and loss"),
+            new LearningDestination("python", "python-mental-model", "Python & PyTorch", "Code, arrays, tensors, and training"),
+            new LearningDestination("ml", "ml-intro", "Machine Learning", "Algorithms, evaluation, and inference"),
+            new LearningDestination("kaggle-ml", "kaggle-ml-roadmap", "Practice Project", "Build and validate a housing model"),
+            new LearningDestination("neural", "neural-network", "Neural Networks", "One neuron through sequence models"),
+            new LearningDestination("llm-foundations", "transformer-map", "Transformers", "Attention, GPT, and the research path")
     ));
 
     private LearningCatalog() {
@@ -31,6 +28,14 @@ public final class LearningCatalog {
             if (DESTINATIONS.get(index).getChapterId().equals(chapterId)) return index;
         }
         return 0;
+    }
+
+    public static boolean containsChapter(String chapterId) {
+        if (chapterId == null) return false;
+        for (LearningDestination destination : DESTINATIONS) {
+            if (destination.getChapterId().equals(chapterId)) return true;
+        }
+        return false;
     }
 
     public static LearningDestination at(int index) {

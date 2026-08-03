@@ -2,10 +2,15 @@ plugins {
     id "com.android.application"
 }
 
+abstract class WebContentSync extends Sync {
+    @Internal
+    abstract DirectoryProperty getGeneratedAssetsDirectory()
+}
+
 def generatedWebAssets = layout.buildDirectory.dir("generated/webAssets")
 def webRoot = rootProject.projectDir.parentFile
 
-tasks.register("syncWebContent", Sync) {
+def syncWebContent = tasks.register("syncWebContent", WebContentSync) {
     group = "machine learner"
     description = "Copies the canonical learning website into the Android app assets."
     from(webRoot) {
@@ -17,17 +22,18 @@ tasks.register("syncWebContent", Sync) {
         include "manim/scene-manifest.js"
         exclude "assets/**/*.md"
     }
-    into(generatedWebAssets.map { it.dir("site") })
+    generatedAssetsDirectory.set(generatedWebAssets)
+    into(generatedAssetsDirectory.map { it.dir("site") })
 }
 
 android {
     namespace "io.github.machinelearner"
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "io.github.machinelearner"
         minSdk 26
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0.0"
 
@@ -53,10 +59,6 @@ android {
         viewBinding true
     }
 
-    sourceSets {
-        main.assets.srcDir(generatedWebAssets)
-    }
-
     androidResources {
         noCompress += ["wasm", "mjs", "whl", "onnx", "webm", "mp4", "zip"]
     }
@@ -71,8 +73,12 @@ android {
     }
 }
 
-tasks.named("preBuild").configure {
-    dependsOn(tasks.named("syncWebContent"))
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addGeneratedSourceDirectory(syncWebContent) { task ->
+            task.generatedAssetsDirectory
+        }
+    }
 }
 
 dependencies {

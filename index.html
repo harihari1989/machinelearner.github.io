@@ -13,7 +13,7 @@
             window.location.replace(localPreview.href);
         }
     </script>
-    <title>Machine Learner · Interactive AI, PyTorch, and Math Lab</title>
+    <title>Machine Learner · A Guided Path from Math to Transformers</title>
     <link rel="stylesheet" href="styles.css?v=20260714-theme-1">
     <link rel="stylesheet" href="math-deep-dive.css">
     <link rel="stylesheet" href="math-foundations-lab.css">
@@ -22,7 +22,8 @@
     <link rel="stylesheet" href="kaggle-ml-course.css?v=20260725-kaggle-3">
     <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700&amp;family=Playfair+Display:wght@500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="neural-and-gate.css?v=20260801-and-gate-1">
+    <link rel="stylesheet" href="learner-experience.css?v=20260803-guided-path-1">
     <script>
         window.MathJax = {
             tex: {
@@ -36,64 +37,52 @@
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body data-theme="light">
+    <a class="skip-link" href="#learning-roadmap">Skip to learning content</a>
     <header>
-        <h1>🧠 Machine Learner: Interactive AI Lab</h1>
-        <p>Build the mathematics, algorithms, neural networks, and PyTorch systems behind modern AI</p>
+        <h1>Machine Learner</h1>
+        <p>A guided path from mathematical foundations to transformers</p>
         <div class="mode-switcher" role="group" aria-label="Theme mode">
-            <span class="mode-label">Mode:</span>
-            <button class="mode-btn is-active" data-theme="light" type="button">Light</button>
-            <button class="mode-btn" data-theme="dark" type="button">Dark</button>
-            <button class="mode-btn" data-theme="kid" type="button">Kid Comic</button>
-            <button class="mode-btn" data-theme="holiday" type="button">Holiday Kids</button>
-            <button class="mode-btn" data-theme="adult" type="button">Adult</button>
+            <span class="mode-label">Appearance</span>
+            <button class="mode-btn is-active" data-theme="light" type="button" aria-pressed="true">Light</button>
+            <button class="mode-btn" data-theme="dark" type="button" aria-pressed="false">Dark</button>
         </div>
     </header>
 
     <div class="chapter-switcher" role="tablist" aria-label="Learning chapters">
-        <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations">Foundations</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="math-deep-dive">Math Deep Dive</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml">Machine Learning</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="kaggle-ml">Kaggle ML Lab</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural">Neural Networks</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="python">Python for ML</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations">Large Language Models</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reasoning-planning">Reasoning &amp; Planning</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning">Reinforcement Learning</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="notebook">Notebook Lab</button>
+        <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations"><span>1</span>Start Here</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="math-deep-dive"><span>2</span>Math</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="python"><span>3</span>Python &amp; PyTorch</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml"><span>4</span>Machine Learning</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="kaggle-ml"><span>5</span>Practice</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural"><span>6</span>Neural Networks</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations"><span>7</span>Transformers</button>
     </div>
 
-    <div class="holiday-parade" aria-hidden="true">
-        <div class="snow-layer" aria-hidden="true">
-            <span class="snowflake" style="--x: 6%; --delay: 0s; --duration: 9s; --size: 14px;">❄</span>
-            <span class="snowflake" style="--x: 14%; --delay: 2s; --duration: 11s; --size: 18px;">❄</span>
-            <span class="snowflake" style="--x: 22%; --delay: 1s; --duration: 8s; --size: 12px;">❄</span>
-            <span class="snowflake" style="--x: 32%; --delay: 3s; --duration: 10s; --size: 16px;">❄</span>
-            <span class="snowflake" style="--x: 44%; --delay: 0.5s; --duration: 12s; --size: 20px;">❄</span>
-            <span class="snowflake" style="--x: 54%; --delay: 1.5s; --duration: 9.5s; --size: 13px;">❄</span>
-            <span class="snowflake" style="--x: 63%; --delay: 2.4s; --duration: 11.5s; --size: 17px;">❄</span>
-            <span class="snowflake" style="--x: 71%; --delay: 0.2s; --duration: 8.5s; --size: 12px;">❄</span>
-            <span class="snowflake" style="--x: 79%; --delay: 1.1s; --duration: 10.5s; --size: 15px;">❄</span>
-            <span class="snowflake" style="--x: 88%; --delay: 2.7s; --duration: 9.2s; --size: 19px;">❄</span>
-            <span class="snowflake" style="--x: 95%; --delay: 3.4s; --duration: 12.5s; --size: 14px;">❄</span>
-        </div>
-        <div class="santa-ride" aria-hidden="true">
-            <span class="santa-emoji" aria-hidden="true">🎅</span>
-            <span class="santa-emoji" aria-hidden="true">🛷</span>
-        </div>
-    </div>
-
-    <main>
+    <main id="main-content" tabindex="-1">
         <section class="chapter is-active" data-chapter="foundations">
             <nav class="chapter-nav" aria-label="Foundations sections">
-                <a href="#ai-categories">What is AI?</a>
-                <a href="#fundamentals">Foundations</a>
-                <a href="#fundamentals-playground">Python playground</a>
-                <a href="#vectors">Vectors</a>
-                <a href="#matrices">Matrices</a>
-                <a href="#probability">Probability</a>
-                <a href="#gradient-descent">Gradient Descent</a>
-                <a href="#activations">Activation Functions</a>
+                <a href="#learning-roadmap">Your path</a>
+                <a href="#ai-categories">How learning works</a>
+                <a href="#fundamentals">Math preview</a>
+                <a href="#fundamentals-playground">First lab</a>
             </nav>
+
+            <section class="example-section learner-roadmap" id="learning-roadmap" aria-labelledby="learning-roadmap-title">
+                <span class="depth-kicker">Start here · no prerequisites assumed</span>
+                <h2 id="learning-roadmap-title">Build one idea at a time</h2>
+                <p class="section-intro">Follow the numbered chapters in order. Each one answers a single question, gives you a small experiment, and ends with something you should be able to explain without notes.</p>
+                <ol class="guided-curriculum" aria-label="Seven-step machine learning curriculum">
+                    <li><span>1</span><div><strong>Start with the learning loop</strong><p>See how examples, predictions, errors, and feedback fit together.</p><small>Checkpoint: name the task, experience, and performance measure.</small></div></li>
+                    <li><span>2</span><div><strong>Build the math</strong><p>Use vectors to represent data, matrices to transform it, probability to express uncertainty, and derivatives to improve a model.</p><small>Checkpoint: read (y=Wx+b) and (	heta\leftarrow\theta-\eta\nabla L) aloud.</small></div></li>
+                    <li><span>3</span><div><strong>Express it in Python and PyTorch</strong><p>Move from Python objects to NumPy arrays, tensors, automatic gradients, modules, and optimizers.</p><small>Checkpoint: write and run one complete training step.</small></div></li>
+                    <li><span>4</span><div><strong>Learn classical machine learning</strong><p>Compare regression, classification, trees, neighbors, clusters, and ensembles by the assumptions they make.</p><small>Checkpoint: choose a baseline and an honest validation metric.</small></div></li>
+                    <li><span>5</span><div><strong>Practice on a real workflow</strong><p>Inspect housing data, split it correctly, train two models, compare held-out error, and explain a prediction.</p><small>Checkpoint: defend why the validation result is trustworthy.</small></div></li>
+                    <li><span>6</span><div><strong>Build neural networks from one neuron</strong><p>Trace the forward pass, loss, gradients, update, multilayer networks, CNNs, RNNs, and LSTMs.</p><small>Checkpoint: explain backpropagation as reusable local derivatives.</small></div></li>
+                    <li><span>7</span><div><strong>Arrive at transformers</strong><p>Follow tokens through embeddings, attention, residual blocks, training, and autoregressive inference; then study the research lineage.</p><small>Checkpoint: explain what attention reads, mixes, and writes.</small></div></li>
+                </ol>
+                <div class="learner-callout"><strong>A useful rhythm:</strong> read the intuition, predict what the visual will do, run the experiment, change one input, and explain the result in one sentence.</div>
+                <a class="learner-primary-action" href="#ai-categories">Begin: understand the learning loop</a>
+            </section>
 
             <section class="example-section ai-intro" id="ai-categories">
                 <div class="ai-hero">
@@ -466,7 +455,7 @@
         </aside>
 
         <!-- Vectors Section -->
-        <section id="vectors" class="example-section">
+        <section id="vectors" class="example-section" hidden>
             <h2>Vectors: direction, magnitude, and meaning</h2>
             <p class="section-intro">Explore vectors as data points, similarity scores, and distances. Switch to Deep Dive for norms, projections, and basis intuition.</p>
             <div class="vector-mode-switcher" role="group" aria-label="Vector depth mode">
@@ -705,7 +694,7 @@
         </section>
 
         <!-- Matrices Section -->
-        <section id="matrices" class="example-section">
+        <section id="matrices" class="example-section" hidden>
             <h2>Matrices: transforms, determinants, inverses</h2>
             <p class="section-intro">Matrices reshape space. Determinants measure area scaling, inverses undo transforms, and covariance/precision describe spread along eigenvector axes.</p>
             <div class="matrix-mode-switcher" role="group" aria-label="Matrix depth mode">
@@ -879,7 +868,7 @@
         </section>
 
         <!-- Probability Section -->
-        <section id="probability" class="example-section">
+        <section id="probability" class="example-section" hidden>
             <h2>Probability: uncertainty and confidence</h2>
             <p class="section-intro">Go from events to distributions, and see how probabilities become confidence bars.</p>
             <div class="probability-mode-switcher" role="group" aria-label="Probability depth mode">
@@ -1384,7 +1373,7 @@
         </section>
 
         <!-- Gradient Descent Section -->
-        <section id="gradient-descent" class="example-section">
+        <section id="gradient-descent" class="example-section" hidden>
             <h2>Gradient Descent</h2>
             <div class="content-grid">
                 <div class="explanation">
@@ -1427,7 +1416,7 @@
         </section>
 
         <!-- Activation Functions Section -->
-        <section id="activations" class="example-section">
+        <section id="activations" class="example-section" hidden>
             <h2>Activation Functions</h2>
             <div class="content-grid">
                 <div class="explanation">
@@ -1464,15 +1453,13 @@
 
         <section class="chapter math-deep-dive-chapter" data-chapter="math-deep-dive">
             <nav class="chapter-nav math-dive-nav" aria-label="Mathematics deep dive sections">
-                <a href="#math-atlas">Atlas</a>
-                <a href="#deep-calculus">Calculus</a>
-                <a href="#deep-trigonometry">Trigonometric proofs</a>
+                <a href="#math-atlas">Math map</a>
+                <a href="#deep-calculus">Change &amp; gradients</a>
                 <a href="#deep-linear-algebra">Linear algebra</a>
-                <a href="#deep-probability">Probability &amp; statistics</a>
-                <a href="#deep-neural-networks">Neural networks</a>
-                <a href="#python-math-lab">Python lab</a>
-                <a href="#lecture-library">Formula library</a>
-                <a href="#math-synthesis">Synthesis</a>
+                <a href="#deep-probability">Probability</a>
+                <a href="#deep-neural-networks">Learning math</a>
+                <a href="#python-math-lab">Practice</a>
+                <a href="#math-synthesis">Put it together</a>
             </nav>
 
             <section id="math-atlas" class="example-section math-atlas-section">
@@ -1552,7 +1539,7 @@
                 </details>
             </section>
 
-            <section id="deep-trigonometry" class="example-section math-lab-section math-proof-section" data-math-lab="trigonometry">
+            <section id="deep-trigonometry" class="example-section math-lab-section math-proof-section" data-math-lab="trigonometry" hidden>
                 <div class="math-lab-heading">
                     <div><span class="math-chapter-number">02 · ROTATION</span><h2>Trigonometry: prove the formulas from one rotating radius</h2></div>
                     <p>Sine and cosine are coordinates, not rules to memorize. Build the rotation matrix from where the basis vectors move, compose two rotations to prove the angle-addition identities, prove the small-angle limits geometrically, and only then differentiate sine.</p>
@@ -1819,7 +1806,7 @@
                 </details>
             </section>
 
-            <section id="lecture-library" class="example-section lecture-library-section">
+            <section id="lecture-library" class="example-section lecture-library-section" hidden>
                 <div class="lecture-library-heading">
                     <div>
                         <span class="math-eyebrow">54 GUIDED LESSONS · 382 CONCEPT CHECKPOINTS</span>
@@ -1974,10 +1961,10 @@
 
         <section class="chapter" data-chapter="ml">
             <nav class="chapter-nav" aria-label="Machine learning sections">
-                <a href="#ml-intro">Definition</a>
-                <a href="#ml-algorithms">Algorithms</a>
-                <a href="#ml-walkthroughs">Algorithm Walkthroughs</a>
-                <a href="#ml-lifecycle">Training &amp; Inference</a>
+                <a href="#ml-intro">Learning loop</a>
+                <a href="#ml-algorithms">Choose an algorithm</a>
+                <a href="#ml-walkthroughs">See each step</a>
+                <a href="#ml-lifecycle">Train vs infer</a>
             </nav>
 
             <section id="ml-intro" class="example-section">
@@ -2566,15 +2553,12 @@
 
         <section class="chapter kaggle-ml-course" data-chapter="kaggle-ml">
             <nav class="chapter-nav kaggle-ml-nav" aria-label="Kaggle introductory machine learning deep-dive sections">
-                <a href="#kaggle-ml-roadmap">Roadmap</a>
-                <a href="#kaggle-how-models-work">Models</a>
-                <a href="#kaggle-data-exploration">Explore data</a>
-                <a href="#kaggle-first-model">First model</a>
-                <a href="#kaggle-model-validation">Validation</a>
-                <a href="#kaggle-under-overfit">Model capacity</a>
-                <a href="#kaggle-random-forests">Random forests</a>
-                <a href="#kaggle-capstone">Capstone</a>
-                <a href="#kaggle-ml-lab">Python lab</a>
+                <a href="#kaggle-ml-roadmap">Project map</a>
+                <a href="#kaggle-data-exploration">Inspect data</a>
+                <a href="#kaggle-first-model">Build</a>
+                <a href="#kaggle-model-validation">Validate</a>
+                <a href="#kaggle-under-overfit">Improve</a>
+                <a href="#kaggle-ml-lab">Run Python</a>
             </nav>
 
             <section id="kaggle-ml-roadmap" class="example-section kaggle-ml-hero">
@@ -2972,6 +2956,7 @@ prediction = forest.predict(new_home)[0]</code></pre>
             <nav class="chapter-nav" aria-label="Neural network sections">
                 <a href="#neural-network">Overview</a>
                 <a href="#neural-intuition">Build a neuron</a>
+                <a href="#and-gate-lab">AND Gate Lab</a>
                 <a href="#backprop">Backpropagation</a>
                 <a href="#transformer-advanced">Transformer Deep Dive</a>
             </nav>
@@ -2979,7 +2964,15 @@ prediction = forest.predict(new_home)[0]</code></pre>
             <!-- Neural Network Section -->
             <section id="neural-network" class="example-section">
                 <h2>Neural Networks: From Neurons to Transformers</h2>
-            <p class="section-intro">Zoom in from a single neuron all the way up to deep networks, CNNs, RNNs, LSTMs, and transformers. Each module walks step-by-step and animates the flow.</p>
+            <p class="section-intro">Learn the same small computation first, then watch it scale. Every architecture below is a different way to connect simple differentiable operations.</p>
+
+            <ol class="neural-learning-ladder" aria-label="Neural network learning sequence">
+                <li><span>1</span><div><strong>One neuron</strong><p>Combine evidence with weights and a bias.</p></div></li>
+                <li><span>2</span><div><strong>One update</strong><p>Predict, measure loss, compute gradients, update.</p></div></li>
+                <li><span>3</span><div><strong>Many layers</strong><p>Compose features and reuse backpropagation.</p></div></li>
+                <li><span>4</span><div><strong>Useful structure</strong><p>CNNs use locality; RNNs and LSTMs carry state.</p></div></li>
+                <li><span>5</span><div><strong>Transformers</strong><p>Attention lets every token gather relevant context.</p></div></li>
+            </ol>
 
             <div class="neural-intuition" id="neural-intuition">
                 <div class="explanation">
@@ -3041,6 +3034,118 @@ prediction = forest.predict(new_home)[0]</code></pre>
                     </div>
                 </div>
                 <p class="reference-strip"><strong>Explore further:</strong> <a href="https://developers.google.com/machine-learning/crash-course/neural-networks" target="_blank" rel="noopener">neural-network foundations</a>, <a href="https://developers.google.com/machine-learning/crash-course/neural-networks/backpropagation" target="_blank" rel="noopener">backpropagation</a>, <a href="https://playground.tensorflow.org/" target="_blank" rel="noopener">an interactive decision-boundary playground</a>, and <a href="https://distill.pub/2017/feature-visualization/" target="_blank" rel="noopener">feature visualization</a>.</p>
+            </div>
+
+            <div class="neural-module and-gate-lab" id="and-gate-lab">
+                <div class="and-gate-heading">
+                    <div class="explanation">
+                        <span class="depth-kicker">One neuron · every number exposed</span>
+                        <h3>Watch a neuron learn the AND gate</h3>
+                        <p><strong>Forward propagation does not change the weights.</strong> It computes a prediction and stores the values needed later. Backpropagation computes each parameter's gradient; gradient descent then applies the update.</p>
+                    </div>
+                    <div class="and-gate-cycle" aria-label="Forward propagation, backward propagation, and parameter update">
+                        <span>Forward</span><i aria-hidden="true">→</i><span>Loss</span><i aria-hidden="true">→</i><span>Backward</span><i aria-hidden="true">→</i><span>Update</span>
+                    </div>
+                </div>
+
+                <div class="and-gate-lab-grid">
+                    <div class="and-gate-copy">
+                        <h4>Starting example</h4>
+                        <p>For the AND row \((1,1)\rightarrow1\), begin with \(w_1=0.2\), \(w_2=-0.1\), \(b=0\), and learning rate \(\eta=0.5\).</p>
+                        <div class="math-formula math-mini">
+                            \[
+                            z=w_1x_1+w_2x_2+b,\qquad \hat y=\sigma(z)
+                            \]
+                            \[
+                            \delta=\hat y-y,\qquad
+                            \frac{\partial L}{\partial w_i}=\delta x_i
+                            \]
+                            \[
+                            \theta_{\text{new}}=\theta_{\text{old}}-\eta\frac{\partial L}{\partial\theta}
+                            \]
+                        </div>
+                        <ul class="concept-bullets">
+                            <li><strong>Node color</strong> tracks its current activation.</li>
+                            <li><strong>Edge labels</strong> are the exact weights.</li>
+                            <li><strong>Edge color</strong> shows positive versus negative influence.</li>
+                            <li><strong>Moving signals</strong> reverse direction during backpropagation.</li>
+                        </ul>
+                    </div>
+
+                    <div class="and-gate-workbench">
+                        <div class="and-gate-fields">
+                            <label for="andGateView">Network view
+                                <select id="andGateView">
+                                    <option value="one" selected>One AND neuron</option>
+                                    <option value="large">Larger network</option>
+                                </select>
+                            </label>
+                            <label for="andGateExample">Training example
+                                <select id="andGateExample">
+                                    <option value="0">(0, 0) → 0</option>
+                                    <option value="1">(0, 1) → 0</option>
+                                    <option value="2">(1, 0) → 0</option>
+                                    <option value="3" selected>(1, 1) → 1</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="and-gate-status" aria-live="polite">
+                            <span class="scene-badge" id="andGatePhase">1 · Inputs</span>
+                            <span id="andGateProgress">Step 1 of 8</span>
+                            <span id="andGateLoss">Loss 0.64440</span>
+                        </div>
+
+                        <div class="and-three-stage" id="andGateStage" role="img" aria-label="Neural network diagram showing AND-gate inputs, weights, bias, and output">
+                            <canvas id="andGateCanvas" width="820" height="420" aria-hidden="true"></canvas>
+                            <div class="and-gate-key" aria-hidden="true"><span class="is-positive">positive weight</span><span class="is-negative">negative weight</span><span class="is-signal">active signal</span></div>
+                            <span class="sr-only" id="andGateA11yStatus"></span>
+                        </div>
+
+                        <p class="and-gate-step-detail" id="andGateStepDetail" aria-live="polite"></p>
+                        <div class="controls and-gate-actions">
+                            <button type="button" id="andGateNext">Next step</button>
+                            <button type="button" id="andGateTrain">Train all four rows × 500</button>
+                            <button type="button" id="andGateReset">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="and-gate-tables">
+                    <section>
+                        <h4>Current calculation</h4>
+                        <div class="and-gate-table-wrap">
+                            <table class="and-gate-table">
+                                <thead><tr><th>Quantity</th><th>Calculation</th><th>Value</th></tr></thead>
+                                <tbody id="andGateCalculation"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <section>
+                        <h4>AND truth table</h4>
+                        <div class="and-gate-table-wrap">
+                            <table class="and-gate-table">
+                                <thead><tr><th>\(x_1\)</th><th>\(x_2\)</th><th>Target</th><th>Prediction</th><th>Class</th></tr></thead>
+                                <tbody id="andGateTruthTable"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="and-gate-scale" id="andGateScale" hidden>
+                    <div>
+                        <span class="depth-kicker">The same rule at scale</span>
+                        <h4>Layers turn the local calculation into matrix multiplication</h4>
+                        <p>Every connection still uses <strong>source activation × destination error</strong>. Matrices simply evaluate many copies of that rule together.</p>
+                    </div>
+                    <div class="math-formula math-mini">
+                        \[
+                        z^{(l)}=W^{(l)}a^{(l-1)}+b^{(l)},\qquad
+                        \frac{\partial L}{\partial W^{(l)}}=\delta^{(l)}a^{(l-1)T}
+                        \]
+                        <p><strong>4 → 5 → 3 → 1:</strong> \(W^1:5\times4\), \(W^2:3\times5\), \(W^3:1\times3\), plus biases = <strong>47 parameters</strong>.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="neural-module">
@@ -3795,18 +3900,14 @@ prediction = forest.predict(new_home)[0]</code></pre>
         </section>
 
         <section class="chapter" data-chapter="llm-foundations">
-            <nav class="chapter-nav" aria-label="Large language models sections">
-                <a href="#llm-tutorial">Tutorial</a>
-                <a href="#transformer-map">Transformer Depth Map</a>
-                <a href="#prompt-engineering">Prompt Engineering</a>
-                <a href="#llm-fundamentals">LLM Fundamentals</a>
-                <a href="#vector-databases">Vector Databases</a>
-                <a href="#sutskever-list">Sutskever's List</a>
-                <a href="#ai-agents">AI Agents</a>
+            <nav class="chapter-nav" aria-label="Transformers and research sections">
+                <a href="#transformer-map">Build a transformer</a>
+                <a href="#sutskever-list">Research path</a>
+                <a href="#paper-concept-lab">Paper lab</a>
             </nav>
 
             <!-- LLM Tutorial Section -->
-            <section id="llm-tutorial" class="example-section">
+            <section id="llm-tutorial" class="example-section" hidden>
                 <h2>Large Language Models: Guided Tutorial</h2>
                 <p class="section-intro">A hands-on path that ties prompting, model behavior, and agent building into one workflow.</p>
                 <div class="learning-path">
@@ -3877,8 +3978,17 @@ CHECKS: List missing inputs.</pre>
 
             <!-- Transformer Depth Map Section -->
             <section id="transformer-map" class="example-section">
-                <h2>Transformer Depth Map: From Mechanics to Reasoning Models</h2>
-                <p class="section-intro">Use this depth indicator to move from core mechanics to training signals and reasoning behaviors. Each tier adds a new layer of capability.</p>
+                <h2>Transformers, from one token to a trained language model</h2>
+                <p class="section-intro">Keep one question in view: how does the model turn earlier tokens into a useful prediction for the next token? Follow the data path first; add scale and advanced behavior only after every shape makes sense.</p>
+                <ol class="transformer-learning-trace" aria-label="Six-step transformer data path">
+                    <li><span>1</span><div><strong>Tokenize</strong><p>Text becomes integer token IDs. For a batch (B) and context length (T), the input shape is <code>[B, T]</code>.</p></div></li>
+                    <li><span>2</span><div><strong>Embed</strong><p>Token and position tables turn each ID into a vector, producing the residual stream <code>[B, T, C]</code>.</p></div></li>
+                    <li><span>3</span><div><strong>Attend</strong><p>Queries ask, keys advertise, and values carry information. A causal mask prevents a token from reading the future.</p></div></li>
+                    <li><span>4</span><div><strong>Transform</strong><p>An MLP processes each token independently; residual connections let attention and MLP layers write incremental updates.</p></div></li>
+                    <li><span>5</span><div><strong>Train</strong><p>Logits become next-token probabilities. Cross-entropy scores the correct next token; backpropagation updates every parameter.</p></div></li>
+                    <li><span>6</span><div><strong>Generate</strong><p>At inference time, repeatedly choose one next token, append it, crop the context if needed, and run the model again.</p></div></li>
+                </ol>
+                <div class="learner-callout"><strong>Shape invariant:</strong> the residual stream stays <code>[batch, time, channels]</code> through every transformer block. Attention mixes across time; the MLP mixes across channels.</div>
                 <div class="depth-map">
                     <div class="depth-tier" style="--depth-accent: var(--accent-1);">
                         <div class="depth-marker">
@@ -4513,7 +4623,7 @@ CHECKS: List missing inputs.</pre>
             </section>
 
             <!-- Prompt Engineering Section -->
-            <section id="prompt-engineering" class="example-section">
+            <section id="prompt-engineering" class="example-section" hidden>
                 <h2>Prompt Engineering: Crafting Clear Instructions</h2>
                 <p class="section-intro">Design prompts that reduce ambiguity, keep responses grounded, and make iteration fast.</p>
                 <div class="content-grid">
@@ -4589,7 +4699,7 @@ Return JSON with owner, task, and due.</pre>
             </section>
 
             <!-- LLM Fundamentals Section -->
-            <section id="llm-fundamentals" class="example-section">
+            <section id="llm-fundamentals" class="example-section" hidden>
                 <h2>LLM Fundamentals: How Models Respond</h2>
                 <p class="section-intro">Know the mechanics behind next-token prediction so your prompts behave consistently.</p>
                 <div class="content-grid">
@@ -4648,7 +4758,7 @@ Return JSON with owner, task, and due.</pre>
             </section>
 
             <!-- Vector Databases Section -->
-            <section id="vector-databases" class="example-section">
+            <section id="vector-databases" class="example-section" hidden>
                 <h2>Vector Databases: Indexing and Retrieval for LLMs</h2>
                 <p class="section-intro">See how embeddings get indexed, how similarity search works, and how results return to the model.</p>
                 <div class="content-grid">
@@ -4751,9 +4861,33 @@ Return JSON with owner, task, and due.</pre>
             </section>
 
             <section id="sutskever-list" class="example-section">
-                <h2>Sutskever's List: Core Readings</h2>
-                <p class="section-intro">A curated reading list with the main themes and ideas captured for quick scanning.</p>
-                <div class="reading-grid">
+                <h2>Sutskever's List: a guided research path</h2>
+                <p class="section-intro">Do not read 27 papers as an unstructured pile. Move through five questions in order, reproduce one mechanism from each stage, and use the paper studio to connect claims to evidence.</p>
+
+                <ol class="research-learning-path" aria-label="Five-stage Sutskever reading path">
+                    <li><span>1</span><div><strong>How does a network learn representations?</strong><p>Begin with backpropagation, distributed representations, and convolutional features. Read CS231n alongside AlexNet, then trace the tensor shapes through one small classifier.</p><small>Build: convolution → activation → pooling → classifier.</small></div></li>
+                    <li><span>2</span><div><strong>How can information survive through time?</strong><p>Study character RNNs, LSTMs, recurrent regularization, and Deep Speech 2. Compare a plain recurrent update with gated memory.</p><small>Build: one character-level next-token predictor.</small></div></li>
+                    <li><span>3</span><div><strong>How does a model select and store information?</strong><p>Connect Pointer Networks, Neural Turing Machines, relational networks, and the Annotated Transformer. The common problem is content-dependent routing.</p><small>Build: attention scores, softmax weights, weighted value sum.</small></div></li>
+                    <li><span>4</span><div><strong>Why do compression and generalization meet?</strong><p>Use minimum description length, weight description length, Kolmogorov complexity, and generative modeling to ask which regularities are worth encoding.</p><small>Build: compare validation loss with a simple complexity penalty.</small></div></li>
+                    <li><span>5</span><div><strong>What changes when models scale?</strong><p>Finish with scaling laws and the limits of the evidence. Separate an observed power law from a causal explanation or a claim about intelligence.</p><small>Build: fit a log–log line and state what it predicts—and what it cannot.</small></div></li>
+                </ol>
+
+                <div class="paper-reading-method" aria-labelledby="paper-reading-method-title">
+                    <h3 id="paper-reading-method-title">Use the same six questions for every paper</h3>
+                    <ol>
+                        <li><strong>Problem:</strong> what failure or limitation motivated the work?</li>
+                        <li><strong>Prerequisite:</strong> which earlier idea must be understood first?</li>
+                        <li><strong>Mechanism:</strong> what computation or training rule changed?</li>
+                        <li><strong>Shape:</strong> what enters and leaves each important operation?</li>
+                        <li><strong>Evidence:</strong> which experiment supports the central claim?</li>
+                        <li><strong>Boundary:</strong> what remains untested, expensive, or fragile?</li>
+                    </ol>
+                </div>
+
+                <details class="full-reading-library">
+                    <summary>Browse all 27 reading cards</summary>
+                    <p>Use this library for reference. For focused study, select one paper at a time in the guided studio below.</p>
+                    <div class="reading-grid">
                     <article class="reading-card">
                         <div class="reading-meta">
                             <span class="reading-category">Transformers</span>
@@ -5078,7 +5212,8 @@ Return JSON with owner, task, and due.</pre>
                             <li><strong>Main idea</strong>: Clear explanations of architectures, training, and regularization.</li>
                         </ul>
                     </article>
-                </div>
+                    </div>
+                </details>
 
                 <section class="paper-expansion" id="paper-concept-lab" aria-labelledby="paperConceptLabTitle">
                     <div class="paper-expansion-heading">
@@ -5155,7 +5290,7 @@ Return JSON with owner, task, and due.</pre>
             </section>
 
             <!-- AI Agents Section -->
-            <section id="ai-agents" class="example-section">
+            <section id="ai-agents" class="example-section" hidden>
                 <h2>AI Agents: Tool-Using Systems</h2>
                 <p class="section-intro">Agents combine planning, tools, memory, and evals to finish real tasks.</p>
                 <div class="content-grid">
@@ -6545,18 +6680,13 @@ actions(state) -&gt; action list
 
         <section class="chapter python-course" data-chapter="python">
             <nav class="chapter-nav" aria-label="Python for machine learning sections">
-                <a href="#python-mental-model">Mental model</a>
-                <a href="#python-core">Core language</a>
-                <a href="#python-data">Data thinking</a>
-                <a href="#python-libraries">Python → NumPy → PyTorch</a>
-                <a href="#python-zero-to-hero">Project path</a>
-                <a href="#pytorch-roadmap">PyTorch map</a>
-                <a href="#pytorch-autograd">Tensor + autograd</a>
-                <a href="#pytorch-architectures">Architectures</a>
-                <a href="#pytorch-training">Train + infer</a>
-                <a href="#pytorch-transformer">Transformer + GPT</a>
-                <a href="#nanogpt-deep-dive">nanoGPT</a>
-                <a href="#python-course-lab">Python lab</a>
+                <a href="#python-mental-model">Start</a>
+                <a href="#python-language-tutorial">Python</a>
+                <a href="#numpy-array-tutorial">NumPy</a>
+                <a href="#pytorch-api-tutorial">PyTorch</a>
+                <a href="#pytorch-training">Train a model</a>
+                <a href="#nanogpt-deep-dive">GPT step by step</a>
+                <a href="#python-course-lab">Practice</a>
             </nav>
 
             <section id="python-mental-model" class="example-section">
@@ -8426,5 +8556,6 @@ for step in range(8):
     <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
     <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>
     <script src="reasoning-planning-deep-dive.js?v=20260715-practical-2"></script>
+    <script src="neural-and-gate-three.js?v=20260803-offline-canvas-1"></script>
 </body>
 </html>

@@ -44,8 +44,8 @@ const labContexts = context.window.KaggleMLCourseData?.contexts;
 
 check(
     html.includes('data-chapter="kaggle-ml"') &&
-    html.includes('>Kaggle ML Lab</button>'),
-    'separate Kaggle ML chapter tab'
+    html.includes('>Practice</button>'),
+    'separate practical machine-learning chapter tab'
 );
 
 const lessonIds = [

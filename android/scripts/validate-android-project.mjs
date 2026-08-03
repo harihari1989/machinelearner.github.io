@@ -38,17 +38,22 @@ for (const requiredFile of [
 
 const chapterIds = [...html.matchAll(/<section[^>]+class="[^"]*chapter[^"]*"[^>]+data-chapter="([^"]+)"/g)]
     .map(match => match[1]);
+const visibleChapterIds = [...html.matchAll(/<button[^>]+class="[^"]*chapter-btn[^"]*"[^>]+data-chapter="([^"]+)"/g)]
+    .map(match => match[1]);
 const catalogEntries = [...catalog.matchAll(/new LearningDestination\("([^"]+)",\s*"([^"]+)"/g)]
     .map(([, chapter, anchor]) => ({ chapter, anchor }));
 
 check(chapterIds.length === 10, `${chapterIds.length} website chapters detected`);
-check(catalogEntries.length === chapterIds.length, 'native catalog covers every website chapter');
-for (const chapterId of chapterIds) {
+check(visibleChapterIds.length === 7, `${visibleChapterIds.length} learner-facing chapters detected`);
+check(catalogEntries.length === visibleChapterIds.length, 'native catalog matches the focused curriculum');
+for (const chapterId of visibleChapterIds) {
     check(catalogEntries.some(entry => entry.chapter === chapterId), `native destination ${chapterId}`);
 }
 for (const entry of catalogEntries) {
+    check(chapterIds.includes(entry.chapter), `website chapter ${entry.chapter}`);
     check(html.includes(`id="${entry.anchor}"`), `destination anchor ${entry.anchor}`);
 }
+check(!html.includes('Kid Comic') && !html.includes('Holiday Kids'), 'child and holiday themes are removed');
 
 check(build.includes('include "*.css"') && build.includes('include "*.js"'), 'all root styles and scripts are synchronized');
 check(build.includes('include "assets/**"'), 'models, media, and Python runtime are synchronized');
@@ -58,10 +63,13 @@ check(build.includes('noCompress += ["wasm", "mjs", "whl", "onnx", "webm", "mp4"
 check(manifest.includes('android:hardwareAccelerated="true"'), 'hardware-accelerated visual lessons');
 check(manifest.includes('android:largeHeap="true"'), 'memory headroom for Pyodide and ONNX');
 check(manifest.includes('android:usesCleartextTraffic="false"'), 'cleartext WebView traffic disabled');
+check(manifest.includes('android.webkit.WebView.MetricsOptOut'), 'WebView metrics opt-out declared');
 check(activity.includes('WebViewAssetLoader'), 'secure local HTTPS asset origin');
 check(activity.includes('setAllowFileAccess(false)'), 'file URL access disabled');
 check(activity.includes('MIXED_CONTENT_NEVER_ALLOW'), 'mixed content disabled');
 check(activity.includes('setBuiltInZoomControls(true)'), 'accessible lesson zoom enabled');
+check(activity.includes('fontScale'), 'system text scaling is honored');
+check(activity.includes('WindowInsetsCompat.Type.systemBars()'), 'system bar insets are applied');
 check(activity.includes('onShowCustomView'), 'fullscreen video support');
 check(shell.includes('AndroidLearning?.openExternal'), 'external sources leave the trusted learning WebView');
 check(shell.includes('machine-learner-android-progress-v1'), 'learning position persistence');

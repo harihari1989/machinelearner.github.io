@@ -14,9 +14,9 @@ public final class LearningCatalogTest {
     @Test
     public void catalogContainsTheFullLearningJourney() {
         List<LearningDestination> destinations = LearningCatalog.all();
-        assertEquals(10, destinations.size());
+        assertEquals(7, destinations.size());
         assertEquals("foundations", destinations.get(0).getChapterId());
-        assertEquals("notebook", destinations.get(destinations.size() - 1).getChapterId());
+        assertEquals("llm-foundations", destinations.get(destinations.size() - 1).getChapterId());
     }
 
     @Test
@@ -33,9 +33,11 @@ public final class LearningCatalogTest {
 
     @Test
     public void lookupAndBoundsHaveSafeFallbacks() {
-        assertEquals(5, LearningCatalog.indexOfChapter("python"));
+        assertEquals(2, LearningCatalog.indexOfChapter("python"));
         assertEquals(0, LearningCatalog.indexOfChapter("missing"));
+        assertTrue(LearningCatalog.containsChapter("neural"));
+        assertFalse(LearningCatalog.containsChapter("notebook"));
         assertEquals("foundations", LearningCatalog.at(-3).getChapterId());
-        assertEquals("notebook", LearningCatalog.at(99).getChapterId());
+        assertEquals("llm-foundations", LearningCatalog.at(99).getChapterId());
     }
 }

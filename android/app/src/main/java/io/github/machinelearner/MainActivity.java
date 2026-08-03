@@ -25,6 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.webkit.WebViewAssetLoader;
 
 import io.github.machinelearner.databinding.ActivityMainBinding;
@@ -54,14 +57,15 @@ public final class MainActivity extends AppCompatActivity implements LocalConten
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        configureSystemBarInsets();
 
         getWindow().setStatusBarColor(getColor(R.color.brand_navy));
         getWindow().setNavigationBarColor(getColor(R.color.brand_navy));
 
         preferences = getSharedPreferences(PREFERENCES, MODE_PRIVATE);
-        currentDestinationIndex = LearningCatalog.indexOfChapter(
-                preferences.getString(LAST_CHAPTER, "foundations")
-        );
+        String savedChapter = preferences.getString(LAST_CHAPTER, "foundations");
+        boolean savedChapterIsAvailable = LearningCatalog.containsChapter(savedChapter);
+        currentDestinationIndex = LearningCatalog.indexOfChapter(savedChapter);
 
         configureWebView();
         configureNativeNavigation();
@@ -71,13 +75,24 @@ public final class MainActivity extends AppCompatActivity implements LocalConten
         if (savedInstanceState != null) {
             restoredWebViewState = binding.learningWebView.restoreState(savedInstanceState) != null;
         }
-        if (!restoredWebViewState) {
-            String anchor = safeAnchor(preferences.getString(
-                    LAST_ANCHOR,
-                    LearningCatalog.at(currentDestinationIndex).getAnchorId()
-            ));
+        if (restoredWebViewState) {
+            binding.learningWebView.postDelayed(this::injectAndroidShell, 300);
+        } else {
+            LearningDestination destination = LearningCatalog.at(currentDestinationIndex);
+            String anchor = savedChapterIsAvailable
+                    ? safeAnchor(preferences.getString(LAST_ANCHOR, destination.getAnchorId()))
+                    : destination.getAnchorId();
             binding.learningWebView.loadUrl(START_URL + "#" + anchor);
         }
+    }
+
+    private void configureSystemBarInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appChromeContainer, (view, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(binding.appChromeContainer);
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
@@ -100,7 +115,8 @@ public final class MainActivity extends AppCompatActivity implements LocalConten
         settings.setSupportZoom(true);
         settings.setBuiltInZoomControls(true);
         settings.setDisplayZoomControls(false);
-        settings.setTextZoom(100);
+        int preferredTextZoom = Math.round(getResources().getConfiguration().fontScale * 100f);
+        settings.setTextZoom(Math.max(85, Math.min(200, preferredTextZoom)));
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setSupportMultipleWindows(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
@@ -195,6 +211,10 @@ public final class MainActivity extends AppCompatActivity implements LocalConten
         LearningDestination destination = LearningCatalog.at(currentDestinationIndex);
         binding.currentChapterTitle.setText(destination.getTitle());
         binding.currentChapterSubtitle.setText(destination.getSubtitle());
+        binding.currentChapterCard.setContentDescription(getString(
+                R.string.choose_current_chapter,
+                destination.getTitle()
+        ));
         binding.previousChapterButton.setEnabled(currentDestinationIndex > 0);
         binding.nextChapterButton.setEnabled(
                 currentDestinationIndex < LearningCatalog.all().size() - 1
@@ -303,7 +323,7 @@ public final class MainActivity extends AppCompatActivity implements LocalConten
     }
 
     private static String safeAnchor(String candidate) {
-        if (candidate == null || !candidate.matches("[A-Za-z0-9_-]+")) return "ai-categories";
+        if (candidate == null || !candidate.matches("[A-Za-z0-9_-]+")) return "learning-roadmap";
         return candidate;
     }
 

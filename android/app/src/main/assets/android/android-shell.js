@@ -11,6 +11,9 @@
     const clamp = value => Math.max(0, Math.min(1, value));
     const activeChapter = () => document.querySelector('.chapter.is-active') || document.querySelector('.chapter');
     const activeChapterId = () => activeChapter()?.dataset.chapter || 'foundations';
+    const isVisible = element => Boolean(element && !element.hidden && element.offsetParent !== null);
+    const firstVisibleSection = () => [...(activeChapter()?.querySelectorAll('section[id], .notebook-group[id]') || [])]
+        .find(isVisible);
 
     function activateChapter(chapterId) {
         const button = document.querySelector(`.chapter-btn[data-chapter="${CSS.escape(chapterId)}"]`);
@@ -24,7 +27,7 @@
     function visibleAnchor() {
         const chapter = activeChapter();
         if (!chapter) return '';
-        const sections = [...chapter.querySelectorAll('section[id], .notebook-group[id]')];
+        const sections = [...chapter.querySelectorAll('section[id], .notebook-group[id]')].filter(isVisible);
         let current = sections[0];
         for (const section of sections) {
             if (section.getBoundingClientRect().top <= 150) current = section;
@@ -90,9 +93,10 @@
     function openChapter(chapterId, anchorId, behavior = 'smooth') {
         activateChapter(chapterId);
         requestAnimationFrame(() => {
-            const target = anchorId ? document.getElementById(anchorId) : activeChapter();
+            const requestedTarget = anchorId ? document.getElementById(anchorId) : null;
+            const target = isVisible(requestedTarget) ? requestedTarget : (firstVisibleSection() || activeChapter());
             (target || document.documentElement).scrollIntoView({ behavior, block: 'start' });
-            replaceHash(anchorId);
+            replaceHash(target?.id || anchorId);
             setTimeout(() => saveAndEmit(true), behavior === 'smooth' ? 450 : 50);
         });
     }
@@ -111,7 +115,8 @@
         const anchorId = preferredAnchor || (saved?.chapter === chapterId ? saved.anchor : '');
         activateChapter(chapterId);
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            const target = anchorId ? document.getElementById(anchorId) : null;
+            const requestedTarget = anchorId ? document.getElementById(anchorId) : null;
+            const target = isVisible(requestedTarget) ? requestedTarget : firstVisibleSection();
             if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
             else if (saved?.chapter === chapterId && Number.isFinite(saved.y)) window.scrollTo(0, saved.y);
             window.AndroidLearning?.onReady(chapterId, currentHeading());
