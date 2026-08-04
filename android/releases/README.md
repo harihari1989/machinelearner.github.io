@@ -11,5 +11,5 @@ This is a debug-signed development build with application ID `io.github.machinel
 SHA-256:
 
 ```text
-3938ea2b1efa89aba4c566d0cb63acf21cd3689e066c21a65af277ff95d2476c
+a1441245699f3eee29329fbe5b0e3c0100e192b5d34f58c1f98f59057854f632
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -25,6 +25,9 @@ const activity = read('android/app/src/main/java/io/github/machinelearner/MainAc
 const catalog = read('android/app/src/main/java/io/github/machinelearner/LearningCatalog.java');
 const shell = read('android/app/src/main/assets/android/android-shell.js');
 const theme = read('android/app/src/main/res/values/themes.xml');
+const mathDeepDive = read('math-deep-dive.js');
+const researchExpansion = read('research-expansion.js');
+const manimCatalog = JSON.parse(read('manim/scene-manifest.json'));
 
 for (const requiredFile of [
     'android/settings.gradle',
@@ -55,6 +58,41 @@ for (const entry of catalogEntries) {
     check(html.includes(`id="${entry.anchor}"`), `destination anchor ${entry.anchor}`);
 }
 check(!html.includes('Kid Comic') && !html.includes('Holiday Kids'), 'child and holiday themes are removed');
+check(!/<section id="lecture-library"[^>]*\shidden(?:\s|>)/.test(html), 'guided math animation library is visible');
+
+const directManimVideos = [...html.matchAll(/<video[^>]*poster="assets\/manim\/[^\"]+"[^>]*>([\s\S]*?)<\/video>/g)];
+check(directManimVideos.length > 0, `${directManimVideos.length} direct Manim lessons detected`);
+check(
+    directManimVideos.every(match => match[0].includes('preload="none"')),
+    'off-screen Manim videos defer loading'
+);
+check(
+    directManimVideos.every(match => match[1].indexOf('video/mp4') < match[1].indexOf('video/webm')),
+    'direct Manim videos prefer Android-compatible MP4'
+);
+check(
+    mathDeepDive.indexOf('["mp4", "video/mp4"]') < mathDeepDive.indexOf('["webm", "video/webm"]'),
+    'guided math animations prefer Android-compatible MP4'
+);
+check(
+    researchExpansion.includes('replaceChildren(mp4, webm)'),
+    'research animations prefer Android-compatible MP4'
+);
+
+const manimSlugs = Object.keys(manimCatalog.assets || {});
+const missingManimAssets = [];
+const emptyManimAssets = [];
+for (const slug of manimSlugs) {
+    for (const extension of ['jpg', 'mp4', 'webm']) {
+        const assetPath = `${manimCatalog.assetBase}/${slug}.${extension}`;
+        if (!exists(assetPath)) missingManimAssets.push(assetPath);
+        else if (statSync(path.join(repositoryRoot, assetPath)).size === 0) emptyManimAssets.push(assetPath);
+    }
+}
+check(missingManimAssets.length === 0, `${manimSlugs.length} Manim lesson asset sets are complete`);
+if (missingManimAssets.length) console.error(`Missing Manim assets: ${missingManimAssets.join(', ')}`);
+check(emptyManimAssets.length === 0, 'Manim lesson assets are non-empty');
+if (emptyManimAssets.length) console.error(`Empty Manim assets: ${emptyManimAssets.join(', ')}`);
 
 check(build.includes('include "*.css"') && build.includes('include "*.js"'), 'all root styles and scripts are synchronized');
 check(build.includes('dependsOn(syncWebContent)'), 'web content sync runs before every Android build');

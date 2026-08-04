@@ -935,9 +935,14 @@
             videoPlay.setAttribute("aria-label", (paused ? "Play" : "Pause") + " the guided lecture animation");
         }
 
+        function isMediaStageOnScreen() {
+            const rect = mediaStage.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+        }
+
         function playManim(userInitiated) {
             const chapterActive = library.closest(".chapter")?.classList.contains("is-active");
-            if ((reducedMotion && !userInitiated) || (!chapterActive && !userInitiated) || state.mediaMode !== "manim") { setVideoButton(); return; }
+            if ((reducedMotion && !userInitiated) || (!chapterActive && !userInitiated) || (!isMediaStageOnScreen() && !userInitiated) || state.mediaMode !== "manim") { setVideoButton(); return; }
             manimVideo.playbackRate = state.playbackRate;
             const playRequest = manimVideo.play();
             if (playRequest?.catch) playRequest.catch(function() { setVideoButton(); });
@@ -1001,7 +1006,7 @@
             };
             manimVideo.addEventListener("loadeddata", markCurrentAssetReady, { once: true });
             let failures = 0;
-            [["webm", "video/webm"], ["mp4", "video/mp4"]].forEach(function(format) {
+            [["mp4", "video/mp4"], ["webm", "video/webm"]].forEach(function(format) {
                 const source = document.createElement("source");
                 source.src = manimCatalog.assetBase + "/" + slug + "." + format[0];
                 source.type = format[1];
@@ -1409,7 +1414,7 @@
             mediaHint.textContent = "Study pace set to " + state.playbackRate.toFixed(2).replace(/0$/, "") + "×; every concept remains seekable below.";
         });
         document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
-            restartScene();
+            if (isMediaStageOnScreen()) restartScene();
         });
         $$(".chapter-btn").filter(function(button) { return button.dataset.chapter !== "math-deep-dive"; }).forEach(function(button) {
             button.addEventListener("click", function() { manimVideo.pause(); });
@@ -1417,6 +1422,12 @@
         if (reducedMotion) {
             autoplay.disabled = true;
             autoplay.title = "Auto-play is disabled by your reduced-motion preference.";
+        }
+        if (typeof IntersectionObserver === "function") {
+            const mediaVisibilityObserver = new IntersectionObserver(function(entries) {
+                if (!entries.some(function(entry) { return entry.isIntersecting; })) manimVideo.pause();
+            }, { threshold: 0.05 });
+            mediaVisibilityObserver.observe(mediaStage);
         }
         selectCourse("calculus");
         loadManimCatalog();

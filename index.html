@@ -1808,7 +1808,7 @@
                 </details>
             </section>
 
-            <section id="lecture-library" class="example-section lecture-library-section" hidden>
+            <section id="lecture-library" class="example-section lecture-library-section">
                 <div class="lecture-library-heading">
                     <div>
                         <span class="math-eyebrow">54 GUIDED LESSONS · 382 CONCEPT CHECKPOINTS</span>
@@ -1853,7 +1853,7 @@
                                 </div>
                             </div>
                             <div class="lecture-media-stage" id="lectureMediaStage">
-                                <video id="lectureManimVideo" class="lecture-manim-video" muted loop playsinline preload="auto" aria-label="Guided animation for the selected lesson"></video>
+                                <video id="lectureManimVideo" class="lecture-manim-video" muted loop playsinline preload="metadata" aria-label="Guided animation for the selected lesson"></video>
                                 <canvas id="lectureConceptCanvas" class="math-deep-canvas lecture-concept-canvas" width="1000" height="500" aria-label="Interactive visualization for the selected lesson"></canvas>
                                 <span class="lecture-manim-badge" id="lectureManimBadge">GUIDED VISUAL PROOF</span>
                                 <button class="lecture-video-play" id="lectureVideoPlay" type="button" aria-pressed="false" aria-label="Pause the guided animation">Pause</button>
@@ -5438,9 +5438,9 @@ Return JSON with owner, task, and due.</pre>
                 <p class="section-intro">A model can summarize correlations without knowing what would happen after an action. Causal reasoning begins by naming the query before calculating an answer.</p>
 
                 <div class="rp-manim-lesson">
-                    <video controls muted playsinline preload="metadata" poster="assets/manim/causal-intervention-flow.jpg">
-                        <source src="assets/manim/causal-intervention-flow.webm" type="video/webm">
+                    <video controls muted playsinline preload="none" poster="assets/manim/causal-intervention-flow.jpg">
                         <source src="assets/manim/causal-intervention-flow.mp4" type="video/mp4">
+                        <source src="assets/manim/causal-intervention-flow.webm" type="video/webm">
                     </video>
                     <div><span>Visual reasoning</span><h3>Intervention cuts an assignment mechanism</h3><p>Severity can influence both who receives treatment and who recovers. Setting treatment deliberately removes its incoming causes, which is why an interventional estimate can differ from a raw observed rate.</p></div>
                 </div>
@@ -5569,9 +5569,9 @@ Return JSON with owner, task, and due.</pre>
                 <p class="section-intro">More agents do not automatically create more intelligence. Shared prompts, shared training, early anchoring, and prestige effects can produce correlated errors. The architecture must preserve diversity, route useful evidence, and stop debate from becoming an expensive echo chamber.</p>
 
                 <div class="rp-manim-lesson">
-                    <video controls muted playsinline preload="metadata" poster="assets/manim/multi-agent-evidence-flow.jpg">
-                        <source src="assets/manim/multi-agent-evidence-flow.webm" type="video/webm">
+                    <video controls muted playsinline preload="none" poster="assets/manim/multi-agent-evidence-flow.jpg">
                         <source src="assets/manim/multi-agent-evidence-flow.mp4" type="video/mp4">
+                        <source src="assets/manim/multi-agent-evidence-flow.webm" type="video/webm">
                     </video>
                     <div><span>Visual architecture</span><h3>Exchange evidence through a validated blackboard</h3><p>Independent roles contribute typed claims, sources, confidence, and counterexamples. A validator controls promotion into shared state so agreement is not mistaken for verification.</p></div>
                 </div>
@@ -5625,9 +5625,9 @@ Return JSON with owner, task, and due.</pre>
                 <p class="section-intro">An agent that remembers without provenance accumulates confident errors. Durable memory needs a schema, write policy, validation state, conflict resolution, and expiry.</p>
 
                 <div class="rp-manim-lesson">
-                    <video controls muted playsinline preload="metadata" poster="assets/manim/saga-compensation-flow.jpg">
-                        <source src="assets/manim/saga-compensation-flow.webm" type="video/webm">
+                    <video controls muted playsinline preload="none" poster="assets/manim/saga-compensation-flow.jpg">
                         <source src="assets/manim/saga-compensation-flow.mp4" type="video/mp4">
+                        <source src="assets/manim/saga-compensation-flow.webm" type="video/webm">
                     </video>
                     <div><span>Visual transaction</span><h3>Move forward with a recorded way back</h3><p>When the clinic step fails after a vehicle hold, the system uses the durable receipt to release that hold. Compensation restores a valid business state when atomic rollback is impossible.</p></div>
                 </div>
@@ -5678,9 +5678,9 @@ Return JSON with owner, task, and due.</pre>
                 <p class="section-intro">A plausible list of steps is not yet a plan. Executable planning makes state, preconditions, effects, resources, deadlines, concurrency, uncertainty, and recovery explicit.</p>
 
                 <div class="rp-manim-lesson">
-                    <video controls muted playsinline preload="metadata" poster="assets/manim/temporal-plan-dependencies.jpg">
-                        <source src="assets/manim/temporal-plan-dependencies.webm" type="video/webm">
+                    <video controls muted playsinline preload="none" poster="assets/manim/temporal-plan-dependencies.jpg">
                         <source src="assets/manim/temporal-plan-dependencies.mp4" type="video/mp4">
+                        <source src="assets/manim/temporal-plan-dependencies.webm" type="video/webm">
                     </video>
                     <div><span>Visual plan</span><h3>Dependencies reveal safe parallelism</h3><p>Clearance and uplink preparation can proceed in parallel. Dispatch waits for both a verified zone and a live data path, and the mission commits only after every required branch succeeds.</p></div>
                 </div>
@@ -6109,23 +6109,23 @@ actions(state) -&gt; action list
 
                 <div class="rl-motion-lessons" aria-label="Animated reinforcement learning derivations">
                     <figure>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/bellman-backup.jpg">
-                            <source src="assets/manim/bellman-backup.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/bellman-backup.jpg">
                             <source src="assets/manim/bellman-backup.mp4" type="video/mp4">
+                            <source src="assets/manim/bellman-backup.webm" type="video/webm">
                         </video>
                         <figcaption><strong>Bellman backup:</strong> a long-horizon value becomes one reward plus the value of possible next states.</figcaption>
                     </figure>
                     <figure>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/temporal-credit-assignment.jpg">
-                            <source src="assets/manim/temporal-credit-assignment.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/temporal-credit-assignment.jpg">
                             <source src="assets/manim/temporal-credit-assignment.mp4" type="video/mp4">
+                            <source src="assets/manim/temporal-credit-assignment.webm" type="video/webm">
                         </video>
                         <figcaption><strong>Temporal credit:</strong> a delayed outcome sends learning signal backward to the decisions that helped cause it.</figcaption>
                     </figure>
                     <figure>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/policy-gradient-geometry.jpg">
-                            <source src="assets/manim/policy-gradient-geometry.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/policy-gradient-geometry.jpg">
                             <source src="assets/manim/policy-gradient-geometry.mp4" type="video/mp4">
+                            <source src="assets/manim/policy-gradient-geometry.webm" type="video/webm">
                         </video>
                         <figcaption><strong>Policy gradient:</strong> advantageous sampled actions become more probable without requiring a differentiable environment.</figcaption>
                     </figure>
@@ -6821,9 +6821,9 @@ except KeyError:
                     </div>
 
                     <div class="python-manim-lesson">
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/python-object-references.jpg">
-                            <source src="assets/manim/python-object-references.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/python-object-references.jpg">
                             <source src="assets/manim/python-object-references.mp4" type="video/mp4">
+                            <source src="assets/manim/python-object-references.webm" type="video/webm">
                         </video>
                         <div><span>Manim visual model</span><h4>Assignment binds a name; mutation changes the shared object</h4><p><code>b = a</code> creates a second reference, not an independent list. A shallow copy creates a new outer container; nested mutable members may still be shared. This same distinction matters when datasets, configuration objects, and model-state dictionaries move through a program.</p></div>
                     </div>
@@ -6907,9 +6907,9 @@ def batches(dataset, size):
                     </div>
 
                     <div class="python-manim-lesson">
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/numpy-broadcast-strides.jpg">
-                            <source src="assets/manim/numpy-broadcast-strides.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/numpy-broadcast-strides.jpg">
                             <source src="assets/manim/numpy-broadcast-strides.mp4" type="video/mp4">
+                            <source src="assets/manim/numpy-broadcast-strides.webm" type="video/webm">
                         </video>
                         <div><span>Manim visual model</span><h4>One buffer, many views; one small operand, many aligned operations</h4><p>The first motion changes only shape and strides. The second aligns dimensions from the right and virtually expands size-one axes—broadcasting does not tile the smaller array into memory.</p></div>
                     </div>
@@ -6961,9 +6961,9 @@ w, residuals, rank, singular = np.linalg.lstsq(
                     </div>
 
                     <div class="python-manim-lesson pytorch-foundation-manim">
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/backpropagation-calculus.jpg">
-                            <source src="assets/manim/backpropagation-calculus.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/backpropagation-calculus.jpg">
                             <source src="assets/manim/backpropagation-calculus.mp4" type="video/mp4">
+                            <source src="assets/manim/backpropagation-calculus.webm" type="video/webm">
                         </video>
                         <div><span>Manim visual model</span><h4>Forward values create a graph; backward applies local derivatives in reverse</h4><p>Leaf tensors accumulate gradients. Non-leaf tensors remember the operation that created them. A training step must clear old gradients, run a fresh forward graph, call backward once per intended objective, and update without recording the optimizer itself.</p></div>
                     </div>
@@ -7124,30 +7124,30 @@ with torch.inference_mode():
 
                 <div class="zth-manim-gallery" aria-label="Animated neural network concept lessons">
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/backpropagation-flow.jpg">
-                            <source src="assets/manim/backpropagation-flow.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/backpropagation-flow.jpg">
                             <source src="assets/manim/backpropagation-flow.mp4" type="video/mp4">
+                            <source src="assets/manim/backpropagation-flow.webm" type="video/webm">
                         </video>
                         <div><span>Reason about responsibility</span><h3>Backpropagation</h3><p>Watch local derivatives pass influence from the loss back to every parameter.</p></div>
                     </article>
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/activation-gradient-health.jpg">
-                            <source src="assets/manim/activation-gradient-health.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/activation-gradient-health.jpg">
                             <source src="assets/manim/activation-gradient-health.mp4" type="video/mp4">
+                            <source src="assets/manim/activation-gradient-health.webm" type="video/webm">
                         </video>
                         <div><span>Diagnose before tuning</span><h3>Activation and gradient health</h3><p>See exploding and vanishing signals become measurable layer statistics.</p></div>
                     </article>
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/bpe-token-merge.jpg">
-                            <source src="assets/manim/bpe-token-merge.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/bpe-token-merge.jpg">
                             <source src="assets/manim/bpe-token-merge.mp4" type="video/mp4">
+                            <source src="assets/manim/bpe-token-merge.webm" type="video/webm">
                         </video>
                         <div><span>Build the vocabulary</span><h3>Byte-pair merging</h3><p>Repeated adjacent symbols become reusable chunks without losing the base byte vocabulary.</p></div>
                     </article>
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/transformer-flow.jpg">
-                            <source src="assets/manim/transformer-flow.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/transformer-flow.jpg">
                             <source src="assets/manim/transformer-flow.mp4" type="video/mp4">
+                            <source src="assets/manim/transformer-flow.webm" type="video/webm">
                         </video>
                         <div><span>Track information</span><h3>Transformer residual flow</h3><p>Attention routes context and the MLP writes features into a shared residual stream.</p></div>
                     </article>
@@ -7449,30 +7449,30 @@ for epoch in range(epochs):
                     <div class="pytorch-carousel-viewport">
                         <div class="pytorch-carousel-track" id="pytorchManimTrack">
                             <article class="pytorch-carousel-slide" aria-label="Slide 1 of 4">
-                                <video muted loop playsinline preload="metadata" poster="assets/manim/backpropagation-flow.jpg">
-                                    <source src="assets/manim/backpropagation-flow.webm" type="video/webm">
+                                <video muted loop playsinline preload="none" poster="assets/manim/backpropagation-flow.jpg">
                                     <source src="assets/manim/backpropagation-flow.mp4" type="video/mp4">
+                                    <source src="assets/manim/backpropagation-flow.webm" type="video/webm">
                                 </video>
                                 <div><span>Micrograd → autograd</span><h4>Local derivatives become global credit</h4><p>Every edge contributes a local rule; reverse traversal accumulates responsibility at shared parameters.</p></div>
                             </article>
                             <article class="pytorch-carousel-slide" aria-label="Slide 2 of 4" aria-hidden="true">
-                                <video muted loop playsinline preload="metadata" poster="assets/manim/attention-routing.jpg">
-                                    <source src="assets/manim/attention-routing.webm" type="video/webm">
+                                <video muted loop playsinline preload="none" poster="assets/manim/attention-routing.jpg">
                                     <source src="assets/manim/attention-routing.mp4" type="video/mp4">
+                                    <source src="assets/manim/attention-routing.webm" type="video/webm">
                                 </video>
                                 <div><span>Scaled dot-product attention</span><h4>Queries choose where to read</h4><p>Query–key compatibility becomes a probability distribution; its weighted value sum retrieves context.</p></div>
                             </article>
                             <article class="pytorch-carousel-slide" aria-label="Slide 3 of 4" aria-hidden="true">
-                                <video muted loop playsinline preload="metadata" poster="assets/manim/transformer-flow.jpg">
-                                    <source src="assets/manim/transformer-flow.webm" type="video/webm">
+                                <video muted loop playsinline preload="none" poster="assets/manim/transformer-flow.jpg">
                                     <source src="assets/manim/transformer-flow.mp4" type="video/mp4">
+                                    <source src="assets/manim/transformer-flow.webm" type="video/webm">
                                 </video>
                                 <div><span>Residual stream</span><h4>Attention reads; MLPs write</h4><p>Pre-normalized blocks repeatedly add routed context and transformed features to the token stream.</p></div>
                             </article>
                             <article class="pytorch-carousel-slide" aria-label="Slide 4 of 4" aria-hidden="true">
-                                <video muted loop playsinline preload="metadata" poster="assets/manim/token-probability-flow.jpg">
-                                    <source src="assets/manim/token-probability-flow.webm" type="video/webm">
+                                <video muted loop playsinline preload="none" poster="assets/manim/token-probability-flow.jpg">
                                     <source src="assets/manim/token-probability-flow.mp4" type="video/mp4">
+                                    <source src="assets/manim/token-probability-flow.webm" type="video/webm">
                                 </video>
                                 <div><span>Autoregressive generation</span><h4>One distribution, one sampled token, repeat</h4><p>Temperature and top-k/top-p change sampling; they do not retrain the model or add new knowledge.</p></div>
                             </article>
@@ -7659,23 +7659,23 @@ for token_ids, targets in train_loader:
 
                 <div class="nanogpt-manim-grid" aria-label="Animated nanoGPT system lessons">
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-tensor-journey.jpg">
-                            <source src="assets/manim/nanogpt-tensor-journey.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/nanogpt-tensor-journey.jpg">
                             <source src="assets/manim/nanogpt-tensor-journey.mp4" type="video/mp4">
+                            <source src="assets/manim/nanogpt-tensor-journey.webm" type="video/webm">
                         </video>
                         <div><span>Forward pass</span><h3>Follow every tensor contract</h3><p>Token IDs widen into the residual stream, split into attention heads, and project to vocabulary logits.</p></div>
                     </article>
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-training-loop.jpg">
-                            <source src="assets/manim/nanogpt-training-loop.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/nanogpt-training-loop.jpg">
                             <source src="assets/manim/nanogpt-training-loop.mp4" type="video/mp4">
+                            <source src="assets/manim/nanogpt-training-loop.webm" type="video/webm">
                         </video>
                         <div><span>Training system</span><h3>Accumulate, synchronize, clip, update</h3><p>Microbatches add scaled gradients; the final microstep synchronizes before AdamW changes parameters.</p></div>
                     </article>
                     <article>
-                        <video controls muted playsinline preload="metadata" poster="assets/manim/nanogpt-inference-loop.jpg">
-                            <source src="assets/manim/nanogpt-inference-loop.webm" type="video/webm">
+                        <video controls muted playsinline preload="none" poster="assets/manim/nanogpt-inference-loop.jpg">
                             <source src="assets/manim/nanogpt-inference-loop.mp4" type="video/mp4">
+                            <source src="assets/manim/nanogpt-inference-loop.webm" type="video/webm">
                         </video>
                         <div><span>Inference</span><h3>Crop, score, filter, sample, append</h3><p>nanoGPT recomputes the cropped context each step; a KV cache is a later systems optimization, not part of this source loop.</p></div>
                     </article>
