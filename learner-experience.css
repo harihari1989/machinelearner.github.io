@@ -276,6 +276,77 @@ summary {
     min-height: 48px;
 }
 
+.chapter,
+.chapter * {
+    min-width: 0;
+}
+
+.chapter button,
+.chapter select,
+.chapter input:not([type="checkbox"]):not([type="radio"]),
+.chapter summary,
+.chapter [role="button"] {
+    min-height: 48px;
+    max-width: 100%;
+}
+
+.chapter [role="button"] {
+    min-width: 48px;
+}
+
+.chapter :where(button, summary, [role="button"]) {
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.chapter :where(canvas, svg, img, video, iframe, pre, table) {
+    max-width: 100%;
+}
+
+.chapter pre {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+}
+
+.chapter input[type="range"] {
+    min-width: 48px;
+}
+
+.pytorch-carousel-dots button,
+.lecture-slide-dot {
+    position: relative;
+    flex: 0 0 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+}
+
+.pytorch-carousel-dots button::before,
+.lecture-slide-dot::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--grid);
+    content: "";
+    transform: translate(-50%, -50%);
+}
+
+.pytorch-carousel-dots button[aria-current="true"]::before {
+    background: var(--accent-1);
+}
+
+.lecture-slide-dot[aria-current="true"]::before {
+    width: 26px;
+    background: var(--course-color, var(--math-cyan));
+}
+
 :where(a, button, select, input, textarea, summary, [tabindex]):focus-visible {
     outline: 3px solid #f2a93b;
     outline-offset: 3px;
@@ -473,6 +544,91 @@ footer p:last-child {
     .example-section {
         margin-block: 0.75rem;
         border-radius: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .ai-hero,
+    .content-grid,
+    .math-lab-grid,
+    .derivation-grid,
+    .python-lab-grid,
+    .python-concept-grid,
+    .ml-derivation-grid,
+    .kaggle-lesson-layout,
+    .and-gate-lab-grid,
+    .and-gate-tables,
+    .guide-stack,
+    .nanogpt-training-system,
+    .depth-tier,
+    .depth-card-body,
+    .reading-grid,
+    .paper-studio-layout {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .chapter :where(.visualization, .controls, .math-canvas-controls, .kaggle-interactive-panel) {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chapter :where(canvas, svg, img, video, iframe) {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .chapter pre {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    .chapter table {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chapter :where(select, textarea, input:not([type="checkbox"]):not([type="radio"])) {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chapter select {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chapter :where(.controls, .python-panel-actions, .fundamentals-playground-actions) button {
+        flex: 1 1 10rem;
+    }
+
+    .math-canvas-controls label {
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    .math-canvas-controls input[type="range"],
+    .math-play-btn {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .matrix-entry-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .matrix-entry-grid > span,
+    .matrix-entry-grid .math-play-btn {
+        grid-column: 1 / -1;
+    }
+
+    .chapter summary {
+        height: auto !important;
+        overflow: visible;
     }
 
     .neural-learning-ladder,

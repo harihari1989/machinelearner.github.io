@@ -24,6 +24,7 @@ const manifest = read('android/app/src/main/AndroidManifest.xml');
 const activity = read('android/app/src/main/java/io/github/machinelearner/MainActivity.java');
 const catalog = read('android/app/src/main/java/io/github/machinelearner/LearningCatalog.java');
 const shell = read('android/app/src/main/assets/android/android-shell.js');
+const theme = read('android/app/src/main/res/values/themes.xml');
 
 for (const requiredFile of [
     'android/settings.gradle',
@@ -56,6 +57,7 @@ for (const entry of catalogEntries) {
 check(!html.includes('Kid Comic') && !html.includes('Holiday Kids'), 'child and holiday themes are removed');
 
 check(build.includes('include "*.css"') && build.includes('include "*.js"'), 'all root styles and scripts are synchronized');
+check(build.includes('dependsOn(syncWebContent)'), 'web content sync runs before every Android build');
 check(build.includes('include "assets/**"'), 'models, media, and Python runtime are synchronized');
 check(build.includes('manim/scene-manifest.json'), 'Manim manifest is synchronized');
 check(build.includes('noCompress += ["wasm", "mjs", "whl", "onnx", "webm", "mp4", "zip"]'), 'large executable and media assets remain streamable');
@@ -69,6 +71,7 @@ check(activity.includes('setAllowFileAccess(false)'), 'file URL access disabled'
 check(activity.includes('MIXED_CONTENT_NEVER_ALLOW'), 'mixed content disabled');
 check(activity.includes('setBuiltInZoomControls(true)'), 'accessible lesson zoom enabled');
 check(activity.includes('fontScale'), 'system text scaling is honored');
+check(theme.includes('@color/brand_teal_accessible'), 'high-contrast native action color');
 check(activity.includes('WindowInsetsCompat.Type.systemBars()'), 'system bar insets are applied');
 check(activity.includes('onShowCustomView'), 'fullscreen video support');
 check(shell.includes('AndroidLearning?.openExternal'), 'external sources leave the trusted learning WebView');

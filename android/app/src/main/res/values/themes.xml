@@ -3,7 +3,7 @@
     <style name="Theme.MachineLearner" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/brand_blue</item>
         <item name="colorPrimaryDark">@color/brand_navy</item>
-        <item name="colorAccent">@color/brand_cyan</item>
+        <item name="colorAccent">@color/brand_teal_accessible</item>
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowActionModeOverlay">true</item>

@@ -3702,12 +3702,16 @@ function setupMlMiniVisuals() {
     visuals.forEach(visual => {
         const card = visual.closest('.ml-card');
         const caption = card ? card.querySelector('.ml-caption') : null;
+        const title = card ? card.querySelector('h4')?.textContent.trim() : '';
         const baseText = visual.dataset.mlCaption || (caption ? caption.textContent.trim() : '');
         const altText = visual.dataset.mlCaptionAlt || baseText;
         const hoverText = visual.dataset.mlCaptionHover || baseText;
 
         if (caption && !caption.textContent.trim() && baseText) {
             caption.textContent = baseText;
+        }
+        if (!visual.getAttribute('aria-label')) {
+            visual.setAttribute('aria-label', title ? `Toggle ${title} visualization` : 'Toggle algorithm visualization');
         }
 
         const updateCaption = () => {
@@ -11479,8 +11483,18 @@ function setupFundamentalsPlayground() {
     const status = document.getElementById('fundamentalsPythonStatus');
     const snippetButtons = Array.from(document.querySelectorAll('[data-fundamentals-snippet]'));
     const openButtons = Array.from(document.querySelectorAll('[data-playground-open]'));
+    let lastPlaygroundTrigger = openBtn;
+    const inertedPageElements = new Map();
 
     if (!panel || !openBtn || !editor || !output) return;
+
+    const externalSnippetButtons = snippetButtons.filter(button => !panel.contains(button));
+    const panelTriggers = [...new Set([openBtn, loadBtn, ...openButtons, ...externalSnippetButtons].filter(Boolean))];
+    panelTriggers.forEach(trigger => {
+        trigger.setAttribute('aria-controls', panel.id);
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.setAttribute('aria-expanded', 'false');
+    });
 
     const snippetGroupButtons = Array.from(panel.querySelectorAll('.python-snippets [data-fundamentals-snippet]'));
     const setPlaygroundSnippetGroup = (contextId) => {
@@ -11509,25 +11523,68 @@ function setupFundamentalsPlayground() {
         if (status) status.textContent = text;
     };
 
+    const setPageInert = (enabled) => {
+        if (enabled) {
+            let current = panel;
+            while (current?.parentElement && current !== document.body) {
+                Array.from(current.parentElement.children).forEach(sibling => {
+                    if (sibling === current || sibling === backdrop || inertedPageElements.has(sibling)) return;
+                    inertedPageElements.set(sibling, sibling.hasAttribute('inert'));
+                    sibling.setAttribute('inert', '');
+                });
+                current = current.parentElement;
+            }
+            return;
+        }
+
+        inertedPageElements.forEach((wasInert, element) => {
+            if (wasInert) {
+                element.setAttribute('inert', '');
+            } else {
+                element.removeAttribute('inert');
+            }
+        });
+        inertedPageElements.clear();
+    };
+
+    const getFocusableElements = () => Array.from(panel.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+    )).filter(element => !element.hidden && element.getClientRects().length > 0);
+
+    const setTriggerExpandedState = (expanded) => {
+        panelTriggers.forEach(trigger => {
+            trigger.setAttribute('aria-expanded', String(expanded && trigger === lastPlaygroundTrigger));
+        });
+    };
+
     const openPanel = () => {
+        panel.removeAttribute('inert');
         panel.classList.add('is-open');
         panel.setAttribute('aria-hidden', 'false');
-        openBtn.setAttribute('aria-expanded', 'true');
+        setTriggerExpandedState(true);
+        document.body.classList.add('playground-open');
+        setPageInert(true);
         if (backdrop) {
             backdrop.classList.add('is-visible');
-            backdrop.setAttribute('aria-hidden', 'false');
         }
-        editor.focus();
+        requestAnimationFrame(() => {
+            const compactPointer = window.matchMedia('(max-width: 960px), (pointer: coarse)').matches;
+            const focusTarget = compactPointer && closeBtn ? closeBtn : editor;
+            focusTarget.focus({ preventScroll: true });
+        });
     };
 
     const closePanel = () => {
         panel.classList.remove('is-open');
         panel.setAttribute('aria-hidden', 'true');
-        openBtn.setAttribute('aria-expanded', 'false');
+        setTriggerExpandedState(false);
+        document.body.classList.remove('playground-open');
+        panel.setAttribute('inert', '');
+        setPageInert(false);
         if (backdrop) {
             backdrop.classList.remove('is-visible');
-            backdrop.setAttribute('aria-hidden', 'true');
         }
+        lastPlaygroundTrigger?.focus({ preventScroll: true });
     };
 
     const applySnippet = (snippetId) => {
@@ -11539,12 +11596,14 @@ function setupFundamentalsPlayground() {
     };
 
     openBtn.addEventListener('click', () => {
+        lastPlaygroundTrigger = openBtn;
         setPlaygroundSnippetGroup('foundations');
         const topicId = activeFundamentalId || 'linear';
         applySnippet(topicId);
     });
     openButtons.forEach(button => {
         button.addEventListener('click', () => {
+            lastPlaygroundTrigger = button;
             const snippetId = button.dataset.playgroundOpen;
             const contextId = button.dataset.playgroundContext || snippetId;
             if (contextId) {
@@ -11562,6 +11621,7 @@ function setupFundamentalsPlayground() {
 
     if (loadBtn) {
         loadBtn.addEventListener('click', () => {
+            lastPlaygroundTrigger = loadBtn;
             setPlaygroundSnippetGroup('foundations');
             const topicId = activeFundamentalId || 'linear';
             applySnippet(topicId);
@@ -11570,6 +11630,9 @@ function setupFundamentalsPlayground() {
 
     snippetButtons.forEach(button => {
         button.addEventListener('click', () => {
+            if (!panel.contains(button)) {
+                lastPlaygroundTrigger = button;
+            }
             const contextId = button.dataset.playgroundContext;
             if (contextId) {
                 setPlaygroundSnippetGroup(contextId);
@@ -11612,9 +11675,30 @@ function setupFundamentalsPlayground() {
         }
     });
 
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && panel.classList.contains('is-open')) {
+    panel.addEventListener('keydown', (event) => {
+        if (!panel.classList.contains('is-open')) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
             closePanel();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+
+        const focusableElements = getFocusableElements();
+        if (!focusableElements.length) {
+            event.preventDefault();
+            closeBtn?.focus();
+            return;
+        }
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
         }
     });
 }
