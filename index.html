@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="pytorch-deep-dive.css?v=20260715-nanogpt-3">
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link rel="stylesheet" href="neural-and-gate.css?v=20260801-and-gate-1">
-    <link rel="stylesheet" href="learner-experience.css?v=20260803-accessibility-3">
+    <link rel="stylesheet" href="learner-experience.css?v=20260803-typography-2">
     <script>
         window.MathJax = {
             tex: {
@@ -55,7 +55,8 @@
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="ml"><span>4</span>Machine Learning</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="kaggle-ml"><span>5</span>Practice</button>
         <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="neural"><span>6</span>Neural Networks</button>
-        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations"><span>7</span>Transformers</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="reinforcement-learning"><span>7</span>Reinforcement Learning</button>
+        <button class="chapter-btn" type="button" role="tab" aria-selected="false" data-chapter="llm-foundations"><span>8</span>Transformers</button>
     </div>
 
     <main id="main-content" tabindex="-1">
@@ -71,14 +72,15 @@
                 <span class="depth-kicker">Start here · no prerequisites assumed</span>
                 <h2 id="learning-roadmap-title">Build one idea at a time</h2>
                 <p class="section-intro">Follow the numbered chapters in order. Each one answers a single question, gives you a small experiment, and ends with something you should be able to explain without notes.</p>
-                <ol class="guided-curriculum" aria-label="Seven-step machine learning curriculum">
+                <ol class="guided-curriculum" aria-label="Eight-step machine learning curriculum">
                     <li><span>1</span><div><strong>Start with the learning loop</strong><p>See how examples, predictions, errors, and feedback fit together.</p><small>Checkpoint: name the task, experience, and performance measure.</small></div></li>
                     <li><span>2</span><div><strong>Build the math</strong><p>Use vectors to represent data, matrices to transform it, probability to express uncertainty, and derivatives to improve a model.</p><small>Checkpoint: read (y=Wx+b) and (	heta\leftarrow\theta-\eta\nabla L) aloud.</small></div></li>
                     <li><span>3</span><div><strong>Express it in Python and PyTorch</strong><p>Move from Python objects to NumPy arrays, tensors, automatic gradients, modules, and optimizers.</p><small>Checkpoint: write and run one complete training step.</small></div></li>
                     <li><span>4</span><div><strong>Learn classical machine learning</strong><p>Compare regression, classification, trees, neighbors, clusters, and ensembles by the assumptions they make.</p><small>Checkpoint: choose a baseline and an honest validation metric.</small></div></li>
                     <li><span>5</span><div><strong>Practice on a real workflow</strong><p>Inspect housing data, split it correctly, train two models, compare held-out error, and explain a prediction.</p><small>Checkpoint: defend why the validation result is trustworthy.</small></div></li>
                     <li><span>6</span><div><strong>Build neural networks from one neuron</strong><p>Trace the forward pass, loss, gradients, update, multilayer networks, CNNs, RNNs, and LSTMs.</p><small>Checkpoint: explain backpropagation as reusable local derivatives.</small></div></li>
-                    <li><span>7</span><div><strong>Arrive at transformers</strong><p>Follow tokens through embeddings, attention, residual blocks, training, and autoregressive inference; then study the research lineage.</p><small>Checkpoint: explain what attention reads, mixes, and writes.</small></div></li>
+                    <li><span>7</span><div><strong>Learn from actions and rewards</strong><p>Model agent–environment interaction, discounted return, value functions, Bellman updates, exploration, Q-learning, and policy gradients.</p><small>Checkpoint: explain the difference between reward, return, value, and policy.</small></div></li>
+                    <li><span>8</span><div><strong>Arrive at transformers</strong><p>Follow tokens through embeddings, attention, residual blocks, training, and autoregressive inference; then study the research lineage.</p><small>Checkpoint: explain what attention reads, mixes, and writes.</small></div></li>
                 </ol>
                 <div class="learner-callout"><strong>A useful rhythm:</strong> read the intuition, predict what the visual will do, run the experiment, change one input, and explain the result in one sentence.</div>
                 <a class="learner-primary-action" href="#ai-categories">Begin: understand the learning loop</a>

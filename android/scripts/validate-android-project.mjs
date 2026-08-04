@@ -45,7 +45,7 @@ const catalogEntries = [...catalog.matchAll(/new LearningDestination\("([^"]+)",
     .map(([, chapter, anchor]) => ({ chapter, anchor }));
 
 check(chapterIds.length === 10, `${chapterIds.length} website chapters detected`);
-check(visibleChapterIds.length === 7, `${visibleChapterIds.length} learner-facing chapters detected`);
+check(visibleChapterIds.length === 8, `${visibleChapterIds.length} learner-facing chapters detected`);
 check(catalogEntries.length === visibleChapterIds.length, 'native catalog matches the focused curriculum');
 for (const chapterId of visibleChapterIds) {
     check(catalogEntries.some(entry => entry.chapter === chapterId), `native destination ${chapterId}`);

@@ -14,8 +14,9 @@ public final class LearningCatalogTest {
     @Test
     public void catalogContainsTheFullLearningJourney() {
         List<LearningDestination> destinations = LearningCatalog.all();
-        assertEquals(7, destinations.size());
+        assertEquals(8, destinations.size());
         assertEquals("foundations", destinations.get(0).getChapterId());
+        assertEquals("reinforcement-learning", destinations.get(6).getChapterId());
         assertEquals("llm-foundations", destinations.get(destinations.size() - 1).getChapterId());
     }
 
@@ -36,6 +37,7 @@ public final class LearningCatalogTest {
         assertEquals(2, LearningCatalog.indexOfChapter("python"));
         assertEquals(0, LearningCatalog.indexOfChapter("missing"));
         assertTrue(LearningCatalog.containsChapter("neural"));
+        assertTrue(LearningCatalog.containsChapter("reinforcement-learning"));
         assertFalse(LearningCatalog.containsChapter("notebook"));
         assertEquals("foundations", LearningCatalog.at(-3).getChapterId());
         assertEquals("llm-foundations", LearningCatalog.at(99).getChapterId());

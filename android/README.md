@@ -4,7 +4,7 @@ This project packages the complete Machine Learner website as an offline-first A
 
 ## Learning experience
 
-- Native table of contents focused on seven prerequisite-ordered chapters
+- Native table of contents focused on eight prerequisite-ordered chapters
 - Previous/next chapter controls and per-chapter reading progress
 - Automatic resume at the most recently viewed lesson
 - Responsive Android-specific reading styles, system text scaling, and 48dp touch targets

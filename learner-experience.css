@@ -1,6 +1,12 @@
 :root {
-    --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-display: Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-body: Roboto, "Helvetica Neue", Arial, sans-serif;
+    --type-body: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);
+    --type-small: 0.875rem;
+    --type-control: 0.9375rem;
+    --type-h1: clamp(1.75rem, 1.56rem + 0.95vw, 2.35rem);
+    --type-h2: clamp(1.65rem, 1.48rem + 0.85vw, 2.2rem);
+    --type-h3: clamp(1.15rem, 1.08rem + 0.35vw, 1.4rem);
     --ink: #172033;
     --ink-soft: #46546a;
     --paper: #ffffff;
@@ -40,9 +46,34 @@
 
 body {
     min-width: 0;
-    font-size: 1rem;
-    line-height: 1.65;
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    line-height: 1.6;
     background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--font-display);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+/* Keep MathJax's screen-reader MathML available without letting long equations widen the page. */
+body mjx-container > mjx-assistive-mml[unselectable="on"] {
+    position: absolute !important;
+    width: 1px !important;
+    max-width: 1px !important;
+    height: 1px !important;
+    max-height: 1px !important;
+    padding: 1px !important;
+    overflow: hidden !important;
+    clip: rect(1px, 1px, 1px, 1px) !important;
+    white-space: nowrap !important;
 }
 
 body::before,
@@ -118,7 +149,8 @@ header {
 
 header h1 {
     margin: 0;
-    font-size: clamp(1.65rem, 4vw, 2.25rem);
+    font-size: var(--type-h1);
+    line-height: 1.15;
     letter-spacing: -0.035em;
 }
 
@@ -252,12 +284,14 @@ main {
 .example-section h2 {
     padding-bottom: 0.55rem;
     border-bottom: 2px solid var(--section-border);
-    font-size: clamp(1.55rem, 5vw, 2.2rem);
+    font-size: var(--type-h2);
+    line-height: 1.18;
     letter-spacing: -0.025em;
 }
 
 .example-section h3 {
-    line-height: 1.3;
+    font-size: var(--type-h3);
+    line-height: 1.28;
 }
 
 button,
@@ -267,6 +301,26 @@ textarea,
 summary,
 a {
     touch-action: manipulation;
+}
+
+button,
+select,
+input,
+textarea,
+summary {
+    font-family: var(--font-body);
+}
+
+button,
+summary {
+    font-size: var(--type-control);
+    line-height: 1.3;
+}
+
+select,
+input,
+textarea {
+    font-size: 1rem;
 }
 
 button,
@@ -298,6 +352,14 @@ summary {
     line-height: 1.35;
     overflow-wrap: anywhere;
     white-space: normal;
+}
+
+body .chapter :is(button, summary, [role="button"]),
+body .chapter :is(.math-dive-primary, .learner-primary-action) {
+    font-family: var(--font-body);
+    font-size: var(--type-control);
+    line-height: 1.3;
+    letter-spacing: 0;
 }
 
 .chapter :where(canvas, svg, img, video, iframe, pre, table) {
@@ -545,6 +607,23 @@ footer p:last-child {
         margin-block: 0.75rem;
         border-radius: 10px;
         overflow-wrap: anywhere;
+        scroll-margin-top: 8.5rem;
+    }
+
+    body .chapter .example-section h2 {
+        font-size: clamp(1.65rem, 7.5vw, 1.8rem);
+        line-height: 1.15;
+    }
+
+    .math-atlas-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .math-atlas-actions > * {
+        width: 100%;
+        min-height: 48px;
     }
 
     .ai-hero,
@@ -571,7 +650,7 @@ footer p:last-child {
         max-width: 100%;
     }
 
-    .chapter :where(canvas, svg, img, video, iframe) {
+    .chapter :where(canvas, img, video, iframe) {
         width: 100% !important;
         height: auto !important;
     }
@@ -601,8 +680,12 @@ footer p:last-child {
         text-overflow: ellipsis;
     }
 
-    .chapter :where(.controls, .python-panel-actions, .fundamentals-playground-actions) button {
+    .chapter :where(.python-panel-actions, .fundamentals-playground-actions) button {
         flex: 1 1 10rem;
+    }
+
+    .chapter .controls > button {
+        flex: 0 0 auto;
     }
 
     .math-canvas-controls label {

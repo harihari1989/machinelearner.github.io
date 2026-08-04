@@ -6,12 +6,13 @@ import java.util.List;
 
 public final class LearningCatalog {
     private static final List<LearningDestination> DESTINATIONS = Collections.unmodifiableList(Arrays.asList(
-            new LearningDestination("foundations", "learning-roadmap", "Start Here", "The seven-step learning path"),
+            new LearningDestination("foundations", "learning-roadmap", "Start Here", "The eight-step learning path"),
             new LearningDestination("math-deep-dive", "math-atlas", "Math Foundations", "Vectors, gradients, probability, and loss"),
             new LearningDestination("python", "python-mental-model", "Python & PyTorch", "Code, arrays, tensors, and training"),
             new LearningDestination("ml", "ml-intro", "Machine Learning", "Algorithms, evaluation, and inference"),
             new LearningDestination("kaggle-ml", "kaggle-ml-roadmap", "Practice Project", "Build and validate a housing model"),
             new LearningDestination("neural", "neural-network", "Neural Networks", "One neuron through sequence models"),
+            new LearningDestination("reinforcement-learning", "rl-fundamentals", "RL Foundations", "Agents, rewards, value, and policy learning"),
             new LearningDestination("llm-foundations", "transformer-map", "Transformers", "Attention, GPT, and the research path")
     ));
 
