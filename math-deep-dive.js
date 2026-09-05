@@ -678,9 +678,9 @@
             ctx.fillStyle = `rgba(255,255,255,${.06 + value * .34})`;
             ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.shadowColor = color; ctx.shadowBlur = value * 18;
             ctx.beginPath(); ctx.arc(position.x, position.y, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
-            ctx.fillStyle = palette.white; ctx.font = '800 14px Nunito, sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = palette.text; ctx.font = '600 16px Inter, sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(value.toFixed(2), position.x, position.y + 5);
-            ctx.fillStyle = palette.muted; ctx.font = '700 11px Nunito, sans-serif'; ctx.fillText(label, position.x, position.y - 43);
+            ctx.fillStyle = palette.muted; ctx.font = '500 13px Inter, sans-serif'; ctx.fillText(label, position.x, position.y - 43);
             ctx.textAlign = 'start';
         }
 
@@ -689,7 +689,7 @@
             const x = [Number(inputs.x1.value), Number(inputs.x2.value)]; const target = Number(inputs.target.value);
             const cache = forward(x);
             const elapsed = now - state.animationStart;
-            const activeAnimation = elapsed < 1450;
+            const activeAnimation = !reducedMotion && elapsed < 1450;
             const pulse = activeAnimation ? (elapsed % 900) / 900 : null;
             const reverse = state.view === 'backprop';
             for (let i = 0; i < 2; i += 1) {

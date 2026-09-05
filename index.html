@@ -14,6 +14,8 @@
         }
     </script>
     <title>Machine Learner · A Guided Path from Math to Transformers</title>
+    <meta name="description" content="Learn machine learning through interactive experiments, 3D neural networks, runnable Python, and visual explanations of the math.">
+    <link rel="preload" href="assets/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="styles.css?v=20260803-mobile-playground-2">
     <link rel="stylesheet" href="math-deep-dive.css">
     <link rel="stylesheet" href="math-foundations-lab.css">
@@ -24,6 +26,7 @@
     <link rel="stylesheet" href="reasoning-planning-deep-dive.css?v=20260715-practical-2">
     <link rel="stylesheet" href="neural-and-gate.css?v=20260801-and-gate-1">
     <link rel="stylesheet" href="learner-experience.css?v=20260803-typography-2">
+    <link rel="stylesheet" href="learning-studio.css?v=20260905-3">
     <script>
         window.MathJax = {
             tex: {
@@ -39,7 +42,7 @@
 <body data-theme="light">
     <a class="skip-link" href="#learning-roadmap">Skip to learning content</a>
     <header>
-        <h1>Machine Learner</h1>
+        <h1><span class="brand-mark" aria-hidden="true">m<span>l</span></span> Machine Learner</h1>
         <p>A guided path from mathematical foundations to transformers</p>
         <div class="mode-switcher" role="group" aria-label="Theme mode">
             <span class="mode-label">Appearance</span>
@@ -47,6 +50,7 @@
             <button class="mode-btn" data-theme="dark" type="button" aria-pressed="false">Dark</button>
         </div>
     </header>
+    <button class="lesson-search-trigger" type="button" id="lessonSearchOpen">Find a lesson <kbd>⌘ K</kbd></button>
 
     <div class="chapter-switcher" role="tablist" aria-label="Learning chapters">
         <button class="chapter-btn is-active" type="button" role="tab" aria-selected="true" data-chapter="foundations"><span>1</span>Start Here</button>
@@ -74,7 +78,7 @@
                 <p class="section-intro">Follow the numbered chapters in order. Each one answers a single question, gives you a small experiment, and ends with something you should be able to explain without notes.</p>
                 <ol class="guided-curriculum" aria-label="Eight-step machine learning curriculum">
                     <li><span>1</span><div><strong>Start with the learning loop</strong><p>See how examples, predictions, errors, and feedback fit together.</p><small>Checkpoint: name the task, experience, and performance measure.</small></div></li>
-                    <li><span>2</span><div><strong>Build the math</strong><p>Use vectors to represent data, matrices to transform it, probability to express uncertainty, and derivatives to improve a model.</p><small>Checkpoint: read (y=Wx+b) and (	heta\leftarrow\theta-\eta\nabla L) aloud.</small></div></li>
+                    <li><span>2</span><div><strong>Build the math</strong><p>Use vectors to represent data, matrices to transform it, probability to express uncertainty, and derivatives to improve a model.</p><small>Checkpoint: read \(y=Wx+b\) and \(\theta\leftarrow\theta-\eta\nabla L\) aloud.</small></div></li>
                     <li><span>3</span><div><strong>Express it in Python and PyTorch</strong><p>Move from Python objects to NumPy arrays, tensors, automatic gradients, modules, and optimizers.</p><small>Checkpoint: write and run one complete training step.</small></div></li>
                     <li><span>4</span><div><strong>Learn classical machine learning</strong><p>Compare regression, classification, trees, neighbors, clusters, and ensembles by the assumptions they make.</p><small>Checkpoint: choose a baseline and an honest validation metric.</small></div></li>
                     <li><span>5</span><div><strong>Practice on a real workflow</strong><p>Inspect housing data, split it correctly, train two models, compare held-out error, and explain a prediction.</p><small>Checkpoint: defend why the validation result is trustworthy.</small></div></li>
@@ -1666,7 +1670,7 @@
 
             <section id="deep-linear-algebra" class="example-section math-lab-section" data-math-lab="linear">
                 <div class="math-lab-heading">
-                    <div><span class="math-chapter-number">03 · SPACE</span><h2>Linear algebra: matrices as moving geometry</h2></div>
+                    <div><span class="math-chapter-number">02 · SPACE</span><h2>Linear algebra: matrices as moving geometry</h2></div>
                     <p>Forget “boxes of numbers” for a moment. A matrix is a function that preserves lines and the origin; its columns tell you where the basis vectors land.</p>
                 </div>
                 <div class="math-concept-rail" role="group" aria-label="Matrix transformation preset">
@@ -1714,7 +1718,7 @@
 
             <section id="deep-probability" class="example-section math-lab-section probability-lab-section" data-math-lab="probability">
                 <div class="math-lab-heading">
-                    <div><span class="math-chapter-number">04 · UNCERTAINTY</span><h2>Probability and statistics: from possible worlds to justified beliefs</h2></div>
+                    <div><span class="math-chapter-number">03 · UNCERTAINTY</span><h2>Probability and statistics: from possible worlds to justified beliefs</h2></div>
                     <p>Probability describes uncertainty before data arrives. Statistics runs the logic backward: use observed samples to infer the hidden process that generated them. Explore events, conditioning, distributions, the central limit theorem, and sampling uncertainty.</p>
                 </div>
                 <div class="math-concept-rail" role="tablist" aria-label="Probability and statistics lesson">
@@ -1761,7 +1765,7 @@
 
             <section id="deep-neural-networks" class="example-section math-lab-section" data-math-lab="network">
                 <div class="math-lab-heading">
-                    <div><span class="math-chapter-number">05 · LEARNING</span><h2>Neural networks: forward meaning, backward credit</h2></div>
+                    <div><span class="math-chapter-number">04 · LEARNING</span><h2>Neural networks: forward meaning, backward credit</h2></div>
                     <p>A neuron forms a weighted sum and applies a nonlinearity. A network composes many such functions. Backpropagation then assigns credit by multiplying local derivatives backward.</p>
                 </div>
                 <div class="math-concept-rail" role="group" aria-label="Neural network animation">
@@ -1770,6 +1774,7 @@
                     <button class="math-mode-btn" type="button" data-network-view="backprop">Backpropagate</button>
                     <button class="math-mode-btn" type="button" data-network-view="train">Train XOR</button>
                 </div>
+                <p class="math-studio-link">Want to inspect every number? <a href="#and-gate-lab">Open the 3D weight-update walkthrough →</a></p>
                 <div class="math-lab-grid">
                     <div class="math-stage-card network-stage-card">
                         <div class="math-stage-topline"><span id="networkStageLabel">Signal flows left → right</span><span class="live-dot">computing</span></div>
@@ -2958,7 +2963,7 @@ prediction = forest.predict(new_home)[0]</code></pre>
             <nav class="chapter-nav" aria-label="Neural network sections">
                 <a href="#neural-network">Overview</a>
                 <a href="#neural-intuition">Build a neuron</a>
-                <a href="#and-gate-lab">AND Gate Lab</a>
+                <a href="#and-gate-lab">3D Learning Lab</a>
                 <a href="#backprop">Backpropagation</a>
                 <a href="#transformer-advanced">Transformer Deep Dive</a>
             </nav>
@@ -3041,8 +3046,8 @@ prediction = forest.predict(new_home)[0]</code></pre>
             <div class="neural-module and-gate-lab" id="and-gate-lab">
                 <div class="and-gate-heading">
                     <div class="explanation">
-                        <span class="depth-kicker">One neuron · every number exposed</span>
-                        <h3>Watch a neuron learn the AND gate</h3>
+                        <span class="depth-kicker">A learning cycle · every number exposed</span>
+                        <h3>See the moment a network learns.</h3>
                         <p><strong>Forward propagation does not change the weights.</strong> It computes a prediction and stores the values needed later. Backpropagation computes each parameter's gradient; gradient descent then applies the update.</p>
                     </div>
                     <div class="and-gate-cycle" aria-label="Forward propagation, backward propagation, and parameter update">
@@ -3051,7 +3056,8 @@ prediction = forest.predict(new_home)[0]</code></pre>
                 </div>
 
                 <div class="and-gate-lab-grid">
-                    <div class="and-gate-copy">
+                    <details class="and-gate-copy">
+                        <summary>The math behind the experiment</summary>
                         <h4>Starting example</h4>
                         <p>For the AND row \((1,1)\rightarrow1\), begin with \(w_1=0.2\), \(w_2=-0.1\), \(b=0\), and learning rate \(\eta=0.5\).</p>
                         <div class="math-formula math-mini">
@@ -3068,18 +3074,21 @@ prediction = forest.predict(new_home)[0]</code></pre>
                         </div>
                         <ul class="concept-bullets">
                             <li><strong>Node color</strong> tracks its current activation.</li>
-                            <li><strong>Edge labels</strong> are the exact weights.</li>
+                            <li><strong>Edge labels</strong> show current weights, rounded for readability. On small screens, the selected weight appears below the graph.</li>
                             <li><strong>Edge color</strong> shows positive versus negative influence.</li>
                             <li><strong>Moving signals</strong> reverse direction during backpropagation.</li>
                         </ul>
-                    </div>
+                    </details>
 
                     <div class="and-gate-workbench">
                         <div class="and-gate-fields">
-                            <label for="andGateView">Network view
+                            <label for="andGateRule">Learning task
+                                <select id="andGateRule"><option>AND</option><option>OR</option><option>XOR</option></select>
+                            </label>
+                            <label for="andGateView">Network
                                 <select id="andGateView">
-                                    <option value="one" selected>One AND neuron</option>
-                                    <option value="large">Larger network</option>
+                                    <option value="one" selected>One neuron · 3 parameters</option>
+                                    <option value="large">Hidden layer · 13 parameters</option>
                                 </select>
                             </label>
                             <label for="andGateExample">Training example
@@ -3092,24 +3101,40 @@ prediction = forest.predict(new_home)[0]</code></pre>
                             </label>
                         </div>
 
+                        <div class="studio-view-controls" role="group" aria-label="3D view">
+                            <button type="button" data-studio-view="network" aria-pressed="true">Network</button>
+                            <button type="button" data-studio-view="surface" aria-pressed="false">Decision surface</button>
+                            <button type="button" id="studioCameraReset">Reset view</button>
+                        </div>
                         <div class="and-gate-status" aria-live="polite">
                             <span class="scene-badge" id="andGatePhase">1 · Inputs</span>
                             <span id="andGateProgress">Step 1 of 8</span>
                             <span id="andGateLoss">Loss 0.64440</span>
                         </div>
 
-                        <div class="and-three-stage" id="andGateStage" role="img" aria-label="Neural network diagram showing AND-gate inputs, weights, bias, and output">
-                            <canvas id="andGateCanvas" width="820" height="420" aria-hidden="true"></canvas>
-                            <div class="and-gate-key" aria-hidden="true"><span class="is-positive">positive weight</span><span class="is-negative">negative weight</span><span class="is-signal">active signal</span></div>
+                        <div class="and-three-stage" id="andGateStage" role="group" aria-label="Interactive 3D neural network">
+                            <div id="studioThreeMount"></div>
+                            <div id="studioLabels" aria-hidden="true"></div>
+                            <div class="studio-scene-heading"><span id="studioSceneTitle">A single learnable neuron</span><span id="studioSceneHelp">Drag to rotate · select a node or connection</span></div>
+                            <p id="studioLoading" role="status">Preparing the 3D scene…</p>
+                            <p id="studioFallback" hidden>3D graphics are unavailable on this device. The training controls, parameter inspector, and calculations below still work.</p>
+                            <div class="and-gate-key" aria-hidden="true"><span class="is-positive">positive</span><span class="is-negative">negative</span><span class="is-signal">signal</span></div>
                             <span class="sr-only" id="andGateA11yStatus"></span>
                         </div>
 
+                        <div class="studio-step-track" id="studioSteps" role="group" aria-label="Training phases"></div>
                         <p class="and-gate-step-detail" id="andGateStepDetail" aria-live="polite"></p>
                         <div class="controls and-gate-actions">
+                            <button type="button" id="andGatePrev">Previous</button>
                             <button type="button" id="andGateNext">Next step</button>
-                            <button type="button" id="andGateTrain">Train all four rows × 500</button>
+                            <button type="button" id="andGateTrain">Train 1,000 epochs</button>
                             <button type="button" id="andGateReset">Reset</button>
                         </div>
+                        <div class="studio-inspector">
+                            <label for="studioParameter">Inspect a parameter<select id="studioParameter"></select></label>
+                            <div id="studioParameterMath" aria-live="polite"></div>
+                        </div>
+                        <p class="studio-experiment-note" id="studioExperimentNote"></p>
                     </div>
                 </div>
 
@@ -3124,7 +3149,7 @@ prediction = forest.predict(new_home)[0]</code></pre>
                         </div>
                     </section>
                     <section>
-                        <h4>AND truth table</h4>
+                        <h4 id="studioTruthTitle">AND truth table</h4>
                         <div class="and-gate-table-wrap">
                             <table class="and-gate-table">
                                 <thead><tr><th>\(x_1\)</th><th>\(x_2\)</th><th>Target</th><th>Prediction</th><th>Class</th></tr></thead>
@@ -3134,18 +3159,22 @@ prediction = forest.predict(new_home)[0]</code></pre>
                     </section>
                 </div>
 
+                <div class="studio-training-history">
+                    <div><h4>Learning over time</h4><p id="studioHistoryLabel">Mean loss across all four examples · epoch 0</p></div>
+                    <svg id="studioLossChart" viewBox="0 0 900 145" role="img" aria-label="Training loss over epochs"></svg>
+                </div>
                 <div class="and-gate-scale" id="andGateScale" hidden>
                     <div>
                         <span class="depth-kicker">The same rule at scale</span>
                         <h4>Layers turn the local calculation into matrix multiplication</h4>
-                        <p>Every connection still uses <strong>source activation × destination error</strong>. Matrices simply evaluate many copies of that rule together.</p>
+                        <p>Every connection uses <strong>source activation × destination error</strong>. Hidden neurons receive the sum of downstream errors, weighted by their outgoing connections and multiplied by the activation derivative.</p>
                     </div>
                     <div class="math-formula math-mini">
                         \[
                         z^{(l)}=W^{(l)}a^{(l-1)}+b^{(l)},\qquad
                         \frac{\partial L}{\partial W^{(l)}}=\delta^{(l)}a^{(l-1)T}
                         \]
-                        <p><strong>4 → 5 → 3 → 1:</strong> \(W^1:5\times4\), \(W^2:3\times5\), \(W^3:1\times3\), plus biases = <strong>47 parameters</strong>.</p>
+                        <p><strong>2 → 3 → 1:</strong> \(W^1:3\times2\), \(W^2:1\times3\), plus 4 biases = <strong>13 parameters</strong>. The visual and calculations use this actual network.</p>
                     </div>
                 </div>
             </div>
@@ -8543,14 +8572,14 @@ for step in range(8):
     </footer>
 
     <script src="python-sandbox-client.js?v=20260725-kaggle-ml-1"></script>
-    <script src="script.js?v=20260803-accessibility-3"></script>
+    <script src="script.js?v=20260905-navigation-2"></script>
     <script src="math-course-data.js"></script>
     <script src="math-lecture-guides.js"></script>
     <script src="math-lecture-derivations.js"></script>
     <script src="math-foundation-course-data.js"></script>
     <script src="manim/scene-manifest.js"></script>
     <script src="math-foundations-lab.js"></script>
-    <script src="math-deep-dive.js"></script>
+    <script src="math-deep-dive.js?v=20260905-formatting-1"></script>
     <script src="research-expansion-data.js?v=20260714-research-2"></script>
     <script src="research-expansion.js?v=20260716-manim-media-1"></script>
     <script src="kaggle-ml-course.js?v=20260725-kaggle-3"></script>
@@ -8558,6 +8587,8 @@ for step in range(8):
     <script src="learning-depth.js?v=20260715-nanogpt-3"></script>
     <script src="pytorch-deep-dive.js?v=20260715-nanogpt-3"></script>
     <script src="reasoning-planning-deep-dive.js?v=20260715-practical-2"></script>
-    <script src="neural-and-gate-three.js?v=20260803-offline-canvas-1"></script>
+    <script src="neural-engine.js?v=20260905-2"></script>
+    <script src="neural-and-gate-three.js?v=20260905-2"></script>
+    <script src="learning-studio.js?v=20260905-2"></script>
 </body>
 </html>

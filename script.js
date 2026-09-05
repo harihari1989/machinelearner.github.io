@@ -9004,6 +9004,11 @@ function setActiveChapter(chapterId) {
         const isActive = chapter.dataset.chapter === safeChapterId;
         chapter.classList.toggle('is-active', isActive);
         chapter.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        if ([...buttons].some(button => button.dataset.chapter === chapter.dataset.chapter)) {
+            chapter.id ||= 'chapter-' + chapter.dataset.chapter;
+            chapter.setAttribute('role', 'tabpanel');
+            chapter.setAttribute('aria-labelledby', 'tab-' + chapter.dataset.chapter);
+        }
     });
 
     buttons.forEach(button => {
@@ -9011,8 +9016,18 @@ function setActiveChapter(chapterId) {
         button.classList.toggle('is-active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
         button.tabIndex = isActive ? 0 : -1;
+        button.id ||= 'tab-' + button.dataset.chapter;
+        button.setAttribute('aria-controls', 'chapter-' + button.dataset.chapter);
+        if (isActive) {
+            const bar = button.parentElement;
+            const left = button.offsetLeft, right = left + button.offsetWidth;
+            if (left < bar.scrollLeft || right > bar.scrollLeft + bar.clientWidth) {
+                bar.scrollTo({ left: left - (bar.clientWidth - button.offsetWidth) / 2, behavior: 'instant' });
+            }
+        }
     });
 
+    document.dispatchEvent(new CustomEvent('mlmath:chapter-change', { detail: { chapter: safeChapterId } }));
     return safeChapterId;
 }
 
@@ -9026,6 +9041,10 @@ function setupChapterSwitcher() {
         button.addEventListener('click', () => {
             setActiveChapter(button.dataset.chapter);
             refreshAllVisuals();
+            const chapter = document.querySelector('.chapter.is-active');
+            const firstLink = chapter.querySelector('.chapter-nav a');
+            if (firstLink && location.hash !== firstLink.hash) history.pushState(null, '', firstLink.hash);
+            window.scrollTo({ top: 0, behavior: 'instant' });
         });
     });
 
@@ -9057,6 +9076,7 @@ function setupChapterSwitcher() {
 function setupChapterNavigation() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(event) {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             const targetId = this.getAttribute('href').substring(1);
             const targetElement = document.getElementById(targetId);
             if (!targetElement) return;
@@ -9067,12 +9087,10 @@ function setupChapterNavigation() {
                 setActiveChapter(chapter.dataset.chapter);
                 refreshAllVisuals();
             }
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-            if (history.replaceState) {
-                history.replaceState(null, '', `#${targetId}`);
-            } else {
-                window.location.hash = targetId;
-            }
+            targetElement.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+            if (!targetElement.hasAttribute('tabindex')) targetElement.setAttribute('tabindex', '-1');
+            targetElement.focus({ preventScroll: true });
+            if (location.hash !== this.hash) history.pushState(null, '', this.hash);
         });
     });
 }
