@@ -1,0 +1,733 @@
+:root {
+    --font-display: Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-body: Roboto, "Helvetica Neue", Arial, sans-serif;
+    --type-body: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);
+    --type-small: 0.875rem;
+    --type-control: 0.9375rem;
+    --type-h1: clamp(1.75rem, 1.56rem + 0.95vw, 2.35rem);
+    --type-h2: clamp(1.65rem, 1.48rem + 0.85vw, 2.2rem);
+    --type-h3: clamp(1.15rem, 1.08rem + 0.35vw, 1.4rem);
+    --ink: #172033;
+    --ink-soft: #46546a;
+    --paper: #ffffff;
+    --bg: #f4f7fb;
+    --header-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.97);
+    --section-bg: #ffffff;
+    --section-border: #d8e0ea;
+    --section-shadow: 0 8px 24px rgba(26, 39, 64, 0.08);
+    --panel-bg: #f7f9fc;
+    --panel-border: #ccd6e3;
+    --formula-bg: #f4f7fb;
+    --card-bg: #ffffff;
+    --card-border: #d8e0ea;
+    --card-shadow: 0 3px 12px rgba(26, 39, 64, 0.07);
+    --chip-bg: #eaf2ff;
+    --chip-text: #164b89;
+    --nav-link-bg: #ffffff;
+    --nav-link-hover-bg: #eaf2ff;
+    --nav-link-hover-border: #2c6cb0;
+    --canvas-bg: #f8fafc;
+    --canvas-border: #8da8c4;
+    --button-bg: #1769aa;
+    --button-bg-hover: #0d568f;
+    --button-shadow: 0 4px 12px rgba(23, 105, 170, 0.18);
+    --button-shadow-hover: 0 6px 16px rgba(23, 105, 170, 0.24);
+    --helper-bg: #eaf6f2;
+    --helper-text: #135f4b;
+    --border: #d8e0ea;
+    --sun: #2aa889;
+    --sun-deep: #177b65;
+    --accent-1: #1769aa;
+    --accent-2: #8b4db7;
+    --accent-3: #17835f;
+    --accent-4: #a85c13;
+}
+
+body {
+    min-width: 0;
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    line-height: 1.6;
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--font-display);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+/* Keep MathJax's screen-reader MathML available without letting long equations widen the page. */
+body mjx-container > mjx-assistive-mml[unselectable="on"] {
+    position: absolute !important;
+    width: 1px !important;
+    max-width: 1px !important;
+    height: 1px !important;
+    max-height: 1px !important;
+    padding: 1px !important;
+    overflow: hidden !important;
+    clip: rect(1px, 1px, 1px, 1px) !important;
+    white-space: nowrap !important;
+}
+
+body::before,
+body::after {
+    display: none;
+}
+
+body[data-theme="dark"] {
+    --ink: #f2f5f9;
+    --ink-soft: #c1cbd8;
+    --paper: #111827;
+    --bg: #0b1120;
+    --header-bg: #111827;
+    --nav-bg: rgba(17, 24, 39, 0.97);
+    --section-bg: #131c2d;
+    --section-border: #344258;
+    --section-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    --panel-bg: #182338;
+    --panel-border: #42526a;
+    --formula-bg: #0f172a;
+    --card-bg: #172033;
+    --card-border: #42526a;
+    --card-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+    --chip-bg: #183b61;
+    --chip-text: #d9ebff;
+    --nav-link-bg: #172033;
+    --nav-link-hover-bg: #183b61;
+    --nav-link-hover-border: #72b6f1;
+    --canvas-bg: #0f172a;
+    --canvas-border: #6584a4;
+    --helper-bg: #123c36;
+    --helper-text: #b6efe1;
+    --border: #42526a;
+    --accent-1: #69b7f0;
+    --accent-2: #d7a6f3;
+    --accent-3: #65d7ae;
+    --accent-4: #f1b873;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.skip-link {
+    position: fixed;
+    z-index: 1000;
+    top: 0.5rem;
+    left: 0.5rem;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: #ffffff;
+    background: #0b4f85;
+    transform: translateY(-150%);
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.25rem clamp(1rem, 3vw, 2rem);
+    border: 0;
+    box-shadow: none;
+    text-align: left;
+}
+
+header h1 {
+    margin: 0;
+    font-size: var(--type-h1);
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+}
+
+header p {
+    grid-column: 1;
+    margin: 0;
+    font-size: 0.98rem;
+}
+
+.mode-switcher {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0.25rem;
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+    background: var(--panel-bg);
+}
+
+.mode-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.mode-btn {
+    min-width: 68px;
+    min-height: 48px;
+    border-radius: 9px;
+    padding: 0.55rem 0.75rem;
+}
+
+.mode-btn.is-active {
+    color: #ffffff;
+    background: #1769aa;
+    border-color: #1769aa;
+    box-shadow: none;
+}
+
+.chapter-switcher {
+    position: sticky;
+    z-index: 110;
+    top: 0;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    max-width: 100%;
+    padding: 0.7rem max(1rem, calc((100vw - 1160px) / 2));
+    overflow-x: auto;
+    border-block: 1px solid var(--section-border);
+    background: var(--nav-bg);
+    box-shadow: 0 4px 14px rgba(26, 39, 64, 0.08);
+    scrollbar-width: thin;
+}
+
+.chapter-btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 48px;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--section-border);
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+.chapter-btn span {
+    display: grid;
+    width: 1.55rem;
+    height: 1.55rem;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--chip-text);
+    background: var(--chip-bg);
+    font-size: 0.8rem;
+}
+
+.chapter-btn.is-active {
+    color: #ffffff;
+    background: #1769aa;
+    border-color: #1769aa;
+    box-shadow: none;
+}
+
+.chapter-btn.is-active span {
+    color: #17486f;
+    background: #ffffff;
+}
+
+main {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+}
+
+.chapter-nav {
+    top: 63px;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    padding: 0.55rem max(0.25rem, calc((100vw - 1120px) / 2));
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    border-bottom: 1px solid var(--section-border);
+    box-shadow: none;
+    scrollbar-width: thin;
+}
+
+.chapter-nav a {
+    flex: 0 0 auto;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid transparent;
+    border-radius: 9px;
+}
+
+.example-section {
+    margin-block: 1.25rem;
+    padding: clamp(1rem, 3vw, 1.75rem);
+    border: 1px solid var(--section-border);
+    border-radius: 14px;
+    box-shadow: var(--section-shadow);
+    animation: none;
+}
+
+.example-section h2 {
+    padding-bottom: 0.55rem;
+    border-bottom: 2px solid var(--section-border);
+    font-size: var(--type-h2);
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+}
+
+.example-section h3 {
+    font-size: var(--type-h3);
+    line-height: 1.28;
+}
+
+button,
+select,
+input,
+textarea,
+summary,
+a {
+    touch-action: manipulation;
+}
+
+button,
+select,
+input,
+textarea,
+summary {
+    font-family: var(--font-body);
+}
+
+button,
+summary {
+    font-size: var(--type-control);
+    line-height: 1.3;
+}
+
+select,
+input,
+textarea {
+    font-size: 1rem;
+}
+
+button,
+select,
+input:not([type="checkbox"]):not([type="radio"]),
+summary {
+    min-height: 48px;
+}
+
+.chapter,
+.chapter * {
+    min-width: 0;
+}
+
+.chapter button,
+.chapter select,
+.chapter input:not([type="checkbox"]):not([type="radio"]),
+.chapter summary,
+.chapter [role="button"] {
+    min-height: 48px;
+    max-width: 100%;
+}
+
+.chapter [role="button"] {
+    min-width: 48px;
+}
+
+.chapter :where(button, summary, [role="button"]) {
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+body .chapter :is(button, summary, [role="button"]),
+body .chapter :is(.math-dive-primary, .learner-primary-action) {
+    font-family: var(--font-body);
+    font-size: var(--type-control);
+    line-height: 1.3;
+    letter-spacing: 0;
+}
+
+.chapter :where(canvas, svg, img, video, iframe, pre, table) {
+    max-width: 100%;
+}
+
+.chapter pre {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+}
+
+.chapter input[type="range"] {
+    min-width: 48px;
+}
+
+.pytorch-carousel-dots button,
+.lecture-slide-dot {
+    position: relative;
+    flex: 0 0 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+}
+
+.pytorch-carousel-dots button::before,
+.lecture-slide-dot::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--grid);
+    content: "";
+    transform: translate(-50%, -50%);
+}
+
+.pytorch-carousel-dots button[aria-current="true"]::before {
+    background: var(--accent-1);
+}
+
+.lecture-slide-dot[aria-current="true"]::before {
+    width: 26px;
+    background: var(--course-color, var(--math-cyan));
+}
+
+:where(a, button, select, input, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid #f2a93b;
+    outline-offset: 3px;
+}
+
+.learner-roadmap {
+    border-top: 5px solid var(--accent-1);
+}
+
+.guided-curriculum,
+.neural-learning-ladder,
+.research-learning-path,
+.transformer-learning-trace {
+    list-style: none;
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.2rem 0;
+    padding: 0;
+}
+
+.guided-curriculum li,
+.neural-learning-ladder li,
+.research-learning-path li,
+.transformer-learning-trace li {
+    display: grid;
+    grid-template-columns: 2.35rem minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+    padding: 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: var(--card-bg);
+}
+
+.guided-curriculum li > span,
+.neural-learning-ladder li > span,
+.research-learning-path li > span,
+.transformer-learning-trace li > span {
+    display: grid;
+    width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    border-radius: 50%;
+    color: #ffffff;
+    background: #1769aa;
+    font-weight: 800;
+}
+
+.guided-curriculum strong,
+.neural-learning-ladder strong,
+.research-learning-path strong,
+.transformer-learning-trace strong {
+    display: block;
+    color: var(--ink);
+    font-size: 1.04rem;
+}
+
+.guided-curriculum p,
+.guided-curriculum small,
+.neural-learning-ladder p,
+.research-learning-path p,
+.research-learning-path small,
+.transformer-learning-trace p {
+    display: block;
+    margin: 0.2rem 0 0;
+    color: var(--ink-soft);
+}
+
+.guided-curriculum small,
+.research-learning-path small {
+    margin-top: 0.45rem;
+    font-weight: 700;
+}
+
+.learner-callout,
+.paper-reading-method {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-left: 4px solid var(--accent-3);
+    border-radius: 8px;
+    color: var(--ink);
+    background: var(--helper-bg);
+}
+
+.learner-primary-action {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    margin-top: 0.25rem;
+    padding: 0.7rem 1rem;
+    border-radius: 9px;
+    color: #ffffff;
+    background: #1769aa;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.neural-learning-ladder,
+.transformer-learning-trace {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.transformer-learning-trace {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.neural-learning-ladder li,
+.transformer-learning-trace li {
+    grid-template-columns: 1fr;
+}
+
+.research-learning-path li {
+    border-left: 4px solid var(--accent-1);
+}
+
+.paper-reading-method ol {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem 1.5rem;
+    margin: 0.75rem 0 0;
+    padding-left: 1.3rem;
+}
+
+.full-reading-library {
+    margin: 1.25rem 0;
+    border: 1px solid var(--section-border);
+    border-radius: 12px;
+    background: var(--panel-bg);
+}
+
+.full-reading-library > summary {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.full-reading-library > p,
+.full-reading-library > .reading-grid {
+    margin-inline: 1rem;
+}
+
+.full-reading-library > .reading-grid {
+    margin-bottom: 1rem;
+}
+
+footer {
+    margin-top: 2rem;
+    padding: 1.5rem 1rem;
+    border-top: 1px solid var(--section-border);
+}
+
+footer p:last-child {
+    display: none;
+}
+
+@media (max-width: 860px) {
+    .neural-learning-ladder,
+    .transformer-learning-trace {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    header {
+        grid-template-columns: 1fr;
+    }
+
+    header p {
+        grid-column: 1;
+    }
+
+    .mode-switcher {
+        grid-column: 1;
+        grid-row: auto;
+        justify-self: start;
+        margin-top: 0.4rem;
+    }
+
+    main {
+        width: min(100% - 1rem, 46rem);
+    }
+
+    .chapter-switcher {
+        padding-inline: 0.5rem;
+    }
+
+    .chapter-nav {
+        top: 63px;
+        padding-inline: 0.5rem;
+    }
+
+    .example-section {
+        margin-block: 0.75rem;
+        border-radius: 10px;
+        overflow-wrap: anywhere;
+        scroll-margin-top: 8.5rem;
+    }
+
+    body .chapter .example-section h2 {
+        font-size: clamp(1.65rem, 7.5vw, 1.8rem);
+        line-height: 1.15;
+    }
+
+    .math-atlas-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .math-atlas-actions > * {
+        width: 100%;
+        min-height: 48px;
+    }
+
+    .ai-hero,
+    .content-grid,
+    .math-lab-grid,
+    .derivation-grid,
+    .python-lab-grid,
+    .python-concept-grid,
+    .ml-derivation-grid,
+    .kaggle-lesson-layout,
+    .and-gate-lab-grid,
+    .and-gate-tables,
+    .guide-stack,
+    .nanogpt-training-system,
+    .depth-tier,
+    .depth-card-body,
+    .reading-grid,
+    .paper-studio-layout {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .chapter :where(.visualization, .controls, .math-canvas-controls, .kaggle-interactive-panel) {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chapter :where(canvas, img, video, iframe) {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .chapter pre {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    .chapter table {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chapter :where(select, textarea, input:not([type="checkbox"]):not([type="radio"])) {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chapter select {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chapter :where(.python-panel-actions, .fundamentals-playground-actions) button {
+        flex: 1 1 10rem;
+    }
+
+    .chapter .controls > button {
+        flex: 0 0 auto;
+    }
+
+    .math-canvas-controls label {
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    .math-canvas-controls input[type="range"],
+    .math-play-btn {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .matrix-entry-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .matrix-entry-grid > span,
+    .matrix-entry-grid .math-play-btn {
+        grid-column: 1 / -1;
+    }
+
+    .chapter summary {
+        height: auto !important;
+        overflow: visible;
+    }
+
+    .neural-learning-ladder,
+    .transformer-learning-trace,
+    .paper-reading-method ol {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

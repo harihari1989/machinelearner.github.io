@@ -486,7 +486,7 @@
                 const mp4 = document.createElement('source');
                 mp4.src = `assets/manim/${paper.manim}.mp4`;
                 mp4.type = 'video/mp4';
-                elements.video.replaceChildren(webm, mp4);
+                elements.video.replaceChildren(mp4, webm);
                 elements.video.load();
                 activeManim = paper.manim;
             }

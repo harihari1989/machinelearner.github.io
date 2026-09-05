@@ -678,9 +678,9 @@
             ctx.fillStyle = `rgba(255,255,255,${.06 + value * .34})`;
             ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.shadowColor = color; ctx.shadowBlur = value * 18;
             ctx.beginPath(); ctx.arc(position.x, position.y, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
-            ctx.fillStyle = palette.white; ctx.font = '800 14px Nunito, sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = palette.text; ctx.font = '600 16px Inter, sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(value.toFixed(2), position.x, position.y + 5);
-            ctx.fillStyle = palette.muted; ctx.font = '700 11px Nunito, sans-serif'; ctx.fillText(label, position.x, position.y - 43);
+            ctx.fillStyle = palette.muted; ctx.font = '500 13px Inter, sans-serif'; ctx.fillText(label, position.x, position.y - 43);
             ctx.textAlign = 'start';
         }
 
@@ -689,7 +689,7 @@
             const x = [Number(inputs.x1.value), Number(inputs.x2.value)]; const target = Number(inputs.target.value);
             const cache = forward(x);
             const elapsed = now - state.animationStart;
-            const activeAnimation = elapsed < 1450;
+            const activeAnimation = !reducedMotion && elapsed < 1450;
             const pulse = activeAnimation ? (elapsed % 900) / 900 : null;
             const reverse = state.view === 'backprop';
             for (let i = 0; i < 2; i += 1) {
@@ -935,9 +935,14 @@
             videoPlay.setAttribute("aria-label", (paused ? "Play" : "Pause") + " the guided lecture animation");
         }
 
+        function isMediaStageOnScreen() {
+            const rect = mediaStage.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+        }
+
         function playManim(userInitiated) {
             const chapterActive = library.closest(".chapter")?.classList.contains("is-active");
-            if ((reducedMotion && !userInitiated) || (!chapterActive && !userInitiated) || state.mediaMode !== "manim") { setVideoButton(); return; }
+            if ((reducedMotion && !userInitiated) || (!chapterActive && !userInitiated) || (!isMediaStageOnScreen() && !userInitiated) || state.mediaMode !== "manim") { setVideoButton(); return; }
             manimVideo.playbackRate = state.playbackRate;
             const playRequest = manimVideo.play();
             if (playRequest?.catch) playRequest.catch(function() { setVideoButton(); });
@@ -1001,7 +1006,7 @@
             };
             manimVideo.addEventListener("loadeddata", markCurrentAssetReady, { once: true });
             let failures = 0;
-            [["webm", "video/webm"], ["mp4", "video/mp4"]].forEach(function(format) {
+            [["mp4", "video/mp4"], ["webm", "video/webm"]].forEach(function(format) {
                 const source = document.createElement("source");
                 source.src = manimCatalog.assetBase + "/" + slug + "." + format[0];
                 source.type = format[1];
@@ -1409,7 +1414,7 @@
             mediaHint.textContent = "Study pace set to " + state.playbackRate.toFixed(2).replace(/0$/, "") + "×; every concept remains seekable below.";
         });
         document.querySelector('.chapter-btn[data-chapter="math-deep-dive"]')?.addEventListener("click", function() {
-            restartScene();
+            if (isMediaStageOnScreen()) restartScene();
         });
         $$(".chapter-btn").filter(function(button) { return button.dataset.chapter !== "math-deep-dive"; }).forEach(function(button) {
             button.addEventListener("click", function() { manimVideo.pause(); });
@@ -1417,6 +1422,12 @@
         if (reducedMotion) {
             autoplay.disabled = true;
             autoplay.title = "Auto-play is disabled by your reduced-motion preference.";
+        }
+        if (typeof IntersectionObserver === "function") {
+            const mediaVisibilityObserver = new IntersectionObserver(function(entries) {
+                if (!entries.some(function(entry) { return entry.isIntersecting; })) manimVideo.pause();
+            }, { threshold: 0.05 });
+            mediaVisibilityObserver.observe(mediaStage);
         }
         selectCourse("calculus");
         loadManimCatalog();

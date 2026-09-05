@@ -3702,12 +3702,16 @@ function setupMlMiniVisuals() {
     visuals.forEach(visual => {
         const card = visual.closest('.ml-card');
         const caption = card ? card.querySelector('.ml-caption') : null;
+        const title = card ? card.querySelector('h4')?.textContent.trim() : '';
         const baseText = visual.dataset.mlCaption || (caption ? caption.textContent.trim() : '');
         const altText = visual.dataset.mlCaptionAlt || baseText;
         const hoverText = visual.dataset.mlCaptionHover || baseText;
 
         if (caption && !caption.textContent.trim() && baseText) {
             caption.textContent = baseText;
+        }
+        if (!visual.getAttribute('aria-label')) {
+            visual.setAttribute('aria-label', title ? `Toggle ${title} visualization` : 'Toggle algorithm visualization');
         }
 
         const updateCaption = () => {
@@ -8957,67 +8961,30 @@ function setupMatrixDeepControls() {
     drawMatrixDeepCanvas();
 }
 
-function setupHolidayParade() {
-    const parade = document.querySelector('.holiday-parade');
-    if (!parade) return;
-
-    const santaRide = parade.querySelector('.santa-ride');
-    if (!santaRide) return;
-
-    let hasPlayed = false;
-
-    const playRideOnce = () => {
-        if (document.body.dataset.theme !== 'holiday') return;
-        if (hasPlayed) return;
-        hasPlayed = true;
-        santaRide.classList.remove('is-active');
-        void santaRide.offsetWidth;
-        santaRide.classList.add('is-active');
-    };
-
-    const resetRide = () => {
-        hasPlayed = false;
-        santaRide.classList.remove('is-active');
-    };
-
-    santaRide.addEventListener('animationend', () => {
-        santaRide.classList.remove('is-active');
-    });
-
-    document.addEventListener('mlmath:theme-change', (event) => {
-        const theme = event.detail?.theme;
-        if (theme === 'holiday') {
-            resetRide();
-            playRideOnce();
-        } else {
-            resetRide();
-        }
-    });
-
-    if (document.body.dataset.theme === 'holiday') {
-        playRideOnce();
-    }
-}
-
 function setupThemeSwitcher() {
     const buttons = document.querySelectorAll('.mode-btn');
     if (!buttons.length) return;
 
+    const allowedThemes = new Set([...buttons].map(button => button.dataset.theme));
+
     const applyTheme = (theme, shouldRedraw = true) => {
-        document.body.dataset.theme = theme;
-        localStorage.setItem('mlmath-theme', theme);
+        const safeTheme = allowedThemes.has(theme) ? theme : 'light';
+        document.body.dataset.theme = safeTheme;
+        localStorage.setItem('mlmath-theme', safeTheme);
         buttons.forEach(btn => {
-            btn.classList.toggle('is-active', btn.dataset.theme === theme);
-            btn.setAttribute('aria-pressed', btn.dataset.theme === theme ? 'true' : 'false');
+            btn.classList.toggle('is-active', btn.dataset.theme === safeTheme);
+            btn.setAttribute('aria-pressed', btn.dataset.theme === safeTheme ? 'true' : 'false');
         });
         if (shouldRedraw) {
             refreshAllVisuals();
         }
-        document.dispatchEvent(new CustomEvent('mlmath:theme-change', { detail: { theme } }));
+        document.dispatchEvent(new CustomEvent('mlmath:theme-change', { detail: { theme: safeTheme } }));
     };
 
     const savedTheme = localStorage.getItem('mlmath-theme');
-    const initialTheme = savedTheme || document.body.dataset.theme || 'light';
+    const initialTheme = allowedThemes.has(savedTheme)
+        ? savedTheme
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     applyTheme(initialTheme, false);
 
     buttons.forEach(btn => {
@@ -9030,15 +8997,38 @@ function setActiveChapter(chapterId) {
     const buttons = document.querySelectorAll('.chapter-btn');
     if (!chapters.length || !buttons.length) return;
 
+    const requestedButton = [...buttons].find(button => button.dataset.chapter === chapterId);
+    const safeChapterId = requestedButton ? chapterId : buttons[0].dataset.chapter;
+
     chapters.forEach(chapter => {
-        chapter.classList.toggle('is-active', chapter.dataset.chapter === chapterId);
+        const isActive = chapter.dataset.chapter === safeChapterId;
+        chapter.classList.toggle('is-active', isActive);
+        chapter.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        if ([...buttons].some(button => button.dataset.chapter === chapter.dataset.chapter)) {
+            chapter.id ||= 'chapter-' + chapter.dataset.chapter;
+            chapter.setAttribute('role', 'tabpanel');
+            chapter.setAttribute('aria-labelledby', 'tab-' + chapter.dataset.chapter);
+        }
     });
 
     buttons.forEach(button => {
-        const isActive = button.dataset.chapter === chapterId;
+        const isActive = button.dataset.chapter === safeChapterId;
         button.classList.toggle('is-active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.tabIndex = isActive ? 0 : -1;
+        button.id ||= 'tab-' + button.dataset.chapter;
+        button.setAttribute('aria-controls', 'chapter-' + button.dataset.chapter);
+        if (isActive) {
+            const bar = button.parentElement;
+            const left = button.offsetLeft, right = left + button.offsetWidth;
+            if (left < bar.scrollLeft || right > bar.scrollLeft + bar.clientWidth) {
+                bar.scrollTo({ left: left - (bar.clientWidth - button.offsetWidth) / 2, behavior: 'instant' });
+            }
+        }
     });
+
+    document.dispatchEvent(new CustomEvent('mlmath:chapter-change', { detail: { chapter: safeChapterId } }));
+    return safeChapterId;
 }
 
 function setupChapterSwitcher() {
@@ -9051,7 +9041,24 @@ function setupChapterSwitcher() {
         button.addEventListener('click', () => {
             setActiveChapter(button.dataset.chapter);
             refreshAllVisuals();
+            const chapter = document.querySelector('.chapter.is-active');
+            const firstLink = chapter.querySelector('.chapter-nav a');
+            if (firstLink && location.hash !== firstLink.hash) history.pushState(null, '', firstLink.hash);
+            window.scrollTo({ top: 0, behavior: 'instant' });
         });
+    });
+
+    document.querySelector('.chapter-switcher').addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const currentIndex = [...buttons].indexOf(document.activeElement);
+        let nextIndex = currentIndex < 0 ? 0 : currentIndex;
+        if (event.key === 'ArrowRight') nextIndex = (nextIndex + 1) % buttons.length;
+        if (event.key === 'ArrowLeft') nextIndex = (nextIndex - 1 + buttons.length) % buttons.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = buttons.length - 1;
+        buttons[nextIndex].focus();
+        buttons[nextIndex].click();
     });
 
     const hash = window.location.hash.substring(1);
@@ -9069,6 +9076,7 @@ function setupChapterSwitcher() {
 function setupChapterNavigation() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(event) {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             const targetId = this.getAttribute('href').substring(1);
             const targetElement = document.getElementById(targetId);
             if (!targetElement) return;
@@ -9079,12 +9087,10 @@ function setupChapterNavigation() {
                 setActiveChapter(chapter.dataset.chapter);
                 refreshAllVisuals();
             }
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-            if (history.replaceState) {
-                history.replaceState(null, '', `#${targetId}`);
-            } else {
-                window.location.hash = targetId;
-            }
+            targetElement.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+            if (!targetElement.hasAttribute('tabindex')) targetElement.setAttribute('tabindex', '-1');
+            targetElement.focus({ preventScroll: true });
+            if (location.hash !== this.hash) history.pushState(null, '', this.hash);
         });
     });
 }
@@ -11495,8 +11501,18 @@ function setupFundamentalsPlayground() {
     const status = document.getElementById('fundamentalsPythonStatus');
     const snippetButtons = Array.from(document.querySelectorAll('[data-fundamentals-snippet]'));
     const openButtons = Array.from(document.querySelectorAll('[data-playground-open]'));
+    let lastPlaygroundTrigger = openBtn;
+    const inertedPageElements = new Map();
 
     if (!panel || !openBtn || !editor || !output) return;
+
+    const externalSnippetButtons = snippetButtons.filter(button => !panel.contains(button));
+    const panelTriggers = [...new Set([openBtn, loadBtn, ...openButtons, ...externalSnippetButtons].filter(Boolean))];
+    panelTriggers.forEach(trigger => {
+        trigger.setAttribute('aria-controls', panel.id);
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.setAttribute('aria-expanded', 'false');
+    });
 
     const snippetGroupButtons = Array.from(panel.querySelectorAll('.python-snippets [data-fundamentals-snippet]'));
     const setPlaygroundSnippetGroup = (contextId) => {
@@ -11525,25 +11541,68 @@ function setupFundamentalsPlayground() {
         if (status) status.textContent = text;
     };
 
+    const setPageInert = (enabled) => {
+        if (enabled) {
+            let current = panel;
+            while (current?.parentElement && current !== document.body) {
+                Array.from(current.parentElement.children).forEach(sibling => {
+                    if (sibling === current || sibling === backdrop || inertedPageElements.has(sibling)) return;
+                    inertedPageElements.set(sibling, sibling.hasAttribute('inert'));
+                    sibling.setAttribute('inert', '');
+                });
+                current = current.parentElement;
+            }
+            return;
+        }
+
+        inertedPageElements.forEach((wasInert, element) => {
+            if (wasInert) {
+                element.setAttribute('inert', '');
+            } else {
+                element.removeAttribute('inert');
+            }
+        });
+        inertedPageElements.clear();
+    };
+
+    const getFocusableElements = () => Array.from(panel.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+    )).filter(element => !element.hidden && element.getClientRects().length > 0);
+
+    const setTriggerExpandedState = (expanded) => {
+        panelTriggers.forEach(trigger => {
+            trigger.setAttribute('aria-expanded', String(expanded && trigger === lastPlaygroundTrigger));
+        });
+    };
+
     const openPanel = () => {
+        panel.removeAttribute('inert');
         panel.classList.add('is-open');
         panel.setAttribute('aria-hidden', 'false');
-        openBtn.setAttribute('aria-expanded', 'true');
+        setTriggerExpandedState(true);
+        document.body.classList.add('playground-open');
+        setPageInert(true);
         if (backdrop) {
             backdrop.classList.add('is-visible');
-            backdrop.setAttribute('aria-hidden', 'false');
         }
-        editor.focus();
+        requestAnimationFrame(() => {
+            const compactPointer = window.matchMedia('(max-width: 960px), (pointer: coarse)').matches;
+            const focusTarget = compactPointer && closeBtn ? closeBtn : editor;
+            focusTarget.focus({ preventScroll: true });
+        });
     };
 
     const closePanel = () => {
         panel.classList.remove('is-open');
         panel.setAttribute('aria-hidden', 'true');
-        openBtn.setAttribute('aria-expanded', 'false');
+        setTriggerExpandedState(false);
+        document.body.classList.remove('playground-open');
+        panel.setAttribute('inert', '');
+        setPageInert(false);
         if (backdrop) {
             backdrop.classList.remove('is-visible');
-            backdrop.setAttribute('aria-hidden', 'true');
         }
+        lastPlaygroundTrigger?.focus({ preventScroll: true });
     };
 
     const applySnippet = (snippetId) => {
@@ -11555,12 +11614,14 @@ function setupFundamentalsPlayground() {
     };
 
     openBtn.addEventListener('click', () => {
+        lastPlaygroundTrigger = openBtn;
         setPlaygroundSnippetGroup('foundations');
         const topicId = activeFundamentalId || 'linear';
         applySnippet(topicId);
     });
     openButtons.forEach(button => {
         button.addEventListener('click', () => {
+            lastPlaygroundTrigger = button;
             const snippetId = button.dataset.playgroundOpen;
             const contextId = button.dataset.playgroundContext || snippetId;
             if (contextId) {
@@ -11578,6 +11639,7 @@ function setupFundamentalsPlayground() {
 
     if (loadBtn) {
         loadBtn.addEventListener('click', () => {
+            lastPlaygroundTrigger = loadBtn;
             setPlaygroundSnippetGroup('foundations');
             const topicId = activeFundamentalId || 'linear';
             applySnippet(topicId);
@@ -11586,6 +11648,9 @@ function setupFundamentalsPlayground() {
 
     snippetButtons.forEach(button => {
         button.addEventListener('click', () => {
+            if (!panel.contains(button)) {
+                lastPlaygroundTrigger = button;
+            }
             const contextId = button.dataset.playgroundContext;
             if (contextId) {
                 setPlaygroundSnippetGroup(contextId);
@@ -11628,9 +11693,30 @@ function setupFundamentalsPlayground() {
         }
     });
 
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && panel.classList.contains('is-open')) {
+    panel.addEventListener('keydown', (event) => {
+        if (!panel.classList.contains('is-open')) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
             closePanel();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+
+        const focusableElements = getFocusableElements();
+        if (!focusableElements.length) {
+            event.preventDefault();
+            closeBtn?.focus();
+            return;
+        }
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
         }
     });
 }
@@ -11998,7 +12084,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupControl();
     setupNotebookLab();
     setupOnnxDemo();
-    setupHolidayParade();
     setupVisualizationMeta();
     refreshAllVisuals();
     

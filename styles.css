@@ -2589,6 +2589,12 @@ canvas {
     gap: 1rem;
     padding: 1.5rem 1.6rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.playground-open {
+    overflow: hidden;
 }
 
 .python-drawer.is-open {
@@ -2736,20 +2742,93 @@ canvas {
 
 @media (max-width: 960px) {
     .python-drawer {
-        width: 100vw;
+        width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        padding: max(1rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
+        gap: 0.75rem;
+    }
+
+    .python-drawer__header {
+        position: sticky;
+        z-index: 4;
+        top: 0;
+        margin: 0 -0.75rem;
+        padding: 0.25rem 0.75rem 0.75rem;
+        border-bottom: 1px solid var(--section-border);
+        background: var(--section-bg);
     }
 
     .python-drawer__body {
+        flex: 0 0 auto;
         grid-template-columns: 1fr;
-        grid-template-rows: 1.1fr 0.9fr;
+        grid-template-rows: auto;
+        align-content: start;
+        min-height: auto;
     }
 
-    .python-editor {
-        min-height: 260px;
+    .python-drawer .python-panel {
+        min-width: 0;
+        min-height: auto;
     }
 
-    .python-output {
-        min-height: 220px;
+    .python-drawer .python-editor {
+        flex: 0 0 auto;
+        width: 100%;
+        min-height: 280px;
+        margin: 0.7rem 0 0;
+        font-size: 1rem;
+        white-space: pre;
+        overflow: auto;
+    }
+
+    .python-drawer .python-output {
+        flex: 0 0 auto;
+        min-height: 180px;
+        max-height: 50dvh;
+    }
+
+    .python-drawer__footer {
+        flex: 0 0 auto;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+@media (max-width: 560px) {
+    .python-drawer__header {
+        gap: 0.75rem;
+    }
+
+    .python-drawer__title {
+        min-width: 0;
+    }
+
+    .python-drawer__title h3 {
+        font-size: 1.15rem;
+        line-height: 1.25;
+    }
+
+    .python-drawer__subtitle {
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+    .python-drawer__header-actions {
+        flex: 0 0 auto;
+        gap: 0.4rem;
+    }
+
+    .python-drawer .python-panel {
+        padding: 0.75rem;
+        border-radius: 14px;
+    }
+
+    .python-panel-header {
+        align-items: flex-start;
+    }
+
+    .python-snippets {
+        gap: 0.4rem;
     }
 }
 

@@ -2,6 +2,39 @@
 
 Visual, interactive explanations of machine learning and the mathematics that makes it work.
 
+## 3D learning studio
+
+In **Neural Networks → 3D Learning Lab**, step through a complete training cycle:
+inputs, weighted products, sums, prediction, output error, gradients, parameter
+updates, and verification. Forward propagation only reads parameters;
+backpropagation computes gradients; gradient descent applies them.
+
+- Choose AND, OR, or XOR with either a single sigmoid neuron or a 2→3→1 network.
+- Rotate the Three.js scene, select a connection or neuron, and inspect its exact
+  weight or bias update. The dropdown provides the same inspection without a mouse.
+- Switch to the 3D decision surface and train 1,000 full-batch epochs. The surface,
+  truth table, parameter inspector, and loss curve share the actual numerical model.
+- Use Previous to replay a cycle without applying an update twice. Reset returns
+  to reproducible initial parameters. A single neuron intentionally cannot learn XOR.
+
+The site also includes a linked learning roadmap, keyboard-accessible lesson
+search (⌘/Ctrl K), deep-link history, responsive layouts, and a locally bundled
+Inter font. Three.js r160, OrbitControls, and Inter ship under their licenses in
+[assets/vendor/three/](assets/vendor/three/) and [assets/fonts/](assets/fonts/);
+no CDN is needed for the new 3D lab or font. Existing external course links and
+other runtimes retain their own network requirements. If WebGL is unavailable,
+the numerical lab still works.
+
+Run the numerical regression tests with Node.js:
+
+~~~bash
+node --test tests/neural-engine.test.cjs
+~~~
+
+These check the worked AND example, every analytical gradient against finite
+differences, all three gates' convergence, the single-neuron XOR limitation,
+batch averaging, and stable loss calculations.
+
 ## Math Deep Dive
 
 The Math Deep Dive is a white-theme course that builds formulas from pictures, motion, proofs, and numerical experiments. It concentrates on the mathematical foundations used most often in machine learning:
@@ -32,6 +65,12 @@ Thirty runnable browser labs connect the mechanics to churn classification, dema
 The dedicated Kaggle ML chapter is an independent, hands-on companion to Kaggle's *Intro to Machine Learning* course. Its seven projects cover decision-tree prediction paths, pandas data audits, feature and target contracts, held-out validation with MAE, capacity sweeps, random-forest comparison, and an explain-it-back capstone.
 
 Every lesson pairs a visual experiment with an editable browser notebook. The lab runs real pandas and scikit-learn APIs inside the isolated Python worker, uses embedded housing data, includes concrete change-and-observe challenges, and finishes with assertions that check the practical deliverable.
+
+## Android app
+
+The [`android`](android/) project packages the complete learning website as an offline-first native Android experience. It adds a chapter navigator, previous/next controls, reading progress, resume support, fullscreen lesson media, safe external-reference handling, and an HTTPS-backed local asset origin for Web Workers, WebAssembly, ONNX, and the bundled Python labs.
+
+Android builds synchronize the canonical root website automatically, so the app and website do not maintain separate lesson copies. See [`android/README.md`](android/README.md) for Android Studio and command-line build instructions.
 
 Serve the repository as a static site; browser security prevents the isolated
 Python worker from running when `index.html` is opened with a `file://` URL.
